@@ -7,7 +7,7 @@
   "scripts": {
     "predev": "node scripts/prepare-contracts.mjs && node scripts/check-dev-assets.mjs",
     "dev": "vite",
-    "serve": "uv run python -m http.server 4173 --bind 0.0.0.0 --directory ../site",
+    "serve": "vite preview --host 0.0.0.0 --port 4173",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
@@ -17,7 +17,9 @@
     "generate:contracts": "node scripts/prepare-contracts.mjs",
     "prebuild": "node scripts/prepare-contracts.mjs",
     "pretest:unit": "node scripts/prepare-contracts.mjs",
-    "pretypecheck": "node scripts/prepare-contracts.mjs"
+    "pretypecheck": "node scripts/prepare-contracts.mjs",
+    "prepare:assets": "uv run --locked python -m scripts.examples --check",
+    "build:site": "uv run --locked python -m scripts.build-site"
   },
   "dependencies": {
     "@codemirror/lang-json": "6.0.2",

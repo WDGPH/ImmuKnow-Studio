@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import cases from "../../tests/fixtures/render-contract.json";
+import cases from "./fixtures/render-contract.json";
 import { validateNotice, validateSummary } from "../src/render-contract";
 
 for (const sample of cases.cases) {

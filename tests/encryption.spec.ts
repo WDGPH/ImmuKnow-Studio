@@ -22,21 +22,35 @@ for (const [language, password] of [
         "python",
         "-c",
         `
-import sys
+import base64, json, shutil, sys
 from pathlib import Path
-from immuknow.encrypt_notices import encrypt_notice
-from tests.fixtures.sample_input import create_test_client_record
-from tests.integration.test_native_templates import prepare_case, compile_case
+import yaml
+from immuknow.orchestrator import run_pipeline
+bundle = json.loads(Path("public/generated/project.json").read_text())
 directory = Path(sys.argv[1])
-job, _ = prepare_case(directory, language=sys.argv[2])
-compile_case(job)
-encrypt_notice(create_test_client_record(), job.pdf, directory / "encrypted.pdf", {"password": {"template": sys.argv[3]}})
+for name, value in bundle["files"].items():
+    target = directory / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(base64.b64decode(value))
+parameters = directory / "config/parameters.yaml"
+config = yaml.safe_load(parameters.read_text())
+config["encryption"] = {"enabled": True, "password": {"template": sys.argv[3]}}
+parameters.write_text(yaml.safe_dump(config))
+record_path = run_pipeline(
+    directory / f"examples/clients/short.{sys.argv[2]}.csv",
+    directory / "runs",
+    notice_template=directory / f"templates/overdue_diseases_v1.{sys.argv[2]}.typ",
+    config_dir=directory / "config",
+)
+record = json.loads(record_path.read_text())
+assert record["entries"][0]["encryption"]["status"] == "completed", record
+shutil.copyfile(record_path.parent / record["entries"][0]["encryption"]["path"], directory / "encrypted.pdf")
 `,
         directory,
         language,
         password,
       ],
-      { cwd: resolve(".."), timeout: 60_000 },
+      { cwd: resolve("."), timeout: 60_000 },
     );
     const pdf = readFileSync(resolve(directory, "encrypted.pdf"));
     await page.route("**/encrypted-notice.pdf", (route) =>

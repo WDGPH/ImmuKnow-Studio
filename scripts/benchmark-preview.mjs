@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 
-const base = process.env.IMMUKNOW_BASE_URL ?? "http://127.0.0.1:4173/studio/";
+const base = process.env.IMMUKNOW_BASE_URL ?? "http://127.0.0.1:4173/";
 const samples = Number(process.env.SAMPLES ?? 30);
 if (!Number.isInteger(samples) || samples < 1) {
   throw Error("SAMPLES must be a positive integer");

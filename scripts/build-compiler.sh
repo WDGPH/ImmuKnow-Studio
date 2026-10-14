@@ -9,15 +9,15 @@ print(compiler['source_revision'])
 print(compiler['rust_version'])
 print(compiler['wasm_bindgen_version'])
 print(','.join(compiler['features']))
-build_root = pathlib.Path(sys.argv[1]).resolve().parent.parent
+build_root = pathlib.Path(sys.argv[1]).resolve().parent
 for name in ('cache', 'preview'):
-    patch = build_root / f'studio/scripts/patches/compiler-{name}.patch'
+    patch = build_root / f'scripts/patches/compiler-{name}.patch'
     assert hashlib.sha256(patch.read_bytes()).hexdigest() == compiler[f'{name}_patch_sha256'], f'{name} patch differs from build identity'
 renderer = json.load(open(sys.argv[1]))['browser_renderer']
 assert renderer['source_revision'] == compiler['source_revision'], 'Renderer source revision differs'
 assert renderer['rust_version'] == compiler['rust_version'], 'Renderer Rust version differs'
 assert renderer['wasm_bindgen_version'] == compiler['wasm_bindgen_version'], 'Renderer bindgen version differs'
-renderer_patch = build_root / 'studio/scripts/patches/renderer-canvas.patch'
+renderer_patch = build_root / 'scripts/patches/renderer-canvas.patch'
 assert hashlib.sha256(renderer_patch.read_bytes()).hexdigest() == renderer['canvas_patch_sha256'], 'Renderer patch differs from build identity'
 print(','.join(renderer['features']))
 PY
@@ -56,7 +56,7 @@ then
 fi
 if [ "$verified" = false ]; then
   if ! command -v rustup >/dev/null || ! command -v cargo >/dev/null; then
-    echo "Compiler build requires Rust/rustup on PATH. See docs/developer_guide/testing.md." >&2
+    echo "Compiler build requires Rust/rustup on PATH. See README.md." >&2
     exit 1
   fi
   if ! command -v wasm-bindgen >/dev/null || [ "$(wasm-bindgen --version)" != "wasm-bindgen $bindgen_version" ]; then
@@ -99,11 +99,11 @@ then
 fi
 if [ "$renderer_verified" = false ]; then
   if ! command -v rustup >/dev/null || ! command -v cargo >/dev/null; then
-    echo "Renderer build requires Rust/rustup on PATH. See docs/developer_guide/testing.md." >&2
+    echo "Renderer build requires Rust/rustup on PATH. See README.md." >&2
     exit 1
   fi
   if ! command -v wasm-bindgen >/dev/null || [ "$(wasm-bindgen --version)" != "wasm-bindgen $bindgen_version" ]; then
-    echo "Renderer build requires wasm-bindgen $bindgen_version. See docs/developer_guide/testing.md." >&2
+    echo "Renderer build requires wasm-bindgen $bindgen_version. See README.md." >&2
     exit 1
   fi
   rustup toolchain install "$rust_version" --profile minimal --component rust-src --target wasm32-unknown-unknown

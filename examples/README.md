@@ -13,12 +13,12 @@ selected payload. An affirmative notice deliberately assigned to overdue facts
 retains those facts and its applicability warning.
 
 ```bash
-uv run python -m studio.scripts.examples
-uv run python -m studio.scripts.examples --check
+uv run python -m scripts.examples
+uv run python -m scripts.examples --check
 ```
 
 `--check` rejects stale committed facts and still assembles ignored browser
-assets under `studio/public/generated/`. The project JSON contains unchanged
+assets under `public/generated/`. The project JSON contains unchanged
 native Typst/project files and verified SHA-256 hashes. All supported native
 preview fonts are web assets copied separately to `generated/fonts/`; the JSON embeds
 only their catalogs and license metadata. The generated `build.json` identifies

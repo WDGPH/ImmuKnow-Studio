@@ -7,7 +7,7 @@ import type { CompileResult, PreviewPage } from "../src/types";
 type Evidence = Omit<CompileResult, "preview"> & {
   preview?: { artifact: number[]; pages: PreviewPage[] };
 };
-const root = resolve("..");
+const root = resolve(".");
 const clockSource = `#import "lib/immuknow/lib.typ" as immuknow
 #let notice = json(sys.inputs.at("data"))
 #immuknow.check-notice(notice, version: sys.inputs.at("notice-version"), language: sys.inputs.at("notice-language"))
@@ -59,7 +59,7 @@ test("browser snapshots retain native findings, frozen dates and recover from er
   await page.goto("proof.html");
   await page.waitForFunction(() => Boolean(window.proof?.compiler.compilerVersion));
   const build = JSON.parse(
-    readFileSync(resolve(root, "studio/public/generated/build.json"), "utf8"),
+    readFileSync(resolve(root, "public/generated/build.json"), "utf8"),
   );
   expect(await page.evaluate(() => window.proof.compiler.compilerVersion)).toBe(
     build.native_typst_version,
@@ -258,7 +258,7 @@ test("browser snapshots retain native findings, frozen dates and recover from er
     ),
   ).toBe(false);
   const fontManifest = JSON.parse(
-    readFileSync(resolve(root, "studio/assets/fonts/manifest.json"), "utf8"),
+    readFileSync(resolve(root, "assets/fonts/manifest.json"), "utf8"),
   );
   const authoredRevision = await page.evaluate((source) => {
     const job = window.proof.job;

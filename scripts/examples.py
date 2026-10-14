@@ -1,6 +1,6 @@
 """Prepare a small deterministic Studio cohort through the native facts contract.
 
-Run ``uv run python -m studio.scripts.examples`` to regenerate. ``--check``
+Run ``uv run python -m scripts.examples`` to regenerate. ``--check``
 verifies committed facts and still assembles the browser project, fonts and
 current build metadata. Clinical facts never change to fit a selected notice.
 """
@@ -16,7 +16,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
@@ -27,12 +26,13 @@ from immuknow.data_models import CheckResult
 from immuknow.generate_notices import build_notice_data, prepare_render_jobs
 from immuknow.load_config import load_config
 from immuknow.preprocess import prepare_clients, read_input
+from immuknow.resources import resource_root
 from immuknow.version_notices import load_catalog, template_identity
 from .build_info import project_build
 
-ROOT = Path(__file__).resolve().parents[2]
-EXAMPLES = ROOT / "studio/examples"
-PACKAGE = Path(str(files("immuknow")))
+ROOT = Path(__file__).resolve().parents[1]
+EXAMPLES = ROOT / "examples"
+PACKAGE = resource_root()
 CONFIG = PACKAGE / "config"
 TEMPLATES = PACKAGE / "templates"
 
@@ -201,7 +201,7 @@ def assemble(
     subprocess.run(
         [
             sys.executable,
-            str(ROOT / "studio/scripts/prepare-fonts.py"),
+            str(ROOT / "scripts/prepare-fonts.py"),
             "--destination",
             str(destination / "fonts"),
         ],
@@ -217,9 +217,7 @@ def main() -> None:
         action="store_true",
         help="Reject stale committed facts and still assemble assets",
     )
-    parser.add_argument(
-        "--destination", type=Path, default=ROOT / "studio/public/generated"
-    )
+    parser.add_argument("--destination", type=Path, default=ROOT / "public/generated")
     args = parser.parse_args()
     prepared, resources = generate()
     rendered = json.dumps(prepared, ensure_ascii=False, indent=2) + "\n"
@@ -227,7 +225,7 @@ def main() -> None:
     if args.check:
         if not target.is_file() or target.read_text(encoding="utf-8") != rendered:
             raise SystemExit(
-                "Example files are stale. Run uv run python -m studio.scripts.examples"
+                "Example files are stale. Run uv run python -m scripts.examples"
             )
     else:
         target.write_text(rendered, encoding="utf-8")

@@ -198,8 +198,8 @@ for (const [scenario, filename] of cases) {
     }, revision);
     writeFileSync(info.outputPath("browser.pdf"), Buffer.from(pdf, "base64"));
     await proof.close();
-    execFileSync("uv", ["run", "python", "studio/tests/check_typst_project.py", info.outputDir], {
-      cwd: resolve(".."),
+    execFileSync("uv", ["run", "python", "tests/check_typst_project.py", info.outputDir], {
+      cwd: resolve("."),
       timeout: 180_000,
       stdio: "pipe",
     });

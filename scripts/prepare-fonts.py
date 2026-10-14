@@ -14,7 +14,7 @@ from pathlib import Path
 
 from immuknow.generate_notices import reject_overlap
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def prepare_fonts(source: Path, destination: Path) -> dict[str, str]:
@@ -34,10 +34,10 @@ def prepare_fonts(source: Path, destination: Path) -> dict[str, str]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--destination", type=Path, default=ROOT / "studio/public/generated/fonts"
+        "--destination", type=Path, default=ROOT / "public/generated/fonts"
     )
     args = parser.parse_args()
-    source = ROOT / "studio/assets/fonts"
+    source = ROOT / "assets/fonts"
     manifest = prepare_fonts(source, args.destination)
     print(f"Verified and copied {len(manifest)} preview fonts")
 

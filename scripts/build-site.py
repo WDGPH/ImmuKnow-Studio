@@ -1,11 +1,4 @@
-"""Build one local documentation/Studio artifact with its browser compiler.
-
-This command prepares files only; publication is a separate workflow. Install
-locked Python/npm dependencies first. The pinned compiler build is reused when
-its source, toolchain and file hashes match.
-"""
-
-from __future__ import annotations
+"""Prepare pinned browser assets and build Studio as a standalone static site."""
 
 import argparse
 import os
@@ -14,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> None:
@@ -23,23 +16,18 @@ def main() -> None:
         "--compiler-source",
         type=Path,
         default=Path(
-            os.environ.get(
-                "IMMUKNOW_COMPILER_BUILD_DIR", ROOT / "studio/.compiler-build"
-            )
+            os.environ.get("IMMUKNOW_COMPILER_BUILD_DIR", ROOT / ".compiler-build")
         ),
-        help="Pinned compiler checkout used for building and license notices",
     )
     args = parser.parse_args()
     missing = [tool for tool in ("rustup", "cargo") if shutil.which(tool) is None]
     if missing:
         raise SystemExit(
-            f"Studio build prerequisites missing from PATH: {', '.join(missing)}.\n"
-            "Install Rust via https://rust-lang.org/tools/install/ and load its "
-            "shell environment. See docs/developer_guide/testing.md for pinned "
-            "toolchain setup. Rust is needed to prepare assets, not to serve them."
+            f"Studio build prerequisites missing: {', '.join(missing)}. "
+            "See README.md for the pinned build tools."
         )
     subprocess.run(
-        ["bash", "studio/scripts/build-compiler.sh"],
+        ["bash", "scripts/build-compiler.sh"],
         cwd=ROOT,
         check=True,
         env={
@@ -51,19 +39,15 @@ def main() -> None:
         [
             sys.executable,
             "-m",
-            "studio.scripts.notices",
+            "scripts.notices",
             "--compiler-source",
             str(args.compiler_source.resolve()),
         ],
-        [sys.executable, "-m", "studio.scripts.examples", "--check"],
-        [sys.executable, "docs/generate_schema_docs.py"],
-        [sys.executable, "-m", "mkdocs", "build", "--strict"],
-        ["npm", "run", "build", "--prefix", "studio"],
+        [sys.executable, "-m", "scripts.examples", "--check"],
+        ["npm", "run", "build"],
     ):
         subprocess.run(command, cwd=ROOT, check=True)
-    shutil.copytree(ROOT / "studio/dist", ROOT / "site/studio", dirs_exist_ok=True)
-    (ROOT / "site/.nojekyll").touch()
-    print(f"Complete local artifact: {ROOT / 'site'}")
+    print(f"Complete static artifact: {ROOT / 'dist'}")
 
 
 if __name__ == "__main__":

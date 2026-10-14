@@ -36,6 +36,9 @@ export interface RenderSummary {
   measurements: Record<string, Record<string, unknown>[]>;
 }
 export interface BuildInfo {
+  studio_version?: string;
+  core_source_revision?: string | null;
+  core_source_modified?: boolean | null;
   application_version: string;
   rendering_schema_version: number;
   native_typst_version: string;

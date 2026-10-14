@@ -1,0 +1,20 @@
+[project]
+name = "immuknow-studio-tools"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["ImmuKnow", "PyYAML"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", branch = "studio-core" }
+
+[dependency-groups]
+dev = [
+    "ruff==0.13.0",
+    "ty>=0.0.78",
+    "pillow>=12.3.0",
+    "pymupdf==1.28.2",
+    "zxing-cpp==3.1.1",
+]

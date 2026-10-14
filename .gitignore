@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.py[cod]
+node_modules/
+generated/*
+!generated/render-contract.d.ts
+vendor/compiler/
+vendor/renderer/
+public/generated/
+dist/
+.compiler-build/
+test-results/
+playwright-report/
+.pytest_cache/
+.ruff_cache/

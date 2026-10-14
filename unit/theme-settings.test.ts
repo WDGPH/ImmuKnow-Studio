@@ -94,7 +94,7 @@ test("QR overrides, repeated fields and computed style values are left to source
 });
 
 test("maintained Settings keep every byte outside the requested values", () => {
-  const original = readFileSync(new URL("../../immuknow/templates/settings.typ", import.meta.url));
+  const original = readFileSync(new URL("../generated/core/templates/settings.typ", import.meta.url));
   const source = decoder.decode(original);
   const changes = {
     "body-font": '"FreeSerif"',

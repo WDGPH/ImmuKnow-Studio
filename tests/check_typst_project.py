@@ -130,7 +130,7 @@ def main(evidence: Path) -> None:
             archive.extractall(extracted)
         project = workspace / "Relocated projet Élodie"
         extracted.rename(project)
-        assert not project.is_relative_to(Path(__file__).resolve().parents[2])
+        assert not project.is_relative_to(Path(__file__).resolve().parents[1])
 
         def run(*arguments: str) -> str:
             result = subprocess.run(

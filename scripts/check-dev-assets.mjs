@@ -15,8 +15,8 @@ if (missing.length) {
   console.error(
     `Studio needs generated assets before Vite can start. Missing:\n${missing.join("\n")}\n\n` +
       "From the repository root, install the build prerequisites in\n" +
-      "docs/developer_guide/testing.md, then run:\n" +
-      "  uv run python -m studio.scripts.build-site\n\n" +
+      "README.md, then run:\n" +
+      "  uv run python -m scripts.build-site\n\n" +
       "npm run dev does not install build tools or prepare these assets automatically.",
   );
   process.exitCode = 1;

@@ -1,4 +1,5 @@
 // Generate ordinary validation functions; the browser never compiles schemas.
+import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { build } from "vite";
@@ -6,8 +7,13 @@ import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import standalone from "ajv/dist/standalone/index.js";
 
-const payload = JSON.parse(readFileSync(new URL("../../immuknow/schemas/rendering-v1.json", import.meta.url)));
-const report = JSON.parse(readFileSync(new URL("../../immuknow/templates/lib/immuknow/report-v2.json", import.meta.url)));
+execFileSync("uv", ["run", "--locked", "python", "-m", "scripts.resources"], {
+  cwd: fileURLToPath(new URL("../", import.meta.url)),
+  stdio: "inherit",
+});
+
+const payload = JSON.parse(readFileSync(new URL("../generated/core/schemas/rendering-v1.json", import.meta.url)));
+const report = JSON.parse(readFileSync(new URL("../generated/core/templates/lib/immuknow/report-v2.json", import.meta.url)));
 const ajv = new Ajv2020({ code: { source: true, lines: true } });
 for (const keyword of ["x-evaluator", "x-adjustable", "x-components"]) ajv.addKeyword(keyword);
 addFormats(ajv);
