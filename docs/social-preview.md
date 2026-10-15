@@ -9,7 +9,7 @@ The 1200 × 630 card uses the unchanged vector artwork from
 `src/style.css`. Its editable source is `src/assets/social-preview.svg`.
 If the logo changes, replace the embedded logo group from that source.
 
-To regenerate the committed PNG with Inkscape and DejaVu Sans installed:
+To regenerate the committed PNG with Inkscape installed:
 
 ```sh
 inkscape src/assets/social-preview.svg --export-filename=public/social-preview.png

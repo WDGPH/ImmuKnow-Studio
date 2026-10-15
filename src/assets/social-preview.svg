@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <title>ImmuKnow Studio social preview</title>
-  <desc>ImmuKnow Studio. Edit notices and preview your changes. immuknow.phiz.ca</desc>
+  <desc>ImmuKnow Studio logo on a light background.</desc>
   <rect width="1200" height="630" fill="#f2f6fa"/>
   <rect x="48" y="48" width="1104" height="534" rx="28" fill="#ffffff"/>
   <!-- Original vector artwork from src/assets/studio-logo-light.svg, scaled proportionally. -->
-  <g transform="translate(150 174) scale(3)">
+  <g transform="translate(150 219) scale(3)">
 <title>ImmuKnow Studio</title><defs id="defs155">
     <linearGradient id="gradient-Immu-1" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
       <stop offset="0" stop-color="#053369" id="stop1" />
@@ -331,6 +331,4 @@
   </g>
 </g>
   </g>
-  <text x="600" y="435" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="30" fill="#183653">Edit notices and preview your changes.</text>
-  <text x="600" y="518" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="24" fill="#007d8b">immuknow.phiz.ca</text>
 </svg>
