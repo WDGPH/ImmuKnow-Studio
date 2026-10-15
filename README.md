@@ -37,6 +37,38 @@ Commit both dependency files and run the checks before releasing. Core and
 Studio provenance are recorded separately; compatibility continues to compare
 resource bytes and formats with the pinned compiler identity.
 
+## GitHub Pages and dependency updates
+
+The **Studio Pages** workflow builds and checks pull requests and pushes to
+`main`. Successful builds on `main` deploy `dist/` through GitHub Pages after
+the unit and browser/native checks pass. After pushing this workflow, select
+**Settings → Pages → Build and deployment → Source → GitHub Actions** in the
+Studio repository. GitHub documents the required Pages configuration and
+deployment permissions in its [custom workflow guide](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+
+To deploy against the latest Core branch commit, open **Actions → Studio Pages
+→ Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
+The workflow runs `uv lock --upgrade-package immuknow` before installing and
+building. This resolves the Git reference configured in `pyproject.toml`;
+currently it is Core's `studio-core` branch. A configured tag or revision stays
+at that reference. The workflow still checks the committed example facts and
+native/browser compatibility, and a failed check prevents deployment.
+
+The run summary records the exact Core and Studio commits. The **build-inputs**
+artifact retains the effective `uv.lock`, package declarations, compiler pins
+and generated build identity for 30 days. A manual refresh applies to that run;
+it does not commit the updated lockfile. Ordinary pushes and pull requests use
+the committed pin. To make a new pin the default for subsequent builds, update
+and commit `uv.lock` using the commands above. Disable **refresh_core** to run
+the manual workflow with the committed pin. Manually running another Studio
+branch performs checks without deploying Pages.
+
+Dependabot checks npm, uv and GitHub Actions dependencies every Monday at
+09:00 UTC. Version updates are grouped by ecosystem and have a seven-day
+cooldown. Review and merge the resulting pull requests through the same checks.
+Browser compiler/renderer source revisions and Rust/bindgen pins in
+`compiler-pins.json` are maintained explicitly with their patches and checks.
+
 ## Install and build
 
 Use Linux, Python 3.11 or later, uv, Node.js 24 or later and npm. Browser

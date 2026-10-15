@@ -1,0 +1,187 @@
+name: Studio Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      refresh_core:
+        description: Resolve the latest commit of the configured Core Git reference
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: studio-pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Check out Studio
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: '0.12.23'
+          enable-cache: true
+
+      - name: Refresh Core for this manual build
+        if: github.event_name == 'workflow_dispatch' && inputs.refresh_core
+        run: uv lock --upgrade-package immuknow
+
+      - name: Install locked Python dependencies
+        run: uv sync --locked
+
+      - name: Read compiler pins and record Core identity
+        id: core
+        env:
+          REFRESH_CORE: ${{ github.event_name == 'workflow_dispatch' && inputs.refresh_core }}
+        run: |
+          uv run --locked python - <<'PY'
+          import json
+          import os
+          import tomllib
+          from pathlib import Path
+          from immuknow.resources import rendering_build_info
+
+          pins = json.loads(Path("compiler-pins.json").read_text())
+          core = rendering_build_info()
+          source = tomllib.loads(Path("pyproject.toml").read_text())["tool"]["uv"]["sources"]["immuknow"]
+          reference = source.get("branch") or source.get("tag") or source.get("rev") or "default branch"
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
+              output.write(f"native={core['native_typst_version']}\n")
+              output.write(f"rust={pins['browser_compiler']['rust_version']}\n")
+              output.write(f"bindgen={pins['browser_compiler']['wasm_bindgen_version']}\n")
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as summary:
+              summary.write("## Build identity\n\n")
+              summary.write(f"Studio commit: `{os.environ['GITHUB_SHA']}`\n\n")
+              summary.write(f"Core source: `{source['git']}` (`{reference}`)\n\n")
+              summary.write(f"Core commit: `{core['core_source_revision']}`\n\n")
+              summary.write(f"Core refreshed for this run: `{os.environ['REFRESH_CORE']}`\n\n")
+              summary.write("The effective lockfile is retained in the build-inputs artifact.\n")
+          PY
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked frontend dependencies
+        run: npm ci
+
+      - name: Cache the pinned browser compiler and renderer
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/wasm-bindgen
+            .compiler-build
+            vendor/compiler
+            vendor/renderer
+          key: studio-typst-${{ runner.os }}-${{ hashFiles('compiler-pins.json', 'scripts/build-compiler.sh', 'scripts/patches/*.patch') }}
+
+      - name: Install pinned Rust tools
+        env:
+          RUST_VERSION: ${{ steps.core.outputs.rust }}
+          BINDGEN_VERSION: ${{ steps.core.outputs.bindgen }}
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal
+          if ! command -v wasm-bindgen >/dev/null || [ "$(wasm-bindgen --version)" != "wasm-bindgen $BINDGEN_VERSION" ]; then
+            cargo +"$RUST_VERSION" install --locked wasm-bindgen-cli --version "$BINDGEN_VERSION"
+          fi
+
+      - name: Install native test prerequisites
+        env:
+          TYPST_VERSION: ${{ steps.core.outputs.native }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libssl-dev fonts-freefont-ttf
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/typst.tar.xz" \
+            "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz"
+          tar -xf "$RUNNER_TEMP/typst.tar.xz" -C "$RUNNER_TEMP"
+          sudo install "$RUNNER_TEMP/typst-x86_64-unknown-linux-musl/typst" /usr/local/bin/typst
+
+      - name: Check Python tools
+        run: |
+          uv run --locked ty check
+          uv run --locked ruff check --no-fix .
+          uv run --locked ruff format --check .
+
+      - name: Build the standalone site
+        run: npm run build:site
+
+      - name: Check frontend types, lint and unit tests
+        run: |
+          npm run typecheck
+          npm run lint
+          npm run test:unit
+
+      - name: Test Studio and downloaded projects against Core
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:browser
+
+      - name: Retain effective build inputs
+        if: always() && steps.core.outcome == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-inputs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            pyproject.toml
+            uv.lock
+            compiler-pins.json
+            public/generated/build.json
+          retention-days: 30
+
+      - name: Retain browser and native evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: studio-render-evidence
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload the Pages site
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Deploy Studio
+        id: deployment
+        uses: actions/deploy-pages@v5
