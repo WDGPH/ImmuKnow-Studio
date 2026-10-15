@@ -41,7 +41,11 @@ resource bytes and formats with the pinned compiler identity.
 
 The **Studio Pages** workflow builds and checks pull requests and pushes to
 `main`. Successful builds on `main` deploy `dist/` through GitHub Pages after
-the unit and browser/native checks pass. After pushing this workflow, select
+the site build, Python checks, frontend type checks, lint and unit tests pass.
+Playwright and native export tests run only when **full_tests** is selected
+in a manual run; routine builds do not install Chromium or native Typst.
+A passing routine build does not establish browser/native rendering parity.
+After pushing this workflow, select
 **Settings → Pages → Build and deployment → Source → GitHub Actions** in the
 Studio repository. GitHub documents the required Pages configuration and
 deployment permissions in its [custom workflow guide](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
@@ -52,7 +56,9 @@ The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
 currently it is Core's `studio-core` branch. A configured tag or revision stays
 at that reference. The workflow still checks the committed example facts and
-native/browser compatibility, and a failed check prevents deployment.
+resource compatibility; a failed required check prevents deployment. Enable
+**full_tests** when validating a Core upgrade or a change to rendering or exports.
+If selected, those tests must also pass before deployment.
 
 The run summary records the exact Core and Studio commits. The **build-inputs**
 artifact retains the effective `uv.lock`, package declarations, compiler pins
@@ -62,6 +68,16 @@ the committed pin. To make a new pin the default for subsequent builds, update
 and commit `uv.lock` using the commands above. Disable **refresh_core** to run
 the manual workflow with the committed pin. Manually running another Studio
 branch performs checks without deploying Pages.
+
+Compiler and renderer binaries, build metadata and Rust licence notices are
+cached together and verified against their input fingerprints and file hashes.
+The cache is saved immediately after preparation, before the site and test
+checks. Ordinary UI, npm and Core updates reuse it without Rust or compiler
+sources. A cold cache still needs the expensive source build, but uses a
+prebuilt, checksum-verified wasm-bindgen CLI. Compiler pins, patches or
+preparation-script changes invalidate the cache; GitHub may also evict it.
+Only prepared outputs are cached, rather than the compiler checkout and Cargo
+target directory.
 
 Dependabot checks npm, uv and GitHub Actions dependencies every Monday at
 09:00 UTC. Version updates are grouped by ecosystem and have a seven-day
@@ -87,7 +103,11 @@ npm run build:site
 The build verifies or builds the pinned compiler and renderer, retains license
 notices, prepares examples and fonts, generates validators from installed Core
 schemas, and writes `dist/`. It does not build Core documentation or publish.
-The first compiler build takes longer; verified cached artifacts are reused.
+The first compiler build takes longer. Subsequent `build:site` runs verify and
+reuse the prepared binaries and Rust notices without invoking Cargo or needing
+the compiler checkout. npm notices are regenerated for every build. CI uses
+`npm run build:site -- --require-prepared-toolchain` to forbid an unexpected
+source rebuild after the cache preparation step.
 Use `--compiler-source /path/to/typst.ts` with
 `uv run --locked python -m scripts.build-site` to reuse a source checkout,
 or set `IMMUKNOW_COMPILER_BUILD_DIR`.
@@ -115,8 +135,11 @@ clear the saved draft in Studio, then reload.
 
 ## Checks
 
-Install native Typst 0.15.1 and system FreeSans/FreeSerif fonts for native/browser
-comparisons. Set `TYPST_BIN` if Typst is outside PATH. Install Playwright's full
+Install native Typst 0.15.1 for native/browser comparisons. The Playwright
+configuration makes native test subprocesses use the same verified fonts in
+`assets/fonts` as the browser, ignoring system fonts. This keeps comparisons
+independent of the runner's font package; production Core still uses system
+fonts. Set `TYPST_BIN` if Typst is outside PATH. Install Playwright's full
 Chromium browser and its system dependencies for the encrypted PDF reader tests.
 
 ```bash

@@ -144,7 +144,30 @@ def main(evidence: Path) -> None:
             )
             with (evidence / "native-commands.log").open("a") as log:
                 log.write(f"{arguments!r}\n{result.stdout}\n{result.stderr}\n")
-            assert result.returncode == 0, result.stdout + result.stderr
+            failures = []
+            if result.returncode:
+                for record_path in project.glob("*/*/run.json"):
+                    record = json.loads(record_path.read_text())
+                    shutil.copytree(
+                        record_path.parent,
+                        evidence
+                        / "failed-native"
+                        / record_path.parent.relative_to(project),
+                        dirs_exist_ok=True,
+                    )
+                    checks = list(record.get("checks", []))
+                    for entry in record.get("entries", []):
+                        checks.extend(entry.get("checks", []))
+                    for attempt in record.get("delivery_attempts", []):
+                        checks.extend(attempt.get("checks", []))
+                        for evaluation in attempt.get("evaluations", {}).values():
+                            checks.extend(evaluation.get("results", []))
+                    failures.extend(
+                        check for check in checks if check.get("status") == "fail"
+                    )
+            assert result.returncode == 0, (
+                result.stdout + result.stderr + json.dumps(failures, indent=2)
+            )
             return result.stdout
 
         selected = json.loads((evidence / "selected-example.json").read_text())

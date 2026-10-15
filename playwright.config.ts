@@ -1,4 +1,10 @@
 import { defineConfig } from "@playwright/test";
+import { resolve } from "node:path";
+
+// Browser/native parity uses the same verified font bytes on every runner.
+// This affects test subprocesses only; production Core still uses system fonts.
+process.env.TYPST_FONT_PATHS ??= resolve("assets/fonts");
+process.env.TYPST_IGNORE_SYSTEM_FONTS ??= "true";
 
 const external = process.env.IMMUKNOW_BASE_URL;
 const baseURL = external ?? "http://127.0.0.1:4173/";

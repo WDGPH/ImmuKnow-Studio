@@ -2,10 +2,11 @@
 
 import argparse
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+from scripts.browser_assets import copy_metadata, prepare, verify
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -19,30 +20,23 @@ def main() -> None:
             os.environ.get("IMMUKNOW_COMPILER_BUILD_DIR", ROOT / ".compiler-build")
         ),
     )
-    args = parser.parse_args()
-    missing = [tool for tool in ("rustup", "cargo") if shutil.which(tool) is None]
-    if missing:
-        raise SystemExit(
-            f"Studio build prerequisites missing: {', '.join(missing)}. "
-            "See README.md for the pinned build tools."
-        )
-    subprocess.run(
-        ["bash", "scripts/build-compiler.sh"],
-        cwd=ROOT,
-        check=True,
-        env={
-            **os.environ,
-            "IMMUKNOW_COMPILER_BUILD_DIR": str(args.compiler_source.resolve()),
-        },
+    parser.add_argument(
+        "--require-prepared-toolchain",
+        action="store_true",
+        help="Fail on missing or stale browser artifacts instead of compiling Rust",
     )
+    args = parser.parse_args()
+    if args.require_prepared_toolchain:
+        verify()
+    else:
+        try:
+            verify()
+        except (FileNotFoundError, ValueError) as exc:
+            print(f"Preparing missing or stale browser artifacts: {exc}", flush=True)
+            prepare(args.compiler_source)
+    copy_metadata()
     for command in (
-        [
-            sys.executable,
-            "-m",
-            "scripts.notices",
-            "--compiler-source",
-            str(args.compiler_source.resolve()),
-        ],
+        [sys.executable, "-m", "scripts.notices"],
         [sys.executable, "-m", "scripts.examples", "--check"],
         ["npm", "run", "build"],
     ):

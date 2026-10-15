@@ -11,6 +11,10 @@ on:
         description: Resolve the latest commit of the configured Core Git reference
         type: boolean
         default: true
+      full_tests:
+        description: Run the optional Playwright browser and native export suite
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -22,7 +26,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 30
     steps:
       - name: Check out Studio
         uses: actions/checkout@v7
@@ -86,47 +90,60 @@ jobs:
       - name: Install locked frontend dependencies
         run: npm ci
 
-      - name: Cache the pinned browser compiler and renderer
-        uses: actions/cache@v6
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin/wasm-bindgen
-            .compiler-build
-            vendor/compiler
-            vendor/renderer
-          key: studio-typst-${{ runner.os }}-${{ hashFiles('compiler-pins.json', 'scripts/build-compiler.sh', 'scripts/patches/*.patch') }}
-
-      - name: Install pinned Rust tools
-        env:
-          RUST_VERSION: ${{ steps.core.outputs.rust }}
-          BINDGEN_VERSION: ${{ steps.core.outputs.bindgen }}
-        run: |
-          rustup toolchain install "$RUST_VERSION" --profile minimal
-          if ! command -v wasm-bindgen >/dev/null || [ "$(wasm-bindgen --version)" != "wasm-bindgen $BINDGEN_VERSION" ]; then
-            cargo +"$RUST_VERSION" install --locked wasm-bindgen-cli --version "$BINDGEN_VERSION"
-          fi
-
-      - name: Install native test prerequisites
-        env:
-          TYPST_VERSION: ${{ steps.core.outputs.native }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential pkg-config libssl-dev fonts-freefont-ttf
-          curl --fail --location --retry 3 --output "$RUNNER_TEMP/typst.tar.xz" \
-            "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz"
-          tar -xf "$RUNNER_TEMP/typst.tar.xz" -C "$RUNNER_TEMP"
-          sudo install "$RUNNER_TEMP/typst-x86_64-unknown-linux-musl/typst" /usr/local/bin/typst
-
       - name: Check Python tools
         run: |
           uv run --locked ty check
           uv run --locked ruff check --no-fix .
           uv run --locked ruff format --check .
 
-      - name: Build the standalone site
-        run: npm run build:site
+      - name: Restore prepared browser binaries and Rust notices
+        id: browser_cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            vendor/compiler
+            vendor/renderer
+          key: studio-browser-v2-${{ runner.os }}-${{ hashFiles('compiler-pins.json', 'scripts/browser_assets.py', 'scripts/build-compiler.sh', 'scripts/notices.py', 'scripts/patches/*.patch', 'licenses/*.txt') }}
+
+      - name: Install pinned build tools on a compiler cache miss
+        if: steps.browser_cache.outputs.cache-hit != 'true'
+        env:
+          RUST_VERSION: ${{ steps.core.outputs.rust }}
+          BINDGEN_VERSION: ${{ steps.core.outputs.bindgen }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libssl-dev
+          rustup toolchain install "$RUST_VERSION" --profile minimal
+          archive="wasm-bindgen-${BINDGEN_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+          release="https://github.com/wasm-bindgen/wasm-bindgen/releases/download/${BINDGEN_VERSION}"
+          cd "$RUNNER_TEMP"
+          curl --fail --location --retry 3 --output "$archive" "$release/$archive"
+          curl --fail --location --retry 3 --output "$archive.sha256sum" "$release/$archive.sha256sum"
+          read -r checksum _ < "$archive.sha256sum"
+          printf '%s  %s\n' "$checksum" "$archive" | sha256sum --check
+          tar -xzf "$archive"
+          sudo install "${archive%.tar.gz}/wasm-bindgen" /usr/local/bin/wasm-bindgen
+          test "$(wasm-bindgen --version)" = "wasm-bindgen $BINDGEN_VERSION"
+
+      - name: Prepare browser binaries and Rust notices once per compiler identity
+        if: steps.browser_cache.outputs.cache-hit != 'true'
+        run: uv run --locked python -m scripts.browser_assets prepare
+
+      - name: Verify prepared browser artifacts
+        run: uv run --locked python -m scripts.browser_assets verify
+
+      # Save before site/test gates so later failures don't discard expensive work.
+      - name: Save prepared browser artifacts immediately
+        if: steps.browser_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            vendor/compiler
+            vendor/renderer
+          key: ${{ steps.browser_cache.outputs.cache-primary-key }}
+
+      - name: Build the standalone site without Rust
+        run: npm run build:site -- --require-prepared-toolchain
 
       - name: Check frontend types, lint and unit tests
         run: |
@@ -134,10 +151,36 @@ jobs:
           npm run lint
           npm run test:unit
 
-      - name: Test Studio and downloaded projects against Core
+      - name: Install native Typst for optional browser tests
+        if: github.event_name == 'workflow_dispatch' && inputs.full_tests
+        env:
+          TYPST_VERSION: ${{ steps.core.outputs.native }}
+        run: |
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/typst.tar.xz" \
+            "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz"
+          tar -xf "$RUNNER_TEMP/typst.tar.xz" -C "$RUNNER_TEMP"
+          sudo install "$RUNNER_TEMP/typst-x86_64-unknown-linux-musl/typst" /usr/local/bin/typst
+
+      - name: Run optional browser and native export tests
+        if: github.event_name == 'workflow_dispatch' && inputs.full_tests
         run: |
           npx playwright install --with-deps chromium
           npm run test:browser
+
+      - name: Record validation and compiler cache use
+        env:
+          FULL_TESTS: ${{ github.event_name == 'workflow_dispatch' && inputs.full_tests }}
+          CACHE_HIT: ${{ steps.browser_cache.outputs.cache-hit == 'true' }}
+        run: |
+          {
+            echo "## Validation"
+            echo ""
+            echo "Site build, Python checks, frontend types, lint and unit tests passed."
+            echo ""
+            echo "Optional browser/native export suite requested: $FULL_TESTS"
+            echo ""
+            echo "Prepared compiler cache reused: $CACHE_HIT"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Retain effective build inputs
         if: always() && steps.core.outcome == 'success'

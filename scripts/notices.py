@@ -18,21 +18,9 @@ def license_texts(directory: Path) -> list[tuple[str, str]]:
     return result
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--compiler-source", type=Path, required=True)
-    args = parser.parse_args()
-    build = json.loads((ROOT / "compiler-pins.json").read_text())
-    compiler = build["browser_compiler"]
-    revision = subprocess.check_output(
-        ["git", "rev-parse", "HEAD"], cwd=args.compiler_source, text=True
-    ).strip()
-    if revision != compiler["source_revision"]:
-        raise ValueError("Compiler licence source differs from the pinned revision")
-    compiler_root = args.compiler_source.resolve()
-    chunks = [
-        "ImmuKnow Studio third-party notices\n\nCompiler sources are pinned in source-revision.txt. Font licences and exceptions are in ../fonts/LICENSE.\n"
-    ]
+def npm_notices() -> str:
+    """Read current installed frontend licences for every site build."""
+    chunks = []
     lock = json.loads((ROOT / "package-lock.json").read_text())
     for name, entry in sorted(lock["packages"].items()):
         if not name or entry.get("dev") or name.startswith("node_modules/@napi-rs/"):
@@ -45,17 +33,29 @@ def main() -> None:
             f"\n=== {package['name']} {package['version']} ({package.get('license', '')}) ===\n{package.get('authors', [])}\n{package.get('repository', '')}\n"
         )
         texts = license_texts(directory)
-        if not texts and package["name"].startswith("@myriaddreamin/"):
-            texts = license_texts(args.compiler_source)
         if not texts:
             raise ValueError(f"Missing license files: {name}")
         chunks.extend(f"\n--- {name} ---\n{text}" for name, text in texts)
+    return "".join(chunks)
+
+
+def rust_notices(compiler_source: Path) -> str:
+    """Inventory the pinned compiler/renderer once when preparing their binaries."""
+    build = json.loads((ROOT / "compiler-pins.json").read_text())
+    compiler = build["browser_compiler"]
+    revision = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=compiler_source, text=True
+    ).strip()
+    if revision != compiler["source_revision"]:
+        raise ValueError("Compiler licence source differs from the pinned revision")
+    compiler_root = compiler_source.resolve()
+    chunks = []
     # Metadata includes packages beyond the targeted WASM build. Populate the
     # complete locked source cache even when the compiler artifact was reused;
     # the inventory and license-file reads below deliberately remain offline.
     subprocess.run(
         ["cargo", "+" + compiler["rust_version"], "fetch", "--locked"],
-        cwd=args.compiler_source,
+        cwd=compiler_source,
         check=True,
     )
     metadata = json.loads(
@@ -71,7 +71,7 @@ def main() -> None:
                 "--filter-platform",
                 "wasm32-unknown-unknown",
             ],
-            cwd=args.compiler_source,
+            cwd=compiler_source,
         )
     )
     workspace_members = set(metadata["workspace_members"])
@@ -101,7 +101,7 @@ def main() -> None:
                 "--format",
                 "{p}",
             ],
-            cwd=args.compiler_source,
+            cwd=compiler_source,
             text=True,
         )
         included.update(" ".join(line.split()[:2]) for line in tree.splitlines())
@@ -129,7 +129,7 @@ def main() -> None:
             texts = [
                 (
                     "Apache-2.0 (selected license alternative)",
-                    (args.compiler_source / "LICENSE").read_text(),
+                    (compiler_source / "LICENSE").read_text(),
                 )
             ]
         if not texts:
@@ -142,9 +142,30 @@ def main() -> None:
             f"\n=== {package['name']} {package['version']} ({package.get('license', '')}) ===\n{package.get('authors', [])}\n{package.get('repository', '')}\n"
         )
         chunks.extend(f"\n--- {name} ---\n{text}" for name, text in texts)
+    return "".join(chunks)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--compiler-source", type=Path)
+    parser.add_argument("--rust-only", action="store_true")
+    args = parser.parse_args()
+    cached = ROOT / "vendor/compiler/RUST_NOTICES.txt"
+    if args.compiler_source:
+        cached.parent.mkdir(parents=True, exist_ok=True)
+        cached.write_text(rust_notices(args.compiler_source), encoding="utf-8")
+    if args.rust_only:
+        if not args.compiler_source:
+            parser.error("--rust-only requires --compiler-source")
+        return
     output = ROOT / "public/generated/compiler/THIRD_PARTY_NOTICES.txt"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text("\n".join(chunks))
+    output.write_text(
+        "ImmuKnow Studio third-party notices\n\nCompiler sources are pinned in source-revision.txt. Font licences and exceptions are in ../fonts/LICENSE.\n"
+        + npm_notices()
+        + cached.read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
 
 
 if __name__ == "__main__":
