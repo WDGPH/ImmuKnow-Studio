@@ -480,7 +480,7 @@ wheels = [
 [[package]]
 name = "immuknow"
 version = "1.1.0"
-source = { git = "https://github.com/WDGPH/ImmuKnow.git?branch=studio-core#08be75ac65f7ac5bb752e564022385a36ead4842" }
+source = { git = "https://github.com/WDGPH/ImmuKnow.git?branch=studio-core#8fbbbbfaf8af3bc9307edff93ccb3e83eccf321a" }
 dependencies = [
     { name = "filelock" },
     { name = "frictionless" },
