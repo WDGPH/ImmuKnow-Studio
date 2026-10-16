@@ -8,6 +8,9 @@ import { exportProject } from "../src/archive-core";
 import type { Bundle, Files } from "../src/types";
 
 test.use({ actionTimeout: 15_000 });
+const fontCount = Object.keys(
+  JSON.parse(readFileSync(resolve("assets/fonts/manifest.json"), "utf8")),
+).length;
 
 // Cover distinct notice components and content, without multiplying every
 // scenario by every language/selector. The helper runs both native selectors.
@@ -138,6 +141,7 @@ for (const [scenario, filename] of cases) {
     const files = unzipSync(readFileSync(info.outputPath("typst-project.zip")));
     delete files["immuknow-project.json"];
     for (const [path, bytes] of Object.entries(files)) {
+      if (path.startsWith("templates/fonts/")) continue;
       expect(Buffer.from(bytes).toString("base64"), path).toBe(expectedFiles[path]);
     }
     expect(Object.keys(files).filter((path) => /^templates\/.+\.(en|fr)\.typ$/.test(path))).toEqual(
@@ -151,7 +155,8 @@ for (const [scenario, filename] of cases) {
     expect(Object.keys(files).some((path) => /\.(py|whl)$/.test(path))).toBe(false);
     expect(files["uv.lock"]).toBeUndefined();
     expect(files["pyproject.toml"]).toBeUndefined();
-    expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toHaveLength(0);
+    expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toHaveLength(fontCount);
+    expect(files["templates/fonts/LICENSE"]).toBeDefined();
     writeFileSync(
       info.outputPath("selected-example.json"),
       JSON.stringify({

@@ -97,8 +97,8 @@ for (const includeFonts of [false, true])
       (window as unknown as { exportProbe: { delayMs: number } }).exportProbe.delayMs = 800;
     });
     await openProjectActions(page);
-    await expect(page.locator("#include-fonts")).not.toBeChecked();
-    if (includeFonts) await page.locator("#include-fonts").check();
+    await expect(page.locator("#include-fonts")).toBeChecked();
+    if (!includeFonts) await page.locator("#include-fonts").uncheck();
     const downloaded = page.waitForEvent("download");
     await page.locator("#export").click();
     await expect(page.locator("#export")).toBeDisabled();
