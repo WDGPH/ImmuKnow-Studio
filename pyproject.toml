@@ -18,3 +18,8 @@ dev = [
     "pymupdf==1.28.2",
     "zxing-cpp==3.1.1",
 ]
+docs = [
+    "mkdocs==1.6.1",
+    "mkdocs-material==9.7.7",
+    "pymdown-extensions==11.0.2",
+]

@@ -1,9 +1,19 @@
-# ImmuKnow Studio
+# Editing, drafts and downloads
 
 Studio lets you edit a Typst notice and preview it with prepared, fictional
 clients. It uses the same facts contract, authored project and native findings
 as the Python pipeline. Upstream systems assess immunization status; Studio
 does not assess a client or choose their notice.
+
+This is the detailed editor reference. For a first visit, follow
+[Get started](getting-started.md). For data handling and disconnected work, see
+[Privacy and offline use](privacy-offline.md).
+
+Template and Settings are full Typst source editors. Theme provides convenient
+controls for common changes; you can write more detailed layouts and helper
+functions directly in the source. Keep project dependencies local and preserve
+ImmuKnow's shared components as described in
+[Architecture and compatibility](architecture.md#typst-and-project-files).
 
 ## Edit and review
 
@@ -120,6 +130,7 @@ but has no preview.
 
 ## Download the project
 
+Open **Project** at the top-right of the webpage.
 **Download current template** saves the selected notice with current Settings,
 Theme, translations, components, images and configuration. It includes only the
 selected fictional client’s CSV and assignment file; unrelated starter notices
@@ -143,17 +154,11 @@ symlinks and corrupt archives are rejected.
 
 ## Use the project with the native engine
 
-Keep the extracted project tree together and install ImmuKnow and the supported
-Typst compiler separately. Follow [getting started](https://WDGPH.github.io/ImmuKnow/user_guide/getting_started/) to run a
-cohort with one template or an assignment file. Pass the exported `config/` and
-`templates/` directories to the native engine. Studio previews use prepared
-example data; changes to source CSVs or configuration require native preparation
-before comparing their results.
-
-Native runs retain originals, checks and delivery results in `run.json` and
-`report.html`. Follow [PDF validation and delivery](https://WDGPH.github.io/ImmuKnow/user_guide/pdf_validation/) for review
-decisions. Review example wording, branding, contacts, dates and signatures
-before production use.
+Production notice generation happens with ImmuKnow core on your local
+workstation. Follow [Use templates on your workstation](local-production.md)
+for the complete handoff, native command examples, fonts and output review.
+Keep the extracted template tree and its assets together. The engine and native
+Typst compiler are installed separately; they are not included in the download.
 
 The footer identifies the Studio commit and latest reachable version tag, plus
 the pinned ImmuKnow commit targeted by its supplied resources. A `+` after the

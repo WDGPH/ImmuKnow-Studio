@@ -1,0 +1,34 @@
+site_name: ImmuKnow Studio
+site_description: Develop ImmuKnow notice templates in your browser and use them on your workstation.
+site_url: https://docs.phiz.ca/immuknow-studio/latest/
+repo_url: https://github.com/WDGPH/ImmuKnow-Studio
+repo_name: WDGPH/ImmuKnow-Studio
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  font: false
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - User guide:
+      - Get started: getting-started.md
+      - Editing, drafts and downloads: studio.md
+      - Use templates on your workstation: local-production.md
+      - Privacy and offline use: privacy-offline.md
+      - Troubleshooting: troubleshooting.md
+  - Developer guide:
+      - Build and contribute: development.md
+      - Architecture and compatibility: architecture.md
+      - Documentation and releases: documentation.md
+      - Social preview: social-preview.md
