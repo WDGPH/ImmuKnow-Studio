@@ -24,6 +24,8 @@ import { settingValue, updateThemeSettings } from "./theme-settings";
 import type { Bundle, CheckResult, CompileResult, Diagnostic, Example, Files } from "./types";
 import { Viewer } from "./viewer";
 
+declare const __STUDIO_BUILD__: { revision: string; tag: string | null };
+
 const byId = <T extends HTMLElement = HTMLElement>(id: string): T => {
   const element = document.getElementById(id);
   if (!element) throw new Error(`Missing interface element: ${id}`);
@@ -35,6 +37,10 @@ const basename = (path: string) => path.split("/").at(-1) ?? path;
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
 initializeTheme();
+byId("studio-tag").textContent = __STUDIO_BUILD__.tag ? `${__STUDIO_BUILD__.tag} · ` : "";
+byId("studio-sha").textContent = __STUDIO_BUILD__.revision.slice(0, 7);
+byId<HTMLAnchorElement>("studio-sha").href = `https://github.com/WDGPH/ImmuKnow-Studio/commit/${encodeURIComponent(__STUDIO_BUILD__.revision)}`;
+byId("studio-version").title = __STUDIO_BUILD__.revision;
 let bundle: Bundle;
 let starters: Files;
 let originals: Files;
@@ -801,6 +807,10 @@ async function start() {
   const response = await fetch(`${import.meta.env.BASE_URL}generated/project.json`);
   if (!response.ok) throw new Error("Could not load the starter project. Reload Studio to retry.");
   bundle = await response.json();
+  byId("core-sha").textContent = bundle.build.core_source_revision?.slice(0, 7) || bundle.build.application_version;
+  if (bundle.build.core_source_revision)
+    byId<HTMLAnchorElement>("core-sha").href = `https://github.com/WDGPH/ImmuKnow/commit/${encodeURIComponent(bundle.build.core_source_revision)}`;
+  byId("core-version").title = bundle.build.core_source_revision || bundle.build.application_version;
   starters = await decodeFiles(bundle);
   originals = starters;
   files = { ...originals };

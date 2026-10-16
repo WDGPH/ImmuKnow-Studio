@@ -1,14 +1,20 @@
 import { existsSync } from "node:fs";
 import type { IncomingMessage } from "node:http";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
+import { studioBuild } from "./studio-build.ts";
 
 export default defineConfig(({ command }) => {
+  const root = fileURLToPath(new URL(".", import.meta.url));
+  // Actions supplies these explicitly; local builds resolve the checked-out commit.
+  const identity = studioBuild(root);
   const proxyBase = command === "serve" ? process.env.IMMUKNOW_DEV_PROXY_BASE : undefined;
   if (proxyBase && !/^\/(?:[\w.-]+\/)+$/.test(proxyBase)) {
     throw new Error("IMMUKNOW_DEV_PROXY_BASE must be a URL path with leading and trailing slashes.");
   }
   return {
     base: proxyBase || "./",
+    define: { __STUDIO_BUILD__: JSON.stringify(identity) },
     plugins: proxyBase
       ? [{
           name: "notebook-proxy-base",

@@ -113,6 +113,12 @@ Use `--compiler-source /path/to/typst.ts` with
 or set `IMMUKNOW_COMPILER_BUILD_DIR`.
 
 After initial preparation, use `npm run build` to rebuild frontend changes.
+The footer's Studio SHA and latest reachable version tag are embedded during that
+build. Actions supplies `IMMUKNOW_STUDIO_BUILD_SHA` and
+`IMMUKNOW_STUDIO_BUILD_TAG`; local builds read Git directly. The targeted
+ImmuKnow revision comes from the prepared Core resources.
+An exact release shows `v1.0.0`; later commits show `v1.0.0+`. Before the first
+version tag, only the Studio SHA is shown.
 Re-run `npm run prepare:assets` after Core or example inputs change. npm's dev,
 build, type and unit commands refresh the generated Core resource copies and
 validators automatically. No generated browser assets are committed.
