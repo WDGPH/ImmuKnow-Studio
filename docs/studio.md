@@ -154,3 +154,10 @@ Native runs retain originals, checks and delivery results in `run.json` and
 `report.html`. Follow [PDF validation and delivery](https://WDGPH.github.io/ImmuKnow/user_guide/pdf_validation/) for review
 decisions. Review example wording, branding, contacts, dates and signatures
 before production use.
+
+The footer identifies the Studio commit and latest reachable version tag, plus
+the pinned ImmuKnow commit targeted by its supplied resources. A `+` after the
+Studio version means the build includes commits after that tag. Hover over a
+short hash to see the complete commit, or click it to open that commit on GitHub.
+When Core has no recorded source commit,
+the footer shows its application version instead.
