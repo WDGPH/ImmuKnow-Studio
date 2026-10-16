@@ -113,6 +113,9 @@ export interface PreviewPage {
   height: number;
   text: PreviewText[];
   plainText: string;
+  targets?: (Pick<PreviewText, "x" | "y" | "width" | "height"> & {
+    origin: NonNullable<PreviewText["origin"]>;
+  })[];
 }
 export interface Preview {
   artifact: Uint8Array;

@@ -229,7 +229,7 @@ export class Viewer {
         paper.dataset.page = String(index + 1);
         paper.setAttribute("role", "group");
         paper.setAttribute("aria-label", `Notice page ${index + 1} of ${preview.pages.length}`);
-        paper.title = "Double-click text to find it in the current template";
+        paper.title = "Double-click content to find its source";
         canvas.width = Math.ceil(page.width * resolution);
         canvas.height = Math.ceil(page.height * resolution);
         canvas.setAttribute("aria-hidden", "true");
@@ -369,9 +369,16 @@ export class Viewer {
       x <= t.x + t.width + padding &&
       y >= t.y - padding &&
       y <= t.y + t.height + padding;
+    const run = (event.target as HTMLElement).closest<HTMLElement>(".preview-text-run");
+    const direct = run ? sheet.page.text[Number(run.dataset.textIndex)] : undefined;
+    const distance = (t: PreviewText) =>
+      Math.hypot(Math.max(t.x - x, 0, x - t.x - t.width), Math.max(t.y - y, 0, y - t.y - t.height));
+    const nearby = sheet.page.text
+      .filter((t) => contains(t, 3 / sheet.scale))
+      .sort((a, b) => distance(a) - distance(b));
     const text =
-      sheet.page.text.find((t) => contains(t, 0)) ?? sheet.page.text.find((t) => contains(t, 2));
-    if (!text || !this.selected(text.text, text.origin)) return;
+      direct ?? nearby[0] ?? sheet.page.targets?.find((t) => contains({ ...t, text: "" }, 0));
+    if (!text || !this.selected("text" in text ? text.text : "", text.origin)) return;
     this.container.querySelectorAll(".preview-source-target").forEach((target) => {
       target.remove();
     });

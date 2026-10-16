@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { exportProject } from "../src/archive-core";
 import type { Bundle, Files } from "../src/types";
+import { chooseTemplate } from "./helpers";
 
 async function current(page: Page) {
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready", {
@@ -101,4 +102,49 @@ test("double-clicking a repeated French phrase highlights its exact CRLF source 
   await spans.nth(1).dblclick();
   await expect(page.locator("#editor .source-target")).toHaveCount(0);
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "stale");
+});
+
+test("double-click finds editable sources across generated notice components and zoom levels", async ({
+  page,
+}) => {
+  await page.goto("./");
+  await current(page);
+  const components = [
+    ["Request for Immunization", "Request for Immunization Record", "template"],
+    ["Emily Example 01", "immuknow.client-block", "template"],
+    ["Client ID", "immuknow.client-block", "template"],
+    ["Measles", "immuknow.overdue-diseases", "template"],
+    ["https://example.org/immunization", "https://example.org/immunization", "settings"],
+    ["Dr. Annie Body", "Dr. Annie Body", "settings"],
+    ["Associate Medical Officer", "Associate Medical Officer of Health", "template"],
+    ["Immunization Record", "Immunization Record", "template"],
+    ["2020-05-01", "immunization-history()", "template"],
+    ["Health Protection and Promotion Act", "Health Protection and Promotion Act", "template"],
+  ];
+  for (const zoom of ["fit", "in", "out"]) {
+    if (zoom !== "fit") await page.locator(`#zoom-${zoom}`).click();
+    for (const [wording, source, tab] of components) {
+      const exactStart = new RegExp(`^${wording.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`);
+      const run = page.locator(".preview-text-run").filter({ hasText: exactStart }).last();
+      await run.scrollIntoViewIfNeeded();
+      await run.dblclick();
+      await expect(page.locator(`#${tab}-tab`)).toHaveAttribute("aria-selected", "true");
+      await expect(page.locator("#editor .source-target").first()).toContainText(source);
+      await expect(page.locator(".cm-content")).toHaveAttribute("contenteditable", "true");
+    }
+  }
+  // Generated French client and table cells follow the same editable calls.
+  await page.locator("#theme-tab").click();
+  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
+  await current(page);
+  await page
+    .locator(".preview-text-run")
+    .filter({ hasText: /^Rougeole\s*$/ })
+    .first()
+    .dblclick();
+  await expect(page.locator("#editor .source-target").first()).toContainText(
+    "immuknow.overdue-diseases",
+  );
+  await page.locator(".preview-text-run").filter({ hasText: "2020-05-01" }).first().dblclick();
+  await expect(page.locator("#editor .source-target")).toHaveText("immunization-history()");
 });

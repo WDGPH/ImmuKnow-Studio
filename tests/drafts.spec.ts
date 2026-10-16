@@ -1,3 +1,4 @@
+import { confirmProjectChange } from "./helpers";
 import { readFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -159,6 +160,7 @@ test("import replaces a pending save and retains its reset baseline after reload
   await append(page, "Remove this edit on reset");
   await saved(page);
   await menu(page, "reset");
+  await confirmProjectChange(page);
   await saved(page);
   await expect(page.locator(".cm-content")).toContainText("Imported baseline");
   await expect(page.locator(".cm-content")).not.toContainText("Remove this edit on reset");

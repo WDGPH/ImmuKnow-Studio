@@ -9,7 +9,7 @@ const steps = [
     target: "#template",
     theme: true,
     title: "Choose a template starter",
-    text: "Open Theme → Template starters to choose a template and language. Your edits are kept when you switch.",
+    text: "Open Theme → Template starters to choose a template and language. Confirm loading its starting copy, and choose whether to reset Settings and Theme too.",
   },
   {
     target: ".client-controls",
@@ -47,12 +47,12 @@ const steps = [
   {
     target: ".project-actions summary",
     title: "Save your work",
-    text: "Open Project to download your complete project or import a saved ZIP.",
+    text: "Open Project to download the current template with its Settings, Theme and selected example client, or import a saved ZIP.",
   },
   {
     target: ".project-actions summary",
     title: "Manage your project",
-    text: "Export a project to save all your work, including images. Import it to pick up where you left off.",
+    text: "Reset template lets you keep Settings and Theme, reset Settings too, or start everything over. Download each notice you want to keep before resetting.",
   },
   {
     target: "#help-open",

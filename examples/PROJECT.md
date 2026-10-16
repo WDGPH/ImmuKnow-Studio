@@ -6,19 +6,27 @@ preserved. `config/` contains source reference data and example run options;
 `build.json` identifies the application, data format, shared resources and compiler.
 The branding and contact details are demonstration material.
 
+Studio downloads contain the selected notice, its current Settings and Theme,
+and the selected example client's CSV and assignment file. Unrelated starters
+and sample inputs are omitted. Referenced notices and authored companion files
+stay with the selected notice. `immuknow-project.json` names the selected template
+and lists all included paths; Studio can import this ZIP to resume editing.
+
 Use the native compiler version recorded in `build.json` and install the matching
 ImmuKnow package. Native execution needs no Node or browser runtime. Keep the
 complete project tree together when moving it; native runs use system fonts. The download can optionally include basic font
 files and licences for manual installation. QR codes are drawn by Typst
 from prepared client data, using the destination authored in Settings.
 
-Choose exactly one notice selector:
+Choose exactly one notice selector. Use the CSV and assignment filenames present
+in this download and the template path in `immuknow-project.json`. For example,
+a Short history English overdue-diseases download supports:
 
 ```bash
 immuknow examples/clients/short.en.csv --config config \
   --template templates/overdue_diseases_v1.en.typ --output runs
-immuknow examples/clients/short.fr.csv --config config \
-  --notice-assignments examples/assignments/short.overdue_agents_v1.fr.json \
+immuknow examples/clients/short.en.csv --config config \
+  --notice-assignments examples/assignments/short.overdue_diseases_v1.en.json \
   --templates templates --output runs
 ```
 

@@ -1,3 +1,4 @@
+import { chooseTemplate } from "./helpers";
 import { readFileSync } from "node:fs";
 import { unzipSync } from "fflate";
 import { expect, test, type Page } from "@playwright/test";
@@ -151,7 +152,7 @@ test("edits and template switches refuse delayed project downloads", async ({ pa
   await page.locator("#export").click();
   await expect.poll(async () => (await probeState(page)).held).toBe(2);
   await page.locator("#theme-tab").click();
-  await page.locator("#template").selectOption("templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
   await currentPreview(page);
   expect(downloads).toEqual([]);
   expect((await probeState(page)).requests).toBe(2);

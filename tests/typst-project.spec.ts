@@ -1,3 +1,4 @@
+import { chooseTemplate } from "./helpers";
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -32,7 +33,7 @@ for (const [scenario, filename] of cases) {
     const index = examples.findIndex((example) => example.id === scenario);
     expect(index).toBeGreaterThanOrEqual(0);
     await page.locator("#theme-tab").click();
-    await page.locator("#template").selectOption(`templates/${filename}`);
+    await chooseTemplate(page, `templates/${filename}`);
     // Selection initially retains a compatible example; each test has a fresh
     // browser context, so this starts at the first compatible example.
     for (let step = 0; step < index; step++) await page.locator("#next").click();
@@ -136,9 +137,17 @@ for (const [scenario, filename] of cases) {
     await (await projectDownload).saveAs(info.outputPath("typst-project.zip"));
     const files = unzipSync(readFileSync(info.outputPath("typst-project.zip")));
     delete files["immuknow-project.json"];
-    for (const [path, original] of Object.entries(expectedFiles)) {
-      expect(Buffer.from(files[path]).toString("base64"), path).toBe(original);
+    for (const [path, bytes] of Object.entries(files)) {
+      expect(Buffer.from(bytes).toString("base64"), path).toBe(expectedFiles[path]);
     }
+    expect(Object.keys(files).filter((path) => /^templates\/.+\.(en|fr)\.typ$/.test(path))).toEqual(
+      [`templates/${filename}`],
+    );
+    expect(
+      Object.keys(files)
+        .filter((path) => path.startsWith("examples/") && !path.endsWith("README.md"))
+        .sort(),
+    ).toEqual(Object.values(examples[index].inputs[filename]).sort());
     expect(Object.keys(files).some((path) => /\.(py|whl)$/.test(path))).toBe(false);
     expect(files["uv.lock"]).toBeUndefined();
     expect(files["pyproject.toml"]).toBeUndefined();

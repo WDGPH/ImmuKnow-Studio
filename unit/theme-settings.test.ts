@@ -1,7 +1,12 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "vitest";
 import { decoder, encoder } from "../src/project";
-import { settingValue, updateQRStyle, updateThemeSettings } from "../src/theme-settings";
+import {
+  resetSettingsKeepingTheme,
+  settingValue,
+  updateQRStyle,
+  updateThemeSettings,
+} from "../src/theme-settings";
 
 const bytes = (source: string) => encoder.encode(source);
 
@@ -94,7 +99,9 @@ test("QR overrides, repeated fields and computed style values are left to source
 });
 
 test("maintained Settings keep every byte outside the requested values", () => {
-  const original = readFileSync(new URL("../generated/core/templates/settings.typ", import.meta.url));
+  const original = readFileSync(
+    new URL("../generated/core/templates/settings.typ", import.meta.url),
+  );
   const source = decoder.decode(original);
   const changes = {
     "body-font": '"FreeSerif"',
@@ -137,4 +144,58 @@ test("calculated colours are not rewritten by a theme change", () => {
   expect(() => updateThemeSettings(source, { "accent-color": 'rgb("#001122")' })).toThrow(
     "Edit accent-color in Settings",
   );
+});
+
+test("Settings reset preserves branding and QR style while restoring layout and contacts", () => {
+  const baseline = readFileSync(
+    new URL("../generated/core/templates/settings.typ", import.meta.url),
+  );
+  const source = decoder.decode(baseline);
+  const current = bytes(
+    source
+      .replace('paper-size = "us-letter"', 'paper-size = "a4"')
+      .replace('records-email = "records@example.org"', 'records-email = "changed@example.org"')
+      .replace('body-font = "FreeSans"', 'body-font = "FreeSerif"')
+      .replace('module-shape: "square"', 'module-shape: "dots"')
+      .replace('signature-name = "Dr. Annie Body"', 'signature-name = "Dr. Changed"')
+      .replace('image("assets/logo.png"', 'image("assets/studio-logo.svg"'),
+  );
+  const expected = source
+    .replace('body-font = "FreeSans"', 'body-font = "FreeSerif"')
+    .replace('module-shape: "square"', 'module-shape: "dots"')
+    .replace('signature-name = "Dr. Annie Body"', 'signature-name = "Dr. Changed"')
+    .replace('image("assets/logo.png"', 'image("assets/studio-logo.svg"');
+  expect(resetSettingsKeepingTheme(baseline, current)).toEqual(bytes(expected));
+});
+
+test("theme preservation retains calculated multiline values and starting CRLF comments", () => {
+  const baseline = bytes(
+    '\ufeff// Keep\r\n#let body-font = "FreeSans" // Typeface\r\n#let paper-size = "a4"\r\n',
+  );
+  const current = bytes(
+    '#let body-font = if true {\r\n "FreeSerif"\r\n} else { "FreeSans" }\r\n#let paper-size = "us-letter"\r\n',
+  );
+  expect(decoder.decode(resetSettingsKeepingTheme(baseline, current))).toBe(
+    '\ufeff// Keep\r\n#let body-font = if true {\r\n "FreeSerif"\r\n} else { "FreeSans" } // Typeface\r\n#let paper-size = "a4"\r\n',
+  );
+});
+
+test("refuses ambiguous theme separation without mutating either source", () => {
+  const baseline = bytes('#let body-font = "FreeSans"\n');
+  const current = bytes('#let body-font = "One"\n#let body-font = "Two"\n');
+  expect(() => resetSettingsKeepingTheme(baseline, current)).toThrow(
+    "Cannot safely separate Theme",
+  );
+  expect(decoder.decode(baseline)).toBe('#let body-font = "FreeSans"\n');
+});
+
+test("refuses to preserve theme expressions whose dependencies would be removed", () => {
+  const baseline = bytes('#let body-font = "FreeSans"\n');
+  for (const source of [
+    '#let my-font = "FreeSerif"\n#let body-font = my-font\n',
+    '#let body-font = "FreeSerif"; #let layout = "changed"\n',
+  ])
+    expect(() => resetSettingsKeepingTheme(baseline, bytes(source))).toThrow(
+      "Cannot safely separate Theme",
+    );
 });
