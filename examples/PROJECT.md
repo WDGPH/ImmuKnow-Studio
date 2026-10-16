@@ -14,7 +14,7 @@ and lists all included paths; Studio can import this ZIP to resume editing.
 
 Use the native compiler version recorded in `build.json` and install the matching
 ImmuKnow package. Native execution needs no Node or browser runtime. Keep the
-complete project tree together when moving it; native runs use system fonts. The download can optionally include basic font
+complete project tree together when moving it; native runs use system fonts. The download includes basic font
 files and licences for manual installation. QR codes are drawn by Typst
 from prepared client data, using the destination authored in Settings.
 

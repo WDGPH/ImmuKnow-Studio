@@ -133,8 +133,8 @@ The download includes no Python runner, dependency environment or engine wheel.
 If the project changes while the ZIP is being prepared, download it again.
 A project with unfinished edits or no prepared example can still be saved.
 
-Downloads include Studio's FreeSans and FreeSerif files and licences by default
-for manual installation. Clear **Include fonts** to omit them. The production
+Downloads always include Studio's FreeSans and FreeSerif files and licences
+for manual installation. The production
 pipeline uses system fonts; downloading the files does not install them.
 The ZIP's `immuknow-project.json` records format version, selected entry, build identity
 and SHA-256 file hashes, which are verified on import. Files are limited to

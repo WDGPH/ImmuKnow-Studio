@@ -679,7 +679,6 @@ button("export").onclick = () =>
       example,
       revision,
       context: compiler.context,
-      includeFonts: byId<HTMLInputElement>("include-fonts").checked,
     };
     exporting = true;
     refreshDownloads();
@@ -694,7 +693,6 @@ button("export").onclick = () =>
             snapshot.example,
             starters,
           ),
-          snapshot.includeFonts,
         ),
         template: snapshot.template,
         build: bundle.build,
