@@ -61,6 +61,7 @@ export class Viewer {
     private updated: () => void,
     private selected: (text: string, origin?: PreviewText["origin"]) => boolean,
   ) {
+    void document.fonts.load('10px "Notice selection"').catch(() => undefined);
     let width = container.clientWidth;
     this.observer = new ResizeObserver(() => {
       if (width === container.clientWidth) return;
