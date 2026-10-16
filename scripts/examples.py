@@ -20,7 +20,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 from immuknow.assignment_manifest import load_manifest
 from immuknow.data_models import CheckResult
 from immuknow.generate_notices import build_notice_data, prepare_render_jobs
@@ -28,6 +27,7 @@ from immuknow.load_config import load_config
 from immuknow.preprocess import prepare_clients, read_input
 from immuknow.resources import resource_root
 from immuknow.version_notices import load_catalog, template_identity
+
 from .build_info import project_build
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -12,7 +12,7 @@ immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", branch = "studio-cor
 
 [dependency-groups]
 dev = [
-    "ruff==0.13.0",
+    "ruff==0.16.10",
     "ty>=0.0.78",
     "pillow>=12.3.0",
     "pymupdf==1.28.2",
