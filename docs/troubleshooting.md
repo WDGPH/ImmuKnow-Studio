@@ -24,6 +24,14 @@ point. A custom entry without a prepared example can still be downloaded. Use
 the native ImmuKnow engine to prepare your own input and render the notice.
 Editing a CSV inside a project does not create new browser examples.
 
+## A download or Theme starter fails while offline
+
+These actions may need bundled application files that are not yet available in
+your browser cache. Keep the tab open and restore the connection, then try
+again. The project is processed locally; these requests retrieve application
+resources, not upload your work. For fully disconnected use, serve a complete
+static build locally. See [Privacy and offline use](privacy-offline.md).
+
 ## My draft or ZIP is incompatible
 
 Read the error before resetting anything. Studio checks project format, shared
