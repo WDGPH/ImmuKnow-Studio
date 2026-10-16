@@ -14,25 +14,15 @@ retrieve application files; they do not carry your project contents. Following
 an external help, GitHub or other link opens that destination as usual.
 
 Once the application and its resources have finished loading, you can continue
-editing, previewing and saving a browser draft
+editing, previewing, saving a browser draft and downloading your project
 offline in the open tab. Wait for the first preview before disconnecting.
 
-Some actions load more static files when you use them. Project downloads read
-the bundled fonts and their licences again; imports and downloads load the ZIP
-worker, and Theme starters load their images. Reloading, reopening the site or
-restarting the compiler can also require application files again. Browser
-caching is not a guaranteed offline installation.
-
-For a disconnected editing session on the hosted site, choose your Theme and
-download a backup before disconnecting, then keep the loaded tab open. A later
-project download may need the connection restored. Your draft can still save
-locally while disconnected.
-
-For reliable access to all actions without an internet connection, have your
-technical team serve a complete, prepared static build on your own computer.
-All application files then come from that computer. The local file server only
-serves application files; it is not a backend that receives project data. See
-[Build and contribute](development.md#run-locally).
+Reloading, reopening the site or restarting the compiler can require application
+files again. Browser caching is not a guaranteed offline installation. For
+planned offline work, load Studio before disconnecting and keep the tab open,
+or have your technical team serve a prepared static build on your own computer.
+The local file server only serves application files; it is not a backend that
+receives project data. See [Build and contribute](development.md#run-locally).
 
 ## Where does the draft live?
 
