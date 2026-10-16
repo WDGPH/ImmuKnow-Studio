@@ -1,7 +1,7 @@
 # ImmuKnow Studio
 
 Edit ImmuKnow notice templates, Settings and Theme with live browser previews
-of fictional examples. Download the complete authored Typst project for use
+of fictional examples. Download the selected notice and its authored supporting files for use
 with the separately installed ImmuKnow native engine. See the
 [Studio guide](docs/studio.md) for editing, drafts and exports.
 

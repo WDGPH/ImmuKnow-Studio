@@ -1,3 +1,4 @@
+import { chooseTemplate } from "./helpers";
 import { readFileSync } from "node:fs";
 import { unzipSync } from "fflate";
 import { expect, test, type Page } from "@playwright/test";
@@ -78,50 +79,44 @@ async function probeState(page: Page) {
   );
 }
 
-for (const includeFonts of [false, true])
-  test(`project download preserves authored text with fonts ${includeFonts ? "included" : "omitted"}`, async ({
-    page,
-  }) => {
-    await exportProbe(page);
-    await page.goto("./");
-    await currentPreview(page);
-    await page.locator("#template-tab").click();
-    const source = page.locator(".cm-content");
-    await source.click();
-    await source.press("Control+End");
-    await page.keyboard.insertText('\n#text("Explicit export marker 8f7c")');
-    await currentPreview(page);
-    expect((await probeState(page)).requests).toBe(0);
-    await page.evaluate(() => {
-      (window as unknown as { exportProbe: { delayMs: number } }).exportProbe.delayMs = 800;
-    });
-    await openProjectActions(page);
-    await expect(page.locator("#include-fonts")).not.toBeChecked();
-    if (includeFonts) await page.locator("#include-fonts").check();
-    const downloaded = page.waitForEvent("download");
-    await page.locator("#export").click();
-    await expect(page.locator("#export")).toBeDisabled();
-    await expect.poll(async () => (await probeState(page)).held).toBe(1);
-    expect((await probeState(page)).requests).toBe(1);
-    const path = await (await downloaded).path();
-    expect(path).toBeTruthy();
-    const files = unzipSync(readFileSync(path as string));
-    const template = await page.locator("#template").inputValue();
-    expect(new TextDecoder().decode(files[template])).toContain(
-      '\n#text("Explicit export marker 8f7c")',
-    );
-    expect(Object.keys(files)).toContain("immuknow-project.json");
-    expect(Object.keys(files).some((path) => path.startsWith("templates/lib/"))).toBe(true);
-    expect(
-      Object.keys(files).some(
-        (path) => path.startsWith("templates/fonts/") && path.endsWith(".ttf"),
-      ),
-    ).toBe(includeFonts);
-    if (includeFonts) expect(Object.keys(files)).toContain("templates/fonts/LICENSE");
-    await expect(page.locator("#pdf, #source, #python-project")).toHaveCount(0);
-    expect((await probeState(page)).requests).toBe(1);
-    await expect(page.locator("#export")).toBeEnabled();
+test("project download preserves authored text and always includes fonts", async ({ page }) => {
+  await exportProbe(page);
+  await page.goto("./");
+  await currentPreview(page);
+  await page.locator("#template-tab").click();
+  const source = page.locator(".cm-content");
+  await source.click();
+  await source.press("Control+End");
+  await page.keyboard.insertText('\n#text("Explicit export marker 8f7c")');
+  await currentPreview(page);
+  expect((await probeState(page)).requests).toBe(0);
+  await page.evaluate(() => {
+    (window as unknown as { exportProbe: { delayMs: number } }).exportProbe.delayMs = 800;
   });
+  await openProjectActions(page);
+  await expect(page.locator("#include-fonts")).toHaveCount(0);
+  const downloaded = page.waitForEvent("download");
+  await page.locator("#export").click();
+  await expect(page.locator("#export")).toBeDisabled();
+  await expect.poll(async () => (await probeState(page)).held).toBe(1);
+  expect((await probeState(page)).requests).toBe(1);
+  const path = await (await downloaded).path();
+  expect(path).toBeTruthy();
+  const files = unzipSync(readFileSync(path as string));
+  const template = await page.locator("#template").inputValue();
+  expect(new TextDecoder().decode(files[template])).toContain(
+    '\n#text("Explicit export marker 8f7c")',
+  );
+  expect(Object.keys(files)).toContain("immuknow-project.json");
+  expect(Object.keys(files).some((path) => path.startsWith("templates/lib/"))).toBe(true);
+  expect(
+    Object.keys(files).some((path) => path.startsWith("templates/fonts/") && path.endsWith(".ttf")),
+  ).toBe(true);
+  expect(Object.keys(files)).toContain("templates/fonts/LICENSE");
+  await expect(page.locator("#pdf, #source, #python-project")).toHaveCount(0);
+  expect((await probeState(page)).requests).toBe(1);
+  await expect(page.locator("#export")).toBeEnabled();
+});
 
 test("edits and template switches refuse delayed project downloads", async ({ page }) => {
   await exportProbe(page);
@@ -151,7 +146,7 @@ test("edits and template switches refuse delayed project downloads", async ({ pa
   await page.locator("#export").click();
   await expect.poll(async () => (await probeState(page)).held).toBe(2);
   await page.locator("#theme-tab").click();
-  await page.locator("#template").selectOption("templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
   await currentPreview(page);
   expect(downloads).toEqual([]);
   expect((await probeState(page)).requests).toBe(2);

@@ -4,13 +4,12 @@ import type { Files } from "./types";
 
 const fontRoot = "templates/fonts/";
 
-// Preview fonts are optional in the downloaded project.
-export async function withProjectFonts(files: Files, include: boolean): Promise<Files> {
+// Downloads always include the supplied preview fonts and their licences.
+export async function withProjectFonts(files: Files): Promise<Files> {
   validateFiles(files);
   const result = Object.fromEntries(
     Object.entries(files).filter(([path]) => !path.startsWith(fontRoot)),
   );
-  if (!include) return result;
   const base = `${import.meta.env.BASE_URL}generated/fonts/`;
   async function resource(name: string): Promise<Uint8Array> {
     safePath(name);

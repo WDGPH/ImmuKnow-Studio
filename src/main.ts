@@ -17,6 +17,8 @@ import {
   validateFiles,
 } from "./project";
 import { sourceLocation } from "./source-location";
+import { currentProject, resetProject, type ResetScope } from "./project-actions";
+import { previewSources } from "./preview-sources";
 import { initializeTheme } from "./theme";
 import { settingValue, updateThemeSettings } from "./theme-settings";
 import type { Bundle, CheckResult, CompileResult, Diagnostic, Example, Files } from "./types";
@@ -34,6 +36,7 @@ const message = (error: unknown) => (error instanceof Error ? error.message : St
 
 initializeTheme();
 let bundle: Bundle;
+let starters: Files;
 let originals: Files;
 let files: Files = {};
 let template = "";
@@ -77,7 +80,7 @@ function saveState(state: SaveState) {
   }[state];
   target.hidden = false;
   byId("storage").hidden = state !== "error";
-  if (state === "error") storageError("Not saved. Download your project to keep your work.");
+  if (state === "error") storageError("Not saved. Download each template you want to keep.");
 }
 function persist() {
   unsaved = true;
@@ -118,12 +121,12 @@ const viewer = new Viewer(
   () => {
     byId("pages").textContent = viewer.pages ? `${viewer.page} / ${viewer.pages}` : "—";
   },
-  (text) => {
+  (text, origin) => {
     if (displayedRevision !== revision || displayedContext !== compiler.context) return false;
-    const location = sourceLocation(files, template, text);
+    const location = sourceLocation(files, template, text, origin);
     if (!location) return false;
     openSource(location.path);
-    editor.highlight(location.from, location.to);
+    editor.highlightSource(location.from, location.to);
     return true;
   },
 );
@@ -143,7 +146,7 @@ function refreshNavigation() {
 }
 function refreshDownloads() {
   button("export").disabled = exporting || !files[template];
-  button("reset").disabled = !originals?.[editor.file];
+  button("reset").disabled = !originals?.[template];
 }
 function findings() {
   const target = byId("diagnostics");
@@ -293,7 +296,11 @@ async function compiled(result: CompileResult) {
   if (!result.preview || result.revision <= displayedRevision) return;
   const checks = [...(result.summary?.checks ?? []), ...result.checks];
   try {
-    const committed = await viewer.open(result.preview, checks, result.timing);
+    const committed = await viewer.open(
+      previewSources(result.preview, files, template, result.summary),
+      checks,
+      result.timing,
+    );
     if (!committed || result.context !== compiler.context || result.revision <= displayedRevision)
       return;
     displayedContext = result.context;
@@ -486,15 +493,62 @@ for (const [id, direction] of [
     persist();
     compile(true);
   };
+const changeDialog = byId<HTMLDialogElement>("project-change-dialog");
+let pendingChange: { template: string; files: Files } | undefined;
+function requestProjectChange(target = template) {
+  pendingChange = { template: target, files };
+  const switching = target !== template;
+  const label = Array.from(select("template").options).find(
+    (option) => option.value === target,
+  )?.text;
+  byId("project-change-title").textContent = switching ? "Switch template?" : "Reset template?";
+  byId("project-change-text").textContent = switching
+    ? `Load ${label ?? basename(target)} from its starting copy. Edits to that template will be replaced. Your current template's wording stays saved in this draft.`
+    : "Restore the selected template from its starting copy, even when Settings or Theme is open. Choose what else to reset.";
+  byId("project-change-error").hidden = true;
+  button("project-change-confirm").textContent = switching ? "Switch template" : "Reset template";
+  const hasSettings = Boolean(settingsPath(originals, target));
+  for (const input of changeDialog.querySelectorAll<HTMLInputElement>(
+    'input[name="reset-scope"]',
+  )) {
+    input.checked = input.value === "template";
+    input.disabled = input.value !== "template" && !hasSettings;
+  }
+  changeDialog.showModal();
+}
+button("project-change-cancel").onclick = () => changeDialog.close();
+changeDialog.addEventListener("close", () => {
+  pendingChange = undefined;
+});
+byId<HTMLFormElement>("project-change-form").onsubmit = (event) => {
+  event.preventDefault();
+  if (!pendingChange) return;
+  try {
+    if (files !== pendingChange.files)
+      throw new Error("The project changed while this dialog was open. Cancel and try again.");
+    const scope = new FormData(byId<HTMLFormElement>("project-change-form")).get(
+      "reset-scope",
+    ) as ResetScope;
+    files = resetProject(files, originals, pendingChange.template, scope, template);
+    template = pendingChange.template;
+    const available = compatibleExamples();
+    example = available.find((item) => item.id === example?.id) ?? available[0];
+    themeUndo = undefined;
+    button("health-unit-undo").hidden = true;
+    if (scope === "theme") select("health-unit-preset").value = "";
+    refreshProject();
+    persist();
+    compile(true);
+    changeDialog.close();
+  } catch (error) {
+    byId("project-change-error").textContent = message(error);
+    byId("project-change-error").hidden = false;
+  }
+};
 select("template").onchange = () => {
-  template = select("template").value;
-  const available = compatibleExamples();
-  example = available.find((item) => item.id === example?.id) ?? available[0];
-  themeUndo = undefined;
-  button("health-unit-undo").hidden = true;
-  refreshProject();
-  persist();
-  compile(true);
+  const target = select("template").value;
+  select("template").value = template;
+  if (target !== template) requestProjectChange(target);
 };
 select("body-font-picker").onchange = () =>
   void action(() =>
@@ -625,14 +679,21 @@ button("export").onclick = () =>
       example,
       revision,
       context: compiler.context,
-      includeFonts: byId<HTMLInputElement>("include-fonts").checked,
     };
     exporting = true;
     refreshDownloads();
     try {
       const bytes = await archiveJob({
         action: "export",
-        files: await withProjectFonts(snapshot.files, snapshot.includeFonts),
+        files: await withProjectFonts(
+          currentProject(
+            snapshot.files,
+            snapshot.template,
+            bundle.examples,
+            snapshot.example,
+            starters,
+          ),
+        ),
         template: snapshot.template,
         build: bundle.build,
       });
@@ -673,20 +734,17 @@ byId<HTMLInputElement>("archive").onchange = () =>
     button("health-unit-undo").hidden = true;
     select("health-unit-preset").value = "";
     const available = compatibleExamples();
-    example = available.find((item) => item.id === example?.id) ?? available[0];
+    const included = available.filter((item) => {
+      const input = item.inputs[basename(template)];
+      return input && files[input.csv] && files[input.assignments];
+    });
+    example = included.find((item) => item.id === example?.id) ?? included[0] ?? available[0];
     refreshProject();
     persist();
     compile(true);
     input.value = "";
   });
-button("reset").onclick = () =>
-  void action(() => {
-    if (originals[editor.file]) {
-      newContext();
-      editor.replaceFile(editor.file, files[editor.file], originals[editor.file]);
-    }
-    refreshTheme();
-  });
+button("reset").onclick = () => requestProjectChange();
 button("clear").onclick = () =>
   void action(() => {
     if (!draftStore)
@@ -743,7 +801,8 @@ async function start() {
   const response = await fetch(`${import.meta.env.BASE_URL}generated/project.json`);
   if (!response.ok) throw new Error("Could not load the starter project. Reload Studio to retry.");
   bundle = await response.json();
-  originals = await decodeFiles(bundle);
+  starters = await decodeFiles(bundle);
+  originals = starters;
   files = { ...originals };
   template = "templates/overdue_diseases_v1.en.typ";
   example = bundle.examples.find((item) => item.payloads[basename(template)]);

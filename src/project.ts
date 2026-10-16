@@ -129,13 +129,25 @@ export function settingsPath(files: Files, template: string): string | undefined
   return files[path] && editableFile(path) ? path : undefined;
 }
 
+// These exact builds differ only in preview source/position metadata. Keep older
+// drafts and ZIPs usable without accepting a different compiler or Core contract.
+const previewCompatibleBuilds = new Set([
+  "6aecf70c6e831c1d6b538064aec1620eb57c44e59c840323a51b1ebc690bbdca",
+  "6ff9cfe83ce2d4bf533fe160b847141a877af037faccae1729bc12b8eeeeab12",
+  "fd11e90e9704755503826450c4088ad14ff4a6321725e5719e2e27d47a1d7d31",
+]);
+
 export function verifyProjectBuild(value: BuildInfo | undefined, build: BuildInfo): void {
   if (
     !/^[0-9a-f]{64}$/.test(build.compiler_build_sha256) ||
     !/^[0-9a-f]{64}$/.test(build.shared_resources?.sha256) ||
     value?.rendering_schema_version !== build.rendering_schema_version ||
     value?.native_typst_version !== build.native_typst_version ||
-    value?.compiler_build_sha256 !== build.compiler_build_sha256 ||
+    (value?.compiler_build_sha256 !== build.compiler_build_sha256 &&
+      !(
+        previewCompatibleBuilds.has(value?.compiler_build_sha256 ?? "") &&
+        previewCompatibleBuilds.has(build.compiler_build_sha256)
+      )) ||
     value?.shared_resources?.sha256 !== build.shared_resources.sha256
   )
     throw new Error("This project requires a different ImmuKnow format or compiler build.");

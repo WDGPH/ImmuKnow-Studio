@@ -10,7 +10,7 @@
       "svg"
     ],
     "cache_patch_sha256": "fe316bca31a7ff30d83d522746bb67aa3eba818e9aa78fe7621591163a50a858",
-    "preview_patch_sha256": "ad6d14efe813ffa0a67bcf0359218ba0927bfe089c0b8cf05c39db526d5e56c3"
+    "preview_patch_sha256": "bfea4f03ab3fdb889446e02eb0c07caf3ad8fadc17849f165d3d190d23ca2063"
   },
   "browser_renderer": {
     "crate_version": "0.8.0-rc3",

@@ -426,7 +426,7 @@ main {
   outline: 2px solid #ce9821;
   border-radius: 3px;
 }
-.pdf-source-target {
+.preview-source-target {
   position: absolute;
   pointer-events: none;
 }
@@ -622,6 +622,67 @@ main {
 .function-help a {
   color: var(--teal);
 }
+#project-change-dialog {
+  width: 540px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+}
+#project-change-dialog::backdrop {
+  background: #10243677;
+}
+#project-change-dialog h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+#project-change-dialog p {
+  line-height: 1.5;
+}
+#project-change-dialog fieldset {
+  border: 0;
+  padding: 0;
+  margin: 20px 0;
+}
+#project-change-dialog legend {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+#project-change-dialog fieldset label {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+#project-change-dialog label:has(:checked) {
+  border-color: var(--teal);
+  background: var(--surface-soft);
+}
+#project-change-dialog label:has(:disabled) {
+  opacity: 0.5;
+}
+#project-change-dialog small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.project-change-actions {
+  display: flex;
+  justify-content: end;
+  gap: 10px;
+}
+#project-change-confirm {
+  color: var(--teal);
+  font-weight: 600;
+}
 #tour-dialog {
   border: 0;
   padding: 0;
@@ -768,4 +829,28 @@ main {
   #preview-state[data-state="updating"] svg {
     animation: none;
   }
+}
+
+@font-face {
+  font-family: "Notice selection";
+  src: url("/generated/fonts/FreeSans.ttf");
+}
+.preview-text-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  user-select: text;
+  color: transparent;
+  cursor: text;
+}
+.preview-text-run {
+  position: absolute;
+  white-space: pre;
+  line-height: 1;
+  transform-origin: top left;
+  font-family: "Notice selection", sans-serif;
+}
+.preview-text-layer ::selection {
+  color: transparent;
+  background: #3c9cdb55;
 }

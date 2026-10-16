@@ -1,3 +1,4 @@
+import { chooseTemplate } from "./helpers";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -57,7 +58,7 @@ test("history warnings follow edited suspension content and recover after errors
 }) => {
   await page.goto("./");
   await page.locator("#theme-tab").click();
-  await page.locator("#template").selectOption("templates/suspension_order_v1.en.typ");
+  await chooseTemplate(page, "templates/suspension_order_v1.en.typ");
   await currentPreview(page);
   await expect(page.locator("#diagnostics")).not.toContainText("content.history_validity");
   await page.locator("#template-tab").click();
@@ -367,9 +368,9 @@ test("continuous typing advances stale previews and context switches isolate old
   expect(pdfWorkers).toBe(0);
   expect(fontRequests).toBe(initialRequests);
   await page.locator("#theme-tab").click();
-  await page.locator("#template").selectOption("templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
   await expect(page.locator("#preview-state")).toHaveAttribute("data-displayed-revision", "0");
-  await page.locator("#template").selectOption("templates/overdue_diseases_v1.en.typ");
+  await chooseTemplate(page, "templates/overdue_diseases_v1.en.typ");
   await page.locator("#next").click();
   await currentPreview(page);
   const state = await page
@@ -462,7 +463,7 @@ test("delayed compiler replies cannot cross an import or language boundary", asy
     () => (window as unknown as { delays: { heldCompiler: number } }).delays.heldCompiler > 0,
   );
   await page.locator("#theme-tab").click();
-  await page.locator("#template").selectOption("templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
   await expect(page.locator(".preview-page")).toHaveCount(0);
   await currentPreview(page);
   await page.locator("#template-tab").click();

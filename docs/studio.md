@@ -10,7 +10,11 @@ does not assess a client or choose their notice.
 Use **Template** for letter wording, **Settings** for page/envelope setup,
 dates, QR destinations and display choices, and **Theme** for fonts, colours,
 logo, signature and an additional image. Template starters and Theme starters
-are in Theme. Shared Settings changes can affect several entry points; check
+are in Theme. Selecting a different template opens a confirmation dialog: load
+that template from its starting copy, optionally resetting Settings or Settings
+and Theme too. Edits to the target template are replaced only after confirmation;
+Cancel or Escape keeps the current draft and preview. Other templates’ wording
+remains in the browser draft until you explicitly reset it. Shared Settings changes can affect several entry points; check
 each notice you intend to use. The question mark opens the guided walkthrough.
 
 Theme controls use the supplied Settings layout and ignore commented examples,
@@ -22,16 +26,26 @@ or explain where to edit it. A refused theme change leaves the project unchanged
 The editor keeps native imports such as `#import "settings.typ": *` visible.
 Use Ctrl+/ to comment a selection and Ctrl+[ or Ctrl+] to change indentation.
 Drag the divider to resize the panes. The preview shows all pages in one scroll;
-use its plus/minus controls to zoom. Double-click supported preview content to
-jump to its source when the preview is current and the text has a unique source match. Compiler diagnostics can also link to a source location.
+use its plus/minus controls to zoom. Drag across preview text to select and copy
+its displayed wording as plain text. Double-click supported content to open and
+highlight its source when the preview is current. Compiler source spans distinguish
+repeated wording and preserve accented-character and Windows line-ending offsets.
+Measured client/address blocks and generated history or overdue text lead to
+their editable component calls when there is one unambiguous call. Generated
+headings, links and signature text can lead to authored values in Template or
+Settings. Other generated text can lead to shared read-only code or have no
+source target. Where no source span or component target is available, navigation
+requires a unique text match within the selected notice and its companions. Compiler
+diagnostics can also link to a source location.
 
 Example navigation shows only prepared variants for the selected entry point.
 The five scenarios cover short history, long history, source warnings, an
 up-to-date notice and a suspension order. Across them, eleven explicit variants
 exercise six maintained filenames: English/French overdue disease and agent
 notices, an English affirmative notice and an English suspension order. Names,
-addresses and schools match the selected language. Switching examples never
-changes a client's clinical facts or invents a missing language variant.
+addresses and schools match the selected language. The Example client arrows preserve all template, Settings and Theme edits and
+do not open a reset dialog. Switching examples never changes a client's clinical
+facts or invents a missing language variant.
 
 Findings combine source-preparation warnings, compiler diagnostics and placed
 Typst checks. Extra diseases covered by a forecasted agent are a warning;
@@ -54,7 +68,7 @@ remaining document. All replacement pages are prepared before the notice changes
 Scrolling and zooming keep the painted pages available. Extremely large output
 may exceed the preview resource limit; Studio reports this and retains the last
 usable preview. There is no five-page output limit. Switching examples or languages, importing a project,
-resetting a file and restarting the compiler clear the previous preview.
+confirming a template reset and restarting the compiler clear the previous preview.
 During continuous typing, newer successful versions can appear while the refresh
 icon continues to spin.
 
@@ -79,8 +93,21 @@ These cover shared components, fonts, the data format and the compiler build.
 Projects can move between application releases when those requirements still
 match. The selected file must be an English or French notice under `templates/`.
 
-**Reset current file** restores the file as it was when the starter or imported
-project was opened. That starting point is kept when a draft is reopened.
+**Reset template…** always restores the selected template, regardless of the
+open editor tab. Its confirmation offers three scopes:
+
+- **Template only** keeps current Settings and Theme, including images.
+- **Template + settings** also restores layout, dates, contacts and display
+  options, while keeping fonts, colours, organization name, signature, image
+  sizes and QR appearance. Uploaded images stay available.
+- **Template + settings + theme** restores the complete starting Settings and
+  images, and removes images added since the project was opened.
+
+The starting copy comes from the starter or imported project and survives draft
+reloads. Shared Settings and images affect other templates that use them.
+Complex Settings that cannot safely separate Theme are left unchanged with an
+explanation; use a template-only or complete reset instead.
+
 **Clear saved draft** removes the stored draft, including pending edits, while
 keeping the open project available to download; later edits save it again.
 **Restart compiler** retries the open project after a compiler problem.
@@ -93,16 +120,21 @@ but has no preview.
 
 ## Download the project
 
-**Download project** saves the complete authored Typst tree with Settings,
-translations, components, images, configuration and example inputs.
+**Download current template** saves the selected notice with current Settings,
+Theme, translations, components, images and configuration. It includes only the
+selected fictional client’s CSV and assignment file; unrelated starter notices
+and example inputs are omitted. Explicitly referenced notices and authored
+companion files remain available, preserving project dependencies. Other notices
+in the browser draft are not backed up by this download; download each notice
+you want to keep.
 Authored files keep their bytes and relative paths. Import the ZIP to resume
 editing, or use it with a separately installed native ImmuKnow engine.
 The download includes no Python runner, dependency environment or engine wheel.
 If the project changes while the ZIP is being prepared, download it again.
 A project with unfinished edits or no prepared example can still be saved.
 
-Downloads omit fonts by default. Select **Include fonts** to add Studio's
-FreeSans and FreeSerif files and licences for manual installation. The production
+Downloads always include Studio's FreeSans and FreeSerif files and licences
+for manual installation. The production
 pipeline uses system fonts; downloading the files does not install them.
 The ZIP's `immuknow-project.json` records format version, selected entry, build identity
 and SHA-256 file hashes, which are verified on import. Files are limited to

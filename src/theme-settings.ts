@@ -1,4 +1,5 @@
 import { decoder, encoder } from "./project";
+import { sourceCode } from "./source-text";
 
 type Range = { from: number; to: number };
 interface SettingsSource {
@@ -175,5 +176,108 @@ export function updateQRStyle(bytes: Uint8Array, shape: string): Uint8Array {
     if (!previous?.startsWith('"')) throw manualEdit(`qr ${name}`);
     return { ...range, value: JSON.stringify(value) };
   });
+  return replaceValues(source, changes);
+}
+
+// Theme lives in Settings. A Settings-only reset restores the starting source
+// while transplanting these current values, rather than silently losing branding.
+const themeBindings = [
+  "body-font",
+  "body-size",
+  "heading-color",
+  "link-color",
+  "accent-color",
+  "title-size",
+  "client-font-size",
+  "logo",
+  "logo-width",
+  "signature",
+  "signature-width",
+  "signature-height",
+  "signature-name",
+  "health-unit-name",
+];
+
+function wholeValue(input: SettingsSource, name: string): Range | undefined {
+  const range = binding(input, name);
+  if (!range) return;
+  let end = range.from;
+  while (end < input.code.length && !/[\r\n]/.test(input.code[end])) {
+    if (input.code[end] === ";" || input.code[end] === "#") return;
+    end = (input.pairs.get(end) ?? end) + 1;
+  }
+  return { from: range.from, to: range.from + input.code.slice(range.from, end).trimEnd().length };
+}
+
+function qrField(input: SettingsSource, name: string): Range | undefined {
+  const qr = wholeValue(input, "qr");
+  const end = qr && input.pairs.get(qr.from);
+  if (!qr || input.code[qr.from] !== "(" || end !== qr.to - 1) return;
+  for (let i = qr.from + 1; i < end; i++) {
+    if (input.code.startsWith("..", i)) return;
+    i = input.pairs.get(i) ?? i;
+  }
+  const matches = [...input.code.matchAll(/^[ \t]*([\w-]+):[ \t]*/gm)].filter(
+    (match) =>
+      match[1] === name &&
+      match.index > qr.from &&
+      match.index < end &&
+      input.lineDepth.get(match.index) === 1,
+  );
+  if (matches.length !== 1) return;
+  const match = matches[0];
+  const range = lineValue(input, match.index + match[0].length);
+  if (input.code[range.to - 1] !== ",") return;
+  range.to--;
+  while (range.to > range.from && /\s/.test(input.code[range.to - 1])) range.to--;
+  return range;
+}
+
+export function resetSettingsKeepingTheme(baseline: Uint8Array, current: Uint8Array): Uint8Array {
+  const source = decoder.decode(baseline);
+  const starting = settingsSource(source);
+  const active = settingsSource(decoder.decode(current));
+  const error = () =>
+    new Error(
+      "Cannot safely separate Theme from this Settings source. Reset template only, edit Settings manually, or reset template, settings and theme together.",
+    );
+  if (!starting || !active) throw error();
+  const changes: (Range & { value: string })[] = [];
+  const preserve = (from: Range | undefined, to: Range | undefined) => {
+    if (!from || !to) throw error();
+    const value = active.source.slice(from.from, from.to);
+    // A copied expression must not depend on a definition removed by this reset.
+    const code = sourceCode(value, true);
+    for (const match of code.matchAll(/(?<![\w-])([A-Za-z][\w-]*)/g)) {
+      const name = match[1];
+      if (
+        /^\s*:/.test(code.slice(match.index + name.length)) ||
+        ["image", "rgb", "black", "white", "auto", "none", "true", "false", "if", "else"].includes(
+          name,
+        ) ||
+        themeBindings.includes(name)
+      )
+        continue;
+      const before = wholeValue(active, name),
+        after = wholeValue(starting, name);
+      if (
+        !before ||
+        !after ||
+        active.source.slice(before.from, before.to) !== source.slice(after.from, after.to)
+      )
+        throw error();
+    }
+    changes.push({ ...to, value });
+  };
+  for (const name of themeBindings) {
+    // Custom projects may omit theme controls entirely, but a removed or repeated
+    // binding cannot be safely merged into a different starting layout.
+    if (!active.code.includes(name) && !starting.code.includes(name)) continue;
+    preserve(wholeValue(active, name), wholeValue(starting, name));
+  }
+  if (binding(starting, "qr") || binding(active, "qr")) {
+    for (const name of ["module-shape", "corner-style"])
+      preserve(qrField(active, name), qrField(starting, name));
+  }
   return replaceValues(source, changes);
 }
