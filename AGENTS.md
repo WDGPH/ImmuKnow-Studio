@@ -1,6 +1,8 @@
 # Studio development
 
 Read README.md and docs/studio.md before changing build or editor behavior.
+Manual content stays in docs/ with navigation in mkdocs.yml. Follow
+docs/documentation.md for source checks and the separate PHIZ hub publication.
 This repository owns Studio's UI, browser compiler, fonts, fictional scenarios
 and browser/unit tests. Core owns the native engine, default templates,
 configuration, schemas and shared Typst components.
