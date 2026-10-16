@@ -1,7 +1,7 @@
 diff --git a/packages/compiler/src/lib.rs b/packages/compiler/src/lib.rs
 --- a/packages/compiler/src/lib.rs
 +++ b/packages/compiler/src/lib.rs
-@@ -416,8 +416,41 @@ impl TypstCompileWorld {
+@@ -416,8 +416,42 @@ impl TypstCompileWorld {
          Ok(self
              .get_doc(kind)?
              .and_then(|doc| Some(doc.info().title.as_ref()?.to_string())))
@@ -23,6 +23,7 @@ diff --git a/packages/compiler/src/lib.rs b/packages/compiler/src/lib.rs
 +                let mut plain_text = Vec::new();
 +                collect_preview_text(
 +                    &page.frame,
++                    self.graph.world(),
 +                    ::typst::layout::Point::zero(),
 +                    true,
 +                    &mut text,
@@ -43,12 +44,13 @@ diff --git a/packages/compiler/src/lib.rs b/packages/compiler/src/lib.rs
      pub fn get_artifact(&mut self, fmt: u8, diagnostics_format: u8) -> Result<JsValue, JsValue> {
          #[cfg(feature = "svg")]
          use reflexo_vec2svg::DefaultExportFeature;
-@@ -585,6 +618,58 @@ impl TypstCompileWorld {
+@@ -585,6 +619,83 @@ impl TypstCompileWorld {
      }
  }
 
 +fn collect_preview_text(
 +    frame: &::typst::layout::Frame,
++    world: &dyn ::typst::World,
 +    origin: ::typst::layout::Point,
 +    positioned: bool,
 +    text: &mut Vec<serde_json::Value>,
@@ -67,20 +69,43 @@ diff --git a/packages/compiler/src/lib.rs b/packages/compiler/src/lib.rs
 +                if !positioned {
 +                    continue;
 +                }
-+                let bounds = run.bbox();
-+                let x0 = (position.x + bounds.min.x).to_pt();
-+                let x1 = (position.x + bounds.max.x).to_pt();
-+                let y0 = (position.y + bounds.min.y).to_pt();
-+                let y1 = (position.y + bounds.max.y).to_pt();
-+                let x = x0.min(x1);
-+                let y = y0.min(y1);
-+                let width = (x1 - x0).abs();
-+                let height = (y1 - y0).abs();
-+                if x.is_finite() && y.is_finite() && width > 0.0 && height > 0.0 {
-+                    text.push(serde_json::json!({
-+                        "text": run.text.as_str(), "x": x, "y": y,
-+                        "width": width, "height": height,
-+                    }));
++                // A shaped line can combine authored wording and generated fields.
++                // Keep the existing glyph geometry, splitting only at source spans.
++                let line_bounds = run.bbox();
++                let mut start = 0;
++                let mut offset = ::typst::layout::Abs::zero();
++                while start < run.glyphs.len() {
++                    let span = run.glyphs[start].span.0;
++                    let mut end = start + 1;
++                    while end < run.glyphs.len() && run.glyphs[end].span.0 == span { end += 1; }
++                    let glyphs = &run.glyphs[start..end];
++                    let from = glyphs.iter().map(|g| g.range().start).min().unwrap();
++                    let to = glyphs.iter().map(|g| g.range().end).max().unwrap();
++                    let mut part = run.clone();
++                    part.text = run.text.get(from..to).unwrap_or_default().into();
++                    part.glyphs = glyphs.to_vec();
++                    let bounds = part.bbox();
++                    let x0 = (position.x + offset + bounds.min.x).to_pt();
++                    let x1 = (position.x + offset + bounds.max.x).to_pt();
++                    let y0 = (position.y + line_bounds.min.y).to_pt();
++                    let y1 = (position.y + line_bounds.max.y).to_pt();
++                    let origin = span.id().and_then(|id| {
++                        let source = world.source(id).ok()?;
++                        let node = source.find(span)?;
++                        Some(serde_json::json!({"path": id.vpath().get_without_slash(),
++                            "from": node.range().start, "to": node.range().end}))
++                    });
++                    let width = (x1 - x0).abs();
++                    let height = (y1 - y0).abs();
++                    if x0.is_finite() && y0.is_finite() && width > 0.0 && height > 0.0 {
++                        text.push(serde_json::json!({
++                            "text": part.text.as_str(), "x": x0.min(x1), "y": y0.min(y1),
++                            "width": width, "height": height, "origin": origin,
++                            "fontSize": run.size.to_pt(),
++                        }));
++                    }
++                    offset += glyphs.iter().map(|g| g.x_advance.at(run.size)).sum();
++                    start = end;
 +                }
 +            }
 +            FrameItem::Group(group) => {
@@ -88,6 +113,7 @@ diff --git a/packages/compiler/src/lib.rs b/packages/compiler/src/lib.rs
 +                let offset = Point::new(group.transform.tx, group.transform.ty);
 +                collect_preview_text(
 +                    &group.frame,
++                    world,
 +                    position + offset,
 +                    positioned && movable,
 +                    text,

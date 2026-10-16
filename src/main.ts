@@ -118,12 +118,12 @@ const viewer = new Viewer(
   () => {
     byId("pages").textContent = viewer.pages ? `${viewer.page} / ${viewer.pages}` : "—";
   },
-  (text) => {
+  (text, origin) => {
     if (displayedRevision !== revision || displayedContext !== compiler.context) return false;
-    const location = sourceLocation(files, template, text);
+    const location = sourceLocation(files, template, text, origin);
     if (!location) return false;
     openSource(location.path);
-    editor.highlight(location.from, location.to);
+    editor.highlightSource(location.from, location.to);
     return true;
   },
 );

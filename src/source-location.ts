@@ -1,5 +1,5 @@
 import { decoder } from "./project";
-import type { Files } from "./types";
+import type { Files, PreviewText } from "./types";
 
 type Location = { path: string; from: number; to: number };
 function normalized(source: string) {
@@ -16,7 +16,34 @@ function normalized(source: string) {
   return { text, offsets };
 }
 
-export function sourceLocation(files: Files, template: string, text: string): Location | undefined {
+export function sourceLocation(
+  files: Files,
+  template: string,
+  text: string,
+  origin?: PreviewText["origin"],
+): Location | undefined {
+  if (origin) {
+    const path = origin.path.replace(/^\//, "");
+    const bytes = files[path];
+    if (
+      !bytes ||
+      !Number.isSafeInteger(origin.from) ||
+      !Number.isSafeInteger(origin.to) ||
+      origin.from < 0 ||
+      origin.to <= origin.from ||
+      origin.to > bytes.length
+    )
+      return;
+    // Decode prefixes strictly so an invalid byte boundary cannot shift the highlight.
+    try {
+      const utf8 = new TextDecoder("utf-8", { fatal: true });
+      const prefix = utf8.decode(bytes.subarray(0, origin.from));
+      const through = utf8.decode(bytes.subarray(0, origin.to));
+      return { path, from: prefix.length, to: through.length };
+    } catch {
+      return;
+    }
+  }
   const needle = normalized(text).text;
   if (needle.length < 5) return;
   const paths = [
@@ -42,7 +69,11 @@ export function sourceLocation(files: Files, template: string, text: string): Lo
     const at = haystack.text.indexOf(needle);
     if (at < 0) continue;
     if (location || haystack.text.indexOf(needle, at + 1) >= 0) return;
-    location = { path, from: haystack.offsets[at], to: haystack.offsets[at + needle.length - 1] + 1 };
+    location = {
+      path,
+      from: haystack.offsets[at],
+      to: haystack.offsets[at + needle.length - 1] + 1,
+    };
   }
   return location;
 }

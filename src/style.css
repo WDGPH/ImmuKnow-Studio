@@ -426,7 +426,7 @@ main {
   outline: 2px solid #ce9821;
   border-radius: 3px;
 }
-.pdf-source-target {
+.preview-source-target {
   position: absolute;
   pointer-events: none;
 }
@@ -768,4 +768,28 @@ main {
   #preview-state[data-state="updating"] svg {
     animation: none;
   }
+}
+
+@font-face {
+  font-family: "Notice selection";
+  src: url("/generated/fonts/FreeSans.ttf");
+}
+.preview-text-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  user-select: text;
+  color: transparent;
+  cursor: text;
+}
+.preview-text-run {
+  position: absolute;
+  white-space: pre;
+  line-height: 1;
+  transform-origin: top left;
+  font-family: "Notice selection", sans-serif;
+}
+.preview-text-layer ::selection {
+  color: transparent;
+  background: #3c9cdb55;
 }

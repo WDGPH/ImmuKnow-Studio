@@ -51,3 +51,49 @@ test("ignores comments when deciding whether a source match is unique", () => {
     to: source.indexOf("marker", source.indexOf("\n")) + "marker".length,
   });
 });
+
+test("uses compiler byte spans to distinguish repeated accented wording after CRLF and emoji", () => {
+  const phrase = "Même phrase répétée.",
+    source = `Été 😀\r\n\r\n${phrase}\r\n\r\n${phrase}`;
+  const from = source.lastIndexOf(phrase),
+    encode = new TextEncoder();
+  const origin = {
+    path: `/${template}`,
+    from: encode.encode(source.slice(0, from)).length,
+    to: encode.encode(source).length,
+  };
+  expect(sourceLocation(files({ [template]: source }), template, phrase, origin)).toEqual({
+    path: template,
+    from,
+    to: source.length,
+  });
+});
+
+test("refuses invalid source spans instead of guessing a matching occurrence", () => {
+  const source = "Été marker",
+    project = files({ [template]: source });
+  for (const [from, to] of [
+    [1, 2],
+    [-1, 5],
+    [2, 100],
+    [4, 4],
+    [1.5, 5],
+  ])
+    expect(
+      sourceLocation(project, template, "marker", { path: template, from, to }),
+    ).toBeUndefined();
+  expect(
+    sourceLocation(project, template, "marker", { path: "missing.typ", from: 0, to: 5 }),
+  ).toBeUndefined();
+});
+
+test("can locate generated text in its read-only shared source", () => {
+  const path = "templates/lib/immuknow/lib.typ";
+  expect(
+    sourceLocation(files({ [path]: "Generated words" }), template, "Generated", {
+      path,
+      from: 0,
+      to: 9,
+    }),
+  ).toEqual({ path, from: 0, to: 9 });
+});

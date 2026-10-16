@@ -22,8 +22,13 @@ or explain where to edit it. A refused theme change leaves the project unchanged
 The editor keeps native imports such as `#import "settings.typ": *` visible.
 Use Ctrl+/ to comment a selection and Ctrl+[ or Ctrl+] to change indentation.
 Drag the divider to resize the panes. The preview shows all pages in one scroll;
-use its plus/minus controls to zoom. Double-click supported preview content to
-jump to its source when the preview is current and the text has a unique source match. Compiler diagnostics can also link to a source location.
+use its plus/minus controls to zoom. Drag across preview text to select and copy
+its displayed wording as plain text. Double-click supported content to open and
+highlight its source when the preview is current. Compiler source spans distinguish
+repeated wording and preserve accented-character and Windows line-ending offsets.
+Generated text can lead to shared read-only code or have no source target. Where
+no source span is available, navigation requires a unique text match. Compiler
+diagnostics can also link to a source location.
 
 Example navigation shows only prepared variants for the selected entry point.
 The five scenarios cover short history, long history, source warnings, an

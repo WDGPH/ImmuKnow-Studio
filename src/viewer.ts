@@ -4,7 +4,7 @@ import initialize, {
   type RenderSession,
 } from "../vendor/renderer/typst_ts_renderer.js";
 import wasmUrl from "../vendor/renderer/typst_ts_renderer_bg.wasm?url";
-import type { CheckResult, Preview, PreviewPage } from "./types";
+import type { CheckResult, Preview, PreviewPage, PreviewText } from "./types";
 
 // One local module initialization; sessions contain one complete document only.
 let initialized: ReturnType<typeof initialize> | undefined;
@@ -59,7 +59,7 @@ export class Viewer {
   constructor(
     private container: HTMLElement,
     private updated: () => void,
-    private selected: (text: string) => boolean,
+    private selected: (text: string, origin?: PreviewText["origin"]) => boolean,
   ) {
     let width = container.clientWidth;
     this.observer = new ResizeObserver(() => {
@@ -70,6 +70,7 @@ export class Viewer {
     this.observer.observe(container);
     container.addEventListener("scroll", this.scrolled);
     container.addEventListener("dblclick", this.selectText);
+    document.addEventListener("copy", this.copyText);
   }
   private free(sheets: Sheet[]) {
     for (const sheet of sheets) sheet.canvas.width = sheet.canvas.height = 0;
@@ -95,6 +96,7 @@ export class Viewer {
     this.observer.disconnect();
     this.container.removeEventListener("scroll", this.scrolled);
     this.container.removeEventListener("dblclick", this.selectText);
+    document.removeEventListener("copy", this.copyText);
     // An in-flight renderer owns its session until its async draw finishes.
     if (!this.running) this.releaseRenderer();
   }
@@ -170,6 +172,7 @@ export class Viewer {
       sheet.top = top;
       sheet.paper.style.width = `${sheet.width}px`;
       sheet.paper.style.height = `${sheet.height}px`;
+      sheet.paper.style.setProperty("--page-scale", String(sheet.scale));
       sheet.canvas.style.width = "100%";
       sheet.canvas.style.height = "100%";
       top += sheet.height + 20;
@@ -185,6 +188,7 @@ export class Viewer {
       throw error;
     }
     if (generation !== this.generation || this.disposed) return;
+    await document.fonts.load('10px "Notice selection"');
     this.renderer ??= new TypstRenderer();
     // Bound total allocation and each canvas edge, without truncating pages.
     const area = preview.pages.reduce((sum, p) => sum + p.width * p.height, 0);
@@ -230,10 +234,44 @@ export class Viewer {
         canvas.setAttribute("aria-hidden", "true");
         overlay.className = "preview-overlay";
         overlay.setAttribute("aria-hidden", "true");
-        const text = document.createElement("span");
-        text.className = "visually-hidden";
-        text.textContent = page.plainText;
-        paper.append(canvas, text, overlay);
+        const layer = document.createElement("div");
+        layer.className = "preview-text-layer";
+        layer.setAttribute("aria-hidden", "true");
+        const measure = document.createElement("canvas").getContext("2d");
+        for (const [i, text] of page.text.entries()) {
+          const span = document.createElement("span");
+          const next = page.text[i + 1];
+          const sameLine = next && Math.abs(next.y - text.y) < text.height / 2;
+          span.textContent =
+            text.text +
+            (next && !sameLine
+              ? "\n"
+              : sameLine &&
+                  next.x - text.x - text.width > 1 &&
+                  !/^[,.;:!?%)’']/u.test(next.text) &&
+                  !/[('‘’]$/u.test(text.text) &&
+                  !/\s$/.test(text.text)
+                ? " "
+                : "");
+          span.dataset.textIndex = String(i);
+          span.className = "preview-text-run";
+          const fontSize = text.fontSize ?? text.height;
+          if (measure) measure.font = `${fontSize}px "Notice selection"`;
+          const measured = measure?.measureText(text.text).width || text.width;
+          Object.assign(span.style, {
+            left: `${(text.x / page.width) * 100}%`,
+            top: `${(text.y / page.height) * 100}%`,
+            fontSize: `${fontSize}px`,
+            lineHeight: `${text.height}px`,
+            transform: `scale(var(--page-scale)) scaleX(${text.width / measured})`,
+          });
+          layer.append(span);
+        }
+        const accessibleText = document.createElement("span");
+        accessibleText.className = "visually-hidden";
+        accessibleText.style.userSelect = "none";
+        accessibleText.textContent = page.plainText;
+        paper.append(canvas, accessibleText, layer, overlay);
         sheets.push({
           paper,
           canvas,
@@ -303,6 +341,21 @@ export class Viewer {
       else if (this.pending) void this.work();
     }
   }
+  private copyText = (event: ClipboardEvent) => {
+    const selection = window.getSelection();
+    if (
+      !event.clipboardData ||
+      !selection ||
+      selection.isCollapsed ||
+      !this.container.contains(selection.anchorNode) ||
+      !this.container.contains(selection.focusNode)
+    )
+      return;
+    // The selection layer is transparent over the canvas. Export wording alone
+    // so pasting into another application cannot carry invisible HTML styling.
+    event.clipboardData.setData("text/plain", selection.toString());
+    event.preventDefault();
+  };
   private selectText = (event: MouseEvent) => {
     const paper = (event.target as HTMLElement).closest<HTMLElement>(".preview-page");
     const sheet = this.sheets[Number(paper?.dataset.page) - 1];
@@ -310,10 +363,14 @@ export class Viewer {
     const bounds = paper.getBoundingClientRect();
     const x = (event.clientX - bounds.left) / sheet.scale,
       y = (event.clientY - bounds.top) / sheet.scale;
-    const text = sheet.page.text.find(
-      (t) => x >= t.x - 2 && x <= t.x + t.width + 2 && y >= t.y - 2 && y <= t.y + t.height + 2,
-    );
-    if (!text || !this.selected(text.text)) return;
+    const contains = (t: PreviewText, padding: number) =>
+      x >= t.x - padding &&
+      x <= t.x + t.width + padding &&
+      y >= t.y - padding &&
+      y <= t.y + t.height + padding;
+    const text =
+      sheet.page.text.find((t) => contains(t, 0)) ?? sheet.page.text.find((t) => contains(t, 2));
+    if (!text || !this.selected(text.text, text.origin)) return;
     this.container.querySelectorAll(".preview-source-target").forEach((target) => {
       target.remove();
     });

@@ -150,6 +150,14 @@ export class SourceEditor {
       });
     this.view.dispatch(setDiagnostics(this.view.state, mapped));
   }
+  highlightSource(from: number, to: number) {
+    const source = this.view.state.sliceDoc();
+    const position = (offset: number) =>
+      this.view.state.facet(EditorState.lineSeparator) === "\r\n"
+        ? source.slice(0, offset).replace(/\r\n/g, "\n").length
+        : offset;
+    this.highlight(position(from), position(to));
+  }
   highlight(from: number, to: number) {
     const effects: ReturnType<typeof unfoldEffect.of>[] = [];
     foldedRanges(this.view.state).between(from, to, (start, end) => {

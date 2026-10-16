@@ -99,6 +99,9 @@ export interface CompileRequest {
   creationTimestamp: number;
 }
 export interface PreviewText {
+  // Source spans from the compiler count UTF-8 bytes.
+  origin?: { path: string; from: number; to: number } | null;
+  fontSize?: number;
   text: string;
   x: number;
   y: number;

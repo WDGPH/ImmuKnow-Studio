@@ -90,6 +90,30 @@ describe("current project archives", () => {
     ).resolves.toEqual({ files, template });
   });
 
+  it("accepts only the known preview-only compiler builds while preserving authored bytes", async () => {
+    const current = {
+      ...build,
+      compiler_build_sha256: "fd11e90e9704755503826450c4088ad14ff4a6321725e5719e2e27d47a1d7d31",
+    };
+    for (const hash of [
+      "6aecf70c6e831c1d6b538064aec1620eb57c44e59c840323a51b1ebc690bbdca",
+      "6ff9cfe83ce2d4bf533fe160b847141a877af037faccae1729bc12b8eeeeab12",
+    ]) {
+      const previous = { ...build, compiler_build_sha256: hash };
+      const archive = await exportProject(files, template, previous);
+      await expect(importProject(archive, current)).resolves.toEqual({ files, template });
+      await expect(
+        importProject(archive, {
+          ...current,
+          shared_resources: { ...current.shared_resources, sha256: "e".repeat(64) },
+        }),
+      ).rejects.toThrow("different ImmuKnow");
+      await expect(
+        importProject(archive, { ...current, compiler_build_sha256: "a".repeat(64) }),
+      ).rejects.toThrow("different ImmuKnow");
+    }
+  });
+
   it("requires the same English/French filename contract for selected entries", async () => {
     for (const name of [
       "config/edited.en.typ",
