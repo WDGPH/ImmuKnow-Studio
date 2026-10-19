@@ -1,10 +1,19 @@
-import { StreamLanguage, type StreamParser, type StringStream } from "@codemirror/language";
+import { StreamLanguage, type StreamParser, StringStream } from "@codemirror/language";
 
 type Frame = { mode: "markup" | "code"; end: string; statement?: string };
 type State = { frames: Frame[]; comments: number; raw: number; quoted: boolean };
 const statements = new Set(["let", "set", "show", "import", "include", "if", "for", "while"]);
 const keywords =
   /^(?:let|if|else|for|while|in|true|false|auto|none|import|include|as|set|show|return|break|continue)$/;
+
+function startState(): State {
+  return { frames: [{ mode: "markup", end: "" }], comments: 0, raw: 0, quoted: false };
+}
+
+function startLine(state: State) {
+  if (state.comments || state.raw || state.quoted) return;
+  while (["line", "inline"].includes(state.frames.at(-1)?.end ?? "")) state.frames.pop();
+}
 
 function finishExpression(stream: StringStream, state: State) {
   if (state.frames.at(-1)?.end === "inline" && !/[.([]/.test(stream.peek() ?? " "))
@@ -13,12 +22,10 @@ function finishExpression(stream: StringStream, state: State) {
 
 export const typstParser: StreamParser<State> = {
   languageData: { commentTokens: { line: "//", block: { open: "/*", close: "*/" } } },
-  startState: () => ({ frames: [{ mode: "markup", end: "" }], comments: 0, raw: 0, quoted: false }),
+  startState,
   copyState: (state) => ({ ...state, frames: state.frames.map((frame) => ({ ...frame })) }),
   token(stream, state) {
-    if (stream.sol()) {
-      while (["line", "inline"].includes(state.frames.at(-1)?.end ?? "")) state.frames.pop();
-    }
+    if (stream.sol()) startLine(state);
     if (state.raw) {
       if (stream.match("`".repeat(state.raw))) state.raw = 0;
       else stream.next();
@@ -72,7 +79,7 @@ export const typstParser: StreamParser<State> = {
         state.raw = (raw as RegExpMatchArray)[0].length;
         return "string";
       }
-      const expression = stream.match(/#([\w-]+)/);
+      const expression = stream.match(/#([\p{L}_][\p{L}\p{N}_-]*)/u);
       if (expression) {
         const name = (expression as RegExpMatchArray)[1];
         state.frames.push({
@@ -89,8 +96,7 @@ export const typstParser: StreamParser<State> = {
               ? "namespace"
               : "variableName";
       }
-      if (stream.match("#", false) && /^#[({[]/.test(stream.string.slice(stream.pos))) {
-        stream.next();
+      if (stream.match("#")) {
         state.frames.push({ mode: "code", end: "inline" });
         return "punctuation";
       }
@@ -114,7 +120,7 @@ export const typstParser: StreamParser<State> = {
       });
       return "bracket";
     }
-    const word = stream.match(/[\w-]+/);
+    const word = stream.match(/[\p{L}\p{N}_-]+/u);
     if (word) {
       const value = (word as RegExpMatchArray)[0];
       finishExpression(stream, state);
@@ -133,3 +139,27 @@ export const typstParser: StreamParser<State> = {
 };
 
 export const typst = StreamLanguage.define(typstParser);
+
+// Replay the same lexer used for highlighting so suggestions respect strings,
+// nested comments and content blocks, including when the source is unfinished.
+export function typstCodeAt(source: string, position: number): boolean {
+  const beforeCursor = source.slice(0, Math.max(0, position));
+  const lines = beforeCursor.split("\n");
+  const state = startState();
+  let lastToken: string | null = null;
+  for (const line of lines) {
+    startLine(state);
+    const stream = new StringStream(line, 4, 2);
+    lastToken = null;
+    while (!stream.eol()) {
+      stream.start = stream.pos;
+      lastToken = typstParser.token(stream, state);
+    }
+  }
+  if (state.comments || state.raw || state.quoted || lastToken === "comment") return false;
+  if (lastToken === "string") return false;
+  return (
+    state.frames.at(-1)?.mode === "code" ||
+    /^(?:variableName|namespace|keyword|number)/.test(lastToken ?? "")
+  );
+}
