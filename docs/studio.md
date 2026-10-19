@@ -37,6 +37,17 @@ The editor keeps native imports such as `#import "settings.typ": *` visible.
 Open **Coding cheat sheet** beside the editor tabs for a single-page reference
 to wording, client facts, checked pages and ImmuKnow components. It is available
 offline in the open app; the [manual has the same examples](coding-cheatsheet.md).
+Type `#` followed by a function name for coding suggestions, or press Ctrl+Space
+inside Typst code to open them. Suggestions cover common Typst layout and text
+functions, the shared ImmuKnow components, and the supplied Settings helpers.
+Inside a supported function call, suggestions include selected named options;
+already supplied options are omitted. Accept a suggestion with Enter or Tab.
+Hover over a supported function for a short explanation, useful options and an
+example. Suggestions stay out of ordinary wording, comments and quoted text.
+This is a focused authoring aid: it does not infer your own functions, imported
+aliases or all available Typst types and methods. The Typst compiler checks the
+complete source when previewing.
+
 Use Ctrl+/ to comment a selection and Ctrl+[ or Ctrl+] to change indentation.
 Drag the divider to resize the panes. The preview shows all pages in one scroll;
 use its plus/minus controls to zoom. Drag across preview text to select and copy
