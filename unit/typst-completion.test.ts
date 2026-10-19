@@ -60,6 +60,7 @@ describe("Typst coding suggestions", () => {
     expect(labels("#text([plain wording|])")).toEqual([]);
     expect(labels("#text(size: fo|)")).toContain("text");
     expect(labels("#text(size: fo|)")).not.toContain("size");
+    expect(labels("#text(st|)")).toContain("str");
   });
 
   it("does not suggest code in prose, comments, raw blocks or quoted strings", () => {

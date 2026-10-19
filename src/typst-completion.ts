@@ -65,9 +65,12 @@ export function typstCompletion(context: CompletionContext): CompletionResult | 
         apply: `${label}: `,
         type: "property",
         detail: "named option",
+        boost: 1,
         info: call.help.parameters.find(([name]) => name === label)?.[1],
       }));
-    if (parameters.length) return { from, options: parameters, validFor: /^[\w-]*$/ };
+    // A new argument can also be a positional function call, such as text(str(42)).
+    if (parameters.length)
+      return { from, options: [...parameters, ...functions], validFor: /^[\w.-]*$/ };
   }
   if (!word && source[context.pos - 1] !== "#" && !context.explicit) return null;
   return { from, options: functions, validFor: /^[\w.-]*$/ };
