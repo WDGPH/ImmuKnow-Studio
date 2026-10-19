@@ -34,7 +34,8 @@ Settings editor; controls that cannot safely read a value show **Edit in Setting
 or explain where to edit it. A refused theme change leaves the project unchanged.
 
 The editor keeps native imports such as `#import "settings.typ": *` visible.
-Open **Typst Reference** in the top header, beside the walkthrough button, for
+Open **Typst Reference** using the book icon in the top header, beside the
+walkthrough button, for
 examples of letter wording, client information, page layout and ImmuKnow functions.
 It is available offline in the open app; the [manual has the same examples](coding-cheatsheet.md).
 Type `#` followed by a function name for coding suggestions, or press Ctrl+Space
