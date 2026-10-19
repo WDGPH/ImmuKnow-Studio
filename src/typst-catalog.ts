@@ -111,9 +111,9 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       "logo-size",
       "logo-padding",
     ],
-    description: "Draws a QR code using the client’s authored link function or a fixed URL.",
+    description: "Draws a QR code using the client’s link function or a fixed URL.",
     parameters: [
-      ["notice", "This client’s prepared facts."],
+      ["notice", "This client’s information."],
       ["url", "A fixed URL, or a function that builds a link from this notice."],
       ["width", "Displayed width, such as 3cm."],
       ["enabled", "Set false to hide the code."],
@@ -250,7 +250,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     description: "Sets page size, margins, header and footer.",
     parameters: [
       ["body", "Page content, when used as a function."],
-      ["paper", "Optional paper setting."],
+      ["paper", 'Paper size, such as "us-letter" or "a4".'],
       ["width", "Displayed width, such as 3cm."],
       ["height", "Displayed height, such as 2cm."],
       ["margin", "Optional margin setting."],
@@ -490,38 +490,38 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     namedParameters: [],
   },
   "immunization-history": {
-    description: "Inserts the history table using the options authored in Settings.",
+    description: "Inserts the history table using the options chosen in Settings.",
     parameters: [],
     example: "#immunization-history()",
     namedParameters: [],
   },
   "immuknow.notice-page": {
-    description: "Applies page styling. Use notice-page for a named, checked section.",
+    description: "Sets up the page layout. Use notice-page to start a page with a heading.",
     parameters: [
       ["body", "Content in square brackets."],
       ["language", 'Use "en", "fr", or auto where supported.'],
-      ["paper", "Optional paper setting."],
-      ["margins", "Optional margins setting."],
-      ["font", "Optional font setting."],
+      ["paper", 'Paper size, such as "us-letter" or "a4".'],
+      ["margins", "Space around the page edges, with top, bottom, left and right values."],
+      ["font", "Typeface name, such as body-font."],
       ["font-size", "Text size, such as 10pt."],
-      ["page-numbers", "Optional page numbers setting."],
+      ["page-numbers", "Set true to show page numbers."],
     ],
     example: "#immuknow.notice-page[Page content]",
     namedParameters: ["language", "paper", "margins", "font", "font-size", "page-numbers"],
   },
   "immuknow.notice-style": {
-    description: "Applies notice styling and emits the checking report.",
+    description: "Applies the letter layout and includes the results of ImmuKnow’s checks.",
     parameters: [
       ["body", "Document content supplied by the show rule."],
-      ["notice", "Prepared client facts from Settings."],
+      ["notice", "Client information supplied by Settings."],
       ["language", 'Use "en", "fr", or auto where supported.'],
-      ["paper", "Optional paper setting."],
-      ["margins", "Optional margins setting."],
-      ["font", "Optional font setting."],
+      ["paper", 'Paper size, such as "us-letter" or "a4".'],
+      ["margins", "Space around the page edges, with top, bottom, left and right values."],
+      ["font", "Typeface name, such as body-font."],
       ["font-size", "Text size, such as 10pt."],
-      ["link-color", "Optional link color setting."],
-      ["paragraph-spacing", "Optional paragraph spacing setting."],
-      ["page-numbers", "Optional page numbers setting."],
+      ["link-color", "Colour used for links, such as link-color."],
+      ["paragraph-spacing", "Gap between paragraphs, such as 0.55em."],
+      ["page-numbers", "Set true to show page numbers."],
     ],
     example: "#show: immuknow.notice-style.with(notice: notice)",
     namedParameters: [
@@ -537,17 +537,17 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     ],
   },
   "immuknow.notice-section": {
-    description: "Starts a named section and checks unexpected continuation.",
+    description: "Adds a heading and warns if the section runs onto another page.",
     parameters: [
       ["title", "Quoted section heading."],
       ["body", "Content in square brackets."],
-      ["logo", "Optional logo setting."],
-      ["logo-width", "Optional logo width setting."],
-      ["title-size", "Optional title size setting."],
+      ["logo", "Logo image, or none to leave it out."],
+      ["logo-width", "Displayed logo width, such as 6cm."],
+      ["title-size", "Heading text size, such as 20pt."],
       ["fill", "Fill colour, such as heading-color."],
-      ["heading-above", "Optional heading above setting."],
-      ["heading-below", "Optional heading below setting."],
-      ["allow-overflow", "Set true for intentional continuation onto another page."],
+      ["heading-above", "Space above the heading."],
+      ["heading-below", "Space below the heading."],
+      ["allow-overflow", "Set true to allow the content to run onto another page."],
     ],
     example: '#immuknow.notice-section("Next steps")[Content]',
     namedParameters: [
@@ -563,7 +563,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
   "immuknow.address-block": {
     description: "Places the client mailing address and records it for checking.",
     parameters: [
-      ["notice", "Prepared client facts."],
+      ["notice", "Client information."],
       ["language", 'Use "en", "fr", or auto where supported.'],
       ["addressee", "Optional addressee setting."],
       ["province", "Optional province setting."],
@@ -574,19 +574,19 @@ export const functionCatalog: Record<string, FunctionHelp> = {
   "immuknow.signature-block": {
     description: "Places a signature image, name and title together.",
     parameters: [
-      ["signature", "Optional signature setting."],
-      ["name", "Optional name setting."],
-      ["title", "Optional title setting."],
+      ["signature", "Signature image, or none to leave it out."],
+      ["name", "Printed name below the signature."],
+      ["title", "Job title below the printed name."],
       ["spacing", "Space between items, such as 6pt."],
-      ["allow-overflow", "Set true for intentional continuation onto another page."],
+      ["allow-overflow", "Set true to allow the content to run onto another page."],
     ],
     example: "#immuknow.signature-block(signature: signature, name: signature-name)",
     namedParameters: ["signature", "name", "title", "spacing", "allow-overflow"],
   },
   "immuknow.overdue-diseases": {
-    description: "Displays the prepared overdue diseases as bullets or inline text.",
+    description: "Displays the overdue diseases as bullets or inline text.",
     parameters: [
-      ["notice", "Prepared client facts."],
+      ["notice", "Client information."],
       ["style", "Optional style setting."],
       ["columns", "Column count or tuple of column widths."],
       ["include-dose", "Optional include dose setting."],
@@ -609,9 +609,9 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     ],
   },
   "immuknow.overdue-agents": {
-    description: "Displays the prepared overdue vaccine agents.",
+    description: "Displays the overdue vaccine agents.",
     parameters: [
-      ["notice", "Prepared client facts."],
+      ["notice", "Client information."],
       ["style", "Optional style setting."],
       ["columns", "Column count or tuple of column widths."],
       ["spacing", "Space between items, such as 6pt."],
@@ -625,7 +625,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
   "immuknow.immunization-history": {
     description: "Builds the history table with explicit display options.",
     parameters: [
-      ["notice", "Prepared client facts."],
+      ["notice", "Client information."],
       ["diseases", "Optional diseases setting."],
       ["ignore-agents", "Optional ignore agents setting."],
       ["include-other", "Optional include other setting."],
@@ -687,41 +687,48 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     namedParameters: [],
   },
   "immuknow.query-url": {
-    description: "Builds a URL by encoding raw query keys and values once.",
+    description:
+      "Adds values such as a client ID to a web address, handling special characters for you.",
     parameters: [
-      ["base", "Base URL."],
-      ["values", "Dictionary of raw query values."],
+      ["base", "Website address to add the values to."],
+      [
+        "values",
+        "Names and values to add, such as (client: notice.client_id). Pass the original text.",
+      ],
     ],
     example: "#immuknow.query-url(records-url, (client: notice.client_id))",
     namedParameters: [],
   },
   "immuknow.url-encode": {
-    description: "Encodes one raw URL query or path value.",
-    parameters: [["value", "Raw text to encode once."]],
+    description: "Makes a single value safe to include in a web address.",
+    parameters: [
+      ["value", "Original text, before converting special characters for a web address."],
+    ],
     example: "#immuknow.url-encode(notice.client_id)",
     namedParameters: [],
   },
   "immuknow.notice-dates": {
-    description: "Returns localized delivery, as-of and birth dates.",
-    parameters: [["notice", "Prepared client facts."]],
+    description: "Provides delivery, as-of and birth dates in the notice’s language.",
+    parameters: [["notice", "Client information."]],
     example: "#immuknow.notice-dates(notice)",
     namedParameters: [],
   },
   "immuknow.long-date": {
-    description: "Formats an ISO date using the chosen language.",
+    description: "Writes a date in the chosen language.",
     parameters: [
-      ["iso", "ISO date text."],
+      ["iso", 'Date in year-month-day format, such as "2026-02-02".'],
       ["lang", '"en" or "fr".'],
-      ["required", "Optional required setting."],
+      ["required", "Set false to allow a missing date."],
     ],
     example: '#immuknow.long-date("2026-02-02", "en")',
     namedParameters: ["required"],
   },
   "immuknow.check-notice": {
-    description: "Checks prepared facts against the authored notice identity.",
+    description:
+      "Checks that the client information matches the expected notice version and language.",
     parameters: [
-      ["notice", "Prepared client facts."],
-      ["version", "Optional version setting."],
+      ["notice", "Client information."],
+      ["version", 'Expected notice version, such as "v1".'],
       ["language", 'Use "en", "fr", or auto where supported.'],
     ],
     example:

@@ -34,9 +34,9 @@ Settings editor; controls that cannot safely read a value show **Edit in Setting
 or explain where to edit it. A refused theme change leaves the project unchanged.
 
 The editor keeps native imports such as `#import "settings.typ": *` visible.
-Open **Coding cheat sheet** beside the editor tabs for a single-page reference
-to wording, client facts, checked pages and ImmuKnow components. It is available
-offline in the open app; the [manual has the same examples](coding-cheatsheet.md).
+Open **Typst Reference** in the top header, beside the walkthrough button, for
+examples of letter wording, client information, page layout and ImmuKnow functions.
+It is available offline in the open app; the [manual has the same examples](coding-cheatsheet.md).
 Type `#` followed by a function name for coding suggestions, or press Ctrl+Space
 inside Typst code to open them. Suggestions cover common Typst layout and text
 functions, the shared ImmuKnow components, and the supplied Settings helpers.

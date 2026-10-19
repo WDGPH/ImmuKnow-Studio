@@ -1,9 +1,10 @@
-<!-- Shared with Studio's offline coding cheat sheet. Keep this content as HTML
+<!-- Shared with Studio's offline Typst Reference. Keep this content as HTML
      so the manual and the dialog use the same examples without a Markdown parser. -->
-<h1 id="coding-cheatsheet-title">Typst and ImmuKnow coding cheat sheet</h1>
-<p>Use these patterns in <strong>Template</strong> with the supplied Settings import
-and <code>#show: notice-style</code>. Keep those opening lines: Settings supplies
-the prepared <code>notice</code>, dates and helpers used below.</p>
+<h1 id="coding-cheatsheet-title">Typst Reference</h1>
+<p>Examples for editing ImmuKnow letters. Keep the opening
+<code>#import "settings.typ": *</code> and <code>#show: notice-style</code>
+lines in <strong>Template</strong>. They provide the client information,
+dates and page settings used below.</p>
 
 <div class="coding-cheatsheet-grid">
 <section>
@@ -21,7 +22,7 @@ at sign, and <code>\#</code> for a literal hash.</p>
 </section>
 
 <section>
-<h2>Use client facts and wording</h2>
+<h2>Client information</h2>
 <pre><code>Record: #notice.client_id
 As of #date_as_of
 
@@ -32,53 +33,56 @@ As of #date_as_of
 ] else [
   Please update the named client's record.
 ]</code></pre>
-<p>Age can be unknown. Keep neutral wording in the last branch. The example
-arrows switch prepared facts; edit the letter's wording around those facts.</p>
+<p><code>notice</code> contains the selected client's information.
+Age can be unknown, so the final <code>else</code> uses neutral wording.
+Use the Example client arrows to try the letter with different clients.</p>
 </section>
 
 <section>
-<h2>Build a checked page</h2>
+<h2>Pages and headings</h2>
 <pre><code>#notice-page("Immunization Record")[
   For your reference:
   #immunization-history()
 ]</code></pre>
-<p><code>notice-page</code> starts a fresh page with the standard heading and
-reports unexpected continuation. Use <code>allow-overflow: true</code> only when
-continuation is intended. The local <code>immunization-history()</code> helper
-uses your Settings choices. Call it where the table should appear.</p>
+<p><code>notice-page</code> starts a new page with a heading and warns if the
+content runs onto another page. Add <code>allow-overflow: true</code> when you
+want to allow extra pages. <code>immunization-history()</code> places the history
+table using your Settings choices.</p>
 </section>
 
 <section>
-<h2>Place ImmuKnow components</h2>
+<h2>Address, overdue list and QR code</h2>
 <pre><code>#immuknow.client-block(notice,
   window: envelope-window, details: "below")
 #immuknow.overdue-diseases(notice,
   labels: presentation.selected-labels())
 #immuknow.qr-code(notice, ..qr)</code></pre>
-<p>Use <code>overdue-agents</code> for the agent notice. Keep
-<code>notice</code> as supplied; helper options change its display.
-<code>..qr</code> passes the named options from the <code>qr</code> dictionary.
-Shared <code>immuknow</code> components also record findings for review.</p>
+<p>Use <code>overdue-agents</code> for the vaccine agent list.
+These functions display the client's information; their options control how
+it looks. <code>..qr</code> uses the group of QR options defined in Settings.
+Review <strong>Findings</strong> for any warnings about the letter.</p>
 </section>
 
 <section>
-<h2>Make links and reusable wording</h2>
+<h2>Links and reusable text</h2>
 <pre><code>#let reply-line(deadline) = [
   Please reply by *#deadline*.
 ]
 #reply-line("March 2")
 #immuknow.notice-link(records-url)[Update your record]</code></pre>
-<p><code>#let</code> defines a value or helper. Use
-<code>immuknow.notice-link</code> for links included in notice checks. For a
-client-specific URL, <code>immuknow.query-url(base, (client: notice.client_id))</code>
-encodes raw query values once.</p>
+<p><code>#let</code> defines a value or a function you can use again.
+Use <code>immuknow.notice-link</code> to include a link in ImmuKnow's checks.
+To put a client ID in a web address, use
+<code>immuknow.query-url(base, (client: notice.client_id))</code>, where
+<code>base</code> is your website address. It handles special characters in
+the ID for you.</p>
 </section>
 
 <section>
-<h2>Find help while editing</h2>
+<h2>Editor shortcuts</h2>
 <p>Press <strong>Ctrl+Space</strong> for suggestions; use the arrow keys and
 <strong>Enter</strong> to choose one, or <strong>Escape</strong> to dismiss.
-Hover over a supported function for its arguments and an example.</p>
+Hover over a supported function for its options and an example.</p>
 <p><strong>Ctrl+/</strong> comments selected lines;
 <strong>Ctrl+[</strong> and <strong>Ctrl+]</strong> change indentation.
 On a Mac, use <strong>Command</strong> for these editing shortcuts; suggestions
