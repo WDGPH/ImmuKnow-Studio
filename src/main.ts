@@ -1,4 +1,5 @@
 import "./style.css";
+import { initializeCodingCheatsheet } from "./coding-cheatsheet";
 import { archiveJob } from "./archive";
 import { imageBytes, imagePath, relativeImage } from "./branding";
 import { Compiler, type CompileInput } from "./compile";
@@ -785,6 +786,7 @@ divider.onkeydown = (event) => {
   event.preventDefault();
   resizeSplit(Number(divider.getAttribute("aria-valuenow")) + (event.key === "ArrowLeft" ? -3 : 3));
 };
+initializeCodingCheatsheet();
 initializeHelp((next) => {
   const original = tab;
   showTab(next ?? "settings");

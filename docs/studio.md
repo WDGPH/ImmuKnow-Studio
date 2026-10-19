@@ -34,6 +34,9 @@ Settings editor; controls that cannot safely read a value show **Edit in Setting
 or explain where to edit it. A refused theme change leaves the project unchanged.
 
 The editor keeps native imports such as `#import "settings.typ": *` visible.
+Open **Coding cheat sheet** beside the editor tabs for a single-page reference
+to wording, client facts, checked pages and ImmuKnow components. It is available
+offline in the open app; the [manual has the same examples](coding-cheatsheet.md).
 Use Ctrl+/ to comment a selection and Ctrl+[ or Ctrl+] to change indentation.
 Drag the divider to resize the panes. The preview shows all pages in one scroll;
 use its plus/minus controls to zoom. Drag across preview text to select and copy
