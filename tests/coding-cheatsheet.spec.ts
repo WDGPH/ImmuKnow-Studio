@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-test("the coding cheat sheet works offline and preserves the source and selected tab", async ({ page, context }) => {
+test("the coding cheat sheet works offline and preserves the source and selected tab", async ({
+  page,
+  context,
+}) => {
   await page.goto("./");
   await expect(page.locator("#settings-tab")).toBeEnabled();
   await page.locator("#settings-tab").click();
@@ -32,7 +35,9 @@ test("the coding cheat sheet fits a narrow screen", async ({ page }) => {
   const dialog = page.locator("#coding-cheatsheet-dialog");
   await expect(dialog).toBeVisible();
   expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
   await dialog.getByRole("heading", { name: "Find help while editing" }).scrollIntoViewIfNeeded();
   await expect(dialog.getByRole("heading", { name: "Find help while editing" })).toBeVisible();
   await page.keyboard.press("Escape");
