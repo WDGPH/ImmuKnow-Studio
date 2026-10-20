@@ -1,0 +1,93 @@
+<!-- Shared with Studio's offline Typst Reference. Keep this content as HTML
+     so the manual and the dialog use the same examples without a Markdown parser. -->
+<h1 id="coding-cheatsheet-title">Typst Reference</h1>
+<p>Examples for editing ImmuKnow letters. Keep the opening
+<code>#import "settings.typ": *</code> and <code>#show: notice-style</code>
+lines in <strong>Template</strong>. They provide the client information,
+dates and page settings used below.</p>
+
+<div class="coding-cheatsheet-grid">
+<section>
+<h2>Write and format</h2>
+<pre><code>*Important* and _emphasized_ words.
+
+A blank line starts a new paragraph.
+#text(size: 12pt, fill: heading-color)[Please reply.]
+#v(0.3cm)
+#align(center)[Thank you.]</code></pre>
+<p><code>#</code> starts code in ordinary text; <code>[…]</code> contains text
+inside code. Inside a function's parentheses, another function needs no
+<code>#</code>. Use <code>//</code> for a comment, <code>\@</code> for a literal
+at sign, and <code>\#</code> for a literal hash.</p>
+</section>
+
+<section>
+<h2>Client information</h2>
+<pre><code>Record: #notice.client_id
+As of #date_as_of
+
+#if notice.client_data.over_16 == true [
+  Please update your record.
+] else if notice.client_data.over_16 == false [
+  Please update your child's record.
+] else [
+  Please update the named client's record.
+]</code></pre>
+<p><code>notice</code> contains the selected client's information.
+Age can be unknown, so the final <code>else</code> uses neutral wording.
+Use the Example client arrows to try the letter with different clients.</p>
+</section>
+
+<section>
+<h2>Pages and headings</h2>
+<pre><code>#notice-page("Immunization Record")[
+  For your reference:
+  #immunization-history()
+]</code></pre>
+<p><code>notice-page</code> starts a new page with a heading and warns if the
+content runs onto another page. Add <code>allow-overflow: true</code> when you
+want to allow extra pages. <code>immunization-history()</code> places the history
+table using your Settings choices.</p>
+</section>
+
+<section>
+<h2>Address, overdue list and QR code</h2>
+<pre><code>#immuknow.client-block(notice,
+  window: envelope-window, details: "below")
+#immuknow.overdue-diseases(notice,
+  labels: presentation.selected-labels())
+#immuknow.qr-code(notice, ..qr)</code></pre>
+<p>Use <code>overdue-agents</code> for the vaccine agent list.
+These functions display the client's information; their options control how
+it looks. <code>..qr</code> uses the group of QR options defined in Settings.
+Review <strong>Findings</strong> for any warnings about the letter.</p>
+</section>
+
+<section>
+<h2>Links and reusable text</h2>
+<pre><code>#let reply-line(deadline) = [
+  Please reply by *#deadline*.
+]
+#reply-line("March 2")
+#immuknow.notice-link(records-url)[Update your record]</code></pre>
+<p><code>#let</code> defines a value or a function you can use again.
+Use <code>immuknow.notice-link</code> to include a link in ImmuKnow's checks.
+To put a client ID in a web address, use
+<code>immuknow.query-url(base, (client: notice.client_id))</code>, where
+<code>base</code> is your website address. It handles special characters in
+the ID for you.</p>
+</section>
+
+<section>
+<h2>Editor shortcuts</h2>
+<p>Press <strong>Ctrl+Space</strong> for suggestions; use the arrow keys and
+<strong>Enter</strong> to choose one, or <strong>Escape</strong> to dismiss.
+Hover over a supported function for its options and an example.</p>
+<p><strong>Ctrl+/</strong> comments selected lines;
+<strong>Ctrl+[</strong> and <strong>Ctrl+]</strong> change indentation.
+On a Mac, use <strong>Command</strong> for these editing shortcuts; suggestions
+still use <strong>Ctrl+Space</strong>.</p>
+<p>Try short and long examples, review every page and read Findings.
+Double-click preview text to locate its source when available.</p>
+</section>
+</div>

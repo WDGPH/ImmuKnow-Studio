@@ -24,6 +24,7 @@ nav:
   - User guide:
       - Get started: getting-started.md
       - Editing, drafts and downloads: studio.md
+      - Typst Reference: coding-cheatsheet.md
       - Use templates on your workstation: local-production.md
       - Privacy and offline use: privacy-offline.md
       - Troubleshooting: troubleshooting.md

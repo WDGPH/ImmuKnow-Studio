@@ -14,6 +14,7 @@ import { decoder, editableFile, encoder } from "./project";
 import type { Diagnostic } from "./types";
 import { typstHelp } from "./typst-help";
 import { typst } from "./typst-language";
+import { typstCompletion } from "./typst-completion";
 
 const typstColours = HighlightStyle.define([
   { tag: tags.function(tags.variableName), color: "var(--syntax-function)" },
@@ -71,7 +72,14 @@ export class SourceEditor {
           ]),
           EditorView.lineWrapping,
           sourceHighlight,
-          name.endsWith(".json") ? json() : [typst, typstHelp, syntaxHighlighting(typstColours)],
+          name.endsWith(".json")
+            ? json()
+            : [
+                typst,
+                typstHelp,
+                typst.data.of({ autocomplete: typstCompletion }),
+                syntaxHighlighting(typstColours),
+              ],
           EditorState.lineSeparator.of(text.includes("\r\n") ? "\r\n" : "\n"),
           EditorView.contentAttributes.of({ "aria-label": "Source editor", spellcheck: "false" }),
           EditorView.updateListener.of((update) => {
