@@ -18,7 +18,7 @@ small changes, and include the checks and any remaining limits in your PR.
 
 ## Core dependency
 
-Studio installs Core from the `studio-core` branch of
+Studio installs Core from the `main` branch of
 <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` selects the branch and
 `uv.lock` records the exact commit. A local Core checkout is not required.
 
@@ -37,9 +37,9 @@ those facts, regenerate and review `examples/prepared.json` instead:
 uv run --locked python -m scripts.examples
 ```
 
-The exact commit is a short-term dependency pin. The planned target is a
-published ImmuKnow v2 or later tag, once available and validated. To adopt that
-existing Core tag, use
+The current locked commit is also tagged `v2.0.0` in Core. Studio selects
+`main` so deliberate dependency refreshes follow that branch. To select a
+published Core tag instead, use
 `uv add git+https://github.com/WDGPH/ImmuKnow.git --tag <core-tag>`.
 Commit both dependency files and run the checks before releasing. Core and
 Studio provenance are recorded separately; compatibility continues to compare
@@ -62,7 +62,7 @@ To deploy against the latest Core branch commit, open **Actions → Studio Pages
 → Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
-currently it is Core's `studio-core` branch. A configured tag or revision stays
+currently it is Core's `main` branch. A configured tag or revision stays
 at that reference. The workflow still checks the committed example facts and
 resource compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.

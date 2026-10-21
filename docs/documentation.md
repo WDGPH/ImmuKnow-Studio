@@ -26,7 +26,8 @@ public assets in examples.
 Keep the relationship to Core explicit: Studio develops templates; local
 ImmuKnow runs generate production notices. Link to Core's manual for input
 validation, the facts contract and delivery review instead of duplicating it.
-Describe planned changes as plans, including the move to a Core v2+ tag.
+Keep Core’s configured Git reference and exact locked commit distinct from its
+release tags.
 
 ## Check a documentation change
 
@@ -79,6 +80,6 @@ tag changes. It sends no generated HTML and is disabled until configured.
 Review the user journey from first edit through downloaded project and local
 native run. Run the application checks in [Build and contribute](development.md)
 and the strict documentation build. Verify the actual Core pin and the compiler
-identity; the future Core v2+ tag remains a separate adoption step until it
-exists and passes those checks. Keep package versions, release tag and release
+identity; selecting a Core release tag remains a separate dependency change
+that must pass those checks. Keep package versions, release tag and release
 description consistent, and record completed checks in the reviewing PR.

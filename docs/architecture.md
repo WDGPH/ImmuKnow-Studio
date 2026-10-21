@@ -53,15 +53,14 @@ details.
 ## Core versions
 
 Studio v0.1.0 has its own release number. Its Core dependency currently selects
-Core's `studio-core` branch in `pyproject.toml`, with an exact commit recorded
+Core's `main` branch in `pyproject.toml`, with an exact commit recorded
 in `uv.lock`. Ordinary locked builds use that commit. A manual build can
 explicitly refresh the configured reference; its effective lockfile and Core
 identity are retained in the workflow artifacts.
 
-This commit pin is a short-term arrangement. Studio is intended to target a
-published **ImmuKnow v2 or later tag** once that Core release is available and
-validated. That is a planned dependency change, not a claim that a v2 tag is
-already in use. Do not infer Core compatibility from Studio's version number.
+The current pin is also the **ImmuKnow v2.0.0** release commit. Studio still
+selects `main`; selecting a published Core tag remains a separate dependency
+change. Do not infer Core compatibility from Studio's version number.
 
 When adopting a tagged Core release, update both dependency files, prepare and
 review examples, and run the browser/native export checks described in

@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
@@ -523,8 +523,8 @@ wheels = [
 
 [[package]]
 name = "immuknow"
-version = "1.1.0"
-source = { git = "https://github.com/WDGPH/ImmuKnow.git?branch=studio-core#8fbbbbfaf8af3bc9307edff93ccb3e83eccf321a" }
+version = "2.0.0"
+source = { git = "https://github.com/WDGPH/ImmuKnow.git?branch=main#ef4b7a6180bdd2e27e06400d82b1780395d67927" }
 dependencies = [
     { name = "filelock" },
     { name = "frictionless" },
@@ -559,7 +559,7 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "immuknow", git = "https://github.com/WDGPH/ImmuKnow.git?branch=studio-core" },
+    { name = "immuknow", git = "https://github.com/WDGPH/ImmuKnow.git?branch=main" },
     { name = "pyyaml" },
 ]
 
