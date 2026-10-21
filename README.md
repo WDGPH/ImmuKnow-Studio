@@ -37,6 +37,7 @@ portable copy. See [Privacy and offline use](docs/privacy-offline.md).
 - [Documentation and releases](docs/documentation.md): strict manual builds,
   the PHIZ documentation hub and v0.1.0 preparation.
 
-Studio currently locks an exact Core commit as a short-term arrangement. It is
-intended to target a published **ImmuKnow v2 or later tag** once available and
-validated. Studio and Core have separate version numbers.
+Studio selects Core’s `main` branch and locks an exact commit in `uv.lock`.
+The current pin is also the **ImmuKnow v2.0.0** release commit. Selecting a
+published Core tag remains a separate dependency change. Studio and Core have
+separate version numbers.
