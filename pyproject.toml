@@ -12,14 +12,14 @@ immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", branch = "main" }
 
 [dependency-groups]
 dev = [
-    "ruff==0.17.0",
-    "ty>=0.0.78",
-    "pillow>=12.3.0",
+    "ruff==0.17.1",
+    "ty>=0.0.89",
+    "pillow>=13.0.0",
     "pymupdf==1.28.2",
     "zxing-cpp==3.1.1",
 ]
 docs = [
     "mkdocs==1.6.1",
     "mkdocs-material==9.7.7",
-    "pymdown-extensions==12.2",
+    "pymdown-extensions==12.3",
 ]
