@@ -1,174 +1,242 @@
 {
   "dates": {
-    "date_of_delivery": "2026-02-01",
-    "date_as_of": "2026-01-15"
+    "date_of_delivery": "2026-10-08",
+    "date_as_of": "2026-09-30"
   },
   "creationTimestamp": 1769904000,
   "scenarios": [
     {
       "id": "short",
       "label": "Short history",
-      "description": "Two recorded administrations with known validity.",
-      "source": {
-        "school_name": "Lilac Demonstration School",
-        "board_name": "Example School Board",
-        "date_of_birth": "2015-02-03",
-        "street_address_line_1": "100 Example Lane",
-        "street_address_line_2": "",
-        "city": "Demo City",
-        "province": "ON",
-        "postal_code": "N0N 0N0",
-        "overdue_disease": "Measles - 2",
-        "overdue_agent": "MMR",
-        "imms_given": "2020-05-01 - DTaP - Valid; 2021-06-15 - MMR - Valid;",
-        "client_id": "0000000001",
-        "first_name": "Emily",
-        "last_name": "Example 01",
-        "school_id": "0012",
-        "board_id": "0034"
-      },
-      "source_by_language": {
-        "fr": {
-          "first_name": "Élodie",
-          "last_name": "Exemple 01",
-          "school_name": "École Démo des Lilas",
-          "board_name": "Conseil scolaire de démonstration",
-          "street_address_line_1": "100, allée des Lilas",
-          "city": "Ville Exemple"
+      "description": "Synthesized clients with one to three recorded administrations and known validity.",
+      "variants": {
+        "overdue_diseases_v1.en.typ": {
+          "school_name": "Orangeville SS - 103450",
+          "board_name": "Upper Grand DSB",
+          "date_of_birth": "2010-02-16",
+          "street_address_line_1": "53 Starwood Dr.",
+          "street_address_line_2": "",
+          "city": "Fergus",
+          "province": "ON",
+          "postal_code": "N1M 1C6",
+          "overdue_disease": "Diphtheria; Tetanus; Pertussis; Polio; Measles; Mumps; Rubella; Hib",
+          "overdue_agent": "Tdap-IPV; Tdap-IPV; Tdap-IPV; Tdap-IPV; MMR; MMR; MMR; Hib",
+          "imms_given": "2019-09-09 - Pneu-C-13 - Valid; 2020-12-31 - Influenza (IIV4) - Valid; 2026-03-07 - Men-C-ACYW-135 - Valid;",
+          "client_id": "3056345883",
+          "first_name": "Marcelle",
+          "last_name": "Saxena",
+          "school_id": "47476",
+          "board_id": "9536"
+        },
+        "overdue_diseases_v1.fr.typ": {
+          "school_name": "Edward Johnson PS - 103423",
+          "board_name": "Upper Grand DSB",
+          "date_of_birth": "2018-07-21",
+          "street_address_line_1": "860 Clegg Rd Unit 27",
+          "street_address_line_2": "",
+          "city": "Palmerston",
+          "province": "ON",
+          "postal_code": "N0G 6P4",
+          "overdue_disease": "Hepatitis B",
+          "overdue_agent": "HB",
+          "imms_given": "2022-05-26 - HB - Valid;",
+          "client_id": "0663292154",
+          "first_name": "Florence",
+          "last_name": "Madrigal",
+          "school_id": "79641",
+          "board_id": "8022"
+        },
+        "overdue_agents_v1.en.typ": {
+          "school_name": "Island Lake PS - 103455",
+          "board_name": "Upper Grand DSB",
+          "date_of_birth": "2022-01-20",
+          "street_address_line_1": "514 Edgehill Dr",
+          "street_address_line_2": "",
+          "city": "Shelburne",
+          "province": "ON",
+          "postal_code": "L9V 9A0",
+          "overdue_disease": "Pneumococcal",
+          "overdue_agent": "Pneu-C-13",
+          "imms_given": "2016-09-02 - Tdap-IPV - Valid; 2025-03-26 - HepA - Valid;",
+          "client_id": "0385213421",
+          "first_name": "Roland",
+          "last_name": "Trujillo",
+          "school_id": "47584",
+          "board_id": "7969"
+        },
+        "overdue_agents_v1.fr.typ": {
+          "school_name": "Island Lake PS - 103455",
+          "board_name": "Upper Grand DSB",
+          "date_of_birth": "2018-01-18",
+          "street_address_line_1": "188 Holland Cres",
+          "street_address_line_2": "",
+          "city": "Fergus",
+          "province": "ON",
+          "postal_code": "N1M 5Z8",
+          "overdue_disease": "Hepatitis B; Hib",
+          "overdue_agent": "HB; Hib",
+          "imms_given": "2018-06-13 - Var - Valid; 2019-11-05 - Men-C-C - Valid; 2022-10-09 - Pneu-C-13 - Valid;",
+          "client_id": "4547335317",
+          "first_name": "Lawrence",
+          "last_name": "Davey",
+          "school_id": "41589",
+          "board_id": "6311"
         }
-      },
-      "variants": [
-        "overdue_diseases_v1.en.typ",
-        "overdue_diseases_v1.fr.typ",
-        "overdue_agents_v1.en.typ",
-        "overdue_agents_v1.fr.typ"
-      ]
+      }
     },
     {
       "id": "long-history",
       "label": "Long history",
-      "description": "Seventy invented administrations and long contact fields exercise visible continuation.",
-      "source": {
-        "school_name": "Lilac Demonstration School",
-        "board_name": "Example School Board",
-        "date_of_birth": "2014-02-03",
-        "street_address_line_1": "100 Example Lane, Demonstration Residence for Extended Address Review",
-        "street_address_line_2": "Suite 200, Building C, North Entrance",
-        "city": "Demo City",
-        "province": "ON",
-        "postal_code": "N0N 0N0",
-        "overdue_disease": "Measles - 2",
-        "overdue_agent": "MMR",
-        "imms_given": "2015-01-01 - DTaP - Valid; 2015-01-31 - MMR - Valid; 2015-03-02 - IPV - Valid; 2015-04-01 - DTaP - Valid; 2015-05-01 - MMR - Valid; 2015-05-31 - IPV - Valid; 2015-06-30 - DTaP - Valid; 2015-07-30 - MMR - Valid; 2015-08-29 - IPV - Valid; 2015-09-28 - DTaP - Valid; 2015-10-28 - MMR - Valid; 2015-11-27 - IPV - Valid; 2015-12-27 - DTaP - Valid; 2016-01-26 - MMR - Valid; 2016-02-25 - IPV - Valid; 2016-03-26 - DTaP - Valid; 2016-04-25 - MMR - Valid; 2016-05-25 - IPV - Valid; 2016-06-24 - DTaP - Valid; 2016-07-24 - MMR - Valid; 2016-08-23 - IPV - Valid; 2016-09-22 - DTaP - Valid; 2016-10-22 - MMR - Valid; 2016-11-21 - IPV - Valid; 2016-12-21 - DTaP - Valid; 2017-01-20 - MMR - Valid; 2017-02-19 - IPV - Valid; 2017-03-21 - DTaP - Valid; 2017-04-20 - MMR - Valid; 2017-05-20 - IPV - Valid; 2017-06-19 - DTaP - Valid; 2017-07-19 - MMR - Valid; 2017-08-18 - IPV - Valid; 2017-09-17 - DTaP - Valid; 2017-10-17 - MMR - Valid; 2017-11-16 - IPV - Valid; 2017-12-16 - DTaP - Valid; 2018-01-15 - MMR - Valid; 2018-02-14 - IPV - Valid; 2018-03-16 - DTaP - Valid; 2018-04-15 - MMR - Valid; 2018-05-15 - IPV - Valid; 2018-06-14 - DTaP - Valid; 2018-07-14 - MMR - Valid; 2018-08-13 - IPV - Valid; 2018-09-12 - DTaP - Valid; 2018-10-12 - MMR - Valid; 2018-11-11 - IPV - Valid; 2018-12-11 - DTaP - Valid; 2019-01-10 - MMR - Valid; 2019-02-09 - IPV - Valid; 2019-03-11 - DTaP - Valid; 2019-04-10 - MMR - Valid; 2019-05-10 - IPV - Valid; 2019-06-09 - DTaP - Valid; 2019-07-09 - MMR - Valid; 2019-08-08 - IPV - Valid; 2019-09-07 - DTaP - Valid; 2019-10-07 - MMR - Valid; 2019-11-06 - IPV - Valid; 2019-12-06 - DTaP - Valid; 2020-01-05 - MMR - Valid; 2020-02-04 - IPV - Valid; 2020-03-05 - DTaP - Valid; 2020-04-04 - MMR - Valid; 2020-05-04 - IPV - Valid; 2020-06-03 - DTaP - Valid; 2020-07-03 - MMR - Valid; 2020-08-02 - IPV - Valid; 2020-09-01 - DTaP - Valid;",
-        "client_id": "0000000002",
-        "first_name": "Alexandra Catherine Elizabeth",
-        "last_name": "Long Demonstration Name",
-        "school_id": "0013",
-        "board_id": "0034"
-      },
-      "source_by_language": {
-        "fr": {
-          "first_name": "Alexandrine Catherine Élisabeth",
-          "last_name": "Long Nom de démonstration",
-          "school_name": "École Démo des Lilas",
-          "board_name": "Conseil scolaire de démonstration",
-          "street_address_line_1": "100, allée des Lilas, résidence de démonstration pour une longue adresse",
-          "city": "Ville Exemple",
-          "street_address_line_2": "Bureau 200, édifice C, entrée nord"
+      "description": "Seventy invented administrations exercise visible continuation for synthesized clients.",
+      "variants": {
+        "overdue_diseases_v1.en.typ": {
+          "school_name": "Shelburne PS - 103453",
+          "board_name": "Upper Grand DSB",
+          "date_of_birth": "2015-04-08",
+          "street_address_line_1": "248 Island Lake Rd",
+          "street_address_line_2": "",
+          "city": "Arthur",
+          "province": "ON",
+          "postal_code": "N0G 7P0",
+          "overdue_disease": "Measles - 2",
+          "overdue_agent": "MMR",
+          "imms_given": "2015-01-01 - DTaP - Valid; 2015-01-31 - MMR - Valid; 2015-03-02 - IPV - Valid; 2015-04-01 - DTaP - Valid; 2015-05-01 - MMR - Valid; 2015-05-31 - IPV - Valid; 2015-06-30 - DTaP - Valid; 2015-07-30 - MMR - Valid; 2015-08-29 - IPV - Valid; 2015-09-28 - DTaP - Valid; 2015-10-28 - MMR - Valid; 2015-11-27 - IPV - Valid; 2015-12-27 - DTaP - Valid; 2016-01-26 - MMR - Valid; 2016-02-25 - IPV - Valid; 2016-03-26 - DTaP - Valid; 2016-04-25 - MMR - Valid; 2016-05-25 - IPV - Valid; 2016-06-24 - DTaP - Valid; 2016-07-24 - MMR - Valid; 2016-08-23 - IPV - Valid; 2016-09-22 - DTaP - Valid; 2016-10-22 - MMR - Valid; 2016-11-21 - IPV - Valid; 2016-12-21 - DTaP - Valid; 2017-01-20 - MMR - Valid; 2017-02-19 - IPV - Valid; 2017-03-21 - DTaP - Valid; 2017-04-20 - MMR - Valid; 2017-05-20 - IPV - Valid; 2017-06-19 - DTaP - Valid; 2017-07-19 - MMR - Valid; 2017-08-18 - IPV - Valid; 2017-09-17 - DTaP - Valid; 2017-10-17 - MMR - Valid; 2017-11-16 - IPV - Valid; 2017-12-16 - DTaP - Valid; 2018-01-15 - MMR - Valid; 2018-02-14 - IPV - Valid; 2018-03-16 - DTaP - Valid; 2018-04-15 - MMR - Valid; 2018-05-15 - IPV - Valid; 2018-06-14 - DTaP - Valid; 2018-07-14 - MMR - Valid; 2018-08-13 - IPV - Valid; 2018-09-12 - DTaP - Valid; 2018-10-12 - MMR - Valid; 2018-11-11 - IPV - Valid; 2018-12-11 - DTaP - Valid; 2019-01-10 - MMR - Valid; 2019-02-09 - IPV - Valid; 2019-03-11 - DTaP - Valid; 2019-04-10 - MMR - Valid; 2019-05-10 - IPV - Valid; 2019-06-09 - DTaP - Valid; 2019-07-09 - MMR - Valid; 2019-08-08 - IPV - Valid; 2019-09-07 - DTaP - Valid; 2019-10-07 - MMR - Valid; 2019-11-06 - IPV - Valid; 2019-12-06 - DTaP - Valid; 2020-01-05 - MMR - Valid; 2020-02-04 - IPV - Valid; 2020-03-05 - DTaP - Valid; 2020-04-04 - MMR - Valid; 2020-05-04 - IPV - Valid; 2020-06-03 - DTaP - Valid; 2020-07-03 - MMR - Valid; 2020-08-02 - IPV - Valid; 2020-09-01 - DTaP - Valid;",
+          "client_id": "3621770766",
+          "first_name": "James",
+          "last_name": "Okafor",
+          "school_id": "13416",
+          "board_id": "1050"
+        },
+        "overdue_diseases_v1.fr.typ": {
+          "school_name": "Bishop Macdonell CSS - 203404",
+          "board_name": "Upper Grand DSB",
+          "date_of_birth": "2020-12-08",
+          "street_address_line_1": "764 Feltre Ave",
+          "street_address_line_2": "",
+          "city": "Harriston",
+          "province": "ON",
+          "postal_code": "N0G 2F5",
+          "overdue_disease": "Measles - 2",
+          "overdue_agent": "MMR",
+          "imms_given": "2015-01-01 - DTaP - Valid; 2015-01-31 - MMR - Valid; 2015-03-02 - IPV - Valid; 2015-04-01 - DTaP - Valid; 2015-05-01 - MMR - Valid; 2015-05-31 - IPV - Valid; 2015-06-30 - DTaP - Valid; 2015-07-30 - MMR - Valid; 2015-08-29 - IPV - Valid; 2015-09-28 - DTaP - Valid; 2015-10-28 - MMR - Valid; 2015-11-27 - IPV - Valid; 2015-12-27 - DTaP - Valid; 2016-01-26 - MMR - Valid; 2016-02-25 - IPV - Valid; 2016-03-26 - DTaP - Valid; 2016-04-25 - MMR - Valid; 2016-05-25 - IPV - Valid; 2016-06-24 - DTaP - Valid; 2016-07-24 - MMR - Valid; 2016-08-23 - IPV - Valid; 2016-09-22 - DTaP - Valid; 2016-10-22 - MMR - Valid; 2016-11-21 - IPV - Valid; 2016-12-21 - DTaP - Valid; 2017-01-20 - MMR - Valid; 2017-02-19 - IPV - Valid; 2017-03-21 - DTaP - Valid; 2017-04-20 - MMR - Valid; 2017-05-20 - IPV - Valid; 2017-06-19 - DTaP - Valid; 2017-07-19 - MMR - Valid; 2017-08-18 - IPV - Valid; 2017-09-17 - DTaP - Valid; 2017-10-17 - MMR - Valid; 2017-11-16 - IPV - Valid; 2017-12-16 - DTaP - Valid; 2018-01-15 - MMR - Valid; 2018-02-14 - IPV - Valid; 2018-03-16 - DTaP - Valid; 2018-04-15 - MMR - Valid; 2018-05-15 - IPV - Valid; 2018-06-14 - DTaP - Valid; 2018-07-14 - MMR - Valid; 2018-08-13 - IPV - Valid; 2018-09-12 - DTaP - Valid; 2018-10-12 - MMR - Valid; 2018-11-11 - IPV - Valid; 2018-12-11 - DTaP - Valid; 2019-01-10 - MMR - Valid; 2019-02-09 - IPV - Valid; 2019-03-11 - DTaP - Valid; 2019-04-10 - MMR - Valid; 2019-05-10 - IPV - Valid; 2019-06-09 - DTaP - Valid; 2019-07-09 - MMR - Valid; 2019-08-08 - IPV - Valid; 2019-09-07 - DTaP - Valid; 2019-10-07 - MMR - Valid; 2019-11-06 - IPV - Valid; 2019-12-06 - DTaP - Valid; 2020-01-05 - MMR - Valid; 2020-02-04 - IPV - Valid; 2020-03-05 - DTaP - Valid; 2020-04-04 - MMR - Valid; 2020-05-04 - IPV - Valid; 2020-06-03 - DTaP - Valid; 2020-07-03 - MMR - Valid; 2020-08-02 - IPV - Valid; 2020-09-01 - DTaP - Valid;",
+          "client_id": "1936622141",
+          "first_name": "Franck",
+          "last_name": "Manne",
+          "school_id": "92549",
+          "board_id": "4917"
         }
-      },
-      "variants": [
-        "overdue_diseases_v1.en.typ",
-        "overdue_diseases_v1.fr.typ"
-      ]
+      }
     },
     {
       "id": "source-warnings",
       "label": "Source warnings",
       "description": "Unknown age, incomplete address and mixed history stay visible. The affirmative choice deliberately conflicts with supplied overdue facts.",
-      "source": {
-        "school_name": "Lilac Demonstration School",
-        "board_name": "Example School Board",
-        "date_of_birth": "",
-        "street_address_line_1": "",
-        "street_address_line_2": "",
-        "city": "Montréal",
-        "province": "Québec",
-        "postal_code": "",
-        "overdue_disease": "Measles - 2",
-        "overdue_agent": "MMR",
-        "imms_given": "2020-05-01 - MMR - Invalid; 2020-05-01 - MMR - Valid; 2021-06-15 - IPV;",
-        "client_id": "0000000003",
-        "first_name": "Jordan",
-        "last_name": "Example 03",
-        "school_id": "0014",
-        "board_id": "0034"
-      },
-      "source_by_language": {
-        "fr": {
-          "first_name": "Camille",
-          "last_name": "Exemple 03",
-          "school_name": "École Démo des Lilas",
-          "board_name": "Conseil scolaire de démonstration"
+      "variants": {
+        "overdue_diseases_v1.en.typ": {
+          "school_name": "Shelburne PS - 103453",
+          "board_name": "Upper Grand DSB",
+          "date_of_birth": "",
+          "street_address_line_1": "",
+          "street_address_line_2": "",
+          "city": "Rockwood",
+          "province": "ON",
+          "postal_code": "",
+          "overdue_disease": "Measles - 2",
+          "overdue_agent": "MMR",
+          "imms_given": "2020-05-01 - MMR - Invalid; 2020-05-01 - MMR - Valid; 2021-06-15 - IPV;",
+          "client_id": "4190171136",
+          "first_name": "Wendolin",
+          "last_name": "Salazar",
+          "school_id": "87382",
+          "board_id": "8334"
+        },
+        "overdue_agents_v1.fr.typ": {
+          "school_name": "Our Lady of Lourdes CES - 203403",
+          "board_name": "Wellington Catholic DSB",
+          "date_of_birth": "",
+          "street_address_line_1": "",
+          "street_address_line_2": "",
+          "city": "Guelph",
+          "province": "ON",
+          "postal_code": "",
+          "overdue_disease": "Measles - 2",
+          "overdue_agent": "MMR",
+          "imms_given": "2020-05-01 - MMR - Invalid; 2020-05-01 - MMR - Valid; 2021-06-15 - IPV;",
+          "client_id": "0053240055",
+          "first_name": "Comfort",
+          "last_name": "Pichon",
+          "school_id": "56415",
+          "board_id": "6762"
+        },
+        "affirmative_schedule_v1.en.typ": {
+          "school_name": "Bishop Macdonell CSS - 203404",
+          "board_name": "Upper Grand DSB",
+          "date_of_birth": "",
+          "street_address_line_1": "",
+          "street_address_line_2": "",
+          "city": "Orangeville",
+          "province": "ON",
+          "postal_code": "",
+          "overdue_disease": "Measles - 2",
+          "overdue_agent": "MMR",
+          "imms_given": "2020-05-01 - MMR - Invalid; 2020-05-01 - MMR - Valid; 2021-06-15 - IPV;",
+          "client_id": "9717496736",
+          "first_name": "Rachel",
+          "last_name": "Kennedy",
+          "school_id": "95147",
+          "board_id": "2562"
         }
-      },
-      "variants": [
-        "overdue_diseases_v1.en.typ",
-        "overdue_agents_v1.fr.typ",
-        "affirmative_schedule_v1.en.typ"
-      ]
+      }
     },
     {
       "id": "affirmative",
       "label": "Up to date",
       "description": "Complete source facts explicitly assigned to the English affirmative notice.",
-      "source": {
-        "school_name": "Lilac Demonstration School",
-        "board_name": "Example School Board",
-        "date_of_birth": "2005-02-01",
-        "street_address_line_1": "100 Example Lane",
-        "street_address_line_2": "",
-        "city": "Demo City",
-        "province": "ON",
-        "postal_code": "N0N 0N0",
-        "overdue_disease": "",
-        "overdue_agent": "",
-        "imms_given": "2020-05-01 - DTaP - Valid; 2021-06-15 - MMR - Valid;",
-        "client_id": "0000000004",
-        "first_name": "Taylor",
-        "last_name": "Example 04",
-        "school_id": "0015",
-        "board_id": "0034"
-      },
-      "variants": [
-        "affirmative_schedule_v1.en.typ"
-      ]
+      "variants": {
+        "affirmative_schedule_v1.en.typ": {
+          "school_name": "Brant Avenue PS - 103425",
+          "board_name": "Upper Grand DSB",
+          "date_of_birth": "2005-02-01",
+          "street_address_line_1": "101 Starwood Dr Unit 49",
+          "street_address_line_2": "",
+          "city": "Alton",
+          "province": "ON",
+          "postal_code": "L7K 2V0",
+          "overdue_disease": "",
+          "overdue_agent": "",
+          "imms_given": "2020-05-01 - DTaP - Valid; 2021-06-15 - MMR - Valid;",
+          "client_id": "0133997191",
+          "first_name": "Caitlyn",
+          "last_name": "Mateo",
+          "school_id": "82919",
+          "board_id": "1427"
+        }
+      }
     },
     {
       "id": "suspension",
       "label": "Suspension order",
       "description": "An explicitly assigned order omits history and privacy.",
-      "source": {
-        "school_name": "Lilac Demonstration School",
-        "board_name": "Example School Board",
-        "date_of_birth": "2013-08-15",
-        "street_address_line_1": "100 Example Lane",
-        "street_address_line_2": "",
-        "city": "Demo City",
-        "province": "ON",
-        "postal_code": "N0N 0N0",
-        "overdue_disease": "Measles - 2",
-        "overdue_agent": "MMR",
-        "imms_given": "2020-05-01 - MMR - Valid; 2021-06-15 - IPV;",
-        "client_id": "0000000005",
-        "first_name": "Morgan",
-        "last_name": "Example 05",
-        "school_id": "0016",
-        "board_id": "0034"
-      },
-      "variants": [
-        "suspension_order_v1.en.typ"
-      ]
+      "variants": {
+        "suspension_order_v1.en.typ": {
+          "school_name": "St. Joseph CES - 203402",
+          "board_name": "Wellington Catholic DSB",
+          "date_of_birth": "2013-08-15",
+          "street_address_line_1": "504 Chase Ave",
+          "street_address_line_2": "",
+          "city": "Fergus",
+          "province": "ON",
+          "postal_code": "N1M 2O7",
+          "overdue_disease": "Measles - 2",
+          "overdue_agent": "MMR",
+          "imms_given": "2020-05-01 - MMR - Valid; 2021-06-15 - IPV;",
+          "client_id": "8874728086",
+          "first_name": "Paige",
+          "last_name": "Robin",
+          "school_id": "80686",
+          "board_id": "3442"
+        }
+      }
     }
   ]
 }

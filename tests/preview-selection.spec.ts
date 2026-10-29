@@ -111,14 +111,14 @@ test("double-click finds editable sources across generated notice components and
   await current(page);
   const components = [
     ["Request for Immunization", "Request for Immunization Record", "template"],
-    ["Emily Example 01", "immuknow.client-block", "template"],
+    ["Marcelle Saxena", "immuknow.client-block", "template"],
     ["Client ID", "immuknow.client-block", "template"],
     ["Measles", "immuknow.overdue-diseases", "template"],
     ["https://example.org/immunization", "https://example.org/immunization", "settings"],
     ["Dr. Annie Body", "Dr. Annie Body", "settings"],
     ["Associate Medical Officer", "Associate Medical Officer of Health", "template"],
     ["Immunization Record", "Immunization Record", "template"],
-    ["2020-05-01", "immunization-history()", "template"],
+    ["2019-09-09", "immunization-history()", "template"],
     ["Health Protection and Promotion Act", "Health Protection and Promotion Act", "template"],
   ];
   for (const zoom of ["fit", "in", "out"]) {
@@ -139,12 +139,12 @@ test("double-click finds editable sources across generated notice components and
   await current(page);
   await page
     .locator(".preview-text-run")
-    .filter({ hasText: /^Rougeole\s*$/ })
+    .filter({ hasText: /^Hépatite B\s*$/ })
     .first()
     .dblclick();
   await expect(page.locator("#editor .source-target").first()).toContainText(
     "immuknow.overdue-diseases",
   );
-  await page.locator(".preview-text-run").filter({ hasText: "2020-05-01" }).first().dblclick();
+  await page.locator(".preview-text-run").filter({ hasText: "2022-05-26" }).first().dblclick();
   await expect(page.locator("#editor .source-target")).toHaveText("immunization-history()");
 });

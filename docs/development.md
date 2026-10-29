@@ -169,6 +169,7 @@ Chromium browser and its system dependencies for the encrypted PDF reader tests.
 uv run --locked --group browser ty check
 uv run --locked ruff check --no-fix .
 uv run --locked ruff format --check .
+uv run --locked python -m unittest discover -s tests -p 'test_*.py'
 npm run typecheck
 npm run lint
 npm run test:unit

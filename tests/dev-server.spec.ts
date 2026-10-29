@@ -16,8 +16,13 @@ test("the dev worker loads its data checks under a proxy path and renders despit
     const address = server.httpServer?.address();
     if (!address || typeof address === "string") throw new Error("No dev server address");
     await page.goto(`http://127.0.0.1:${address.port}${prefix}`);
-    await expect(page.locator(".preview-page canvas")).toHaveCount(2, { timeout: 60_000 });
+    await expect(page.locator(".preview-page canvas").first()).toBeVisible({ timeout: 60_000 });
+    // The long-history client retains the MMR extra-coverage warning.
+    await page.locator("#next").click();
     await expect(page.locator("#diagnostics")).toContainText("data.forecast_coverage");
+    await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready", {
+      timeout: 60_000,
+    });
     await expect(page.locator("#diagnostics .error")).toHaveCount(0);
   } finally {
     await server.close();

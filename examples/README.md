@@ -4,18 +4,19 @@ These five invented scenarios exercise short and long histories, English/French
 notices, incomplete facts, explicit assignment conflicts, affirmative wording
 and an order that omits history. They contain no real client information.
 
-`scenarios.json` owns raw CSV values, explicit entry filenames, sample identity
-translations, and frozen dates/timestamp. History dates use Core’s
-`YYYY-MM-DD` input format. Localization changes names, addresses
-and schools; clinical facts and identifiers stay the same across variants.
+`scenarios.json` owns raw CSV values, explicit entry filenames, and frozen
+dates/timestamp. Each scenario's `variants` maps a template filename to a complete
+source record. Variants can have different fictional clients, identifiers and
+recorded facts. All variants use the project's frozen dates. History dates use
+Core's `YYYY-MM-DD` input format.
 `prepared.json` is generated through native source preparation, assignment
 reconciliation and factual render-job preparation. Warnings remain beside each
 selected payload. An affirmative notice deliberately assigned to overdue facts
 retains those facts and its applicability warning.
 
 ```bash
-uv run python -m scripts.examples
-uv run python -m scripts.examples --check
+uv run --locked python -m scripts.examples
+uv run --locked python -m scripts.examples --check
 ```
 
 `--check` rejects stale committed facts and still assembles ignored browser
@@ -28,16 +29,18 @@ remain separate.
 
 Each example's `inputs` maps an entry basename to the exact source CSV and
 assignment file included in the project. These source files reproduce a single
-preview variant through either native selector. With ImmuKnow installed, run
+preview variant through either native selector. CSV filenames include the
+scenario, notice version and language so different clients never share a path.
+With ImmuKnow installed, run
 from the generated/exported project root:
 
 ```bash
-immuknow examples/clients/short.en.csv --config config \
+immuknow examples/clients/short.overdue_diseases_v1.en.csv --config config \
   --template templates/overdue_diseases_v1.en.typ --output runs
-immuknow examples/clients/short.fr.csv --config config \
+immuknow examples/clients/short.overdue_agents_v1.fr.csv --config config \
   --notice-assignments examples/assignments/short.overdue_agents_v1.fr.json \
   --templates templates --output runs
-immuknow examples/clients/source-warnings.en.csv --config config \
+immuknow examples/clients/source-warnings.affirmative_schedule_v1.en.csv --config config \
   --notice-assignments examples/assignments/source-warnings.affirmative_schedule_v1.en.json \
   --templates templates --output runs
 ```

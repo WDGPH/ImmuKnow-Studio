@@ -66,11 +66,10 @@ diagnostics can also link to a source location.
 
 ## Review examples and findings
 
-Example navigation shows prepared examples for the selected notice. The five
-scenarios cover short history, long history, source warnings, an up-to-date notice
-and a suspension order. Names, addresses and schools match the selected language.
-The Example client arrows preserve your edits and do not open a reset dialog.
-Not every notice has an example in both languages.
+Example navigation shows fictional clients for the selected notice. Each notice
+can have a different client, with its own identity and recorded facts. The
+Example client arrows preserve your Template, Settings and Theme edits and do
+not open a reset dialog. Not every notice has an example in both languages.
 
 Findings combine source-preparation warnings, compiler diagnostics and placed
 Typst checks. Extra diseases covered by a forecasted agent are a warning;

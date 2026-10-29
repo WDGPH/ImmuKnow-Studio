@@ -6,7 +6,7 @@
     {
       "id": "short",
       "label": "Short history",
-      "description": "Two recorded administrations with known validity.",
+      "description": "Synthesized clients with one to three recorded administrations and known validity.",
       "payloads": {
         "overdue_diseases_v1.en.typ": {
           "schema_version": 1,
@@ -115,7 +115,7 @@
         },
         "overdue_diseases_v1.fr.typ": {
           "schema_version": 1,
-          "row_key": "row-000002",
+          "row_key": "row-000001",
           "client_id": "0663292154",
           "template": "overdue_diseases_v1.fr.typ",
           "version_id": "overdue_diseases_v1",
@@ -167,10 +167,10 @@
         },
         "overdue_agents_v1.en.typ": {
           "schema_version": 1,
-          "row_key": "row-000003",
+          "row_key": "row-000001",
           "client_id": "0385213421",
-          "template": "overdue_diseases_v1.en.typ",
-          "version_id": "overdue_diseases_v1",
+          "template": "overdue_agents_v1.en.typ",
+          "version_id": "overdue_agents_v1",
           "language": "en",
           "client_data": {
             "name": "Roland Trujillo",
@@ -231,10 +231,10 @@
         },
         "overdue_agents_v1.fr.typ": {
           "schema_version": 1,
-          "row_key": "row-000004",
+          "row_key": "row-000001",
           "client_id": "4547335317",
-          "template": "overdue_diseases_v1.fr.typ",
-          "version_id": "overdue_diseases_v1",
+          "template": "overdue_agents_v1.fr.typ",
+          "version_id": "overdue_agents_v1",
           "language": "fr",
           "client_data": {
             "name": "Lawrence Davey",
@@ -310,14 +310,11 @@
           {
             "code": "data.forecast_coverage",
             "stage": "preparation",
-            "status": "warn",
-            "message": "Forecasted agents cover the overdue diseases, but add other diseases or include an agent absent from the lookup.",
+            "status": "pass",
+            "message": "Forecasted agents cover all overdue diseases.",
             "measurements": {
               "missing_diseases": [],
-              "extra_diseases": [
-                "Mumps",
-                "Rubella"
-              ],
+              "extra_diseases": [],
               "unmapped_agents": []
             }
           }
@@ -326,14 +323,11 @@
           {
             "code": "data.forecast_coverage",
             "stage": "preparation",
-            "status": "warn",
-            "message": "Forecasted agents cover the overdue diseases, but add other diseases or include an agent absent from the lookup.",
+            "status": "pass",
+            "message": "Forecasted agents cover all overdue diseases.",
             "measurements": {
               "missing_diseases": [],
-              "extra_diseases": [
-                "Mumps",
-                "Rubella"
-              ],
+              "extra_diseases": [],
               "unmapped_agents": []
             }
           }
@@ -342,14 +336,11 @@
           {
             "code": "data.forecast_coverage",
             "stage": "preparation",
-            "status": "warn",
-            "message": "Forecasted agents cover the overdue diseases, but add other diseases or include an agent absent from the lookup.",
+            "status": "pass",
+            "message": "Forecasted agents cover all overdue diseases.",
             "measurements": {
               "missing_diseases": [],
-              "extra_diseases": [
-                "Mumps",
-                "Rubella"
-              ],
+              "extra_diseases": [],
               "unmapped_agents": []
             }
           }
@@ -358,14 +349,11 @@
           {
             "code": "data.forecast_coverage",
             "stage": "preparation",
-            "status": "warn",
-            "message": "Forecasted agents cover the overdue diseases, but add other diseases or include an agent absent from the lookup.",
+            "status": "pass",
+            "message": "Forecasted agents cover all overdue diseases.",
             "measurements": {
               "missing_diseases": [],
-              "extra_diseases": [
-                "Mumps",
-                "Rubella"
-              ],
+              "extra_diseases": [],
               "unmapped_agents": []
             }
           }
@@ -373,19 +361,19 @@
       },
       "inputs": {
         "overdue_diseases_v1.en.typ": {
-          "csv": "examples/clients/short.en.csv",
+          "csv": "examples/clients/short.overdue_diseases_v1.en.csv",
           "assignments": "examples/assignments/short.overdue_diseases_v1.en.json"
         },
         "overdue_diseases_v1.fr.typ": {
-          "csv": "examples/clients/short.fr.csv",
+          "csv": "examples/clients/short.overdue_diseases_v1.fr.csv",
           "assignments": "examples/assignments/short.overdue_diseases_v1.fr.json"
         },
         "overdue_agents_v1.en.typ": {
-          "csv": "examples/clients/short.en.csv",
+          "csv": "examples/clients/short.overdue_agents_v1.en.csv",
           "assignments": "examples/assignments/short.overdue_agents_v1.en.json"
         },
         "overdue_agents_v1.fr.typ": {
-          "csv": "examples/clients/short.fr.csv",
+          "csv": "examples/clients/short.overdue_agents_v1.fr.csv",
           "assignments": "examples/assignments/short.overdue_agents_v1.fr.json"
         }
       }
@@ -393,11 +381,11 @@
     {
       "id": "long-history",
       "label": "Long history",
-      "description": "Seventy invented administrations and long contact fields exercise visible continuation.",
+      "description": "Seventy invented administrations exercise visible continuation for synthesized clients.",
       "payloads": {
         "overdue_diseases_v1.en.typ": {
           "schema_version": 1,
-          "row_key": "row-000005",
+          "row_key": "row-000001",
           "client_id": "3621770766",
           "template": "overdue_diseases_v1.en.typ",
           "version_id": "overdue_diseases_v1",
@@ -423,8 +411,8 @@
             "name": "Upper Grand DSB",
             "id": "1050"
           },
-          "date_of_delivery": "2026-02-01",
-          "date_as_of": "2026-01-15",
+          "date_of_delivery": "2026-10-08",
+          "date_as_of": "2026-09-30",
           "overdue_diseases": [
             {
               "disease": "Measles",
@@ -1164,7 +1152,7 @@
         },
         "overdue_diseases_v1.fr.typ": {
           "schema_version": 1,
-          "row_key": "row-000006",
+          "row_key": "row-000001",
           "client_id": "1936622141",
           "template": "overdue_diseases_v1.fr.typ",
           "version_id": "overdue_diseases_v1",
@@ -1190,8 +1178,8 @@
             "name": "Upper Grand DSB",
             "id": "4917"
           },
-          "date_of_delivery": "2026-02-01",
-          "date_as_of": "2026-01-15",
+          "date_of_delivery": "2026-10-08",
+          "date_as_of": "2026-09-30",
           "overdue_diseases": [
             {
               "disease": "Measles",
@@ -1966,11 +1954,11 @@
       },
       "inputs": {
         "overdue_diseases_v1.en.typ": {
-          "csv": "examples/clients/long-history.en.csv",
+          "csv": "examples/clients/long-history.overdue_diseases_v1.en.csv",
           "assignments": "examples/assignments/long-history.overdue_diseases_v1.en.json"
         },
         "overdue_diseases_v1.fr.typ": {
-          "csv": "examples/clients/long-history.fr.csv",
+          "csv": "examples/clients/long-history.overdue_diseases_v1.fr.csv",
           "assignments": "examples/assignments/long-history.overdue_diseases_v1.fr.json"
         }
       }
@@ -1982,7 +1970,7 @@
       "payloads": {
         "overdue_diseases_v1.en.typ": {
           "schema_version": 1,
-          "row_key": "row-000007",
+          "row_key": "row-000001",
           "client_id": "4190171136",
           "template": "overdue_diseases_v1.en.typ",
           "version_id": "overdue_diseases_v1",
@@ -2008,8 +1996,8 @@
             "name": "Upper Grand DSB",
             "id": "8334"
           },
-          "date_of_delivery": "2026-02-01",
-          "date_as_of": "2026-01-15",
+          "date_of_delivery": "2026-10-08",
+          "date_as_of": "2026-09-30",
           "overdue_diseases": [
             {
               "disease": "Measles",
@@ -2045,10 +2033,10 @@
         },
         "overdue_agents_v1.fr.typ": {
           "schema_version": 1,
-          "row_key": "row-000008",
+          "row_key": "row-000001",
           "client_id": "0053240055",
-          "template": "overdue_diseases_v1.fr.typ",
-          "version_id": "overdue_diseases_v1",
+          "template": "overdue_agents_v1.fr.typ",
+          "version_id": "overdue_agents_v1",
           "language": "fr",
           "client_data": {
             "name": "Comfort Pichon",
@@ -2071,8 +2059,8 @@
             "name": "Wellington Catholic DSB",
             "id": "6762"
           },
-          "date_of_delivery": "2026-02-01",
-          "date_as_of": "2026-01-15",
+          "date_of_delivery": "2026-10-08",
+          "date_as_of": "2026-09-30",
           "overdue_diseases": [
             {
               "disease": "Measles",
@@ -2108,7 +2096,7 @@
         },
         "affirmative_schedule_v1.en.typ": {
           "schema_version": 1,
-          "row_key": "row-000009",
+          "row_key": "row-000001",
           "client_id": "9717496736",
           "template": "affirmative_schedule_v1.en.typ",
           "version_id": "affirmative_schedule_v1",
@@ -2134,8 +2122,8 @@
             "name": "Upper Grand DSB",
             "id": "2562"
           },
-          "date_of_delivery": "2026-02-01",
-          "date_as_of": "2026-01-15",
+          "date_of_delivery": "2026-10-08",
+          "date_as_of": "2026-09-30",
           "overdue_diseases": [
             {
               "disease": "Measles",
@@ -2261,21 +2249,21 @@
             "code": "assignment.eligibility_conflict",
             "stage": "assignment",
             "status": "warn",
-            "message": "Eligibility conflict for client 0000000003: assigned notice version 'affirmative_schedule_v1' (rule: 'no_overdue') but client does not satisfy it. Confirm the explicit assignment or correct the supplied immunization facts."
+            "message": "Eligibility conflict for client 9717496736: assigned notice version 'affirmative_schedule_v1' (rule: 'no_overdue') but client does not satisfy it. Confirm the explicit assignment or correct the supplied immunization facts."
           }
         ]
       },
       "inputs": {
         "overdue_diseases_v1.en.typ": {
-          "csv": "examples/clients/source-warnings.en.csv",
+          "csv": "examples/clients/source-warnings.overdue_diseases_v1.en.csv",
           "assignments": "examples/assignments/source-warnings.overdue_diseases_v1.en.json"
         },
         "overdue_agents_v1.fr.typ": {
-          "csv": "examples/clients/source-warnings.fr.csv",
+          "csv": "examples/clients/source-warnings.overdue_agents_v1.fr.csv",
           "assignments": "examples/assignments/source-warnings.overdue_agents_v1.fr.json"
         },
         "affirmative_schedule_v1.en.typ": {
-          "csv": "examples/clients/source-warnings.en.csv",
+          "csv": "examples/clients/source-warnings.affirmative_schedule_v1.en.csv",
           "assignments": "examples/assignments/source-warnings.affirmative_schedule_v1.en.json"
         }
       }
@@ -2287,7 +2275,7 @@
       "payloads": {
         "affirmative_schedule_v1.en.typ": {
           "schema_version": 1,
-          "row_key": "row-000010",
+          "row_key": "row-000001",
           "client_id": "0133997191",
           "template": "affirmative_schedule_v1.en.typ",
           "version_id": "affirmative_schedule_v1",
@@ -2313,8 +2301,8 @@
             "name": "Upper Grand DSB",
             "id": "1427"
           },
-          "date_of_delivery": "2026-02-01",
-          "date_as_of": "2026-01-15",
+          "date_of_delivery": "2026-10-08",
+          "date_as_of": "2026-09-30",
           "overdue_diseases": [],
           "overdue_agents": [],
           "history": [
@@ -2361,7 +2349,7 @@
       },
       "inputs": {
         "affirmative_schedule_v1.en.typ": {
-          "csv": "examples/clients/affirmative.en.csv",
+          "csv": "examples/clients/affirmative.affirmative_schedule_v1.en.csv",
           "assignments": "examples/assignments/affirmative.affirmative_schedule_v1.en.json"
         }
       }
@@ -2373,7 +2361,7 @@
       "payloads": {
         "suspension_order_v1.en.typ": {
           "schema_version": 1,
-          "row_key": "row-000011",
+          "row_key": "row-000001",
           "client_id": "8874728086",
           "template": "suspension_order_v1.en.typ",
           "version_id": "suspension_order_v1",
@@ -2387,7 +2375,7 @@
             "province": "ON",
             "postal_code": "N1M 2O7",
             "date_of_birth_iso": "2013-08-15",
-            "age": 12,
+            "age": 13,
             "over_16": false,
             "school": "St. Joseph CES - 203402"
           },
@@ -2399,8 +2387,8 @@
             "name": "Wellington Catholic DSB",
             "id": "3442"
           },
-          "date_of_delivery": "2026-02-01",
-          "date_as_of": "2026-01-15",
+          "date_of_delivery": "2026-10-08",
+          "date_as_of": "2026-09-30",
           "overdue_diseases": [
             {
               "disease": "Measles",
@@ -2455,7 +2443,7 @@
       },
       "inputs": {
         "suspension_order_v1.en.typ": {
-          "csv": "examples/clients/suspension.en.csv",
+          "csv": "examples/clients/suspension.suspension_order_v1.en.csv",
           "assignments": "examples/assignments/suspension.suspension_order_v1.en.json"
         }
       }

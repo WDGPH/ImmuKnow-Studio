@@ -46,24 +46,6 @@ def write_csv(path: Path, source: dict[str, str]) -> None:
         writer.writerow(source)
 
 
-def localized_source(scenario: dict[str, Any], language: str) -> dict[str, str]:
-    """Use explicitly authored names/addresses while retaining the same clinical facts."""
-    source = scenario["source"]
-    overrides = scenario.get("source_by_language", {}).get(language, {})
-    for key in (
-        "client_id",
-        "date_of_birth",
-        "overdue_disease",
-        "overdue_agent",
-        "imms_given",
-    ):
-        if key in overrides and overrides[key] != source[key]:
-            raise ValueError(
-                f"Example localization must not change {key}: {scenario['id']}"
-            )
-    return source | overrides
-
-
 def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
     """Prepare every explicit variant and return project resources for export."""
     authored = json.loads((EXAMPLES / "scenarios.json").read_text(encoding="utf-8"))
@@ -92,12 +74,11 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
         shutil.copytree(TEMPLATES, workspace / "resources/templates")
         for scenario in authored["scenarios"]:
             payloads, preparation_checks, inputs = {}, {}, {}
-            for filename in scenario["variants"]:
+            for filename, source in scenario["variants"].items():
                 version, language = template_identity(TEMPLATES / filename)
-                source = localized_source(scenario, language)
                 csv_path = workspace / "client.csv"
                 write_csv(csv_path, source)
-                csv_key = f"examples/clients/{scenario['id']}.{language}.csv"
+                csv_key = f"examples/clients/{scenario['id']}.{version}.{language}.csv"
                 resources[csv_key] = csv_path.read_bytes()
                 assignments = [{"client_id": source["client_id"], "template": filename}]
                 assignment_path = workspace / "assignment.json"
