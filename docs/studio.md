@@ -160,8 +160,8 @@ in the browser draft are not backed up by this download; download each notice
 you want to keep.
 Authored files keep their bytes and relative paths. Import the ZIP to resume
 editing, or run it locally using the included ImmuKnow-Template Python setup,
-locked Core dependency and helper scripts. The ZIP includes a README and tests,
-plus sample copies under `input/sample/` when a prepared example is available.
+locked Core dependency and helper scripts. The ZIP includes a README
+and sample copies under `input/sample/` when a prepared example is available.
 An imported project's existing sample selection and authored files are preserved.
 The installed environment, engine wheel and native Typst compiler are not bundled.
 If the project changes while the ZIP is being prepared, download it again.

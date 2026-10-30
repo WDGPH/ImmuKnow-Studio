@@ -4,22 +4,15 @@
     ".pre-commit-config.yaml": "8752164dfbd9da115abfe26fa8bcc08710093d49c81e724cfe5d8af57218edd4",
     ".python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
     "LICENSE": "e3fc41a3e9599ba793e59ce6dca2310fadfb97127305518ed4971365c131e94f",
-    "README.md": "0df4b459b15429083032e83e924ee3668edce8f995a3e81baf31ba75a43de574",
-    "pyproject.toml": "c7eda8e723e12088ce917cbeeecb4a3600656c81dcdce6496fc02d17eb24f18c",
+    "README.md": "7395fd68c7b1fe186bfab683416e96e010d58994b41b50c52347cf09865e84a1",
+    "pyproject.toml": "3613ca0f07bc1d6179f3a2b9b603692ced4b4bc249173e73ed6611155ad0819a",
     "scripts/check.py": "32b0b683c73eaa338038b11359cebe278d2cce1e5410324c14b82491f5a8aa3d",
     "scripts/check_client_data.py": "044aa0900538ff338c0c5f3bd14edfb2ce1945c7ef8badc181ef3466a5f7cbb6",
     "scripts/project.py": "97cc80722b83f7c221f08ff4d351c65da74749ac44a4c638072490cefb1ce30a",
     "scripts/run.py": "f8aa1e34cdb5bfaab1319da48d5f7cc674d97ce809f330e6f27f896ff4a367a2",
     "scripts/sync_lib.py": "92474df1583997d92dbee8968d8f669c85334ef3bc4291207473465923a073de",
-    "tests/test_check.py": "618fa0a74aca155e76852a2bcb03d8b6d573430c360506fccbbaebe7044500a2",
-    "tests/test_client_data.py": "bf9b428a8be90984017cedec5b9d5d25e7109e0f926494954c733c4e73163225",
-    "tests/test_layout.py": "645af130a402c89daee448d086320c9e8691bf343a0eb9792a8a8cbfad5e44b6",
-    "tests/test_lib_sync.py": "0d0027c1cb142c6df3ee71e524210317f427f9d63357b31bc919c6ee39f8ecfc",
-    "tests/test_project.py": "ee4fa760f8c95797922df86f64205d0a0fd7572c4f49ccb67c2960dbc7ff9208",
-    "tests/test_run.py": "00c0316c703534ba903b20f4c72f8b5094a1f46405707022e829683e64b174d4",
-    "tests/test_sample.py": "c7c0283b321607252cbbecc6d2bffb0f6485fd339ad95a04ad50a817efdbe0a7",
-    "uv.lock": "b0839c9b16ec899c9e00c508b3344b94f85d3fb2e47fc7344508ffca6c937932"
+    "uv.lock": "b10eb13b22aa44059236a5a192b272e2d22f4830c697f0a7da7a98b9c39dfbd7"
   },
   "repository": "https://github.com/WDGPH/ImmuKnow-Template",
-  "revision": "2cdd384ea0f926c5435bdceeba491b25ec412eb3"
+  "revision": "a4ca172e44db1c382a60a5c7f11a77e06049b305"
 }

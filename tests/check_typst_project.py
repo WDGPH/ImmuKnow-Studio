@@ -148,7 +148,9 @@ def main(evidence: Path) -> None:
 
         def run(*arguments: str) -> str:
             invocation = (
-                list(arguments) if arguments[0].endswith(".py") else ["-m", *arguments]
+                list(arguments)
+                if arguments[0].endswith(".py") or arguments[0] == "-c"
+                else ["-m", *arguments]
             )
             result = subprocess.run(
                 ["uv", "run", "--locked", "python", *invocation],
@@ -187,9 +189,14 @@ def main(evidence: Path) -> None:
             )
             return result.stdout
 
-        run("scripts/check.py", "--sample")
-        run("pytest", "-q")
+        # The project user's setup command must not install maintainer test tools.
+        run(
+            "-c",
+            "import importlib.util; assert importlib.util.find_spec('pytest') is None",
+        )
         selected = json.loads((evidence / "selected-example.json").read_text())
+        if selected["example"] == "short":
+            run("scripts/check.py", "--sample")
         browser = inspect_pdf(evidence / "browser.pdf")
         preview = inspect_preview(evidence, browser)
         comparison = {
@@ -199,8 +206,7 @@ def main(evidence: Path) -> None:
             "selectors": [],
             "rebundled": False,
         }
-        for selector, arguments in (
-            ("template", ["--template", selected["template"]]),
+        selectors = [
             (
                 "assignments",
                 [
@@ -210,7 +216,10 @@ def main(evidence: Path) -> None:
                     str(Path(selected["template"]).parent),
                 ],
             ),
-        ):
+        ]
+        if selected["example"] == "short":
+            selectors.insert(0, ("template", ["--template", selected["template"]]))
+        for selector, arguments in selectors:
             run(
                 "scripts/run.py",
                 selected["input"]["csv"],
@@ -251,7 +260,7 @@ def main(evidence: Path) -> None:
             assert min(coverage) >= 0.95, (
                 f"{selector}: native/browser text coverage too low: {coverage}"
             )
-            if selector == "template":
+            if not comparison["selectors"]:
                 with pymupdf.open(original) as rendered:
                     for index, page in enumerate(rendered, start=1):
                         page.get_pixmap(dpi=144).save(

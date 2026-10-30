@@ -181,10 +181,40 @@ Browser checks serve `dist/` at the root. Set `IMMUKNOW_BASE_URL` to test an
 already served artifact, including any proxy prefix and trailing slash. Do not
 rebuild an artifact while it is being tested. Evidence stays in `test-results/`.
 Downloaded-project checks install the ZIP's locked environment outside either checkout
-and run its Template helpers, project tests and Core engine
-through both notice selectors. PDF reader checks use Studio's own example inputs.
+and run its Template helpers and Core engine. Three cases cover a customized
+English notice through both selectors, long French output and saved-run review
+for a French notice with warnings. Template's maintainer tests run in its own
+repository; fresh downloads contain the user-facing setup and sample check.
+PDF reader checks use Studio's own example inputs.
 Core maintains its separate native test fixtures. Studio's contract cases under
 `unit/fixtures/` are a local snapshot, not imports from Core's test package.
+
+## Test scope and Actions minutes
+
+Follow the [shared testing strategy](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/testing.md#testing-across-the-projects).
+Core tests native input rules, validation, notice families and delivery. Studio
+tests the browser and the handoff from an authored project to native output.
+The same contract cases run against the Python and browser validators because
+each implementation needs to accept and reject the right data.
+
+Pull requests and main builds run the site build, type checks, lint and unit
+tests. The full browser/native suite is deliberately manual to conserve GitHub
+Actions minutes. Select **full_tests** in the **Studio Pages** manual workflow to
+run it. Ordinary deployment does not require that manual run. Build summaries
+record whether it ran, so a successful ordinary build should not be described
+as a browser/native test pass.
+
+Run relevant browser checks locally for editor, draft, import or download
+changes. Run the full suite for Core/compiler updates, changes to shared
+contracts and release preparation. Keep the manual workflow available for those
+checks when local tools are unavailable.
+
+The download cases cover three different handoff risks: custom source and both
+notice selectors; long French output; and saved-run review with warning findings.
+Core covers other notice families. The project sample command runs once in the
+customized English case, while the other cases compare their own native output.
+Template helper unit tests are not repeated in Studio. Add another expensive
+case only when it protects a boundary these checks do not cover.
 
 ## Python interface boundary
 
@@ -214,10 +244,12 @@ uv run --locked python -m scripts.examples --check
 ```
 
 The refresh reads committed Git blobs, records source identity and SHA-256 hashes,
-and copies only the allowlisted setup files, scripts, tests, licence and README.
+and copies only the allowlisted setup files, scripts, licence and README.
 Commit the snapshot and its provenance together. Do not edit the copied files in
 Studio; make changes in Template and refresh. Python lint/type checks exclude the
-copied upstream code; downloaded-project browser tests run its own test suite.
+copied upstream code. Downloaded-project browser checks run the project helpers
+and native engine; the copied scaffold includes no maintainer tests. Its pytest
+dependency is in an optional test group and is not installed by a normal `uv sync`.
 
 Ordinary builds verify the local snapshot without GitHub access. A Core update
 also needs a compatible Template lock and refreshed snapshot. Run the full

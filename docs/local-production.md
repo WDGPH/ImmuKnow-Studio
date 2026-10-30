@@ -13,7 +13,7 @@ Extract `immuknow-project.zip` into a folder you control.
 | Item | Purpose |
 | --- | --- |
 | `pyproject.toml`, `uv.lock`, `.python-version` | Python setup and the exact Core dependency |
-| `scripts/`, `tests/`, `README.md` | Template's run/check helpers, tests and instructions |
+| `scripts/`, `README.md` | Template's run/check helpers and instructions |
 | `templates/` | Your selected notice, Settings, supporting files, images and shared components |
 | `config/` | Configuration for native ImmuKnow runs |
 | `input/sample/`, `sample.json` | Selected fictional sample and its configured paths |
