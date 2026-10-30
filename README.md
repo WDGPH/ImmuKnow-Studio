@@ -37,7 +37,5 @@ portable copy. See [Privacy and offline use](docs/privacy-offline.md).
 - [Documentation and releases](docs/documentation.md): strict manual builds,
   the PHIZ documentation hub and v0.1.0 preparation.
 
-Studio selects Core’s `main` branch and locks an exact commit in `uv.lock`.
-The current pin is also the **ImmuKnow v2.0.0** release commit. Selecting a
-published Core tag remains a separate dependency change. Studio and Core have
-separate version numbers.
+Studio selects Core’s **`v2.0.0-rc1`** tag and locks its exact commit in
+`uv.lock`. Studio and Core have separate version numbers.
