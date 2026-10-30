@@ -14,8 +14,11 @@ immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", tag = "v2.0.0-rc1" }
 dev = [
     "ruff==0.17.1",
     "ty>=0.0.89",
+]
+browser = [
     "pillow>=13.0.0",
     "pymupdf==1.28.2",
+    "pypdf",
     "zxing-cpp==3.1.1",
 ]
 docs = [
