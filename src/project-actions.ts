@@ -11,8 +11,8 @@ import type { Bundle, Example, Files } from "./types";
 
 export type ResetScope = "template" | "settings" | "theme";
 
-// Follow literal project paths conservatively, including paths used by authored
-// helper functions. Never rewrite source or discard an imported companion file.
+// Follow existing project files named by simple quoted strings in Typst source.
+// This conservative scan can include extra files; it does not rewrite source.
 export function referencedFiles(files: Files, entry: string): Set<string> {
   const found = new Set<string>();
   const visit = (path: string) => {
@@ -32,6 +32,8 @@ export function referencedFiles(files: Files, entry: string): Set<string> {
   return found;
 }
 
+// Select files for a download and fill missing setup files. ZIP validation and
+// integrity checks are handled separately by the archive code.
 export function currentProject(
   files: Files,
   template: string,
@@ -93,12 +95,14 @@ export function currentProject(
       result[sample.assignments] = result[inputs.assignments];
     result["sample.json"] = encoder.encode(`${JSON.stringify(sample, null, 2)}\n`);
   }
-  // Older Studio ZIPs have no Python scaffold. Fill absent setup files from
-  // this build's pinned snapshot, preserving every existing authored file.
-  const source = starters["template-source.json"];
-  if (source) {
-    const manifest = JSON.parse(decoder.decode(source)) as { files: Record<string, string> };
-    for (const path of [...Object.keys(manifest.files), "template-source.json"]) {
+  // Fill missing Template setup files from this build's pinned snapshot.
+  // Keep any files already present in the project.
+  const templateSourceBytes = starters["template-source.json"];
+  if (templateSourceBytes) {
+    const templateSource = JSON.parse(decoder.decode(templateSourceBytes)) as {
+      files: Record<string, string>;
+    };
+    for (const path of [...Object.keys(templateSource.files), "template-source.json"]) {
       safePath(path);
       if (!result[path] && starters[path]) result[path] = starters[path];
     }

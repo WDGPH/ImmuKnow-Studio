@@ -70,10 +70,14 @@ export async function verifyHashes(files: Files, hashes: Record<string, string>)
     Array.isArray(hashes) ||
     Object.keys(hashes).length !== Object.keys(files).length
   )
-    throw new Error("Project hashes do not match its files.");
+    throw new Error(
+      "Project hashes do not match its files. For ZIP imports, keep this file and try another saved copy, or download again from the browser where your original work is still open.",
+    );
   for (const [name, bytes] of Object.entries(files)) {
     if (!Object.hasOwn(hashes, name) || hashes[name] !== (await sha256(bytes)))
-      throw new Error(`Project file failed its integrity check: ${name}`);
+      throw new Error(
+        `Project file failed its integrity check: ${name}. For ZIP imports, keep this file and try another saved copy, or download again from the browser where your original work is still open.`,
+      );
   }
 }
 
@@ -150,7 +154,9 @@ export function verifyProjectBuild(value: BuildInfo | undefined, build: BuildInf
       )) ||
     value?.shared_resources?.sha256 !== build.shared_resources.sha256
   )
-    throw new Error("This project requires a different ImmuKnow format or compiler build.");
+    throw new Error(
+      "This project requires a different ImmuKnow format or compiler build. Keep your project or saved draft. Open it in a compatible Studio version.",
+    );
 }
 
 export function validateTemplate(files: Files, template: string): string {

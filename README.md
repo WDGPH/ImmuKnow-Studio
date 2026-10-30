@@ -26,9 +26,9 @@ selected fictional sample. See [Use projects on your workstation](docs/local-pro
 
 Editing, previews, drafts, imports and downloads run in your local browser.
 Studio has no application backend server and does not send project data
-anywhere. After the application resources have loaded, you can keep working
-offline in the open tab. Drafts stay in that browser; download a ZIP for a
-portable copy. See [Privacy and offline use](docs/privacy-offline.md).
+anywhere. Editing and previews can continue offline in the open tab after
+the resources load; some actions may need a connection. Drafts stay in that
+browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/privacy-offline.md).
 
 ## Developers and contributors
 

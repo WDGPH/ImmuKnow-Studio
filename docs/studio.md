@@ -49,28 +49,28 @@ This is a focused authoring aid: it does not infer your own functions, imported
 aliases or all available Typst types and methods. The Typst compiler checks the
 complete source when previewing.
 
+## Navigate the editor and preview
+
 Use Ctrl+/ to comment a selection and Ctrl+[ or Ctrl+] to change indentation.
 Drag the divider to resize the panes. The preview shows all pages in one scroll;
 use its plus/minus controls to zoom. Drag across preview text to select and copy
 its displayed wording as plain text. Double-click supported content to open and
-highlight its source when the preview is current. Compiler source spans distinguish
-repeated wording and preserve accented-character and Windows line-ending offsets.
-Measured client/address blocks and generated history or overdue text lead to
-their editable component calls when there is one unambiguous call. Generated
+highlight its source when the preview is current. Measured client/address blocks
+and generated history or overdue text lead to their editable component calls
+when there is one unambiguous call. Generated
 headings, links and signature text can lead to authored values in Template or
 Settings. Other generated text can lead to shared read-only code or have no
 source target. Where no source span or component target is available, navigation
 requires a unique text match within the selected notice and its companions. Compiler
 diagnostics can also link to a source location.
 
-Example navigation shows only prepared variants for the selected entry point.
-The five scenarios cover short history, long history, source warnings, an
-up-to-date notice and a suspension order. Across them, eleven explicit variants
-exercise six maintained filenames: English/French overdue disease and agent
-notices, an English affirmative notice and an English suspension order. Names,
-addresses and schools match the selected language. The Example client arrows preserve all template, Settings and Theme edits and
-do not open a reset dialog. Switching examples never changes a client's clinical
-facts or invents a missing language variant.
+## Review examples and findings
+
+Example navigation shows prepared examples for the selected notice. The five
+scenarios cover short history, long history, source warnings, an up-to-date notice
+and a suspension order. Names, addresses and schools match the selected language.
+The Example client arrows preserve your edits and do not open a reset dialog.
+Not every notice has an example in both languages.
 
 Findings combine source-preparation warnings, compiler diagnostics and placed
 Typst checks. Extra diseases covered by a forecasted agent are a warning;
@@ -78,9 +78,14 @@ they do not stop the preview. For example, MMR also covers Mumps and Rubella
 when only Measles is overdue. Examples contain valid source history. Invalid history rejects a
 native input file before rendering, even if a template omits the history table.
 Display checks, such as unknown dose validity, follow the components actually placed.
+
 Expand **Measurements** for layout details. Long content stays
 visible with a warning where possible. A readable preview with missing checking
-evidence retains a finding; it is not treated as checked success. During ordinary edits, the last successful preview remains visible while the
+evidence retains a finding; it is not treated as checked success.
+
+## Preview updates
+
+During ordinary edits, the last successful preview remains visible while the
 refresh icon spins. Temporary errors retain those pages and leave the icon visible.
 The icon's tooltip and accessible label describe the preview state. Findings and envelope
 measurements describe the displayed pages; new errors describe the current
@@ -173,7 +178,7 @@ symlinks and corrupt archives are rejected.
 ## Use the project with the native engine
 
 Production notice generation happens with ImmuKnow core on your local
-workstation. Follow [Use templates on your workstation](local-production.md)
+workstation. Follow [Use projects on your workstation](local-production.md)
 for the complete handoff, native command examples, fonts and output review.
 Keep the extracted project and its assets together. `uv sync --locked` installs
 the pinned engine; install native Typst and the supplied fonts separately.

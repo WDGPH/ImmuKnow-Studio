@@ -65,5 +65,5 @@ other notice in the browser draft. To return to a downloaded project, open
 **Project → Import project** and select its ZIP.
 
 When your template is ready, follow
-[Use templates on your workstation](local-production.md). Production notice
+[Use projects on your workstation](local-production.md). Production notice
 generation runs locally with ImmuKnow and your own client records.

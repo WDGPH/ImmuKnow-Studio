@@ -65,7 +65,7 @@ def localized_source(scenario: dict[str, Any], language: str) -> dict[str, str]:
 
 
 def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
-    """Prepare every explicit variant and return unchanged project/export resources."""
+    """Prepare every explicit variant and return project resources for export."""
     authored = json.loads((EXAMPLES / "scenarios.json").read_text(encoding="utf-8"))
     config = load_config(CONFIG / "parameters.yaml")
     config.update(authored["dates"])

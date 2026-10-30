@@ -4,11 +4,11 @@
     ".pre-commit-config.yaml": "8752164dfbd9da115abfe26fa8bcc08710093d49c81e724cfe5d8af57218edd4",
     ".python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
     "LICENSE": "e3fc41a3e9599ba793e59ce6dca2310fadfb97127305518ed4971365c131e94f",
-    "README.md": "ee2230ad42c7473a65f63baff71546808630824bbdb92a707151d15523c6e048",
+    "README.md": "0df4b459b15429083032e83e924ee3668edce8f995a3e81baf31ba75a43de574",
     "pyproject.toml": "c7eda8e723e12088ce917cbeeecb4a3600656c81dcdce6496fc02d17eb24f18c",
-    "scripts/check.py": "6b80775de7f4719ec9b81e7834dea78116fbe172f05eef5e0a03e3ce02df8e68",
+    "scripts/check.py": "32b0b683c73eaa338038b11359cebe278d2cce1e5410324c14b82491f5a8aa3d",
     "scripts/check_client_data.py": "044aa0900538ff338c0c5f3bd14edfb2ce1945c7ef8badc181ef3466a5f7cbb6",
-    "scripts/project.py": "4de03c3eab21edccdd66134191d7b4c42ce1e7c7bf059004f4bae5ae420f0e46",
+    "scripts/project.py": "97cc80722b83f7c221f08ff4d351c65da74749ac44a4c638072490cefb1ce30a",
     "scripts/run.py": "f8aa1e34cdb5bfaab1319da48d5f7cc674d97ce809f330e6f27f896ff4a367a2",
     "scripts/sync_lib.py": "92474df1583997d92dbee8968d8f669c85334ef3bc4291207473465923a073de",
     "tests/test_check.py": "618fa0a74aca155e76852a2bcb03d8b6d573430c360506fccbbaebe7044500a2",
@@ -21,5 +21,5 @@
     "uv.lock": "b0839c9b16ec899c9e00c508b3344b94f85d3fb2e47fc7344508ffca6c937932"
   },
   "repository": "https://github.com/WDGPH/ImmuKnow-Template",
-  "revision": "a46e8b1c377b0226c3ea5a025608bc041b92f852"
+  "revision": "2cdd384ea0f926c5435bdceeba491b25ec412eb3"
 }

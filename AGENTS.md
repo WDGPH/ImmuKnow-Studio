@@ -5,7 +5,8 @@ Manual content stays in docs/ with navigation in mkdocs.yml. Follow
 docs/documentation.md for source checks and the separate PHIZ hub publication.
 This repository owns Studio's UI, browser compiler, fonts, fictional scenarios
 and browser/unit tests. Core owns the native engine, default templates,
-configuration, schemas and shared Typst components.
+configuration, schemas and shared Typst components. Follow the
+[shared language and project responsibilities](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#shared-language-and-project-responsibilities).
 
 Use the installed Core package through immuknow.resources for resources and
 rendering identity. Example preparation currently calls internal Core functions;

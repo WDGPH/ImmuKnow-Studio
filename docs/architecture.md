@@ -51,6 +51,11 @@ requirements and the shared resources. Files are limited to 12 MiB each and
 rejected. See [Editing, drafts and downloads](studio.md) for format and reset
 details.
 
+Preview source spans distinguish repeated wording and preserve accented-character
+and Windows line-ending offsets. The five prepared scenarios provide eleven
+variants across six maintained filenames: English and French overdue disease and
+agent notices, an English affirmative notice and an English suspension order.
+
 ## Template scaffold
 
 Studio bundles an allowlisted snapshot of ImmuKnow-Template at an exact commit

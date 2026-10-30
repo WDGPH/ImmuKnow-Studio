@@ -47,7 +47,7 @@ const steps = [
   {
     target: ".project-actions summary",
     title: "Save your work",
-    text: "Open Project to download the current template with its Settings, Theme and selected example client, or import a saved ZIP.",
+    text: "Open Project to download your current template and its project files, or import a saved ZIP.",
   },
   {
     target: ".project-actions summary",

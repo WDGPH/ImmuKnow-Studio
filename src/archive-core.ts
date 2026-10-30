@@ -120,7 +120,10 @@ export async function importProject(
   if (!files[manifestName])
     throw new Error("Import a complete ImmuKnow project ZIP with immuknow-project.json.");
   const manifest = JSON.parse(decoder.decode(files[manifestName]));
-  if (manifest.schemaVersion !== 1) throw new Error("Unsupported project format.");
+  if (manifest.schemaVersion !== 1)
+    throw new Error(
+      "Unsupported project format. Keep the original ZIP and open it in a compatible Studio version.",
+    );
   verifyProjectBuild(manifest.build, build);
   const template = validateTemplate(files, manifest.template);
   delete files[manifestName];
