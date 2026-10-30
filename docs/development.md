@@ -137,8 +137,8 @@ browser/native comparison tools (`browser`), and documentation tools (`docs`).
 Ordinary site builds do not need the `browser` group. The full Python type
 check includes browser helpers and installs that group explicitly.
 `npm run test:browser` also installs its locked Python tools automatically.
-Ajv and Ajv Formats are npm build dependencies: they generate the browser
-validators from Core schemas.
+Ajv and Ajv Formats remain npm runtime dependencies because generated browser
+validators include their helper code. Their licences stay in the site notices.
 
 ## Run locally
 
