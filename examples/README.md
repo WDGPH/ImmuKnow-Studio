@@ -5,7 +5,8 @@ notices, incomplete facts, explicit assignment conflicts, affirmative wording
 and an order that omits history. They contain no real client information.
 
 `scenarios.json` owns raw CSV values, explicit entry filenames, sample identity
-translations, and frozen dates/timestamp. Localization changes names, addresses
+translations, and frozen dates/timestamp. History dates use Core’s
+`YYYY-MM-DD` input format. Localization changes names, addresses
 and schools; clinical facts and identifiers stay the same across variants.
 `prepared.json` is generated through native source preparation, assignment
 reconciliation and factual render-job preparation. Warnings remain beside each
