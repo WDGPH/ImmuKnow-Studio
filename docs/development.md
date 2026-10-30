@@ -132,6 +132,14 @@ Re-run `npm run prepare:assets` after Core or example inputs change. npm's dev,
 build, type and unit commands refresh the generated Core resource copies and
 validators automatically. No generated browser assets are committed.
 
+Python dependency groups separate the usual build and lint tools (`dev`),
+browser/native comparison tools (`browser`), and documentation tools (`docs`).
+Ordinary site builds do not need the `browser` group. The full Python type
+check includes browser helpers and installs that group explicitly.
+`npm run test:browser` also installs its locked Python tools automatically.
+Ajv and Ajv Formats are npm build dependencies: they generate the browser
+validators from Core schemas.
+
 ## Run locally
 
 ```bash
@@ -158,7 +166,7 @@ fonts. Set `TYPST_BIN` if Typst is outside PATH. Install Playwright's full
 Chromium browser and its system dependencies for the encrypted PDF reader tests.
 
 ```bash
-uv run --locked ty check
+uv run --locked --group browser ty check
 uv run --locked ruff check --no-fix .
 uv run --locked ruff format --check .
 npm run typecheck

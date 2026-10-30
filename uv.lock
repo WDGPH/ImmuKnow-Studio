@@ -544,12 +544,15 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
-dev = [
+browser = [
     { name = "pillow" },
     { name = "pymupdf" },
+    { name = "pypdf" },
+    { name = "zxing-cpp" },
+]
+dev = [
     { name = "ruff" },
     { name = "ty" },
-    { name = "zxing-cpp" },
 ]
 docs = [
     { name = "mkdocs" },
@@ -564,12 +567,15 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [
+browser = [
     { name = "pillow", specifier = ">=13.0.0" },
     { name = "pymupdf", specifier = "==1.28.2" },
+    { name = "pypdf" },
+    { name = "zxing-cpp", specifier = "==3.1.1" },
+]
+dev = [
     { name = "ruff", specifier = "==0.17.1" },
     { name = "ty", specifier = ">=0.0.89" },
-    { name = "zxing-cpp", specifier = "==3.1.1" },
 ]
 docs = [
     { name = "mkdocs", specifier = "==1.6.1" },
