@@ -18,7 +18,7 @@ small changes, and include the checks and any remaining limits in your PR.
 
 ## Core dependency
 
-Studio installs Core from the `v2.0.0-rc1` tag of
+Studio installs Core from the `v2.0.0-rc2` tag of
 <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` selects the tag and
 `uv.lock` records the exact commit. A local Core checkout is not required.
 
@@ -37,8 +37,8 @@ those facts, regenerate and review `examples/prepared.json` instead:
 uv run --locked python -m scripts.examples
 ```
 
-The current locked commit is `877cef06378357da769ea2566226d50d641a855a`,
-tagged `v2.0.0-rc1` in Core. To select another published Core tag, use
+The current locked commit is `e58e889c28c2efe29ee95564fd66277884856854`,
+tagged `v2.0.0-rc2` in Core. To select another published Core tag, use
 `uv add git+https://github.com/WDGPH/ImmuKnow.git --tag <core-tag>`.
 Commit both dependency files and run the checks before releasing. Core and
 Studio provenance are recorded separately; compatibility continues to compare
@@ -61,7 +61,7 @@ To rebuild against the configured Core reference, open **Actions → Studio Page
 → Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
-currently it is Core's `v2.0.0-rc1` tag. A configured tag or revision stays
+currently it is Core's `v2.0.0-rc2` tag. A configured tag or revision stays
 at that reference. The workflow still checks the committed example facts and
 resource compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.
@@ -180,7 +180,8 @@ npm run test:browser
 Browser checks serve `dist/` at the root. Set `IMMUKNOW_BASE_URL` to test an
 already served artifact, including any proxy prefix and trailing slash. Do not
 rebuild an artifact while it is being tested. Evidence stays in `test-results/`.
-Downloaded-project checks run the installed Core engine outside either checkout
+Downloaded-project checks install the ZIP's locked environment outside either checkout
+and run its Template helpers, project tests and Core engine
 through both notice selectors. PDF reader checks use Studio's own example inputs.
 Core maintains its separate native test fixtures. Studio's contract cases under
 `unit/fixtures/` are a local snapshot, not imports from Core's test package.
@@ -198,3 +199,27 @@ API is not required for this extraction.
 Core resources are copied into disposable `generated/core/` for browser builds.
 Edits belong in Core or the open authored project, never the installed package
 or generated copy. Shared library files retain their existing integrity checks.
+
+## Update the project template
+
+The reviewed scaffold in `assets/project-template/` comes from
+[ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template). Clone that private
+repository locally when changing the snapshot. Select a full commit containing
+its `studio-scaffold.json` allowlist and a lock for Studio's Core revision:
+
+```bash
+uv run --locked python -m scripts.project_template \
+  --source ../ImmuKnow-Template --revision <full-template-commit-sha>
+uv run --locked python -m scripts.examples --check
+```
+
+The refresh reads committed Git blobs, records source identity and SHA-256 hashes,
+and copies only the allowlisted setup files, scripts, tests, licence and README.
+Commit the snapshot and its provenance together. Do not edit the copied files in
+Studio; make changes in Template and refresh. Python lint/type checks exclude the
+copied upstream code; downloaded-project browser tests run its own test suite.
+
+Ordinary builds verify the local snapshot without GitHub access. A Core update
+also needs a compatible Template lock and refreshed snapshot. Run the full
+browser/native downloaded-project checks to verify clean installation, setup
+checks, the sample, both native selectors and saved-run rebundling.

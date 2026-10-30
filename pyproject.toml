@@ -8,7 +8,7 @@ dependencies = ["ImmuKnow", "PyYAML"]
 package = false
 
 [tool.uv.sources]
-immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", tag = "v2.0.0-rc1" }
+immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", tag = "v2.0.0-rc2" }
 
 [dependency-groups]
 dev = [
@@ -26,3 +26,9 @@ docs = [
     "mkdocs-material==9.7.7",
     "pymdown-extensions==12.3",
 ]
+
+[tool.ruff]
+extend-exclude = ["assets/project-template"]
+
+[tool.ty.src]
+exclude = ["assets/project-template"]

@@ -1,0 +1,25 @@
+{
+  "files": {
+    ".gitignore": "5d64ae88784e573edcd76c14810d140557daa7e17f04b4f5e607fa2d8314381a",
+    ".pre-commit-config.yaml": "8752164dfbd9da115abfe26fa8bcc08710093d49c81e724cfe5d8af57218edd4",
+    ".python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+    "LICENSE": "e3fc41a3e9599ba793e59ce6dca2310fadfb97127305518ed4971365c131e94f",
+    "README.md": "ee2230ad42c7473a65f63baff71546808630824bbdb92a707151d15523c6e048",
+    "pyproject.toml": "c7eda8e723e12088ce917cbeeecb4a3600656c81dcdce6496fc02d17eb24f18c",
+    "scripts/check.py": "6b80775de7f4719ec9b81e7834dea78116fbe172f05eef5e0a03e3ce02df8e68",
+    "scripts/check_client_data.py": "044aa0900538ff338c0c5f3bd14edfb2ce1945c7ef8badc181ef3466a5f7cbb6",
+    "scripts/project.py": "4de03c3eab21edccdd66134191d7b4c42ce1e7c7bf059004f4bae5ae420f0e46",
+    "scripts/run.py": "f8aa1e34cdb5bfaab1319da48d5f7cc674d97ce809f330e6f27f896ff4a367a2",
+    "scripts/sync_lib.py": "92474df1583997d92dbee8968d8f669c85334ef3bc4291207473465923a073de",
+    "tests/test_check.py": "618fa0a74aca155e76852a2bcb03d8b6d573430c360506fccbbaebe7044500a2",
+    "tests/test_client_data.py": "bf9b428a8be90984017cedec5b9d5d25e7109e0f926494954c733c4e73163225",
+    "tests/test_layout.py": "645af130a402c89daee448d086320c9e8691bf343a0eb9792a8a8cbfad5e44b6",
+    "tests/test_lib_sync.py": "0d0027c1cb142c6df3ee71e524210317f427f9d63357b31bc919c6ee39f8ecfc",
+    "tests/test_project.py": "ee4fa760f8c95797922df86f64205d0a0fd7572c4f49ccb67c2960dbc7ff9208",
+    "tests/test_run.py": "00c0316c703534ba903b20f4c72f8b5094a1f46405707022e829683e64b174d4",
+    "tests/test_sample.py": "c7c0283b321607252cbbecc6d2bffb0f6485fd339ad95a04ad50a817efdbe0a7",
+    "uv.lock": "b0839c9b16ec899c9e00c508b3344b94f85d3fb2e47fc7344508ffca6c937932"
+  },
+  "repository": "https://github.com/WDGPH/ImmuKnow-Template",
+  "revision": "a46e8b1c377b0226c3ea5a025608bc041b92f852"
+}

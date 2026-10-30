@@ -1,4 +1,4 @@
-"""Compare a downloaded Typst project using the separately installed native engine."""
+"""Install a downloaded project and compare its native output with the preview."""
 
 from __future__ import annotations
 
@@ -132,9 +132,26 @@ def main(evidence: Path) -> None:
         extracted.rename(project)
         assert not project.is_relative_to(Path(__file__).resolve().parents[1])
 
+        installed = subprocess.run(
+            ["uv", "sync", "--locked"],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=120,
+            check=False,
+        )
+        (evidence / "project-install.log").write_text(
+            installed.stdout + installed.stderr
+        )
+        assert installed.returncode == 0, installed.stdout + installed.stderr
+
         def run(*arguments: str) -> str:
+            invocation = (
+                list(arguments) if arguments[0].endswith(".py") else ["-m", *arguments]
+            )
             result = subprocess.run(
-                [sys.executable, "-m", *arguments],
+                ["uv", "run", "--locked", "python", *invocation],
                 cwd=project,
                 env=env,
                 capture_output=True,
@@ -170,6 +187,8 @@ def main(evidence: Path) -> None:
             )
             return result.stdout
 
+        run("scripts/check.py", "--sample")
+        run("pytest", "-q")
         selected = json.loads((evidence / "selected-example.json").read_text())
         browser = inspect_pdf(evidence / "browser.pdf")
         preview = inspect_preview(evidence, browser)
@@ -193,7 +212,7 @@ def main(evidence: Path) -> None:
             ),
         ):
             run(
-                "immuknow.orchestrator",
+                "scripts/run.py",
                 selected["input"]["csv"],
                 "--config",
                 "config",

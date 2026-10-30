@@ -141,7 +141,12 @@ for (const [scenario, filename] of cases) {
     const files = unzipSync(readFileSync(info.outputPath("typst-project.zip")));
     delete files["immuknow-project.json"];
     for (const [path, bytes] of Object.entries(files)) {
-      if (path.startsWith("templates/fonts/")) continue;
+      if (
+        path.startsWith("templates/fonts/") ||
+        path.startsWith("input/sample/") ||
+        path === "sample.json"
+      )
+        continue;
       expect(Buffer.from(bytes).toString("base64"), path).toBe(expectedFiles[path]);
     }
     expect(Object.keys(files).filter((path) => /^templates\/.+\.(en|fr)\.typ$/.test(path))).toEqual(
@@ -152,9 +157,22 @@ for (const [scenario, filename] of cases) {
         .filter((path) => path.startsWith("examples/") && !path.endsWith("README.md"))
         .sort(),
     ).toEqual(Object.values(examples[index].inputs[filename]).sort());
-    expect(Object.keys(files).some((path) => /\.(py|whl)$/.test(path))).toBe(false);
-    expect(files["uv.lock"]).toBeUndefined();
-    expect(files["pyproject.toml"]).toBeUndefined();
+    expect(files["scripts/run.py"]).toBeDefined();
+    expect(files["uv.lock"]).toBeDefined();
+    expect(files["pyproject.toml"]).toBeDefined();
+    expect(JSON.parse(new TextDecoder().decode(files["sample.json"]))).toEqual({
+      csv: "input/sample/sample_students.csv",
+      assignments: "input/sample/sample_assignments.json",
+    });
+    expect(files["input/sample/sample_students.csv"]).toEqual(
+      files[examples[index].inputs[filename].csv],
+    );
+    expect(files["input/sample/sample_assignments.json"]).toEqual(
+      files[examples[index].inputs[filename].assignments],
+    );
+    const source = JSON.parse(new TextDecoder().decode(files["template-source.json"]));
+    expect(source.repository).toBe("https://github.com/WDGPH/ImmuKnow-Template");
+    expect(source.revision).toMatch(/^[0-9a-f]{40}$/);
     expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toHaveLength(fontCount);
     expect(files["templates/fonts/LICENSE"]).toBeDefined();
     writeFileSync(

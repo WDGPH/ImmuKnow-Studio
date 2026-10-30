@@ -29,6 +29,7 @@ from immuknow.resources import resource_root
 from immuknow.version_notices import load_catalog, template_identity
 
 from .build_info import project_build
+from .project_template import scaffold_files
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
@@ -165,7 +166,7 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                 }
             )
     resources["examples/README.md"] = (EXAMPLES / "README.md").read_bytes()
-    resources["README.md"] = (EXAMPLES / "PROJECT.md").read_bytes()
+    resources.update(scaffold_files())
     resources["build.json"] = (json.dumps(project_build(), indent=2) + "\n").encode()
     prepared = {
         "schemaVersion": 1,

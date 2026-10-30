@@ -146,7 +146,7 @@ but has no preview.
 ## Download the project
 
 Open **Project** at the top-right of the webpage.
-**Download current template** saves the selected notice with current Settings,
+**Download project** saves the selected notice with current Settings,
 Theme, translations, components, images and configuration. It includes only the
 selected fictional client’s CSV and assignment file; unrelated starter notices
 and example inputs are omitted. Explicitly referenced notices and authored
@@ -154,8 +154,11 @@ companion files remain available, preserving project dependencies. Other notices
 in the browser draft are not backed up by this download; download each notice
 you want to keep.
 Authored files keep their bytes and relative paths. Import the ZIP to resume
-editing, or use it with a separately installed native ImmuKnow engine.
-The download includes no Python runner, dependency environment or engine wheel.
+editing, or run it locally using the included ImmuKnow-Template Python setup,
+locked Core dependency and helper scripts. The ZIP includes a README and tests,
+plus sample copies under `input/sample/` when a prepared example is available.
+An imported project's existing sample selection and authored files are preserved.
+The installed environment, engine wheel and native Typst compiler are not bundled.
 If the project changes while the ZIP is being prepared, download it again.
 A project with unfinished edits or no prepared example can still be saved.
 
@@ -172,8 +175,8 @@ symlinks and corrupt archives are rejected.
 Production notice generation happens with ImmuKnow core on your local
 workstation. Follow [Use templates on your workstation](local-production.md)
 for the complete handoff, native command examples, fonts and output review.
-Keep the extracted template tree and its assets together. The engine and native
-Typst compiler are installed separately; they are not included in the download.
+Keep the extracted project and its assets together. `uv sync --locked` installs
+the pinned engine; install native Typst and the supplied fonts separately.
 
 The footer identifies the Studio commit and latest reachable version tag, plus
 the pinned ImmuKnow commit targeted by its supplied resources. A `+` after the
