@@ -31,7 +31,7 @@ The usual workflow is:
 4. Install the project with `uv sync --locked`, check its fictional sample,
    then use its helper scripts to generate production notices locally.
 
-See [Use templates on your workstation](local-production.md) for the handoff.
+See [Use projects on your workstation](local-production.md) for the handoff.
 Studio does not assess immunization status or select a client's notice.
 Those decisions come from your source records and explicit choices in ImmuKnow.
 
@@ -50,7 +50,7 @@ details.
 | --- | --- |
 | Change your first notice | [Get started](getting-started.md) |
 | Understand editing, resets and saved drafts | [Editing, drafts and downloads](studio.md) |
-| Generate notices for your own clients | [Use templates on your workstation](local-production.md) |
+| Generate notices for your own clients | [Use projects on your workstation](local-production.md) |
 | Check where files and data go | [Privacy and offline use](privacy-offline.md) |
 | Resolve a preview or import problem | [Troubleshooting](troubleshooting.md) |
 | Build Studio or contribute a change | [Build and contribute](development.md) |

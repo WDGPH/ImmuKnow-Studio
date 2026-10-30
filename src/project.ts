@@ -6,7 +6,6 @@ export const MAX_PROJECT = 32 * 1024 * 1024;
 export const MAX_FILES = 400;
 export const decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 export const encoder = new TextEncoder();
-export const textFile = (name: string) => /\.(typ|json|yaml|yml|toml|md|txt)$/i.test(name);
 export const editableFile = (name: string) =>
   (name.startsWith("templates/") || name.startsWith("config/")) &&
   !name.startsWith("templates/lib/immuknow/") &&
