@@ -185,7 +185,8 @@ summary:focus-visible {
   border: 0;
 }
 .download-fonts {
-  padding: 6px 8px;
+  display: block;
+  margin: 20px 0;
   font-size: 14px;
 }
 .download-fonts small {
@@ -213,9 +214,6 @@ main {
   letter-spacing: 0.03em;
   color: var(--muted);
 }
-.build-footer p {
-  margin: 0;
-}
 .build-footer a {
   color: inherit;
   text-decoration: none;
@@ -223,20 +221,10 @@ main {
 .build-footer a[href]:hover {
   text-decoration: underline;
 }
-.build-footer .footer-versions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px 12px;
-  margin-top: 8px;
-}
-.footer-versions > span {
-  white-space: nowrap;
-}
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, var(--split)) 24px minmax(0, 1fr);
-  height: calc(100dvh - 165px);
+  height: calc(100dvh - 137px);
   min-height: 430px;
 }
 .editor-pane,
@@ -365,7 +353,6 @@ main {
 .client-controls {
   flex: 1;
   min-width: 0;
-  max-width: 24rem;
   flex-direction: column;
   align-items: stretch;
   gap: 0;
@@ -385,17 +372,24 @@ main {
 .navigation {
   min-width: 0;
 }
-#example {
-  flex: 1;
-  width: 0;
-  min-width: 0;
-  min-height: 26px;
-  padding: 2px 4px;
-  text-overflow: ellipsis;
+.navigation button {
+  display: grid;
+  place-items: center;
 }
-#position {
-  min-width: 35px;
-  text-align: center;
+#previous svg,
+#next svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+}
+#example {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-family: monospace;
+  text-overflow: ellipsis;
 }
 #pages {
   font-size: 11px;
@@ -724,7 +718,7 @@ main {
 #coding-cheatsheet-dialog code {
   overflow-wrap: anywhere;
 }
-:is(#project-change-dialog, #recovery-dialog) {
+:is(#project-change-dialog, #recovery-dialog, #download-dialog) {
   width: 540px;
   max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 32px);
@@ -734,26 +728,26 @@ main {
   border-radius: 10px;
   padding: 24px;
 }
-:is(#project-change-dialog, #recovery-dialog)::backdrop {
+:is(#project-change-dialog, #recovery-dialog, #download-dialog)::backdrop {
   background: #10243677;
 }
-:is(#project-change-dialog, #recovery-dialog) h2 {
+:is(#project-change-dialog, #recovery-dialog, #download-dialog) h2 {
   margin: 0 0 12px;
   font-size: 20px;
 }
-:is(#project-change-dialog, #recovery-dialog) p {
+:is(#project-change-dialog, #recovery-dialog, #download-dialog) p {
   line-height: 1.5;
 }
-#project-change-dialog fieldset {
+:is(#project-change-dialog, #download-dialog) fieldset {
   border: 0;
   padding: 0;
   margin: 20px 0;
 }
-#project-change-dialog legend {
+:is(#project-change-dialog, #download-dialog) legend {
   margin-bottom: 8px;
   font-weight: 600;
 }
-#project-change-dialog fieldset label {
+:is(#project-change-dialog, #download-dialog) fieldset label {
   display: flex;
   align-items: start;
   gap: 10px;
@@ -763,14 +757,17 @@ main {
   border-radius: 6px;
   cursor: pointer;
 }
-#project-change-dialog label:has(:checked) {
+:is(#project-change-dialog, #download-dialog) label:has(:checked) {
   border-color: var(--teal);
   background: var(--surface-soft);
 }
-#project-change-dialog label:has(:disabled) {
+:is(#project-change-dialog, #download-dialog) label:has(:disabled) {
   opacity: 0.5;
 }
-#project-change-dialog small {
+#project-change-dialog label[hidden] {
+  display: none;
+}
+:is(#project-change-dialog, #download-dialog) small {
   display: block;
   margin-top: 4px;
   color: var(--muted);
@@ -782,7 +779,7 @@ main {
   justify-content: end;
   gap: 10px;
 }
-:is(#project-change-confirm, #recovery-continue) {
+:is(#project-change-confirm, #recovery-continue, #download-confirm) {
   color: var(--teal);
   font-weight: 600;
 }

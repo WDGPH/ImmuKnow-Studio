@@ -2,10 +2,11 @@ import type { BuildInfo, Files } from "./types";
 
 export type ArchiveRequest =
   | { action: "export"; files: Files; template: string; build: BuildInfo }
+  | { action: "export-typst"; files: Files; template: string }
   | { action: "import"; bytes: Uint8Array; build: BuildInfo };
 
 export function archiveJob(
-  request: Extract<ArchiveRequest, { action: "export" }>,
+  request: Extract<ArchiveRequest, { action: "export" | "export-typst" }>,
 ): Promise<Uint8Array>;
 export function archiveJob(
   request: Extract<ArchiveRequest, { action: "import" }>,

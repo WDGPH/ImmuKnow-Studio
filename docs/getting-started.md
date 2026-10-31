@@ -40,7 +40,7 @@ For project boundaries and local dependencies, see
 
 ## Review the examples
 
-Choose a person from **Example client** above the preview, or use the arrows.
+Use the **Example client** arrows above the preview to browse fictional clients.
 The same people are available for every supplied template. Switching notices or
 languages keeps your selected person; changing people keeps your edits. Review
 any warnings, including when a client does not fit the selected notice.
@@ -57,7 +57,9 @@ leave while edits are still unsaved. To make a copy you can keep or move to
 another computer:
 
 1. Open **Project** at the top-right of the webpage.
-2. Choose **Download project** to save `immuknow-project.zip`.
+2. Choose **Download project**, keep **Complete project**, review
+   **Include fonts for installation**, and
+   select **Download ZIP** to save `immuknow-project.zip`.
 3. Keep the ZIP somewhere you control. It contains the selected template,
    supporting files, assets, Python setup, helper scripts and selected fictional example inputs.
 
@@ -65,9 +67,10 @@ Download each template you want to keep: this action does not back up every
 other notice in the browser draft. To return to a downloaded project, open
 **Project → Import project** and select its ZIP.
 
-When you return, choose **Continue project** to reopen the browser copy or
-**Start fresh** to remove it and restore the starters. This copy is local to
-this browser and device; Studio does not save it to the cloud.
+When you return, Studio automatically reopens a compatible browser copy. Choose
+**Project → Reset workspace… → Entire workspace** to remove it and restore
+the starters after confirmation. This copy is local to this browser and device; Studio does not
+save it to the cloud.
 
 When your template is ready, follow
 [Use projects on your workstation](local-production.md). Production notice

@@ -8,6 +8,10 @@ ImmuKnow core release locally. You do not need a separate Core or Template check
 ## Download and extract your project
 
 In Studio, open **Project** at the top-right and choose **Download project**.
+Keep **Complete project** for the runnable ZIP described below. Choose
+**Authored .typ files only** to copy the active notice, settings and referenced
+`.typ` companions into an existing matching repository instead; that smaller ZIP
+uses your repository’s existing ImmuKnow components, fonts and assets.
 Extract `immuknow-project.zip` into a folder you control.
 
 | Item | Purpose |

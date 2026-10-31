@@ -142,7 +142,7 @@ test.each([undefined, "", "Script failed"])("worker errors stop compilation with
     worker = WorkerMock.all[0];
   worker.onerror?.({ message });
   expect(status).toHaveBeenLastCalledWith(
-    `Compiler worker failed${message ? `: ${message}` : ""}. Use Restart compiler.`,
+    `Compiler worker failed${message ? `: ${message}` : ""}. Refresh the page to retry.`,
     true,
   );
   expect(worker.terminate).toHaveBeenCalledOnce();

@@ -52,7 +52,7 @@ const steps = [
   {
     target: ".project-actions summary",
     title: "Manage your project",
-    text: "Reset template lets you keep Settings and Theme, reset Settings too, or start everything over. Download each notice you want to keep before resetting.",
+    text: "Reset workspace lets you reset the current template, include Settings and Theme, or restore the entire workspace to Studio’s starters. Download each notice you want to keep before resetting.",
   },
   {
     target: "#help-open",

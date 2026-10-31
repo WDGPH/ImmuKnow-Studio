@@ -1,9 +1,8 @@
 import { expect, type Page } from "@playwright/test";
 import type { Bundle } from "../src/types";
 
-export async function continueProject(page: Page) {
-  await expect(page.getByRole("dialog", { name: "Continue your browser project?" })).toBeVisible();
-  await page.getByRole("button", { name: "Continue project", exact: true }).click();
+export async function restoredProject(page: Page) {
+  await expect(page.locator("#template-tab")).toBeEnabled();
   await expect(page.locator("#recovery-dialog")).not.toBeVisible();
 }
 
@@ -38,4 +37,23 @@ export async function editExampleData(page: Page, edit: (bundle: Bundle) => void
     edit(bundle);
     await route.fulfill({ response, json: bundle });
   });
+}
+
+export async function chooseExample(page: Page, index: number) {
+  const position = page.locator("#example");
+  await expect(position).toHaveText(/^Example client \d+$/);
+  let current = Number((await position.innerText()).split(" ").at(-1)) - 1;
+  while (current !== index) {
+    const direction = current < index ? 1 : -1;
+    await page.getByRole("button", { name: direction > 0 ? "Next example" : "Previous example" }).click();
+    current += direction;
+    await expect(position).toHaveText(`Example client ${String(current + 1).padStart(2, "0")}`);
+  }
+}
+
+export async function downloadProject(page: Page, includeFonts?: boolean) {
+  await page.locator("#export").click();
+  await expect(page.getByRole("dialog", { name: "Download project", exact: true })).toBeVisible();
+  if (includeFonts !== undefined) await page.locator("#include-fonts").setChecked(includeFonts);
+  await page.locator("#download-confirm").click();
 }

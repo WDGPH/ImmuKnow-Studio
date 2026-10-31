@@ -19,9 +19,9 @@ offline in the open tab. Wait for the first preview before disconnecting.
 
 Some actions load more static files when you use them. Project downloads read
 the bundled fonts and their licences again; imports and downloads load the ZIP
-worker, and Theme starters load their images. Reloading, reopening the site or
-restarting the compiler can also require application files again. Browser
-caching is not a guaranteed offline installation.
+worker, and Theme starters load their images. Reloading or reopening the site
+can also require application files again. Browser caching is not a guaranteed
+offline installation.
 
 For a disconnected editing session on the hosted site, choose your Theme and
 download a backup before disconnecting, then keep the loaded tab open. A later
@@ -41,16 +41,18 @@ edits, imported images and the project's starting files. It is separate for
 each browser profile, device and site address. It is not an account, cloud
 backup or synchronization service.
 
-When you reopen Studio, choose **Continue project** to use this copy or
-**Start fresh** to remove it and restore the starter templates, settings and
-images. Nothing is removed until you choose Start fresh.
+When you reopen Studio, a compatible browser copy opens automatically. Choose
+**Project → Reset workspace… → Entire workspace** to remove it and restore
+the starter templates, settings and images. Nothing is removed until you confirm
+**Reset workspace**.
 
 The browser warns before you leave while edits are still unsaved. If storage is
 unavailable or full, the open project remains available to download. Private
 browsing, clearing site data or browser storage cleanup can remove a draft.
 Download copies of work you want to keep.
 
-**Project → Clear saved draft** removes the stored draft while keeping the
+**Project → Reset workspace… → Saved draft only** removes the stored draft
+while keeping the
 open project available to download. Later edits save it again. For reset and
 storage behaviour, see [Keep your work](studio.md#keep-your-work).
 

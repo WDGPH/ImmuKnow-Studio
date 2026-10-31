@@ -1,3 +1,4 @@
+import { downloadProject } from "./helpers";
 import { readFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -46,7 +47,7 @@ async function importSettings(page: Page, change: (source: string) => string) {
 async function downloadSettings(page: Page) {
   await page.locator(".project-actions summary").click();
   const pending = page.waitForEvent("download");
-  await page.locator("#export").click();
+  await downloadProject(page);
   const path = await (await pending).path();
   return unzipSync(readFileSync(path as string))["templates/settings.typ"];
 }

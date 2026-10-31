@@ -1,4 +1,4 @@
-import { chooseTemplate } from "./helpers";
+import { downloadProject, chooseExample, chooseTemplate } from "./helpers";
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -34,7 +34,7 @@ for (const [scenario, filename] of cases) {
     expect(index).toBeGreaterThanOrEqual(0);
     await page.locator("#theme-tab").click();
     await chooseTemplate(page, `templates/${filename}`);
-    await page.getByLabel("Example client", { exact: true }).selectOption(scenario);
+    await chooseExample(page, index);
     if (scenario === "short" && filename.startsWith("overdue_diseases_v1.")) {
       // Check a custom ID label, Unicode QR destination and font control after download.
       const imported: Files = Object.fromEntries(
@@ -73,9 +73,8 @@ for (const [scenario, filename] of cases) {
         authored.replace('#let body-font = "FreeSans"', '#let body-font = "FreeSerif"'),
       ).toString("base64");
     }
-    await expect(page.locator("#position")).toHaveAttribute(
-      "title",
-      `${examples[index].label}: ${examples[index].description}`,
+    await expect(page.locator("#example")).toHaveText(
+      `Example client ${String(index + 1).padStart(2, "0")}`,
     );
     await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
     await expect
@@ -128,9 +127,8 @@ for (const [scenario, filename] of cases) {
     }
     await page.screenshot({ path: info.outputPath("preview.png"), fullPage: true });
     await page.locator(".project-actions summary").click();
-    if (scenario === "short") await page.locator("#include-fonts").uncheck();
     const projectDownload = page.waitForEvent("download", { timeout: 30_000 });
-    await page.locator("#export").click();
+    await downloadProject(page, scenario !== "short");
     await (await projectDownload).saveAs(info.outputPath("typst-project.zip"));
     const files = unzipSync(readFileSync(info.outputPath("typst-project.zip")));
     delete files["immuknow-project.json"];

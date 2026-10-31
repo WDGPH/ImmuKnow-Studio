@@ -1,4 +1,4 @@
-import { continueProject, chooseTemplate, editExampleData } from "./helpers";
+import { downloadProject, restoredProject, saved, chooseTemplate, editExampleData } from "./helpers";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -235,16 +235,16 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   // Normal editing never starts a PDF parser worker.
   expect(pdfWorkers).toBe(0);
   await page.reload();
-  await continueProject(page);
+  await restoredProject(page);
   await currentPreview(page);
-  await expect(page.locator("#position")).toHaveText(/^3 of \d+$/);
+  await expect(page.locator("#example")).toHaveText("Example client 03");
   await page.locator("#theme-tab").click();
   await expect(page.locator("#body-font-picker")).toHaveValue("FreeSerif");
   await expect(page.locator("#extra-preview")).toBeVisible();
 
   await page.locator(".project-actions summary").click();
   const downloaded = page.waitForEvent("download");
-  await page.locator("#export").click();
+  await downloadProject(page);
   const path = await (await downloaded).path();
   const saved = unzipSync(new Uint8Array(await readFile(path as string)));
   const expectedSettings = `\ufeff${settings.replace('#let body-font = "FreeSans"', '#let body-font = "FreeSerif"')}`;
@@ -417,8 +417,9 @@ test("continuous typing advances stale previews and context switches isolate old
     .locator("#preview-state")
     .evaluate((el) => ({ ...(el as HTMLElement).dataset }));
   expect(state.displayedRevision).toBe(state.requestedRevision);
-  await page.locator(".project-actions summary").click();
-  await page.locator("#restart").click();
+  await saved(page);
+  await page.reload();
+  await restoredProject(page);
   await currentPreview(page);
   expect(compilerWorkers).toBe(2);
   expect(pdfWorkers).toBe(0);
@@ -597,7 +598,7 @@ test("a prepared replacement cannot publish after the viewer context is cleared"
   await expect(page.locator(".preview-page")).not.toContainText("Obsolete prepared notice");
 });
 
-test("a worker script load failure has a readable error and recovers after restart", async ({
+test("a worker script load failure has a readable error and recovers after refreshing", async ({
   page,
 }) => {
   let attempts = 0;
@@ -608,17 +609,18 @@ test("a worker script load failure has a readable error and recovers after resta
   });
   await page.goto("./");
   await expect(page.locator("#diagnostics")).toContainText(
-    "Compiler worker failed. Use Restart compiler.",
+    "Compiler worker failed. Refresh the page to retry.",
     { timeout: 60_000 },
   );
-  await page.locator(".project-actions summary").click();
-  await page.locator("#restart").click();
+  await saved(page);
+  await page.reload();
+  await restoredProject(page);
   await currentPreview(page);
   expect(attempts).toBe(2);
   await expect(page.locator("#diagnostics")).not.toContainText("Compiler worker failed");
 });
 
-test("a failed local renderer load can recover after restarting the compiler", async ({ page }) => {
+test("a failed local renderer load can recover after refreshing", async ({ page }) => {
   let attempts = 0;
   await page.route("**/typst_ts_renderer_bg*.wasm", async (route) => {
     attempts++;
@@ -630,9 +632,15 @@ test("a failed local renderer load can recover after restarting the compiler", a
     "Could not display the compiled notice",
     { timeout: 60_000 },
   );
-  await page.locator(".project-actions summary").click();
-  await page.locator("#restart").click();
+  await page.locator(".cm-content").press("Control+End");
+  await page.keyboard.insertText("\n// Keep my work while recovering the preview");
+  await saved(page);
+  const beforeRefresh = attempts;
+  await page.reload();
+  await restoredProject(page);
   await currentPreview(page);
-  expect(attempts).toBe(2);
+  expect(attempts).toBeGreaterThan(beforeRefresh);
+  await page.locator(".cm-content").press("Control+End");
+  await expect(page.locator(".cm-content")).toContainText("Keep my work while recovering the preview");
   await expect(page.locator(".preview-page canvas")).toHaveCount(2);
 });

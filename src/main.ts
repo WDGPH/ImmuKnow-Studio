@@ -38,9 +38,8 @@ const basename = (path: string) => path.split("/").at(-1) ?? path;
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
 initializeTheme();
-byId("studio-tag").textContent = __STUDIO_BUILD__.tag ? `${__STUDIO_BUILD__.tag} · ` : "";
-byId("studio-sha").textContent = __STUDIO_BUILD__.revision.slice(0, 7);
-byId<HTMLAnchorElement>("studio-sha").href = `https://github.com/WDGPH/ImmuKnow-Studio/commit/${encodeURIComponent(__STUDIO_BUILD__.revision)}`;
+byId("studio-version").textContent = `ImmuKnow Studio ${__STUDIO_BUILD__.tag ?? __STUDIO_BUILD__.revision.slice(0, 7)}`;
+byId<HTMLAnchorElement>("studio-version").href = `https://github.com/WDGPH/ImmuKnow-Studio/commit/${encodeURIComponent(__STUDIO_BUILD__.revision)}`;
 byId("studio-version").title = __STUDIO_BUILD__.revision;
 let bundle: Bundle;
 let starters: Files;
@@ -138,15 +137,8 @@ function availableExamples(): Example[] {
 function refreshNavigation() {
   const available = availableExamples();
   const index = available.findIndex((item) => item.id === example?.id);
-  const picker = select("example");
-  picker.replaceChildren(...available.map((item) => new Option(item.label, item.id)));
-  picker.value = example?.id ?? "";
-  picker.disabled = available.length === 0;
-  picker.title = example?.description ?? "No prepared example for this entry";
-  byId("position").textContent = index < 0 ? "—" : `${index + 1} of ${available.length}`;
-  byId("position").title = example
-    ? `${example.label}: ${example.description}`
-    : "No prepared example for this entry";
+  byId("example").textContent =
+    index < 0 ? "No prepared example" : `Example client ${String(index + 1).padStart(2, "0")}`;
   button("previous").disabled = index <= 0;
   button("next").disabled = index < 0 || index >= available.length - 1;
 }
@@ -486,13 +478,6 @@ for (const [id, direction] of [
     persist();
     compile(true);
   };
-select("example").onchange = () => {
-  const selected = availableExamples().find((item) => item.id === select("example").value);
-  if (!selected) return;
-  example = selected;
-  persist();
-  compile(true);
-};
 const changeDialog = byId<HTMLDialogElement>("project-change-dialog");
 let pendingChange: { template: string; files: Files } | undefined;
 function requestProjectChange(target = template) {
@@ -501,18 +486,22 @@ function requestProjectChange(target = template) {
   const label = Array.from(select("template").options).find(
     (option) => option.value === target,
   )?.text;
-  byId("project-change-title").textContent = switching ? "Switch template?" : "Reset template?";
+  byId("project-change-title").textContent = switching ? "Switch template?" : "Reset workspace?";
   byId("project-change-text").textContent = switching
     ? `Load ${label ?? basename(target)} from its starting copy. Edits to that template will be replaced. Your current template's wording stays saved in this draft.`
-    : "Restore the selected template from its starting copy, even when Settings or Theme is open. Choose what else to reset.";
+    : "Choose how much of the workspace to reset. Your changes are kept until you confirm.";
   byId("project-change-error").hidden = true;
-  button("project-change-confirm").textContent = switching ? "Switch template" : "Reset template";
+  button("project-change-confirm").textContent = switching ? "Switch template" : "Reset workspace";
+  for (const option of changeDialog.querySelectorAll<HTMLElement>("[data-workspace-scope]"))
+    option.hidden = switching;
   const hasSettings = Boolean(settingsPath(originals, target));
   for (const input of changeDialog.querySelectorAll<HTMLInputElement>(
     'input[name="reset-scope"]',
   )) {
     input.checked = input.value === "template";
-    input.disabled = input.value !== "template" && !hasSettings;
+    input.disabled = ["clear", "workspace"].includes(input.value)
+      ? switching || (input.value === "clear" && !draftStore)
+      : input.value !== "template" && !hasSettings;
   }
   changeDialog.showModal();
 }
@@ -528,7 +517,19 @@ byId<HTMLFormElement>("project-change-form").onsubmit = (event) => {
       throw new Error("The project changed while this dialog was open. Cancel and try again.");
     const scope = new FormData(byId<HTMLFormElement>("project-change-form")).get(
       "reset-scope",
-    ) as ResetScope;
+    ) as ResetScope | "clear" | "workspace";
+    if (scope === "clear") {
+      if (!draftStore) throw new Error("Draft storage is unavailable.");
+      canSave = true;
+      draftStore.clear();
+      changeDialog.close();
+      return;
+    }
+    if (scope === "workspace") {
+      resetWorkspace();
+      changeDialog.close();
+      return;
+    }
     files = resetProject(files, originals, pendingChange.template, scope, template);
     template = pendingChange.template;
     const available = availableExamples();
@@ -670,7 +671,22 @@ byId<HTMLInputElement>("guide").onchange = () =>
   viewer.setGuide(byId<HTMLInputElement>("guide").checked);
 button("zoom-in").onclick = () => void action(() => viewer.zoomBy(1.2));
 button("zoom-out").onclick = () => void action(() => viewer.zoomBy(1 / 1.2));
-button("export").onclick = () =>
+const downloadDialog = byId<HTMLDialogElement>("download-dialog");
+function refreshDownloadOptions() {
+  const typstOnly = new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst";
+  byId<HTMLInputElement>("include-fonts").disabled = typstOnly;
+  const fontOption = downloadDialog.querySelector<HTMLElement>(".download-fonts");
+  if (fontOption) fontOption.hidden = typstOnly;
+}
+byId("download-form").onchange = refreshDownloadOptions;
+button("export").onclick = () => {
+  refreshDownloadOptions();
+  downloadDialog.showModal();
+};
+button("download-cancel").onclick = () => downloadDialog.close();
+byId<HTMLFormElement>("download-form").onsubmit = (event) => {
+  event.preventDefault();
+  downloadDialog.close();
   void action(async () => {
     if (exporting) return;
     const snapshot = {
@@ -680,23 +696,33 @@ button("export").onclick = () =>
       revision,
       context: compiler.context,
       includeFonts: byId<HTMLInputElement>("include-fonts").checked,
+      typstOnly: new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst",
     };
     exporting = true;
     refreshDownloads();
     try {
-      const project = currentProject(
-        snapshot.files,
-        snapshot.template,
-        bundle.examples,
-        snapshot.example,
-        starters,
-      );
-      const bytes = await archiveJob({
-        action: "export",
-        files: await (snapshot.includeFonts ? withProjectFonts(project) : withoutProjectFonts(project)),
-        template: snapshot.template,
-        build: bundle.build,
-      });
+      let bytes: Uint8Array;
+      if (snapshot.typstOnly) {
+        bytes = await archiveJob({
+          action: "export-typst",
+          files: snapshot.files,
+          template: snapshot.template,
+        });
+      } else {
+        const project = currentProject(
+          snapshot.files,
+          snapshot.template,
+          bundle.examples,
+          snapshot.example,
+          starters,
+        );
+        bytes = await archiveJob({
+          action: "export",
+          files: await (snapshot.includeFonts ? withProjectFonts(project) : withoutProjectFonts(project)),
+          template: snapshot.template,
+          build: bundle.build,
+        });
+      }
       if (
         files !== snapshot.files ||
         template !== snapshot.template ||
@@ -705,12 +731,13 @@ button("export").onclick = () =>
         compiler.context !== snapshot.context
       )
         throw new Error("The project changed during download. Download it again.");
-      download("immuknow-project.zip", bytes, "application/zip");
+      download(snapshot.typstOnly ? "immuknow-typst.zip" : "immuknow-project.zip", bytes, "application/zip");
     } finally {
       exporting = false;
       refreshDownloads();
     }
   });
+};
 button("import").onclick = () => byId<HTMLInputElement>("archive").click();
 byId<HTMLInputElement>("archive").onchange = () =>
   void action(async () => {
@@ -745,19 +772,20 @@ byId<HTMLInputElement>("archive").onchange = () =>
     input.value = "";
   });
 button("reset").onclick = () => requestProjectChange();
-button("clear").onclick = () =>
-  void action(() => {
-    if (!draftStore)
-      throw new Error("Draft storage is unavailable. Download your project to keep your work.");
-    canSave = true;
-    draftStore.clear();
-  });
-button("restart").onclick = () => {
-  compilerError = undefined;
-  compiler.restart();
+function resetWorkspace() {
+  files = { ...starters };
+  originals = starters;
+  template = "templates/overdue_diseases_v1.en.typ";
+  example = availableExamples()[0];
+  themeUndo = undefined;
+  button("health-unit-undo").hidden = true;
+  select("health-unit-preset").value = "";
+  canSave = Boolean(draftStore);
+  if (draftStore) draftStore.clear();
+  else unsaved = false;
+  refreshProject();
   compile(true);
-};
-
+}
 const divider = byId("divider");
 function resizeSplit(value: number) {
   const percent = Math.max(25, Math.min(75, value));
@@ -786,15 +814,12 @@ initializeHelp((next) => {
   return () => showTab(original);
 });
 
-function chooseBrowserProject(error?: unknown): Promise<boolean> {
+function chooseBrowserProject(error: unknown): Promise<boolean> {
   const dialog = byId<HTMLDialogElement>("recovery-dialog");
-  const incompatible = error !== undefined;
-  byId("recovery-title").textContent = incompatible
-    ? "Your browser project could not be opened"
-    : "Continue your browser project?";
-  byId("recovery-error").textContent = incompatible ? message(error) : "";
-  byId("recovery-error").hidden = !incompatible;
-  button("recovery-continue").textContent = incompatible ? "Keep browser copy" : "Continue project";
+  byId("recovery-title").textContent = "Your browser project could not be opened";
+  byId("recovery-error").textContent = message(error);
+  byId("recovery-error").hidden = false;
+  button("recovery-continue").textContent = "Keep browser copy";
   dialog.returnValue = "continue";
   return new Promise((resolve) => {
     dialog.addEventListener("close", () => resolve(dialog.returnValue === "reset"), { once: true });
@@ -819,10 +844,6 @@ async function start() {
   const response = await fetch(`${import.meta.env.BASE_URL}generated/project.json`);
   if (!response.ok) throw new Error("Could not load the starter project. Reload Studio to retry.");
   bundle = await response.json();
-  byId("core-sha").textContent = bundle.build.core_source_revision?.slice(0, 7) || bundle.build.application_version;
-  if (bundle.build.core_source_revision)
-    byId<HTMLAnchorElement>("core-sha").href = `https://github.com/WDGPH/ImmuKnow/commit/${encodeURIComponent(bundle.build.core_source_revision)}`;
-  byId("core-version").title = bundle.build.core_source_revision || bundle.build.application_version;
   starters = await decodeFiles(bundle);
   originals = starters;
   files = { ...originals };
@@ -834,17 +855,13 @@ async function start() {
       const saved = await draftStore.load();
       canSave = true;
       if (saved) {
-        if (await chooseBrowserProject()) {
-          draftStore.clear();
-        } else {
-          files = saved.files;
-          originals = saved.baseline;
-          draftRevision = saved.revision;
-          template = saved.template;
-          const available = availableExamples();
-          example = available.find((item) => item.id === saved.example) ?? available[0];
-          saveState("saved");
-        }
+        files = saved.files;
+        originals = saved.baseline;
+        draftRevision = saved.revision;
+        template = saved.template;
+        const available = availableExamples();
+        example = available.find((item) => item.id === saved.example) ?? available[0];
+        saveState("saved");
       }
     } catch (error) {
       if (await chooseBrowserProject(error)) {
@@ -874,8 +891,6 @@ async function start() {
     "theme-tab",
     "template",
     "import",
-    "clear",
-    "restart",
     "zoom-in",
     "zoom-out",
   ])

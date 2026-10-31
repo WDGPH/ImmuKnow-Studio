@@ -32,6 +32,24 @@ export function referencedFiles(files: Files, entry: string): Set<string> {
   return found;
 }
 
+// A source-only handoff for an existing repository, retaining authored paths and
+// bytes while leaving its supplied library, fonts and assets in place.
+export function authoredTypstFiles(files: Files, template: string): Files {
+  validateFiles(files);
+  validateTemplate(files, template);
+  const required = referencedFiles(files, template);
+  const settings = settingsPath(files, template);
+  if (settings)
+    for (const path of referencedFiles(files, settings)) required.add(path);
+  return Object.fromEntries(
+    Object.entries(files).filter(([path]) =>
+      required.has(path) && path.endsWith(".typ") &&
+      !path.startsWith("templates/lib/immuknow/") &&
+      !path.startsWith("templates/fonts/"),
+    ),
+  );
+}
+
 // Select files for a download and fill missing setup files. ZIP validation and
 // integrity checks are handled separately by the archive code.
 export function currentProject(

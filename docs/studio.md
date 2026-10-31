@@ -66,7 +66,7 @@ diagnostics can also link to a source location.
 
 ## Review examples and findings
 
-Choose a person from **Example client**, or use the arrows to browse. Every
+Use the **Example client** arrows to browse fictional clients. Every
 supplied template offers the same examples. The selected person's name, address
 and recorded facts stay the same when you switch notices or languages. Changing
 examples preserves your edits and does not open a reset dialog.
@@ -104,7 +104,7 @@ remaining document. All replacement pages are prepared before the notice changes
 Scrolling and zooming keep the painted pages available. Extremely large output
 may exceed the preview resource limit; Studio reports this and retains the last
 usable preview. There is no five-page output limit. Switching examples or languages, importing a project,
-confirming a template reset and restarting the compiler clear the previous preview.
+confirming a template reset and refreshing the page clear the previous preview.
 During continuous typing, newer successful versions can appear while the refresh
 icon continues to spin.
 
@@ -116,13 +116,17 @@ the native pipeline for a different cohort or factual configuration.
 
 Studio saves the current draft as you edit, including file bytes, uploaded
 images, the selected template and example, and the project's starting files.
-When you reload or return to Studio, a dialog asks whether to **Continue project**
-or **Start fresh**. The copy lives only in this browser on this device; it is not
-saved to the cloud. Continue keeps your edits and starting files. Start fresh
-removes the browser copy and restores all starter templates, settings and images.
-Escape continues the saved project. If the copy cannot be opened, **Keep browser
-copy** retains it without replacing it; the starters open with saving blocked
-until you clear that copy or import a compatible project.
+When you reload or return to Studio, compatible projects reopen automatically,
+including your edits, starting files and selected example. Browsing examples or
+installing a UI-only update does not open a project dialog. The copy lives only
+in this browser on this device; it is not saved to the cloud.
+
+Choose **Project → Reset workspace…** to choose how much to restore. Nothing
+changes until you confirm **Reset workspace**; Cancel or Escape keeps your work.
+
+If the copy cannot be opened, **Keep browser copy** retains it without replacing
+it; the starters open with saving blocked until you reset the entire workspace,
+clear the saved copy or import a compatible project.
 
 Saving happens in the background. The browser warns before you leave while
 edits are still unsaved. Storage errors appear in Findings; the open project
@@ -137,24 +141,26 @@ These cover shared components, fonts, the data format and the compiler build.
 Projects can move between application releases when those requirements still
 match. The selected file must be an English or French notice under `templates/`.
 
-**Reset template…** always restores the selected template, regardless of the
-open editor tab. Its confirmation offers three scopes:
+**Reset workspace…** offers these scopes, regardless of the open editor tab:
 
-- **Template only** keeps current Settings and Theme, including images.
+- **Saved draft only** removes the browser copy, including pending saves, while
+  keeping the open workspace. Later edits save it again.
+- **Template only** restores the selected template and keeps current Settings and Theme, including images.
 - **Template + settings** also restores layout, dates, contacts and display
   options, while keeping fonts, colours, organization name, signature, image
   sizes and QR appearance. Uploaded images stay available.
 - **Template + settings + theme** restores the complete starting Settings and
   images, and removes images added since the project was opened.
+- **Entire workspace** restores all of Studio’s current starter templates,
+  settings and images, removes imported files and clears the saved browser draft.
 
-The starting copy comes from the starter or imported project and survives draft
-reloads. Shared Settings and images affect other templates that use them.
+For the template scopes, the starting copy comes from the starter or imported
+project and survives draft reloads. Shared Settings and images affect other templates that use them.
 Complex Settings that cannot safely separate Theme are left unchanged with an
 explanation; use a template-only or complete reset instead.
 
-**Clear saved draft** removes the stored draft, including pending edits, while
-keeping the open project available to download; later edits save it again.
-**Restart compiler** retries the open project after a compiler problem.
+Refresh the webpage to retry after a compiler problem. Your compatible saved
+browser project reopens automatically.
 
 Import project accepts the current complete ZIP format. Authored source,
 companions and assets keep their bytes; Studio performs no source rewriting or
@@ -165,7 +171,9 @@ but has no preview.
 ## Download the project
 
 Open **Project** at the top-right of the webpage.
-**Download project** saves the selected notice with current Settings,
+**Download project** opens a dialog offering **Complete project** (the default)
+or **Authored .typ files only**. With **Complete project**, choose **Download ZIP**
+to save the selected notice with current Settings,
 Theme, translations, components, images and configuration. It includes only the
 selected fictional client’s CSV and assignment file; unrelated starter notices
 and example inputs are omitted. Explicitly referenced notices and authored
@@ -182,7 +190,7 @@ If the project changes while the ZIP is being prepared, download it again.
 A project with unfinished edits or no prepared example can still be saved.
 
 Downloads include Studio's FreeSans and FreeSerif files and licences by default
-for manual installation. Clear **Include fonts for installation** for a smaller
+for manual installation. In the download dialog, clear **Include fonts for installation** for a smaller
 download when the matching fonts are already installed on the workstation.
 The production pipeline uses system fonts; downloading the files does not install them.
 Studio removes only byte-identical copies of its supplied font files; other
@@ -192,6 +200,17 @@ and SHA-256 file hashes, which are verified on import. Files are limited to
 12 MiB each and 32 MiB in total. Absolute/traversal paths, duplicate paths,
 symlinks and corrupt archives are rejected.
 
+**Authored .typ files only** creates `immuknow-typst.zip` for an existing
+ImmuKnow-Template repository. It includes the active template, its Settings file
+and referenced authored `.typ` companions, preserving their bytes and relative
+paths. Unrelated notices, shared ImmuKnow components, fonts, images, CSV/JSON data
+and Python setup are omitted. Extract the selected source files into the matching
+paths in your existing repository, which supplies those dependencies.
+Companions are collected from literal local file paths; include any files reached
+only through calculated paths yourself. This source-only ZIP is not a complete
+project and cannot be reopened with **Import project**. Use **Complete project**
+for a portable Studio backup or a runnable project.
+
 ## Use the project with the native engine
 
 Production notice generation happens with ImmuKnow core on your local
@@ -200,9 +219,8 @@ for the complete handoff, native command examples, fonts and output review.
 Keep the extracted project and its assets together. `uv sync --locked` installs
 the pinned engine; install native Typst and the supplied fonts separately.
 
-The footer identifies the Studio commit and latest reachable version tag, plus
-the pinned ImmuKnow commit targeted by its supplied resources. A `+` after the
-Studio version means the build includes commits after that tag. Hover over a
-short hash to see the complete commit, or click it to open that commit on GitHub.
-When Core has no recorded source commit,
-the footer shows its application version instead.
+The footer shows **ImmuKnow Studio** followed by the exact release tag (such as
+`v0.1.0`), that tag with `+` for later commits, or the short Studio commit before
+the first version tag. Hover over the label for the complete commit, or click it
+to open the commit on GitHub. The Studio build also identifies its pinned
+ImmuKnow resources.

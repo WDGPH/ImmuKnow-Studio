@@ -1,4 +1,5 @@
 import { unzipSync, zipSync } from "fflate";
+import { authoredTypstFiles } from "./project-actions";
 import { verifyComponents } from "./component-resources";
 import {
   decoder,
@@ -164,4 +165,8 @@ export async function exportProject(
   };
   validateFiles(project);
   return zipSync(project, { level: 6 });
+}
+
+export function exportTypstFiles(files: Files, template: string): Uint8Array {
+  return zipSync(authoredTypstFiles(files, template), { level: 6 });
 }
