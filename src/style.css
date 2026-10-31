@@ -389,8 +389,8 @@ main {
   flex: 1;
   width: 0;
   min-width: 0;
-  min-height: 26px;
-  padding: 2px 4px;
+  overflow: hidden;
+  color: var(--text);
   text-overflow: ellipsis;
 }
 #position {

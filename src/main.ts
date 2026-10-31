@@ -138,11 +138,8 @@ function availableExamples(): Example[] {
 function refreshNavigation() {
   const available = availableExamples();
   const index = available.findIndex((item) => item.id === example?.id);
-  const picker = select("example");
-  picker.replaceChildren(...available.map((item) => new Option(item.label, item.id)));
-  picker.value = example?.id ?? "";
-  picker.disabled = available.length === 0;
-  picker.title = example?.description ?? "No prepared example for this entry";
+  byId("example").textContent = example?.label ?? "No prepared example";
+  byId("example").title = example?.description ?? "No prepared example for this entry";
   byId("position").textContent = index < 0 ? "—" : `${index + 1} of ${available.length}`;
   byId("position").title = example
     ? `${example.label}: ${example.description}`
@@ -486,13 +483,6 @@ for (const [id, direction] of [
     persist();
     compile(true);
   };
-select("example").onchange = () => {
-  const selected = availableExamples().find((item) => item.id === select("example").value);
-  if (!selected) return;
-  example = selected;
-  persist();
-  compile(true);
-};
 const changeDialog = byId<HTMLDialogElement>("project-change-dialog");
 let pendingChange: { template: string; files: Files } | undefined;
 function requestProjectChange(target = template) {

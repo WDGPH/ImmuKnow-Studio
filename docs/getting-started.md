@@ -40,7 +40,7 @@ For project boundaries and local dependencies, see
 
 ## Review the examples
 
-Choose a person from **Example client** above the preview, or use the arrows.
+Use the **Example client** arrows above the preview to browse fictional clients.
 The same people are available for every supplied template. Switching notices or
 languages keeps your selected person; changing people keeps your edits. Review
 any warnings, including when a client does not fit the selected notice.

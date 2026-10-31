@@ -1,4 +1,4 @@
-import { chooseTemplate } from "./helpers";
+import { chooseExample, chooseTemplate } from "./helpers";
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -34,7 +34,7 @@ for (const [scenario, filename] of cases) {
     expect(index).toBeGreaterThanOrEqual(0);
     await page.locator("#theme-tab").click();
     await chooseTemplate(page, `templates/${filename}`);
-    await page.getByLabel("Example client", { exact: true }).selectOption(scenario);
+    await chooseExample(page, index);
     if (scenario === "short" && filename.startsWith("overdue_diseases_v1.")) {
       // Check a custom ID label, Unicode QR destination and font control after download.
       const imported: Files = Object.fromEntries(

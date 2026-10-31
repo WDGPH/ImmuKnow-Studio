@@ -39,3 +39,15 @@ export async function editExampleData(page: Page, edit: (bundle: Bundle) => void
     await route.fulfill({ response, json: bundle });
   });
 }
+
+export async function chooseExample(page: Page, index: number) {
+  const position = page.locator("#position");
+  await expect(position).toHaveText(/\d+ of \d+/);
+  let current = Number((await position.innerText()).split(" ")[0]) - 1;
+  while (current !== index) {
+    const direction = current < index ? 1 : -1;
+    await page.getByRole("button", { name: direction > 0 ? "Next example" : "Previous example" }).click();
+    current += direction;
+    await expect(position).toHaveText(new RegExp(`^${current + 1} of `));
+  }
+}

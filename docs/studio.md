@@ -66,7 +66,7 @@ diagnostics can also link to a source location.
 
 ## Review examples and findings
 
-Choose a person from **Example client**, or use the arrows to browse. Every
+Use the **Example client** arrows to browse fictional clients. Every
 supplied template offers the same examples. The selected person's name, address
 and recorded facts stay the same when you switch notices or languages. Changing
 examples preserves your edits and does not open a reset dialog.
