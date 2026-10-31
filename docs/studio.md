@@ -71,7 +71,7 @@ supplied template offers the same examples. The selected person's name, address
 and recorded facts stay the same when you switch notices or languages. Changing
 examples preserves your edits and does not open a reset dialog.
 
-The examples include the existing English and French-name clients. They are
+The examples include clients with English and French names. They are
 fictional records for notice design, not vaccination schedules. Some examples
 have incomplete details or do not fit a particular notice. Their warnings remain
 available for review; Studio does not rewrite the facts to make a notice fit.
@@ -131,8 +131,8 @@ project for a portable copy.
 
 Only one tab can edit Studio on a site at a time. A second tab asks you to close
 the editing tab and reload. Another device or site address has separate storage.
-Current drafts use format 2 in `immuknow-studio-drafts-v2`; older browser storage
-is left untouched. Drafts and imported ZIPs check the same supported build requirements.
+Drafts use format 2 in `immuknow-studio-drafts-v2`. Drafts and imported ZIPs
+check the same supported build requirements.
 These cover shared components, fonts, the data format and the compiler build.
 Projects can move between application releases when those requirements still
 match. The selected file must be an English or French notice under `templates/`.

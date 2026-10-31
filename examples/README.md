@@ -7,9 +7,8 @@ vaccination schedule.
 
 `scenarios.json` owns one source record per client, the maintained notice
 filenames and fixed dates. Every client is available in every supplied notice,
-with the same name and facts in either language. The older French-name examples
-are also available as individual choices. History dates use Core's `YYYY-MM-DD`
-input format.
+with the same name and facts in either language. The collection includes clients
+with English and French names. History dates use Core's `YYYY-MM-DD` input format.
 
 Dev startup and production builds generate preview facts through Core's source
 preparation and notice assignment checks. Warnings remain beside each view,

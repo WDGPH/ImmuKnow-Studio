@@ -20,7 +20,8 @@ application build or deploy the application.
 
 Explain the action and its result in plain language. Use the exact labels shown
 in Studio and keep step-by-step user guidance separate from build instructions.
-Explain technical terms where readers first need them. Use fictional records and
+Explain technical terms where readers first need them. Describe current behavior
+directly, without recounting development history. Use fictional records and
 public assets in examples. Follow the [shared language and project responsibilities](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#shared-language-and-project-responsibilities).
 
 Keep the relationship to Core explicit: Studio develops templates; local

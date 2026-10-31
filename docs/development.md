@@ -77,9 +77,9 @@ Compiler and renderer binaries, build metadata and Rust licence notices are
 cached together and verified against their input fingerprints and file hashes.
 The cache is saved immediately after preparation, before the site and test
 checks. Ordinary UI, npm and Core updates reuse it without Rust or compiler
-sources. A cold cache still needs the expensive source build, but uses a
-prebuilt, checksum-verified wasm-bindgen CLI. Compiler pins, patches or
-preparation-script changes invalidate the cache; GitHub may also evict it.
+sources. A cold cache requires a source build with a prebuilt, checksum-verified
+wasm-bindgen CLI. Compiler pins, patches or preparation-script changes invalidate
+the cache; GitHub may also evict it.
 Only prepared outputs are cached, rather than the compiler checkout and Cargo
 target directory.
 
@@ -137,7 +137,7 @@ browser/native comparison tools (`browser`), and documentation tools (`docs`).
 Ordinary site builds do not need the `browser` group. The full Python type
 check includes browser helpers and installs that group explicitly.
 `npm run test:browser` also installs its locked Python tools automatically.
-Ajv and Ajv Formats remain npm runtime dependencies because generated browser
+Ajv and Ajv Formats are npm runtime dependencies because generated browser
 validators include their helper code. Their licences stay in the site notices.
 
 ## Run locally
@@ -163,7 +163,7 @@ clear the saved draft in Studio, then reload.
 Install native Typst 0.15.1 for native/browser comparisons. The Playwright
 configuration makes native test subprocesses use the same verified fonts in
 `assets/fonts` as the browser, ignoring system fonts. This keeps comparisons
-independent of the runner's font package; production Core still uses system
+independent of the runner's font package; production Core uses system
 fonts. Set `TYPST_BIN` if Typst is outside PATH. Install Playwright's full
 Chromium browser and its system dependencies for the encrypted PDF reader tests.
 
@@ -231,14 +231,13 @@ case only when it protects a boundary these checks do not cover.
 Studio uses Core's supported `immuknow.resources.resource_root()` and
 `rendering_build_info()` for packaged resources and their identity, and
 `immuknow.orchestrator.run_pipeline()` for complete native runs.
-`scripts/examples.py` still calls internal preparation functions against the
+`scripts/examples.py` calls internal preparation functions against the
 locked Core commit. Those calls intentionally stay internal; dependency updates
-must pass example preparation and native/browser checks. A broader preparation
-API is not required for this extraction.
+must pass example preparation and native/browser checks.
 
 Core resources are copied into disposable `generated/core/` for browser builds.
 Edits belong in Core or the open authored project, never the installed package
-or generated copy. Shared library files retain their existing integrity checks.
+or generated copy. Builds and imports check shared library file integrity.
 
 ## Update the project template
 

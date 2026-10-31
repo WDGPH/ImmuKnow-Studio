@@ -18,7 +18,7 @@ static application: it runs no Python service and requires no application backen
 The browser compiles Typst and renders previews locally using the prepared
 facts. Native production runs use the separately installed ImmuKnow core.
 `immuknow.orchestrator.run_pipeline()` is Core's complete native-run interface.
-Studio's example preparation still uses internal Core functions, so adopting
+Studio's example preparation uses internal Core functions, so adopting
 a new Core revision requires preparation and browser/native export checks.
 
 ## Typst and project files
@@ -27,7 +27,7 @@ Studio supports full Typst functionality through its Template and Settings
 source editors. Theme controls are conveniences for common changes. They do
 not define the limits of what you can author in the Typst source.
 
-The project still follows ImmuKnow's notice contract and local file boundaries:
+The project follows ImmuKnow's notice contract and local file boundaries:
 
 - Keep helper files, translations, images and other dependencies inside the
   project's template tree and use relative paths.
@@ -58,9 +58,8 @@ and Windows line-ending offsets.
 
 Every supplied notice uses the same collection of fictional clients. Each client
 has one source record and a stable example ID. Names, addresses, history and
-overdue facts stay the same when switching templates or languages. The previous
-French-name examples are ordinary members of the collection and can also appear
-in English notices.
+overdue facts stay the same when switching templates or languages. Clients with
+English and French names are available in either language.
 
 `examples/scenarios.json` owns the client records, the maintained template
 filenames and the fixed dates used by the examples. Asset preparation writes one
@@ -69,7 +68,7 @@ for each notice. Dev startup and production builds generate these assets; the
 prepared payloads are not committed. The browser reads these prepared facts; it
 does not assess clients or change their records to fit a notice.
 
-All examples remain available, including combinations that produce warnings.
+All examples are available, including combinations that produce warnings.
 Core's source and applicability findings stay attached to the selected view.
 A custom entry point without prepared facts remains exportable.
 
@@ -89,8 +88,8 @@ credentials or fetches. Refresh the snapshot explicitly as described in
 [Build and contribute](development.md#update-the-project-template).
 
 Downloads combine this scaffold with the selected authored project and fictional
-inputs. Missing setup files are supplied for older imported projects; existing
-files are preserved. `template-source.json` identifies the original upstream
+inputs. Downloads supply any missing setup files and preserve files already
+present in imported projects. `template-source.json` identifies the upstream
 snapshot, while `immuknow-project.json` hashes the actual downloaded bytes.
 
 
