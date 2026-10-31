@@ -79,7 +79,9 @@ when only Measles is overdue. Examples contain valid source history. Invalid his
 native input file before rendering, even if a template omits the history table.
 Display checks, such as unknown dose validity, follow the components actually placed.
 
-Expand **Measurements** for layout details. Long content stays
+Warnings start collapsed with a count, such as **6 warnings**. Select the count
+to read them. Errors stay visible. A different notice or example starts with
+warnings collapsed again; ordinary edits keep your choice. Long content stays
 visible with a warning where possible. A readable preview with missing checking
 evidence retains a finding; it is not treated as checked success.
 

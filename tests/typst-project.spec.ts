@@ -96,10 +96,8 @@ for (const [scenario, filename] of cases) {
       .toBe(true);
     const findings = await page.locator("#diagnostics li").evaluateAll((items) =>
       items.map((item) => {
-        const text = item.cloneNode(true) as HTMLElement;
-        text.querySelector("details")?.remove();
-        const code = text.textContent?.match(/\(([^()]+)\)$/)?.[1];
-        if (!code) throw new Error(`Unexpected browser diagnostic: ${text.textContent}`);
+        const code = item.textContent?.match(/\(([^()]+)\)$/)?.[1];
+        if (!code) throw new Error(`Unexpected browser diagnostic: ${item.textContent}`);
         return `${code}:${item.classList.contains("error") ? "fail" : "warn"}`;
       }),
     );

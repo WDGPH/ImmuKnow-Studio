@@ -150,14 +150,11 @@ function refreshDownloads() {
   button("reset").disabled = !originals?.[template];
 }
 function findings() {
-  const target = byId("diagnostics");
-  target.replaceChildren();
-  function item(
-    text: string,
-    error: boolean,
-    navigate?: () => void,
-    measurements?: Record<string, unknown>,
-  ) {
+  const errors = byId("errors");
+  const warnings = byId("warnings-list");
+  errors.replaceChildren();
+  warnings.replaceChildren();
+  function item(text: string, error: boolean, navigate?: () => void) {
     const line = document.createElement("li");
     line.className = error ? "error" : "warning";
     if (navigate) {
@@ -166,21 +163,7 @@ function findings() {
       link.onclick = navigate;
       line.append(link);
     } else line.textContent = text;
-    if (measurements) {
-      const detail = document.createElement("details"),
-        label = document.createElement("summary"),
-        value = document.createElement("pre");
-      label.textContent = "Measurements";
-      value.textContent = Object.entries(measurements)
-        .map(([key, value]) => {
-          const label = key.replace(/_pt$/, "").replaceAll("_", " ");
-          return `${label}: ${typeof value === "number" && key.endsWith("_pt") ? `${((value * 25.4) / 72).toFixed(1)} mm` : JSON.stringify(value)}`;
-        })
-        .join("\n");
-      detail.append(label, value);
-      line.append(detail);
-    }
-    target.append(line);
+    (error ? errors : warnings).append(line);
   }
   if (compilerError) item(compilerError, true);
   if (actionError) item(actionError, true);
@@ -214,11 +197,13 @@ function findings() {
     item(
       `${prefix}${check.message}${check.page ? ` · Page ${check.page}` : ""} (${check.code})`,
       check.status === "fail",
-      undefined,
-      check.measurements,
     );
   }
-  byId("feedback").hidden = !target.childElementCount;
+  const count = warnings.childElementCount;
+  byId("warning-count").textContent = `${count} warning${count === 1 ? "" : "s"}`;
+  byId("notice-warnings").hidden = count === 0;
+  errors.hidden = errors.childElementCount === 0;
+  byId("feedback").hidden = errors.hidden && count === 0;
   editor.diagnostics(diagnosticRevision === revision ? diagnostics : []);
 }
 function previewStatus() {
@@ -242,6 +227,7 @@ function previewStatus() {
   target.title = text;
 }
 function newContext() {
+  byId<HTMLDetailsElement>("notice-warnings").open = false;
   compiler?.invalidate();
   displayedContext = -1;
   displayedRevision = 0;

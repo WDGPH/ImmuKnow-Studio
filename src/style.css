@@ -471,10 +471,19 @@ main {
   overflow: auto;
 }
 #diagnostics {
+  font-size: 12px;
+}
+#diagnostics ul {
   list-style: none;
   margin: 0;
   padding: 0;
-  font-size: 12px;
+}
+#notice-warnings summary {
+  cursor: pointer;
+}
+#notice-warnings ul,
+#errors:not([hidden]) + #notice-warnings {
+  margin-top: 8px;
 }
 #diagnostics li + li {
   margin-top: 8px;
@@ -498,15 +507,6 @@ main {
   text-align: left;
   padding: 0;
   min-height: 0;
-}
-#diagnostics details {
-  margin-top: 4px;
-  color: var(--muted);
-}
-:where(#diagnostics) pre {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  font-size: 11px;
 }
 .theme-panel {
   flex: 1;
