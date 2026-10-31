@@ -1,0 +1,73 @@
+import { readFileSync } from "node:fs";
+import { expect, test, type Page } from "@playwright/test";
+import { unzipSync } from "fflate";
+import type { Bundle } from "../src/types";
+import { chooseTemplate, continueProject, saved } from "./helpers";
+
+async function current(page: Page) {
+  await expect.poll(() => page.locator("#preview-state").evaluate((element) => {
+    const state = (element as HTMLElement).dataset;
+    return Number(state.displayedRevision) > 0 &&
+      state.displayedRevision === state.requestedRevision &&
+      state.displayedContext === state.context;
+  }), { timeout: 60_000 }).toBe(true);
+}
+
+test("one client stays selected across notices, languages, a reload and download", async ({ page }, info) => {
+  await page.goto("./");
+  await current(page);
+  const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
+  const client = [...bundle.examples].reverse().find((item) =>
+    Object.values(item.preparationChecks).some((checks) =>
+      checks.some((check) => check.code === "assignment.eligibility_conflict"),
+    ),
+  );
+  if (!client) throw new Error("Missing client for a notice applicability warning");
+  const picker = page.getByLabel("Example client", { exact: true });
+  await page.locator("#settings-tab").click();
+  await page.locator(".cm-content").press("Control+End");
+  await page.keyboard.insertText("\n// Keep these settings while comparing examples");
+  await current(page);
+  await picker.selectOption(client.id);
+  await current(page);
+  await expect(page.locator("#project-change-dialog")).not.toBeVisible();
+  await page.locator(".cm-content").press("Control+End");
+  await expect(page.locator(".cm-content")).toContainText("Keep these settings");
+  await page.locator("#theme-tab").click();
+  const filenames = Object.keys(client.payloads);
+  for (const filename of filenames) {
+    await chooseTemplate(page, `templates/${filename}`);
+    await current(page);
+    await expect(picker).toHaveValue(client.id);
+    await expect(picker.locator("option")).toHaveText(bundle.examples.map((item) => item.label));
+    const firstName = String(client.payloads[filename].client_data.first_name).split(" ")[0];
+    await expect(page.locator(".preview-text-run").filter({ hasText: firstName }).first()).toBeAttached();
+    if (filename.startsWith("affirmative")) {
+      await expect(page.locator("#diagnostics")).toContainText("assignment.eligibility_conflict");
+    }
+  }
+  await page.locator("#settings-tab").click();
+  await page.locator(".cm-content").press("Control+End");
+  await expect(page.locator(".cm-content")).toContainText("Keep these settings");
+  await saved(page);
+  await page.reload();
+  await continueProject(page);
+  await current(page);
+  await expect(picker).toHaveValue(client.id);
+  await page.screenshot({ path: info.outputPath("shared-clients-desktop.png") });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(picker).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: info.outputPath("shared-clients-mobile.png"), fullPage: true });
+  const filename = filenames.at(-1) as string;
+  await page.locator(".project-actions summary").click();
+  const pending = page.waitForEvent("download");
+  await page.locator("#export").click();
+  const files = unzipSync(readFileSync((await (await pending).path()) as string));
+  const inputs = client.inputs[filename];
+  expect(Buffer.from(files[inputs.csv])).toEqual(Buffer.from(bundle.files[inputs.csv], "base64"));
+  expect(JSON.parse(new TextDecoder().decode(files[inputs.assignments]))).toEqual([
+    { client_id: client.payloads[filename].client_id, template: filename },
+  ]);
+  expect(new TextDecoder().decode(files["templates/settings.typ"])).toContain("Keep these settings");
+});

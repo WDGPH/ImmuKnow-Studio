@@ -40,10 +40,10 @@ For project boundaries and local dependencies, see
 
 ## Review the examples
 
-Use the **Example client** arrows above the preview. They change the fictional
-client without discarding your edits. The available examples depend on the
-selected template and language; they include short and long histories and
-different kinds of notice.
+Choose a person from **Example client** above the preview, or use the arrows.
+The same people are available for every supplied template. Switching notices or
+languages keeps your selected person; changing people keeps your edits. Review
+any warnings, including when a client does not fit the selected notice.
 
 Review every page. Use the zoom buttons and drag the divider between the editor
 and preview to make the text easier to read. Check names and addresses, long

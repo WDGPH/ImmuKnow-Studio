@@ -5,18 +5,19 @@ short and long histories, English/French notices, an up-to-date notice and a
 suspension order. They contain no real client information and do not describe a
 vaccination schedule.
 
-`scenarios.json` owns raw CSV values, explicit entry filenames, sample identity
-translations, and frozen dates/timestamp. History dates use Core’s
-`YYYY-MM-DD` input format. Localization changes names, addresses
-and schools; clinical facts and identifiers stay the same across variants.
-`prepared.json` is generated through native source preparation, assignment
-reconciliation and factual render-job preparation. Warnings remain beside each
-selected payload. An affirmative notice deliberately assigned to overdue facts
-retains those facts and its applicability warning.
+`scenarios.json` owns one source record per client, the maintained notice
+filenames and fixed dates. Every client is available in every supplied notice,
+with the same name and facts in either language. The older French-name examples
+are also available as individual choices. History dates use Core's `YYYY-MM-DD`
+input format.
+
+`prepared.json` is generated through Core's source preparation and notice
+assignment checks. Warnings remain beside each view, including when the supplied
+facts do not fit the chosen notice. Studio does not change facts to make them fit.
 
 ```bash
-uv run python -m scripts.examples
-uv run python -m scripts.examples --check
+uv run --locked python -m scripts.examples
+uv run --locked python -m scripts.examples --check
 ```
 
 `--check` rejects stale committed facts and still assembles ignored browser
@@ -28,17 +29,18 @@ the shared native resources and Studio compiler; native package build details
 remain separate.
 
 Each example's `inputs` maps an entry basename to the exact source CSV and
-assignment file included in the project. These source files reproduce a single
-preview variant through either native selector. With ImmuKnow installed, run
+assignment file included in the project. Each client has one CSV shared by
+all notices, with a separate assignment file for each notice. Those files
+reproduce the selected preview through either native selector. With ImmuKnow installed, run
 from the generated/exported project root:
 
 ```bash
-immuknow examples/clients/short.en.csv --config config \
+immuknow examples/clients/short.csv --config config \
   --template templates/overdue_diseases_v1.en.typ --output runs
-immuknow examples/clients/short.fr.csv --config config \
+immuknow examples/clients/short.csv --config config \
   --notice-assignments examples/assignments/short.overdue_agents_v1.fr.json \
   --templates templates --output runs
-immuknow examples/clients/source-warnings.en.csv --config config \
+immuknow examples/clients/source-warnings.csv --config config \
   --notice-assignments examples/assignments/source-warnings.affirmative_schedule_v1.en.json \
   --templates templates --output runs
 ```

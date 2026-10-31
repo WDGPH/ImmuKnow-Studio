@@ -1,4 +1,4 @@
-import { continueProject, chooseTemplate } from "./helpers";
+import { continueProject, chooseTemplate, editExampleData } from "./helpers";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -89,6 +89,12 @@ test("notice warnings start collapsed with a count while errors stay visible", a
 test("history warnings follow edited suspension content and recover after errors", async ({
   page,
 }) => {
+  await editExampleData(page, (bundle) => {
+    for (const notice of Object.values(bundle.examples[0].payloads)) {
+      (notice.history as { validity: string }[])[0].validity = "unknown";
+      notice.validity_coverage = "mixed";
+    }
+  });
   await page.goto("./");
   await page.locator("#theme-tab").click();
   await chooseTemplate(page, "templates/suspension_order_v1.en.typ");
@@ -231,7 +237,7 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   await page.reload();
   await continueProject(page);
   await currentPreview(page);
-  await expect(page.locator("#position")).toHaveText("3 of 3");
+  await expect(page.locator("#position")).toHaveText(/^3 of \d+$/);
   await page.locator("#theme-tab").click();
   await expect(page.locator("#body-font-picker")).toHaveValue("FreeSerif");
   await expect(page.locator("#extra-preview")).toBeVisible();

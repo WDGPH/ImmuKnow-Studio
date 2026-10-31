@@ -46,26 +46,8 @@ def write_csv(path: Path, source: dict[str, str]) -> None:
         writer.writerow(source)
 
 
-def localized_source(scenario: dict[str, Any], language: str) -> dict[str, str]:
-    """Use explicitly authored names/addresses while retaining the same clinical facts."""
-    source = scenario["source"]
-    overrides = scenario.get("source_by_language", {}).get(language, {})
-    for key in (
-        "client_id",
-        "date_of_birth",
-        "overdue_disease",
-        "overdue_agent",
-        "imms_given",
-    ):
-        if key in overrides and overrides[key] != source[key]:
-            raise ValueError(
-                f"Example localization must not change {key}: {scenario['id']}"
-            )
-    return source | overrides
-
-
 def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
-    """Prepare every explicit variant and return project resources for export."""
+    """Prepare each shared client for every maintained notice and return export files."""
     authored = json.loads((EXAMPLES / "scenarios.json").read_text(encoding="utf-8"))
     config = load_config(CONFIG / "parameters.yaml")
     config.update(authored["dates"])
@@ -90,15 +72,15 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
     with tempfile.TemporaryDirectory(prefix="immuknow-studio-examples-") as scratch:
         workspace = Path(scratch)
         shutil.copytree(TEMPLATES, workspace / "resources/templates")
-        for scenario in authored["scenarios"]:
+        for scenario in authored["clients"]:
             payloads, preparation_checks, inputs = {}, {}, {}
-            for filename in scenario["variants"]:
+            source = scenario["source"]
+            csv_path = workspace / "client.csv"
+            write_csv(csv_path, source)
+            csv_key = f"examples/clients/{scenario['id']}.csv"
+            resources[csv_key] = csv_path.read_bytes()
+            for filename in authored["templates"]:
                 version, language = template_identity(TEMPLATES / filename)
-                source = localized_source(scenario, language)
-                csv_path = workspace / "client.csv"
-                write_csv(csv_path, source)
-                csv_key = f"examples/clients/{scenario['id']}.{language}.csv"
-                resources[csv_key] = csv_path.read_bytes()
                 assignments = [{"client_id": source["client_id"], "template": filename}]
                 assignment_path = workspace / "assignment.json"
                 assignment_path.write_text(
@@ -233,7 +215,7 @@ def main() -> None:
     assemble(prepared, resources, args.destination)
     count = sum(len(example["payloads"]) for example in prepared["examples"])
     print(
-        f"Prepared {len(prepared['examples'])} example scenarios and {count} notice variants"
+        f"Prepared {len(prepared['examples'])} example clients and {count} notice views"
     )
 
 

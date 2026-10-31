@@ -66,13 +66,15 @@ diagnostics can also link to a source location.
 
 ## Review examples and findings
 
-Example navigation shows prepared examples for the selected notice. The five
-scenarios cover short history, long history, source warnings, an up-to-date notice
-and a suspension order. Names, addresses and schools match the selected language.
-The Example client arrows preserve your edits and do not open a reset dialog.
-Not every notice has an example in both languages.
-Use the fictional clients to develop wording and layout. Their records are not
-vaccination schedules.
+Choose a person from **Example client**, or use the arrows to browse. Every
+supplied template offers the same examples. The selected person's name, address
+and recorded facts stay the same when you switch notices or languages. Changing
+examples preserves your edits and does not open a reset dialog.
+
+The examples include the existing English and French-name clients. They are
+fictional records for notice design, not vaccination schedules. Some examples
+have incomplete details or do not fit a particular notice. Their warnings remain
+available for review; Studio does not rewrite the facts to make a notice fit.
 
 Findings combine source-preparation warnings, compiler diagnostics and placed
 Typst checks. Extra diseases covered by a forecasted agent are a warning;

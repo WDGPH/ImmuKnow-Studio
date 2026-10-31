@@ -122,7 +122,7 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
       .sort(),
   ).toEqual([
     "examples/assignments/long-history.overdue_diseases_v1.en.json",
-    "examples/clients/long-history.en.csv",
+    "examples/clients/long-history.csv",
   ]);
   // The scoped download remains a valid project that can be imported.
   await page.locator("#previous").click();
@@ -135,7 +135,7 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   await expect(page.locator("#archive")).toHaveValue("");
   await current(page);
   await expect(page.locator("#template option")).toHaveCount(1);
-  await expect(page.locator("#position")).toHaveText("2 of 3");
+  await expect(page.locator("#position")).toHaveText(/^2 of \d+$/);
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");
   await page.locator("#next").click();
   await current(page);
@@ -146,6 +146,6 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
       .sort(),
   ).toEqual([
     "examples/assignments/source-warnings.overdue_diseases_v1.en.json",
-    "examples/clients/source-warnings.en.csv",
+    "examples/clients/source-warnings.csv",
   ]);
 });

@@ -187,12 +187,15 @@ test("browser snapshots retain native findings, frozen dates and recover from er
   expect(warning.diagnostics).toEqual([]);
   const sourceWarningRevision = await page.evaluate(() => {
     const job = window.proof.job;
-    const filename = job.template.slice(job.template.lastIndexOf("/") + 1);
-    const example = window.proof.examples.find((example) => example.id === "source-warnings");
-    if (!example) throw new Error("Source warning example is missing");
-    return window.proof.submit([
-      { ...job, example: example.id, notice: example.payloads[filename] },
-    ]);
+    const notice = structuredClone(job.notice);
+    Object.assign(notice.client_data, {
+      address: "",
+      postal_code: "",
+      date_of_birth_iso: "",
+      age: null,
+      over_16: null,
+    });
+    return window.proof.submit([{ ...job, notice }]);
   });
   const sourceWarning = await evidence(page, sourceWarningRevision);
   expect(sourceWarning.preview?.artifact.length).toBeGreaterThan(1000);
