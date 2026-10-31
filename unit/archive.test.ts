@@ -1,6 +1,6 @@
 import { unzipSync, zipSync } from "fflate";
 import { describe, expect, it } from "vitest";
-import { exportProject, importProject } from "../src/archive-core";
+import { exportProject, exportTypstFiles, importProject } from "../src/archive-core";
 import { encoder, MAX_FILE, sha256 } from "../src/project";
 import type { BuildInfo, Files } from "../src/types";
 import pins from "../compiler-pins.json";
@@ -157,5 +157,38 @@ describe("current project archives", () => {
         ),
       ).rejects.toThrow(/supplied/);
     }
+  });
+});
+
+describe("Typst-only downloads", () => {
+  it("preserves authored bytes and transitive paths without bundling a project or shared resources", () => {
+    const source: Files = {
+      ...files,
+      [template]: encoder.encode(
+        '\ufeff// @immuknow-settings: settings.typ\r\n#import "lib/immuknow/lib.typ": *\r\n#include "custom/helper.typ"\r\n',
+      ),
+      "templates/settings.typ": encoder.encode('#import "custom/style.typ": *\r\n'),
+      "templates/custom/helper.typ": encoder.encode('#include "../../config/phrases.typ"'),
+      "config/phrases.typ": encoder.encode('#include "../templates/custom/helper.typ"'),
+      "templates/custom/style.typ": encoder.encode('Authored style'),
+      "templates/unrelated.fr.typ": encoder.encode('Other notice'),
+      "templates/unused.typ": encoder.encode('Unused helper'),
+      "templates/fonts/font.typ": encoder.encode('Font metadata'),
+      "config/input.json": encoder.encode('{}'),
+      "scripts/run.py": encoder.encode('print("run")'),
+    };
+    const exported = unzipSync(exportTypstFiles(source, template));
+    const expected = [template, "templates/settings.typ", "templates/custom/helper.typ",
+      "config/phrases.typ", "templates/custom/style.typ"];
+    expect(Object.keys(exported).sort()).toEqual(expected.sort());
+    for (const path of expected) expect(exported[path]).toEqual(source[path]);
+  });
+
+  it("keeps path, size and entry-point validation for source-only archives", () => {
+    expect(() => exportTypstFiles({ ...files, "../escape.typ": encoder.encode("bad") }, template))
+      .toThrow("Unsafe project path");
+    expect(() => exportTypstFiles({ ...files, [template]: new Uint8Array(MAX_FILE + 1) }, template))
+      .toThrow("12 MB");
+    expect(() => exportTypstFiles(files, "templates/missing.en.typ")).toThrow("entry point");
   });
 });

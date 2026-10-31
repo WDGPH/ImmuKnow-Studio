@@ -170,8 +170,9 @@ but has no preview.
 ## Download the project
 
 Open **Project** at the top-right of the webpage.
-**Download project** opens a dialog with **Include fonts for installation**.
-Choose **Download ZIP** to save the selected notice with current Settings,
+**Download project** opens a dialog offering **Complete project** (the default)
+or **Authored .typ files only**. With **Complete project**, choose **Download ZIP**
+to save the selected notice with current Settings,
 Theme, translations, components, images and configuration. It includes only the
 selected fictional client’s CSV and assignment file; unrelated starter notices
 and example inputs are omitted. Explicitly referenced notices and authored
@@ -197,6 +198,17 @@ The ZIP's `immuknow-project.json` records format version, selected entry, build 
 and SHA-256 file hashes, which are verified on import. Files are limited to
 12 MiB each and 32 MiB in total. Absolute/traversal paths, duplicate paths,
 symlinks and corrupt archives are rejected.
+
+**Authored .typ files only** creates `immuknow-typst.zip` for an existing
+ImmuKnow-Template repository. It includes the active template, its Settings file
+and referenced authored `.typ` companions, preserving their bytes and relative
+paths. Unrelated notices, shared ImmuKnow components, fonts, images, CSV/JSON data
+and Python setup are omitted. Extract the selected source files into the matching
+paths in your existing repository, which supplies those dependencies.
+Companions are collected from literal local file paths; include any files reached
+only through calculated paths yourself. This source-only ZIP is not a complete
+project and cannot be reopened with **Import project**. Use **Complete project**
+for a portable Studio backup or a runnable project.
 
 ## Use the project with the native engine
 

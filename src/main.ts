@@ -673,7 +673,17 @@ byId<HTMLInputElement>("guide").onchange = () =>
 button("zoom-in").onclick = () => void action(() => viewer.zoomBy(1.2));
 button("zoom-out").onclick = () => void action(() => viewer.zoomBy(1 / 1.2));
 const downloadDialog = byId<HTMLDialogElement>("download-dialog");
-button("export").onclick = () => downloadDialog.showModal();
+function refreshDownloadOptions() {
+  const typstOnly = new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst";
+  byId<HTMLInputElement>("include-fonts").disabled = typstOnly;
+  const fontOption = downloadDialog.querySelector<HTMLElement>(".download-fonts");
+  if (fontOption) fontOption.hidden = typstOnly;
+}
+byId("download-form").onchange = refreshDownloadOptions;
+button("export").onclick = () => {
+  refreshDownloadOptions();
+  downloadDialog.showModal();
+};
 button("download-cancel").onclick = () => downloadDialog.close();
 byId<HTMLFormElement>("download-form").onsubmit = (event) => {
   event.preventDefault();
@@ -687,23 +697,33 @@ byId<HTMLFormElement>("download-form").onsubmit = (event) => {
       revision,
       context: compiler.context,
       includeFonts: byId<HTMLInputElement>("include-fonts").checked,
+      typstOnly: new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst",
     };
     exporting = true;
     refreshDownloads();
     try {
-      const project = currentProject(
-        snapshot.files,
-        snapshot.template,
-        bundle.examples,
-        snapshot.example,
-        starters,
-      );
-      const bytes = await archiveJob({
-        action: "export",
-        files: await (snapshot.includeFonts ? withProjectFonts(project) : withoutProjectFonts(project)),
-        template: snapshot.template,
-        build: bundle.build,
-      });
+      let bytes: Uint8Array;
+      if (snapshot.typstOnly) {
+        bytes = await archiveJob({
+          action: "export-typst",
+          files: snapshot.files,
+          template: snapshot.template,
+        });
+      } else {
+        const project = currentProject(
+          snapshot.files,
+          snapshot.template,
+          bundle.examples,
+          snapshot.example,
+          starters,
+        );
+        bytes = await archiveJob({
+          action: "export",
+          files: await (snapshot.includeFonts ? withProjectFonts(project) : withoutProjectFonts(project)),
+          template: snapshot.template,
+          build: bundle.build,
+        });
+      }
       if (
         files !== snapshot.files ||
         template !== snapshot.template ||
@@ -712,7 +732,7 @@ byId<HTMLFormElement>("download-form").onsubmit = (event) => {
         compiler.context !== snapshot.context
       )
         throw new Error("The project changed during download. Download it again.");
-      download("immuknow-project.zip", bytes, "application/zip");
+      download(snapshot.typstOnly ? "immuknow-typst.zip" : "immuknow-project.zip", bytes, "application/zip");
     } finally {
       exporting = false;
       refreshDownloads();

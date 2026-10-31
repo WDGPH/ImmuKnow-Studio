@@ -68,6 +68,10 @@
 <dialog id="download-dialog" aria-labelledby="download-title">
 <form id="download-form">
 <h2 id="download-title">Download project</h2>
+<fieldset><legend>What should the ZIP include?</legend>
+<label><input type="radio" name="download-kind" value="project" checked><span><strong>Complete project</strong><small>The active template, supporting files and setup for running or reopening the project.</small></span></label>
+<label><input type="radio" name="download-kind" value="typst"><span><strong>Authored .typ files only</strong><small>The active template, settings and referenced .typ companions, with their relative paths. For an existing repository with matching ImmuKnow components, fonts and assets; not a standalone Studio project.</small></span></label>
+</fieldset>
 <label class="download-fonts"><input id="include-fonts" type="checkbox" checked> Include fonts for installation <small>Without these files, install the matching fonts on your workstation.</small></label>
 <div class="project-change-actions"><button id="download-cancel" type="button">Cancel</button><button id="download-confirm" type="submit" autofocus>Download ZIP</button></div>
 </form>

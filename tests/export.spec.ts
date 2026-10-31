@@ -1,6 +1,7 @@
 import { chooseTemplate } from "./helpers";
 import { readFileSync } from "node:fs";
 import { unzipSync } from "fflate";
+import type { Bundle } from "../src/types";
 import { expect, test, type Page } from "@playwright/test";
 
 test.use({ actionTimeout: 15_000 });
@@ -54,7 +55,7 @@ async function exportProbe(page: Page) {
         message: unknown,
         transfer?: Transferable[] | StructuredSerializeOptions,
       ) {
-        if ((message as { action?: string }).action === "export") probe.requests++;
+        if (["export", "export-typst"].includes((message as { action?: string }).action ?? "")) probe.requests++;
         if (transfer) super.postMessage(message, transfer as Transferable[]);
         else super.postMessage(message);
       }
@@ -192,7 +193,49 @@ test("a smaller download omits supplied fonts and can be imported again", async 
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
 });
 
-test("edits and template switches refuse delayed project downloads", async ({ page }) => {
+test("Typst-only download contains edited source without fetching fonts or changing the workspace", async ({ page }, info) => {
+  await page.goto("./");
+  await currentPreview(page);
+  const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
+  const template = await page.locator("#template").inputValue();
+  await page.locator(".cm-content").press("Control+End");
+  await page.keyboard.insertText("\n// Source-only handoff");
+  await currentPreview(page);
+  let fontRequests = 0;
+  page.on("request", (request) => {
+    if (request.url().includes("generated/fonts/")) fontRequests++;
+  });
+  await openDownloadOptions(page);
+  await page.locator('input[name="download-kind"][value="typst"]').check();
+  await expect(page.locator("#include-fonts")).toBeDisabled();
+  await expect(page.locator("#include-fonts")).not.toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: info.outputPath("typst-only-mobile.png") });
+  const pending = page.waitForEvent("download");
+  await page.locator("#download-confirm").click();
+  const result = await pending;
+  expect(result.suggestedFilename()).toBe("immuknow-typst.zip");
+  const exported = unzipSync(readFileSync((await result.path()) as string));
+  expect(Object.keys(exported).sort()).toEqual([template, "templates/settings.typ", "templates/presentation.typ"].sort());
+  expect(new TextDecoder().decode(exported[template])).toContain("// Source-only handoff");
+  expect(Buffer.from(exported["templates/settings.typ"])).toEqual(Buffer.from(bundle.files["templates/settings.typ"], "base64"));
+  expect(Buffer.from(exported["templates/presentation.typ"])).toEqual(Buffer.from(bundle.files["templates/presentation.typ"], "base64"));
+  expect(fontRequests).toBe(0);
+  await expect(page.locator("#template")).toHaveValue(template);
+  await expect(page.locator(".cm-content")).toContainText("Source-only handoff");
+  await openDownloadOptions(page);
+  await page.locator('input[name="download-kind"][value="project"]').check();
+  await expect(page.locator("#include-fonts")).toBeEnabled();
+  await expect(page.locator("#include-fonts")).toBeChecked();
+  await page.locator("#include-fonts").uncheck();
+  const completePending = page.waitForEvent("download");
+  await page.locator("#download-confirm").click();
+  const complete = unzipSync(readFileSync((await (await completePending).path()) as string));
+  for (const [path, bytes] of Object.entries(exported)) expect(bytes).toEqual(complete[path]);
+});
+
+for (const kind of ["project", "typst"]) {
+test(`edits and template switches refuse delayed ${kind} downloads`, async ({ page }) => {
   await exportProbe(page);
   const downloads: string[] = [];
   page.on("download", (download) => downloads.push(download.suggestedFilename()));
@@ -202,6 +245,7 @@ test("edits and template switches refuse delayed project downloads", async ({ pa
     (window as unknown as { exportProbe: ExportProbe }).exportProbe.holdNext = true;
   });
   await openDownloadOptions(page);
+  await page.locator(`input[name="download-kind"][value="${kind}"]`).check();
   await page.locator("#download-confirm").click();
   await expect.poll(async () => (await probeState(page)).held).toBe(1);
   const previousRevision = await page
@@ -225,6 +269,7 @@ test("edits and template switches refuse delayed project downloads", async ({ pa
     (window as unknown as { exportProbe: ExportProbe }).exportProbe.holdNext = true;
   });
   await openDownloadOptions(page);
+  await page.locator(`input[name="download-kind"][value="${kind}"]`).check();
   await page.locator("#download-confirm").click();
   await expect.poll(async () => (await probeState(page)).held).toBe(2);
   await page.locator("#theme-tab").click();
@@ -236,6 +281,8 @@ test("edits and template switches refuse delayed project downloads", async ({ pa
   expect(downloads).toEqual([]);
   expect((await probeState(page)).requests).toBe(2);
 });
+
+}
 
 test("an export error keeps the current painted preview available", async ({ page }) => {
   await exportProbe(page);

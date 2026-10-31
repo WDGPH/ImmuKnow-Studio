@@ -751,16 +751,16 @@ main {
 :is(#project-change-dialog, #recovery-dialog, #download-dialog) p {
   line-height: 1.5;
 }
-#project-change-dialog fieldset {
+:is(#project-change-dialog, #download-dialog) fieldset {
   border: 0;
   padding: 0;
   margin: 20px 0;
 }
-#project-change-dialog legend {
+:is(#project-change-dialog, #download-dialog) legend {
   margin-bottom: 8px;
   font-weight: 600;
 }
-#project-change-dialog fieldset label {
+:is(#project-change-dialog, #download-dialog) fieldset label {
   display: flex;
   align-items: start;
   gap: 10px;
@@ -770,17 +770,17 @@ main {
   border-radius: 6px;
   cursor: pointer;
 }
-#project-change-dialog label:has(:checked) {
+:is(#project-change-dialog, #download-dialog) label:has(:checked) {
   border-color: var(--teal);
   background: var(--surface-soft);
 }
-#project-change-dialog label:has(:disabled) {
+:is(#project-change-dialog, #download-dialog) label:has(:disabled) {
   opacity: 0.5;
 }
 #project-change-dialog label[hidden] {
   display: none;
 }
-#project-change-dialog small {
+:is(#project-change-dialog, #download-dialog) small {
   display: block;
   margin-top: 4px;
   color: var(--muted);

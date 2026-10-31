@@ -57,7 +57,8 @@ leave while edits are still unsaved. To make a copy you can keep or move to
 another computer:
 
 1. Open **Project** at the top-right of the webpage.
-2. Choose **Download project**, review **Include fonts for installation**, and
+2. Choose **Download project**, keep **Complete project**, review
+   **Include fonts for installation**, and
    select **Download ZIP** to save `immuknow-project.zip`.
 3. Keep the ZIP somewhere you control. It contains the selected template,
    supporting files, assets, Python setup, helper scripts and selected fictional example inputs.
