@@ -56,6 +56,82 @@ and Windows line-ending offsets. The five prepared scenarios provide eleven
 variants across six maintained filenames: English and French overdue disease and
 agent notices, an English affirmative notice and an English suspension order.
 
+## Planned: shared example clients
+
+This is a plan for extending Studio PR #16. It does not describe the current
+example data format. Keep the client-data update in PR #12 independent; build
+this feature on main after that update merges.
+
+### One record for each person
+
+Give each fictional client a stable ID, a name for the example picker, a short
+description and one source record. Store their identity, address, school, birth
+date, history and overdue facts once. Keep the shared assessment dates and
+creation timestamp with the example collection.
+
+A template or language change selects another view of that same person. It must
+not substitute a different person under the same example ID, translate their
+identity, or change their history or overdue facts to make a notice fit. Preserve
+the intern's authored client records when extracting the shared collection;
+curating their contents is separate work.
+
+The browser already supports an example with several prepared payloads, keyed
+by template filename. Keep that useful structure. Generated payloads may repeat
+facts; the important change is to author each client's facts in one place.
+
+### Preparation and selection
+
+1. Replace template-specific source records in `scenarios.json` with a shared
+   client collection. Give distinct people distinct IDs, even when both were
+   previously grouped under a label such as Short history.
+2. Prepare each client for the maintained notice entry points through the locked
+   Core package. Core continues to own normalization, applicability findings and
+   the notice facts contract. Do not copy those rules into browser code.
+3. Keep the selected client ID when switching between supported templates or
+   languages. Show the person's name with the example controls so the selection
+   is clear. Changing clients must preserve authored Template, Settings and Theme
+   edits.
+4. Write one source CSV per client and a separate assignment file for each notice
+   view. Downloads include that client's unchanged CSV and the selected notice's
+   assignment. Preserve imported, authored sample files rather than replacing
+   them with Studio examples.
+
+The selection policy is still to be decided. The recommended default is to offer
+clients whose supplied facts fit the selected notice, using Core's applicability
+results. Overdue notices in different languages can share a client; an up-to-date
+notice needs a client with no overdue diseases. Retain the selected person
+whenever possible, and select another compatible person when necessary. Unknown
+applicability must not count as confirmed compatibility.
+
+The alternative is to allow every client with every prepared template and show
+Core's applicability warnings. Either policy must preserve the source facts.
+A custom entry point without prepared facts remains exportable; Studio must not
+invent data for it.
+
+### Checks and cleanup to carry forward
+
+- Keep the inexpensive native preparation check that exported inputs reproduce
+  the preview. Add a check that views of one client use the same source CSV and
+  preserve the same client facts.
+- Add a browser journey that keeps one person selected across English/French and
+  disease/agent notices, then verifies the chosen applicability policy. Confirm
+  that edits and the selected client survive a draft reload and project download.
+- Create missing dates, incomplete addresses and conflicting assignments inside
+  tests that need them. The example collection should serve notice design rather
+  than act as a collection of validation edge cases.
+- Have the performance benchmark create its own long history, independent of the
+  number of administrations in a public example.
+- Keep browser/native download checks focused on the project handoff. Remove the
+  duplicate saved-run rebundling exercise from Studio after confirming that Core
+  owns that coverage, and update the coverage descriptions together. Do not add
+  a PDF compilation for every client/template combination.
+
+Studio owns this collection and its browser behavior. Core needs no new clinical
+rules or dependency update for this change. Template continues to supply the
+runnable project setup. As a pre-release change, this does not need a migration
+layer for the old internal example format; project integrity and authored file
+preservation still apply.
+
 ## Template scaffold
 
 Studio bundles an allowlisted snapshot of ImmuKnow-Template at an exact commit
