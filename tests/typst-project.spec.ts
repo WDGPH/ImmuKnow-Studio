@@ -34,9 +34,7 @@ for (const [scenario, filename] of cases) {
     expect(index).toBeGreaterThanOrEqual(0);
     await page.locator("#theme-tab").click();
     await chooseTemplate(page, `templates/${filename}`);
-    // Selection initially retains a compatible example; each test has a fresh
-    // browser context, so this starts at the first compatible example.
-    for (let step = 0; step < index; step++) await page.locator("#next").click();
+    await page.getByLabel("Example client", { exact: true }).selectOption(scenario);
     if (scenario === "short" && filename.startsWith("overdue_diseases_v1.")) {
       // Check a custom ID label, Unicode QR destination and font control after download.
       const imported: Files = Object.fromEntries(

@@ -77,16 +77,14 @@ try {
         if (!example?.payloads[filename]) throw Error("Missing benchmark example");
         const notice = structuredClone(example.payloads[filename]);
         if (scenario === "five-page") {
-          // Seventy rows normally produce three pages. Expand the synthetic
-          // history to exercise a roughly five-page notice.
-          const history = notice.history;
-          notice.history = Array.from({ length: 3 }, (_, copy) =>
-            history.map((item) => ({
-              ...item,
-              date_given: String(Number(item.date_given.slice(0, 4)) + copy * 10) +
-                item.date_given.slice(4),
-            })),
-          ).flat().slice(0, 175);
+          // This benchmark creates its own long record, independent of the examples.
+          notice.history = Array.from({ length: 175 }, (_, index) => ({
+            date_given: new Date(Date.UTC(2015, 0, 1 + index * 30)).toISOString().slice(0, 10),
+            agent: "DTaP",
+            display_name: "DTaP",
+            diseases: ["Diphtheria", "Tetanus", "Pertussis"],
+            validity: "valid",
+          }));
         }
         const job = {
           ...proof.job,

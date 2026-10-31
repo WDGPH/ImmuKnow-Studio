@@ -37,7 +37,7 @@ config = yaml.safe_load(parameters.read_text())
 config["encryption"] = {"enabled": True, "password": {"template": sys.argv[3]}}
 parameters.write_text(yaml.safe_dump(config))
 record_path = run_pipeline(
-    directory / f"examples/clients/short.{sys.argv[2]}.csv",
+    directory / "examples/clients/short.csv",
     directory / "runs",
     notice_template=directory / f"templates/overdue_diseases_v1.{sys.argv[2]}.typ",
     config_dir=directory / "config",

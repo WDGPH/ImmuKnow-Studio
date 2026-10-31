@@ -30,12 +30,9 @@ uv sync --locked
 npm run prepare:assets
 ```
 
-Preparation checks the committed example facts. If Core intentionally changes
-those facts, regenerate and review `examples/prepared.json` instead:
-
-```bash
-uv run --locked python -m scripts.examples
-```
+The authored clients live in `examples/scenarios.json`. Dev startup and builds
+prepare their preview facts with the locked Core package. After changing Core or
+example inputs, review the regenerated previews and downloaded samples.
 
 The current locked commit is `e58e889c28c2efe29ee95564fd66277884856854`,
 tagged `v2.0.0-rc2` in Core. To select another published Core tag, use
@@ -62,8 +59,8 @@ To rebuild against the configured Core reference, open **Actions → Studio Page
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
 currently it is Core's `v2.0.0-rc2` tag. A configured tag or revision stays
-at that reference. The workflow still checks the committed example facts and
-resource compatibility; a failed required check prevents deployment. Enable
+at that reference. The workflow regenerates example facts and checks resource
+compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.
 If selected, those tests must also pass before deployment.
 
@@ -80,9 +77,9 @@ Compiler and renderer binaries, build metadata and Rust licence notices are
 cached together and verified against their input fingerprints and file hashes.
 The cache is saved immediately after preparation, before the site and test
 checks. Ordinary UI, npm and Core updates reuse it without Rust or compiler
-sources. A cold cache still needs the expensive source build, but uses a
-prebuilt, checksum-verified wasm-bindgen CLI. Compiler pins, patches or
-preparation-script changes invalidate the cache; GitHub may also evict it.
+sources. A cold cache requires a source build with a prebuilt, checksum-verified
+wasm-bindgen CLI. Compiler pins, patches or preparation-script changes invalidate
+the cache; GitHub may also evict it.
 Only prepared outputs are cached, rather than the compiler checkout and Cargo
 target directory.
 
@@ -120,7 +117,8 @@ Use `--compiler-source /path/to/typst.ts` with
 `uv run --locked python -m scripts.build-site` to reuse a source checkout,
 or set `IMMUKNOW_COMPILER_BUILD_DIR`.
 
-After initial preparation, use `npm run build` to rebuild frontend changes.
+After the initial compiler preparation, `npm run dev` and `npm run build`
+regenerate the examples, fonts, notices and browser validators automatically.
 The footer's Studio SHA and latest reachable version tag are embedded during that
 build. Actions supplies `IMMUKNOW_STUDIO_BUILD_SHA` and
 `IMMUKNOW_STUDIO_BUILD_TAG`; local builds read Git directly. The targeted
@@ -128,16 +126,18 @@ ImmuKnow revision comes from the prepared Core resources.
 For example, an exact v0.1.0 release shows `v0.1.0`; later commits show
 `v0.1.0+`. Before the first
 version tag, only the Studio SHA is shown.
-Re-run `npm run prepare:assets` after Core or example inputs change. npm's dev,
-build, type and unit commands refresh the generated Core resource copies and
-validators automatically. No generated browser assets are committed.
+Restart `npm run dev` after Core or example inputs change, or run
+`npm run prepare:assets` to refresh the project data without restarting the server.
+Type and unit commands also refresh the Core resource copies and validators.
+Generated browser assets stay under `public/generated/` and `generated/`;
+none are committed.
 
 Python dependency groups separate the usual build and lint tools (`dev`),
 browser/native comparison tools (`browser`), and documentation tools (`docs`).
 Ordinary site builds do not need the `browser` group. The full Python type
 check includes browser helpers and installs that group explicitly.
 `npm run test:browser` also installs its locked Python tools automatically.
-Ajv and Ajv Formats remain npm runtime dependencies because generated browser
+Ajv and Ajv Formats are npm runtime dependencies because generated browser
 validators include their helper code. Their licences stay in the site notices.
 
 ## Run locally
@@ -146,7 +146,9 @@ validators include their helper code. Their licences stay in the site notices.
 npm run dev -- --host 0.0.0.0 --port 5173
 ```
 
-Open <http://localhost:5173/>. This checks prepared assets and starts hot reload.
+Open <http://localhost:5173/>. Startup checks the prepared compiler and renderer,
+regenerates the current example data and starts hot reload. It does not build Rust
+or download a compiler automatically.
 To serve the production artifact instead, run `npm run serve` and open
 <http://localhost:4173/>. Relative production URLs also support a proxy prefix.
 
@@ -161,7 +163,7 @@ clear the saved draft in Studio, then reload.
 Install native Typst 0.15.1 for native/browser comparisons. The Playwright
 configuration makes native test subprocesses use the same verified fonts in
 `assets/fonts` as the browser, ignoring system fonts. This keeps comparisons
-independent of the runner's font package; production Core still uses system
+independent of the runner's font package; production Core uses system
 fonts. Set `TYPST_BIN` if Typst is outside PATH. Install Playwright's full
 Chromium browser and its system dependencies for the encrypted PDF reader tests.
 
@@ -169,6 +171,7 @@ Chromium browser and its system dependencies for the encrypted PDF reader tests.
 uv run --locked --group browser ty check
 uv run --locked ruff check --no-fix .
 uv run --locked ruff format --check .
+uv run --locked python -m unittest discover -s tests -p 'test_*.py'
 npm run typecheck
 npm run lint
 npm run test:unit
@@ -186,6 +189,13 @@ English notice through both selectors, long French output and saved-run review
 for a French notice with warnings. Template's maintainer tests run in its own
 repository; fresh downloads contain the user-facing setup and sample check.
 PDF reader checks use Studio's own example inputs.
+
+When adding or updating example clients, aim for plausible records that help
+people develop notice wording and layout. Use complete contact details,
+consistent dates and notices that match the supplied facts. Keep deliberately
+incomplete or conflicting data in separate test fixtures. Core owns tests of
+native validation and delivery decisions.
+
 Core maintains its separate native test fixtures. Studio's contract cases under
 `unit/fixtures/` are a local snapshot, not imports from Core's test package.
 
@@ -221,14 +231,13 @@ case only when it protects a boundary these checks do not cover.
 Studio uses Core's supported `immuknow.resources.resource_root()` and
 `rendering_build_info()` for packaged resources and their identity, and
 `immuknow.orchestrator.run_pipeline()` for complete native runs.
-`scripts/examples.py` still calls internal preparation functions against the
+`scripts/examples.py` calls internal preparation functions against the
 locked Core commit. Those calls intentionally stay internal; dependency updates
-must pass example preparation and native/browser checks. A broader preparation
-API is not required for this extraction.
+must pass example preparation and native/browser checks.
 
 Core resources are copied into disposable `generated/core/` for browser builds.
 Edits belong in Core or the open authored project, never the installed package
-or generated copy. Shared library files retain their existing integrity checks.
+or generated copy. Builds and imports check shared library file integrity.
 
 ## Update the project template
 
@@ -240,7 +249,7 @@ its `studio-scaffold.json` allowlist and a lock for Studio's Core revision:
 ```bash
 uv run --locked python -m scripts.project_template \
   --source ../ImmuKnow-Template --revision <full-template-commit-sha>
-uv run --locked python -m scripts.examples --check
+npm run prepare:assets
 ```
 
 The refresh reads committed Git blobs, records source identity and SHA-256 hashes,

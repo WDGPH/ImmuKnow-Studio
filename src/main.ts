@@ -132,12 +132,17 @@ const viewer = new Viewer(
   },
 );
 
-function compatibleExamples(): Example[] {
+function availableExamples(): Example[] {
   return bundle.examples.filter((item) => Object.hasOwn(item.payloads, basename(template)));
 }
 function refreshNavigation() {
-  const available = compatibleExamples();
+  const available = availableExamples();
   const index = available.findIndex((item) => item.id === example?.id);
+  const picker = select("example");
+  picker.replaceChildren(...available.map((item) => new Option(item.label, item.id)));
+  picker.value = example?.id ?? "";
+  picker.disabled = available.length === 0;
+  picker.title = example?.description ?? "No prepared example for this entry";
   byId("position").textContent = index < 0 ? "—" : `${index + 1} of ${available.length}`;
   byId("position").title = example
     ? `${example.label}: ${example.description}`
@@ -476,11 +481,18 @@ for (const [id, direction] of [
   ["next", 1],
 ] as const)
   button(id).onclick = () => {
-    const available = compatibleExamples();
+    const available = availableExamples();
     example = available[available.findIndex((item) => item.id === example?.id) + direction];
     persist();
     compile(true);
   };
+select("example").onchange = () => {
+  const selected = availableExamples().find((item) => item.id === select("example").value);
+  if (!selected) return;
+  example = selected;
+  persist();
+  compile(true);
+};
 const changeDialog = byId<HTMLDialogElement>("project-change-dialog");
 let pendingChange: { template: string; files: Files } | undefined;
 function requestProjectChange(target = template) {
@@ -519,7 +531,7 @@ byId<HTMLFormElement>("project-change-form").onsubmit = (event) => {
     ) as ResetScope;
     files = resetProject(files, originals, pendingChange.template, scope, template);
     template = pendingChange.template;
-    const available = compatibleExamples();
+    const available = availableExamples();
     example = available.find((item) => item.id === example?.id) ?? available[0];
     themeUndo = undefined;
     button("health-unit-undo").hidden = true;
@@ -721,7 +733,7 @@ byId<HTMLInputElement>("archive").onchange = () =>
     themeUndo = undefined;
     button("health-unit-undo").hidden = true;
     select("health-unit-preset").value = "";
-    const available = compatibleExamples();
+    const available = availableExamples();
     const included = available.filter((item) => {
       const input = item.inputs[basename(template)];
       return input && files[input.csv] && files[input.assignments];
@@ -829,7 +841,7 @@ async function start() {
           originals = saved.baseline;
           draftRevision = saved.revision;
           template = saved.template;
-          const available = compatibleExamples();
+          const available = availableExamples();
           example = available.find((item) => item.id === saved.example) ?? available[0];
           saveState("saved");
         }

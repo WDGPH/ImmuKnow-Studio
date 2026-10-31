@@ -4,11 +4,19 @@
     "date_as_of": "2026-01-15"
   },
   "creationTimestamp": 1769904000,
-  "scenarios": [
+  "templates": [
+    "overdue_diseases_v1.en.typ",
+    "overdue_diseases_v1.fr.typ",
+    "overdue_agents_v1.en.typ",
+    "overdue_agents_v1.fr.typ",
+    "affirmative_schedule_v1.en.typ",
+    "suspension_order_v1.en.typ"
+  ],
+  "clients": [
     {
       "id": "short",
-      "label": "Short history",
-      "description": "Two recorded administrations with known validity.",
+      "label": "Emily Example 01",
+      "description": "Short history",
       "source": {
         "school_name": "Lilac Demonstration School",
         "board_name": "Example School Board",
@@ -26,28 +34,12 @@
         "last_name": "Example 01",
         "school_id": "0012",
         "board_id": "0034"
-      },
-      "source_by_language": {
-        "fr": {
-          "first_name": "Élodie",
-          "last_name": "Exemple 01",
-          "school_name": "École Démo des Lilas",
-          "board_name": "Conseil scolaire de démonstration",
-          "street_address_line_1": "100, allée des Lilas",
-          "city": "Ville Exemple"
-        }
-      },
-      "variants": [
-        "overdue_diseases_v1.en.typ",
-        "overdue_diseases_v1.fr.typ",
-        "overdue_agents_v1.en.typ",
-        "overdue_agents_v1.fr.typ"
-      ]
+      }
     },
     {
       "id": "long-history",
-      "label": "Long history",
-      "description": "Seventy invented administrations and long contact fields exercise visible continuation.",
+      "label": "Alexandra Catherine Elizabeth Long Demonstration Name",
+      "description": "Long history",
       "source": {
         "school_name": "Lilac Demonstration School",
         "board_name": "Example School Board",
@@ -65,27 +57,12 @@
         "last_name": "Long Demonstration Name",
         "school_id": "0013",
         "board_id": "0034"
-      },
-      "source_by_language": {
-        "fr": {
-          "first_name": "Alexandrine Catherine Élisabeth",
-          "last_name": "Long Nom de démonstration",
-          "school_name": "École Démo des Lilas",
-          "board_name": "Conseil scolaire de démonstration",
-          "street_address_line_1": "100, allée des Lilas, résidence de démonstration pour une longue adresse",
-          "city": "Ville Exemple",
-          "street_address_line_2": "Bureau 200, édifice C, entrée nord"
-        }
-      },
-      "variants": [
-        "overdue_diseases_v1.en.typ",
-        "overdue_diseases_v1.fr.typ"
-      ]
+      }
     },
     {
       "id": "source-warnings",
-      "label": "Source warnings",
-      "description": "Unknown age, incomplete address and mixed history stay visible. The affirmative choice deliberately conflicts with supplied overdue facts.",
+      "label": "Jordan Example 03",
+      "description": "Source warnings",
       "source": {
         "school_name": "Lilac Demonstration School",
         "board_name": "Example School Board",
@@ -103,25 +80,12 @@
         "last_name": "Example 03",
         "school_id": "0014",
         "board_id": "0034"
-      },
-      "source_by_language": {
-        "fr": {
-          "first_name": "Camille",
-          "last_name": "Exemple 03",
-          "school_name": "École Démo des Lilas",
-          "board_name": "Conseil scolaire de démonstration"
-        }
-      },
-      "variants": [
-        "overdue_diseases_v1.en.typ",
-        "overdue_agents_v1.fr.typ",
-        "affirmative_schedule_v1.en.typ"
-      ]
+      }
     },
     {
       "id": "affirmative",
-      "label": "Up to date",
-      "description": "Complete source facts explicitly assigned to the English affirmative notice.",
+      "label": "Taylor Example 04",
+      "description": "Up to date",
       "source": {
         "school_name": "Lilac Demonstration School",
         "board_name": "Example School Board",
@@ -139,15 +103,12 @@
         "last_name": "Example 04",
         "school_id": "0015",
         "board_id": "0034"
-      },
-      "variants": [
-        "affirmative_schedule_v1.en.typ"
-      ]
+      }
     },
     {
       "id": "suspension",
-      "label": "Suspension order",
-      "description": "An explicitly assigned order omits history and privacy.",
+      "label": "Morgan Example 05",
+      "description": "Suspension order",
       "source": {
         "school_name": "Lilac Demonstration School",
         "board_name": "Example School Board",
@@ -165,10 +126,76 @@
         "last_name": "Example 05",
         "school_id": "0016",
         "board_id": "0034"
-      },
-      "variants": [
-        "suspension_order_v1.en.typ"
-      ]
+      }
+    },
+    {
+      "id": "short-fr",
+      "label": "Élodie Exemple 01",
+      "description": "Short history",
+      "source": {
+        "school_name": "École Démo des Lilas",
+        "board_name": "Conseil scolaire de démonstration",
+        "date_of_birth": "2015-02-03",
+        "street_address_line_1": "100, allée des Lilas",
+        "street_address_line_2": "",
+        "city": "Ville Exemple",
+        "province": "ON",
+        "postal_code": "N0N 0N0",
+        "overdue_disease": "Measles - 2",
+        "overdue_agent": "MMR",
+        "imms_given": "2020-05-01 - DTaP - Valid; 2021-06-15 - MMR - Valid;",
+        "client_id": "0000000001",
+        "first_name": "Élodie",
+        "last_name": "Exemple 01",
+        "school_id": "0012",
+        "board_id": "0034"
+      }
+    },
+    {
+      "id": "long-history-fr",
+      "label": "Alexandrine Catherine Élisabeth Long Nom de démonstration",
+      "description": "Long history",
+      "source": {
+        "school_name": "École Démo des Lilas",
+        "board_name": "Conseil scolaire de démonstration",
+        "date_of_birth": "2014-02-03",
+        "street_address_line_1": "100, allée des Lilas, résidence de démonstration pour une longue adresse",
+        "street_address_line_2": "Bureau 200, édifice C, entrée nord",
+        "city": "Ville Exemple",
+        "province": "ON",
+        "postal_code": "N0N 0N0",
+        "overdue_disease": "Measles - 2",
+        "overdue_agent": "MMR",
+        "imms_given": "2015-01-01 - DTaP - Valid; 2015-01-31 - MMR - Valid; 2015-03-02 - IPV - Valid; 2015-04-01 - DTaP - Valid; 2015-05-01 - MMR - Valid; 2015-05-31 - IPV - Valid; 2015-06-30 - DTaP - Valid; 2015-07-30 - MMR - Valid; 2015-08-29 - IPV - Valid; 2015-09-28 - DTaP - Valid; 2015-10-28 - MMR - Valid; 2015-11-27 - IPV - Valid; 2015-12-27 - DTaP - Valid; 2016-01-26 - MMR - Valid; 2016-02-25 - IPV - Valid; 2016-03-26 - DTaP - Valid; 2016-04-25 - MMR - Valid; 2016-05-25 - IPV - Valid; 2016-06-24 - DTaP - Valid; 2016-07-24 - MMR - Valid; 2016-08-23 - IPV - Valid; 2016-09-22 - DTaP - Valid; 2016-10-22 - MMR - Valid; 2016-11-21 - IPV - Valid; 2016-12-21 - DTaP - Valid; 2017-01-20 - MMR - Valid; 2017-02-19 - IPV - Valid; 2017-03-21 - DTaP - Valid; 2017-04-20 - MMR - Valid; 2017-05-20 - IPV - Valid; 2017-06-19 - DTaP - Valid; 2017-07-19 - MMR - Valid; 2017-08-18 - IPV - Valid; 2017-09-17 - DTaP - Valid; 2017-10-17 - MMR - Valid; 2017-11-16 - IPV - Valid; 2017-12-16 - DTaP - Valid; 2018-01-15 - MMR - Valid; 2018-02-14 - IPV - Valid; 2018-03-16 - DTaP - Valid; 2018-04-15 - MMR - Valid; 2018-05-15 - IPV - Valid; 2018-06-14 - DTaP - Valid; 2018-07-14 - MMR - Valid; 2018-08-13 - IPV - Valid; 2018-09-12 - DTaP - Valid; 2018-10-12 - MMR - Valid; 2018-11-11 - IPV - Valid; 2018-12-11 - DTaP - Valid; 2019-01-10 - MMR - Valid; 2019-02-09 - IPV - Valid; 2019-03-11 - DTaP - Valid; 2019-04-10 - MMR - Valid; 2019-05-10 - IPV - Valid; 2019-06-09 - DTaP - Valid; 2019-07-09 - MMR - Valid; 2019-08-08 - IPV - Valid; 2019-09-07 - DTaP - Valid; 2019-10-07 - MMR - Valid; 2019-11-06 - IPV - Valid; 2019-12-06 - DTaP - Valid; 2020-01-05 - MMR - Valid; 2020-02-04 - IPV - Valid; 2020-03-05 - DTaP - Valid; 2020-04-04 - MMR - Valid; 2020-05-04 - IPV - Valid; 2020-06-03 - DTaP - Valid; 2020-07-03 - MMR - Valid; 2020-08-02 - IPV - Valid; 2020-09-01 - DTaP - Valid;",
+        "client_id": "0000000002",
+        "first_name": "Alexandrine Catherine Élisabeth",
+        "last_name": "Long Nom de démonstration",
+        "school_id": "0013",
+        "board_id": "0034"
+      }
+    },
+    {
+      "id": "source-warnings-fr",
+      "label": "Camille Exemple 03",
+      "description": "Source warnings",
+      "source": {
+        "school_name": "École Démo des Lilas",
+        "board_name": "Conseil scolaire de démonstration",
+        "date_of_birth": "",
+        "street_address_line_1": "",
+        "street_address_line_2": "",
+        "city": "Montréal",
+        "province": "Québec",
+        "postal_code": "",
+        "overdue_disease": "Measles - 2",
+        "overdue_agent": "MMR",
+        "imms_given": "2020-05-01 - MMR - Invalid; 2020-05-01 - MMR - Valid; 2021-06-15 - IPV;",
+        "client_id": "0000000003",
+        "first_name": "Camille",
+        "last_name": "Exemple 03",
+        "school_id": "0014",
+        "board_id": "0034"
+      }
     }
   ]
 }

@@ -5,7 +5,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "predev": "node scripts/prepare-contracts.mjs && node scripts/check-dev-assets.mjs",
+    "predev": "node scripts/check-dev-assets.mjs && npm run prepare:assets && node scripts/prepare-contracts.mjs",
     "dev": "vite",
     "serve": "vite preview --host 0.0.0.0 --port 4173",
     "build": "vite build",
@@ -15,10 +15,10 @@
     "test:unit": "vitest run",
     "lint": "biome lint src tests unit",
     "generate:contracts": "node scripts/prepare-contracts.mjs",
-    "prebuild": "node scripts/prepare-contracts.mjs",
+    "prebuild": "npm run prepare:assets && node scripts/prepare-contracts.mjs",
     "pretest:unit": "node scripts/prepare-contracts.mjs",
     "pretypecheck": "node scripts/prepare-contracts.mjs",
-    "prepare:assets": "uv run --locked python -m scripts.examples --check",
+    "prepare:assets": "uv run --locked python -m scripts.prepare_assets",
     "build:site": "uv run --locked python -m scripts.build-site"
   },
   "dependencies": {

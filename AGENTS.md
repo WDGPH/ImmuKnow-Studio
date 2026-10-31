@@ -21,8 +21,9 @@ format or repository ingestion feature as part of the extraction.
 Run npm run typecheck, npm run lint, npm run test:unit, Python type/lint checks,
 then the relevant browser checks against a fresh build. Preserve the downloaded
 project journey through the separately installed native engine. Build compiler
-patches only with their matching pins and retain licenses. Commit generated
-examples/prepared.json when scenarios change; other generated assets stay ignored.
+patches only with their matching pins and retain licenses. Commit authored
+example records in examples/scenarios.json; browser payloads and other generated
+assets stay ignored and are rebuilt during dev setup and production builds.
 
 Never commit real client data or private PHU assets. Keep changes small and
 commit after meaningful verification. Record actual checks and limits in handoff.

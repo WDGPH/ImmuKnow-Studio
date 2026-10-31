@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import type { Bundle } from "../src/types";
 
 export async function continueProject(page: Page) {
   await expect(page.getByRole("dialog", { name: "Continue your browser project?" })).toBeVisible();
@@ -27,4 +28,14 @@ export async function confirmProjectChange(page: Page, scope = "template") {
   await page.locator(`input[name="reset-scope"][value="${scope}"]`).check();
   await page.locator("#project-change-confirm").click();
   await expect(page.locator("#project-change-dialog")).not.toBeVisible();
+}
+
+// Tests create their own incomplete records so public examples can change independently.
+export async function editExampleData(page: Page, edit: (bundle: Bundle) => void) {
+  await page.route("**/generated/project.json", async (route) => {
+    const response = await route.fetch();
+    const bundle = (await response.json()) as Bundle;
+    edit(bundle);
+    await route.fulfill({ response, json: bundle });
+  });
 }
