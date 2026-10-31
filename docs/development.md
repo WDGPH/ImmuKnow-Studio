@@ -186,6 +186,13 @@ English notice through both selectors, long French output and saved-run review
 for a French notice with warnings. Template's maintainer tests run in its own
 repository; fresh downloads contain the user-facing setup and sample check.
 PDF reader checks use Studio's own example inputs.
+
+When adding or updating example clients, aim for plausible records that help
+people develop notice wording and layout. Use complete contact details,
+consistent dates and notices that match the supplied facts. Keep deliberately
+incomplete or conflicting data in separate test fixtures. Core owns tests of
+native validation and delivery decisions.
+
 Core maintains its separate native test fixtures. Studio's contract cases under
 `unit/fixtures/` are a local snapshot, not imports from Core's test package.
 

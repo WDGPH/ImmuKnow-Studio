@@ -71,6 +71,8 @@ scenarios cover short history, long history, source warnings, an up-to-date noti
 and a suspension order. Names, addresses and schools match the selected language.
 The Example client arrows preserve your edits and do not open a reset dialog.
 Not every notice has an example in both languages.
+Use the fictional clients to develop wording and layout. Their records are not
+vaccination schedules.
 
 Findings combine source-preparation warnings, compiler diagnostics and placed
 Typst checks. Extra diseases covered by a forecasted agent are a warning;

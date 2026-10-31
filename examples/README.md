@@ -1,8 +1,9 @@
 # Example notices
 
-These five invented scenarios exercise short and long histories, English/French
-notices, incomplete facts, explicit assignment conflicts, affirmative wording
-and an order that omits history. They contain no real client information.
+These fictional clients help you develop notice wording and layout. They include
+short and long histories, English/French notices, an up-to-date notice and a
+suspension order. They contain no real client information and do not describe a
+vaccination schedule.
 
 `scenarios.json` owns raw CSV values, explicit entry filenames, sample identity
 translations, and frozen dates/timestamp. History dates use Core’s
