@@ -738,6 +738,22 @@ button("clear").onclick = () =>
     canSave = true;
     draftStore.clear();
   });
+button("fresh").onclick = () =>
+  void action(async () => {
+    if (!(await chooseBrowserProject())) return;
+    files = { ...starters };
+    originals = starters;
+    template = "templates/overdue_diseases_v1.en.typ";
+    example = availableExamples()[0];
+    themeUndo = undefined;
+    button("health-unit-undo").hidden = true;
+    select("health-unit-preset").value = "";
+    canSave = Boolean(draftStore);
+    if (draftStore) draftStore.clear();
+    else unsaved = false;
+    refreshProject();
+    compile(true);
+  });
 button("restart").onclick = () => {
   compilerError = undefined;
   compiler.restart();
@@ -777,10 +793,10 @@ function chooseBrowserProject(error?: unknown): Promise<boolean> {
   const incompatible = error !== undefined;
   byId("recovery-title").textContent = incompatible
     ? "Your browser project could not be opened"
-    : "Continue your browser project?";
+    : "Start a fresh project?";
   byId("recovery-error").textContent = incompatible ? message(error) : "";
   byId("recovery-error").hidden = !incompatible;
-  button("recovery-continue").textContent = incompatible ? "Keep browser copy" : "Continue project";
+  button("recovery-continue").textContent = incompatible ? "Keep browser copy" : "Keep current project";
   dialog.returnValue = "continue";
   return new Promise((resolve) => {
     dialog.addEventListener("close", () => resolve(dialog.returnValue === "reset"), { once: true });
@@ -820,17 +836,13 @@ async function start() {
       const saved = await draftStore.load();
       canSave = true;
       if (saved) {
-        if (await chooseBrowserProject()) {
-          draftStore.clear();
-        } else {
-          files = saved.files;
-          originals = saved.baseline;
-          draftRevision = saved.revision;
-          template = saved.template;
-          const available = availableExamples();
-          example = available.find((item) => item.id === saved.example) ?? available[0];
-          saveState("saved");
-        }
+        files = saved.files;
+        originals = saved.baseline;
+        draftRevision = saved.revision;
+        template = saved.template;
+        const available = availableExamples();
+        example = available.find((item) => item.id === saved.example) ?? available[0];
+        saveState("saved");
       }
     } catch (error) {
       if (await chooseBrowserProject(error)) {
@@ -861,6 +873,7 @@ async function start() {
     "template",
     "import",
     "clear",
+    "fresh",
     "restart",
     "zoom-in",
     "zoom-out",

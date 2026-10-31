@@ -1,4 +1,4 @@
-import { continueProject, chooseTemplate, editExampleData } from "./helpers";
+import { restoredProject, chooseTemplate, editExampleData } from "./helpers";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -235,7 +235,7 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   // Normal editing never starts a PDF parser worker.
   expect(pdfWorkers).toBe(0);
   await page.reload();
-  await continueProject(page);
+  await restoredProject(page);
   await currentPreview(page);
   await expect(page.locator("#example")).toHaveText("Example client 03");
   await page.locator("#theme-tab").click();

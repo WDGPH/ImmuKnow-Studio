@@ -388,7 +388,8 @@ main {
   display: grid;
   place-items: center;
 }
-.navigation button svg {
+#previous svg,
+#next svg {
   width: 20px;
   height: 20px;
   fill: none;

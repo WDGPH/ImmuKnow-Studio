@@ -41,9 +41,9 @@ edits, imported images and the project's starting files. It is separate for
 each browser profile, device and site address. It is not an account, cloud
 backup or synchronization service.
 
-When you reopen Studio, choose **Continue project** to use this copy or
-**Start fresh** to remove it and restore the starter templates, settings and
-images. Nothing is removed until you choose Start fresh.
+When you reopen Studio, a compatible browser copy opens automatically. Choose
+**Project → Start fresh…** to remove it and restore the starter templates,
+settings and images. Nothing is removed until you confirm **Start fresh**.
 
 The browser warns before you leave while edits are still unsaved. If storage is
 unavailable or full, the open project remains available to download. Private

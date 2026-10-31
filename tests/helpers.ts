@@ -1,9 +1,8 @@
 import { expect, type Page } from "@playwright/test";
 import type { Bundle } from "../src/types";
 
-export async function continueProject(page: Page) {
-  await expect(page.getByRole("dialog", { name: "Continue your browser project?" })).toBeVisible();
-  await page.getByRole("button", { name: "Continue project", exact: true }).click();
+export async function restoredProject(page: Page) {
+  await expect(page.locator("#template-tab")).toBeEnabled();
   await expect(page.locator("#recovery-dialog")).not.toBeVisible();
 }
 

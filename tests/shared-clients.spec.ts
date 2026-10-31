@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
 import type { Bundle } from "../src/types";
-import { chooseExample, chooseTemplate, continueProject, saved } from "./helpers";
+import { chooseExample, chooseTemplate, restoredProject, saved } from "./helpers";
 
 async function current(page: Page) {
   await expect.poll(() => page.locator("#preview-state").evaluate((element) => {
@@ -56,7 +56,7 @@ test("one client stays selected across notices, languages, a reload and download
   await expect(page.locator(".cm-content")).toContainText("Keep these settings");
   await saved(page);
   await page.reload();
-  await continueProject(page);
+  await restoredProject(page);
   await current(page);
   await expect(name).toHaveText(`Example client ${String(bundle.examples.indexOf(client) + 1).padStart(2, "0")}`);
   await page.screenshot({ path: info.outputPath("shared-clients-desktop.png") });

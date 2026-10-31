@@ -1,4 +1,4 @@
-import { confirmProjectChange, continueProject, saved } from "./helpers";
+import { confirmProjectChange, restoredProject, saved } from "./helpers";
 import { readFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -86,6 +86,37 @@ async function storageProbe(page: Page) {
   });
 }
 
+test("browsing untouched examples reopens without a project dialog", async ({ page }) => {
+  await page.goto("./");
+  await ready(page);
+  await page.getByRole("button", { name: "Next example" }).click();
+  await saved(page);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator("#recovery-dialog")).not.toBeVisible();
+  await expect(page.locator("#example")).toHaveText("Example client 02");
+});
+
+test("a UI-only release resumes authored bytes and their reset baseline without prompting", async ({ page }) => {
+  await page.goto("./");
+  await ready(page);
+  await append(page, "Keep this notice across UI releases");
+  await saved(page);
+  const before = await stored(page);
+  await page.route("**/generated/project.json", async (route) => {
+    const response = await route.fetch();
+    const bundle = (await response.json()) as Bundle;
+    bundle.build.studio_version = "ui-only-release";
+    bundle.build.source_revision = "1".repeat(40);
+    await route.fulfill({ response, json: bundle });
+  });
+  await page.reload();
+  await ready(page);
+  await expect(page.locator("#recovery-dialog")).not.toBeVisible();
+  await expect(page.locator(".cm-content")).toContainText("Keep this notice across UI releases");
+  expect(await stored(page)).toEqual(before);
+});
+
 test("an immediate reload is guarded until the newest edit has saved", async ({ page }) => {
   await storageProbe(page);
   await page.goto("./");
@@ -115,14 +146,8 @@ test("an immediate reload is guarded until the newest edit has saved", async ({ 
   expect((await stored(page))?.revision).toBeGreaterThan(before);
   const recovered = await stored(page);
   await page.reload();
-  await expect(page.getByRole("dialog", { name: "Continue your browser project?" })).toBeVisible();
-  await expect(page.locator("#recovery-local")).toContainText(
-    "does not save projects to the cloud",
-  );
-  await expect(page.getByRole("button", { name: "Continue project", exact: true })).toBeFocused();
-  await expect(page.locator("#template-tab")).toBeDisabled();
+  await restoredProject(page);
   expect(await stored(page)).toEqual(recovered);
-  await page.keyboard.press("Escape");
   await ready(page);
   await expect(page.locator(".cm-content")).toContainText("Newest edit survives reload");
 });
@@ -160,7 +185,7 @@ test("import replaces a pending save and retains its reset baseline after reload
   await page.evaluate(() => window.draftProbe.release());
   await saved(page);
   await page.reload();
-  await continueProject(page);
+  await restoredProject(page);
   await ready(page);
   await expect(page.locator("#template")).toHaveValue(custom);
   await expect(page.locator(".cm-content")).not.toContainText("Old project waiting to save");
@@ -172,7 +197,7 @@ test("import replaces a pending save and retains its reset baseline after reload
   await expect(page.locator(".cm-content")).toContainText("Imported baseline");
   await expect(page.locator(".cm-content")).not.toContainText("Remove this edit on reset");
   await page.reload();
-  await continueProject(page);
+  await restoredProject(page);
   await ready(page);
   await expect(page.locator(".cm-content")).toContainText("Imported baseline");
   await expect(page.locator(".cm-content")).not.toContainText("Remove this edit on reset");
@@ -211,7 +236,14 @@ test("starting fresh discards the browser copy and restores the complete starter
   await saved(page);
   const before = await stored(page);
   await page.reload();
-  await expect(page.locator("#recovery-dialog")).toBeVisible();
+  await restoredProject(page);
+  await menu(page, "fresh");
+  await expect(page.getByRole("dialog", { name: "Start a fresh project?" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Keep current project" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  expect(await stored(page)).toEqual(before);
+  await expect(page.locator("#template")).toHaveValue(custom);
+  await menu(page, "fresh");
   await expect(page.locator("#recovery-reset")).toContainText("removes this browser copy");
   expect(await stored(page)).toEqual(before);
   await page.getByRole("button", { name: "Start fresh", exact: true }).click();
@@ -262,7 +294,7 @@ test("clearing cancels pending saves, preserves the open project and leaves olde
   await append(page, "Editing saves again");
   await saved(page);
   await page.reload();
-  await continueProject(page);
+  await restoredProject(page);
   await ready(page);
   await expect(page.locator(".cm-content")).toContainText("Editing saves again");
   expect(await stored(page, "immuknow-studio-drafts")).toEqual(legacy);
@@ -295,7 +327,7 @@ test("failed storage keeps current work downloadable and a later edit retries sa
     "The browser draft could not be saved.",
   );
   await page.reload();
-  await continueProject(page);
+  await restoredProject(page);
   await ready(page);
   await expect(page.locator(".cm-content")).toContainText("Keep this unsaved edit in the ZIP");
   await expect(page.locator(".cm-content")).toContainText("Retry succeeds");
@@ -318,13 +350,13 @@ test("a second tab cannot overwrite the draft and can reopen it after the first 
   await expect(second.locator("#import")).toBeDisabled();
   await page.close();
   await second.reload();
-  await continueProject(second);
+  await restoredProject(second);
   await ready(second);
   await expect(second.locator(".cm-content")).toContainText("Work from the first tab");
   await append(second, "Work from the next tab");
   await saved(second);
   await second.reload();
-  await continueProject(second);
+  await restoredProject(second);
   await ready(second);
   await expect(second.locator(".cm-content")).toContainText("Work from the next tab");
 });

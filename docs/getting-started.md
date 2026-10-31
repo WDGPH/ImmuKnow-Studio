@@ -65,9 +65,10 @@ Download each template you want to keep: this action does not back up every
 other notice in the browser draft. To return to a downloaded project, open
 **Project → Import project** and select its ZIP.
 
-When you return, choose **Continue project** to reopen the browser copy or
-**Start fresh** to remove it and restore the starters. This copy is local to
-this browser and device; Studio does not save it to the cloud.
+When you return, Studio automatically reopens a compatible browser copy. Choose
+**Project → Start fresh…** to remove it and restore the starters after
+confirmation. This copy is local to this browser and device; Studio does not
+save it to the cloud.
 
 When your template is ready, follow
 [Use projects on your workstation](local-production.md). Production notice
