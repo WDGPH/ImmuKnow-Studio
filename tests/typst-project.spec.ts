@@ -12,16 +12,13 @@ const fontCount = Object.keys(
   JSON.parse(readFileSync(resolve("assets/fonts/manifest.json"), "utf8")),
 ).length;
 
-// Cover distinct notice components and content, without multiplying every
-// scenario by every language/selector. The helper runs both native selectors.
+// Exercise download-specific boundaries rather than every Core notice family.
+// The customized English project covers both selectors; French cases cover
+// long output and saved-run review. Core tests the full native notice catalog.
 const cases = [
   ["short", "overdue_diseases_v1.en.typ"],
-  ["short", "overdue_diseases_v1.fr.typ"],
-  ["short", "overdue_agents_v1.en.typ"],
-  ["source-warnings", "overdue_agents_v1.fr.typ"],
   ["long-history", "overdue_diseases_v1.fr.typ"],
-  ["affirmative", "affirmative_schedule_v1.en.typ"],
-  ["suspension", "suspension_order_v1.en.typ"],
+  ["source-warnings", "overdue_agents_v1.fr.typ"],
 ];
 
 for (const [scenario, filename] of cases) {
@@ -99,10 +96,8 @@ for (const [scenario, filename] of cases) {
       .toBe(true);
     const findings = await page.locator("#diagnostics li").evaluateAll((items) =>
       items.map((item) => {
-        const text = item.cloneNode(true) as HTMLElement;
-        text.querySelector("details")?.remove();
-        const code = text.textContent?.match(/\(([^()]+)\)$/)?.[1];
-        if (!code) throw new Error(`Unexpected browser diagnostic: ${text.textContent}`);
+        const code = item.textContent?.match(/\(([^()]+)\)$/)?.[1];
+        if (!code) throw new Error(`Unexpected browser diagnostic: ${item.textContent}`);
         return `${code}:${item.classList.contains("error") ? "fail" : "warn"}`;
       }),
     );
@@ -135,13 +130,19 @@ for (const [scenario, filename] of cases) {
     }
     await page.screenshot({ path: info.outputPath("preview.png"), fullPage: true });
     await page.locator(".project-actions summary").click();
+    if (scenario === "short") await page.locator("#include-fonts").uncheck();
     const projectDownload = page.waitForEvent("download", { timeout: 30_000 });
     await page.locator("#export").click();
     await (await projectDownload).saveAs(info.outputPath("typst-project.zip"));
     const files = unzipSync(readFileSync(info.outputPath("typst-project.zip")));
     delete files["immuknow-project.json"];
     for (const [path, bytes] of Object.entries(files)) {
-      if (path.startsWith("templates/fonts/")) continue;
+      if (
+        path.startsWith("templates/fonts/") ||
+        path.startsWith("input/sample/") ||
+        path === "sample.json"
+      )
+        continue;
       expect(Buffer.from(bytes).toString("base64"), path).toBe(expectedFiles[path]);
     }
     expect(Object.keys(files).filter((path) => /^templates\/.+\.(en|fr)\.typ$/.test(path))).toEqual(
@@ -152,11 +153,27 @@ for (const [scenario, filename] of cases) {
         .filter((path) => path.startsWith("examples/") && !path.endsWith("README.md"))
         .sort(),
     ).toEqual(Object.values(examples[index].inputs[filename]).sort());
-    expect(Object.keys(files).some((path) => /\.(py|whl)$/.test(path))).toBe(false);
-    expect(files["uv.lock"]).toBeUndefined();
-    expect(files["pyproject.toml"]).toBeUndefined();
-    expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toHaveLength(fontCount);
-    expect(files["templates/fonts/LICENSE"]).toBeDefined();
+    expect(files["scripts/run.py"]).toBeDefined();
+    expect(Object.keys(files).some((path) => path.startsWith("tests/"))).toBe(false);
+    expect(files["uv.lock"]).toBeDefined();
+    expect(files["pyproject.toml"]).toBeDefined();
+    expect(JSON.parse(new TextDecoder().decode(files["sample.json"]))).toEqual({
+      csv: "input/sample/sample_students.csv",
+      assignments: "input/sample/sample_assignments.json",
+    });
+    expect(files["input/sample/sample_students.csv"]).toEqual(
+      files[examples[index].inputs[filename].csv],
+    );
+    expect(files["input/sample/sample_assignments.json"]).toEqual(
+      files[examples[index].inputs[filename].assignments],
+    );
+    const source = JSON.parse(new TextDecoder().decode(files["template-source.json"]));
+    expect(source.repository).toBe("https://github.com/WDGPH/ImmuKnow-Template");
+    expect(source.revision).toMatch(/^[0-9a-f]{40}$/);
+    expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toHaveLength(
+      scenario === "short" ? 0 : fontCount,
+    );
+    if (scenario !== "short") expect(files["templates/fonts/LICENSE"]).toBeDefined();
     writeFileSync(
       info.outputPath("selected-example.json"),
       JSON.stringify({
@@ -225,11 +242,9 @@ for (const [scenario, filename] of cases) {
       expect(result.qrUrls).toEqual(native.browser.qrUrls);
       expect(result.findings).toEqual([...new Set(findings)].sort());
     }
-    expect(native.selectors[0].summary).toEqual(native.selectors[1].summary);
-    if (scenario === "suspension") {
-      expect(native.browser.text).toHaveLength(1);
-      expect(findings).not.toContain("content.history_validity:warn");
-    }
+    expect(native.selectors).toHaveLength(scenario === "short" ? 2 : 1);
+    if (scenario === "short")
+      expect(native.selectors[0].summary).toEqual(native.selectors[1].summary);
     if (scenario === "long-history") expect(native.browser.text.length).toBeGreaterThan(2);
     if (scenario === "source-warnings") expect(native.rebundled).toBe(true);
   });

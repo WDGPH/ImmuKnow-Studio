@@ -29,6 +29,7 @@ from immuknow.resources import resource_root
 from immuknow.version_notices import load_catalog, template_identity
 
 from .build_info import project_build
+from .project_template import scaffold_files
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
@@ -64,7 +65,7 @@ def localized_source(scenario: dict[str, Any], language: str) -> dict[str, str]:
 
 
 def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
-    """Prepare every explicit variant and return unchanged project/export resources."""
+    """Prepare every explicit variant and return project resources for export."""
     authored = json.loads((EXAMPLES / "scenarios.json").read_text(encoding="utf-8"))
     config = load_config(CONFIG / "parameters.yaml")
     config.update(authored["dates"])
@@ -165,7 +166,7 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                 }
             )
     resources["examples/README.md"] = (EXAMPLES / "README.md").read_bytes()
-    resources["README.md"] = (EXAMPLES / "PROJECT.md").read_bytes()
+    resources.update(scaffold_files())
     resources["build.json"] = (json.dumps(project_build(), indent=2) + "\n").encode()
     prepared = {
         "schemaVersion": 1,

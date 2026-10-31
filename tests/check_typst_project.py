@@ -1,4 +1,4 @@
-"""Compare a downloaded Typst project using the separately installed native engine."""
+"""Install a downloaded project and compare its native output with the preview."""
 
 from __future__ import annotations
 
@@ -132,9 +132,28 @@ def main(evidence: Path) -> None:
         extracted.rename(project)
         assert not project.is_relative_to(Path(__file__).resolve().parents[1])
 
+        installed = subprocess.run(
+            ["uv", "sync", "--locked"],
+            cwd=project,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=120,
+            check=False,
+        )
+        (evidence / "project-install.log").write_text(
+            installed.stdout + installed.stderr
+        )
+        assert installed.returncode == 0, installed.stdout + installed.stderr
+
         def run(*arguments: str) -> str:
+            invocation = (
+                list(arguments)
+                if arguments[0].endswith(".py") or arguments[0] == "-c"
+                else ["-m", *arguments]
+            )
             result = subprocess.run(
-                [sys.executable, "-m", *arguments],
+                ["uv", "run", "--locked", "python", *invocation],
                 cwd=project,
                 env=env,
                 capture_output=True,
@@ -170,7 +189,14 @@ def main(evidence: Path) -> None:
             )
             return result.stdout
 
+        # The project user's setup command must not install maintainer test tools.
+        run(
+            "-c",
+            "import importlib.util; assert importlib.util.find_spec('pytest') is None",
+        )
         selected = json.loads((evidence / "selected-example.json").read_text())
+        if selected["example"] == "short":
+            run("scripts/check.py", "--sample")
         browser = inspect_pdf(evidence / "browser.pdf")
         preview = inspect_preview(evidence, browser)
         comparison = {
@@ -180,8 +206,7 @@ def main(evidence: Path) -> None:
             "selectors": [],
             "rebundled": False,
         }
-        for selector, arguments in (
-            ("template", ["--template", selected["template"]]),
+        selectors = [
             (
                 "assignments",
                 [
@@ -191,9 +216,12 @@ def main(evidence: Path) -> None:
                     str(Path(selected["template"]).parent),
                 ],
             ),
-        ):
+        ]
+        if selected["example"] == "short":
+            selectors.insert(0, ("template", ["--template", selected["template"]]))
+        for selector, arguments in selectors:
             run(
-                "immuknow.orchestrator",
+                "scripts/run.py",
                 selected["input"]["csv"],
                 "--config",
                 "config",
@@ -232,7 +260,7 @@ def main(evidence: Path) -> None:
             assert min(coverage) >= 0.95, (
                 f"{selector}: native/browser text coverage too low: {coverage}"
             )
-            if selector == "template":
+            if not comparison["selectors"]:
                 with pymupdf.open(original) as rendered:
                     for index, page in enumerate(rendered, start=1):
                         page.get_pixmap(dpi=144).save(

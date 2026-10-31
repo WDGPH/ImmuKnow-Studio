@@ -52,18 +52,23 @@ and images can be shared between templates, so check each notice you plan to use
 
 ## Save a portable copy
 
-Studio saves a draft in this browser as you edit. Wait for **Saved** before
-closing the tab. To make a copy you can keep or move to another computer:
+Studio saves a draft in this browser as you edit. The browser warns before you
+leave while edits are still unsaved. To make a copy you can keep or move to
+another computer:
 
 1. Open **Project** at the top-right of the webpage.
-2. Choose **Download current template** to save `immuknow-project.zip`.
+2. Choose **Download project** to save `immuknow-project.zip`.
 3. Keep the ZIP somewhere you control. It contains the selected template,
-   supporting files, assets and selected fictional example inputs.
+   supporting files, assets, Python setup, helper scripts and selected fictional example inputs.
 
 Download each template you want to keep: this action does not back up every
 other notice in the browser draft. To return to a downloaded project, open
 **Project → Import project** and select its ZIP.
 
+When you return, choose **Continue project** to reopen the browser copy or
+**Start fresh** to remove it and restore the starters. This copy is local to
+this browser and device; Studio does not save it to the cloud.
+
 When your template is ready, follow
-[Use templates on your workstation](local-production.md). Production notice
+[Use projects on your workstation](local-production.md). Production notice
 generation runs locally with ImmuKnow and your own client records.

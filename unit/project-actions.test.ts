@@ -115,3 +115,105 @@ test("current download keeps selected example and referenced entries but exclude
   ])
     expect(selected[path]).toBe(files[path]);
 });
+
+test("legacy downloads gain the pinned scaffold without overwriting authored setup", () => {
+  const files = { ...baseline, "README.md": encoder.encode("Authored instructions") };
+  const starters = {
+    "template-source.json": encoder.encode(
+      JSON.stringify({ files: { "README.md": "hash", "scripts/run.py": "hash" } }),
+    ),
+    "README.md": encoder.encode("Upstream instructions"),
+    "scripts/run.py": encoder.encode("Upstream runner"),
+  };
+  const result = currentProject(files, template, [], undefined, starters);
+  expect(result["README.md"]).toBe(files["README.md"]);
+  expect(result["scripts/run.py"]).toBe(starters["scripts/run.py"]);
+  expect(result["template-source.json"]).toBe(starters["template-source.json"]);
+});
+
+test("switching preview retains an imported sample and its original inputs", () => {
+  const original = { csv: "examples/old.csv", assignments: "examples/old.json" };
+  const next = { csv: "examples/new.csv", assignments: "examples/new.json" };
+  const example: Example = {
+    id: "new",
+    label: "",
+    description: "",
+    payloads: {},
+    preparationChecks: {},
+    inputs: { "notice.en.typ": next },
+  };
+  const old = { ...example, id: "old", inputs: { "notice.en.typ": original } };
+  const files = {
+    ...baseline,
+    "sample.json": encoder.encode(JSON.stringify(original)),
+    [original.csv]: encoder.encode("Authored CSV"),
+    [original.assignments]: encoder.encode("Authored assignments"),
+    [next.csv]: encoder.encode("New CSV"),
+    [next.assignments]: encoder.encode("New assignments"),
+  };
+  const result = currentProject(files, template, [old, example], example);
+  for (const path of ["sample.json", ...Object.values(original), ...Object.values(next)])
+    expect(result[path]).toBe(files[path]);
+});
+
+test("new downloads include conventional sample copies without replacing authored bytes", () => {
+  const inputs = { csv: "examples/selected.csv", assignments: "examples/selected.json" };
+  const example: Example = {
+    id: "selected",
+    label: "",
+    description: "",
+    payloads: {},
+    preparationChecks: {},
+    inputs: { "notice.en.typ": inputs },
+  };
+  const files = {
+    ...baseline,
+    [inputs.csv]: encoder.encode("Selected CSV"),
+    [inputs.assignments]: encoder.encode("Selected assignments"),
+    "input/sample/sample_students.csv": encoder.encode("Authored sample"),
+  };
+  const result = currentProject(files, template, [example], example);
+  expect(result["input/sample/sample_students.csv"]).toBe(
+    files["input/sample/sample_students.csv"],
+  );
+  expect(result["input/sample/sample_assignments.json"]).toBe(files[inputs.assignments]);
+  expect(result[inputs.csv]).toBe(files[inputs.csv]);
+  expect(JSON.parse(new TextDecoder().decode(result["sample.json"]))).toEqual({
+    csv: "input/sample/sample_students.csv",
+    assignments: "input/sample/sample_assignments.json",
+  });
+});
+
+test("preserved sample assignments retain their notice and transitive companions", () => {
+  const files = {
+    ...baseline,
+    "sample.json": encoder.encode(
+      JSON.stringify({ csv: "examples/old.csv", assignments: "examples/old.json" }),
+    ),
+    "examples/old.csv": encoder.encode("Original cohort"),
+    "examples/old.json": encoder.encode(
+      JSON.stringify([{ client_id: "123", template: "old.en.typ" }]),
+    ),
+    "templates/old.en.typ": encoder.encode('#include "helper.fr.typ"'),
+    "templates/helper.fr.typ": encoder.encode("Required helper"),
+    "templates/unrelated.en.typ": encoder.encode("Unrelated starter"),
+  };
+  const result = currentProject(files, template, []);
+  expect(result["templates/old.en.typ"]).toBe(files["templates/old.en.typ"]);
+  expect(result["templates/helper.fr.typ"]).toBe(files["templates/helper.fr.typ"]);
+  expect(result["templates/unrelated.en.typ"]).toBeUndefined();
+});
+
+test.each(["{", "{}", '{"csv":"examples/old.csv","assignments":"missing.json"}'])(
+  "unfinished sample selection remains downloadable unchanged: %s",
+  (sample) => {
+    const files = {
+      ...baseline,
+      "sample.json": encoder.encode(sample),
+      "templates/other.fr.typ": encoder.encode("Possible sample notice"),
+      "examples/other.csv": encoder.encode("Possible sample input"),
+    };
+    const result = currentProject(files, template, []);
+    for (const [path, bytes] of Object.entries(files)) expect(result[path]).toBe(bytes);
+  },
+);

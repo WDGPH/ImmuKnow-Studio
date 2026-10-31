@@ -18,7 +18,7 @@ small changes, and include the checks and any remaining limits in your PR.
 
 ## Core dependency
 
-Studio installs Core from the `v2.0.0-rc1` tag of
+Studio installs Core from the `v2.0.0-rc2` tag of
 <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` selects the tag and
 `uv.lock` records the exact commit. A local Core checkout is not required.
 
@@ -37,8 +37,8 @@ those facts, regenerate and review `examples/prepared.json` instead:
 uv run --locked python -m scripts.examples
 ```
 
-The current locked commit is `877cef06378357da769ea2566226d50d641a855a`,
-tagged `v2.0.0-rc1` in Core. To select another published Core tag, use
+The current locked commit is `e58e889c28c2efe29ee95564fd66277884856854`,
+tagged `v2.0.0-rc2` in Core. To select another published Core tag, use
 `uv add git+https://github.com/WDGPH/ImmuKnow.git --tag <core-tag>`.
 Commit both dependency files and run the checks before releasing. Core and
 Studio provenance are recorded separately; compatibility continues to compare
@@ -61,7 +61,7 @@ To rebuild against the configured Core reference, open **Actions → Studio Page
 → Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
-currently it is Core's `v2.0.0-rc1` tag. A configured tag or revision stays
+currently it is Core's `v2.0.0-rc2` tag. A configured tag or revision stays
 at that reference. The workflow still checks the committed example facts and
 resource compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.
@@ -180,10 +180,41 @@ npm run test:browser
 Browser checks serve `dist/` at the root. Set `IMMUKNOW_BASE_URL` to test an
 already served artifact, including any proxy prefix and trailing slash. Do not
 rebuild an artifact while it is being tested. Evidence stays in `test-results/`.
-Downloaded-project checks run the installed Core engine outside either checkout
-through both notice selectors. PDF reader checks use Studio's own example inputs.
+Downloaded-project checks install the ZIP's locked environment outside either checkout
+and run its Template helpers and Core engine. Three cases cover a customized
+English notice through both selectors, long French output and saved-run review
+for a French notice with warnings. Template's maintainer tests run in its own
+repository; fresh downloads contain the user-facing setup and sample check.
+PDF reader checks use Studio's own example inputs.
 Core maintains its separate native test fixtures. Studio's contract cases under
 `unit/fixtures/` are a local snapshot, not imports from Core's test package.
+
+## Test scope and Actions minutes
+
+Follow the [shared testing strategy](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/testing.md#testing-across-the-projects).
+Core tests native input rules, validation, notice families and delivery. Studio
+tests the browser and the handoff from an authored project to native output.
+The same contract cases run against the Python and browser validators because
+each implementation needs to accept and reject the right data.
+
+Pull requests and main builds run the site build, type checks, lint and unit
+tests. The full browser/native suite is deliberately manual to conserve GitHub
+Actions minutes. Select **full_tests** in the **Studio Pages** manual workflow to
+run it. Ordinary deployment does not require that manual run. Build summaries
+record whether it ran, so a successful ordinary build should not be described
+as a browser/native test pass.
+
+Run relevant browser checks locally for editor, draft, import or download
+changes. Run the full suite for Core/compiler updates, changes to shared
+contracts and release preparation. Keep the manual workflow available for those
+checks when local tools are unavailable.
+
+The download cases cover three different handoff risks: custom source and both
+notice selectors; long French output; and saved-run review with warning findings.
+Core covers other notice families. The project sample command runs once in the
+customized English case, while the other cases compare their own native output.
+Template helper unit tests are not repeated in Studio. Add another expensive
+case only when it protects a boundary these checks do not cover.
 
 ## Python interface boundary
 
@@ -198,3 +229,29 @@ API is not required for this extraction.
 Core resources are copied into disposable `generated/core/` for browser builds.
 Edits belong in Core or the open authored project, never the installed package
 or generated copy. Shared library files retain their existing integrity checks.
+
+## Update the project template
+
+The reviewed scaffold in `assets/project-template/` comes from
+[ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template). Clone that private
+repository locally when changing the snapshot. Select a full commit containing
+its `studio-scaffold.json` allowlist and a lock for Studio's Core revision:
+
+```bash
+uv run --locked python -m scripts.project_template \
+  --source ../ImmuKnow-Template --revision <full-template-commit-sha>
+uv run --locked python -m scripts.examples --check
+```
+
+The refresh reads committed Git blobs, records source identity and SHA-256 hashes,
+and copies only the allowlisted setup files, scripts, licence and README.
+Commit the snapshot and its provenance together. Do not edit the copied files in
+Studio; make changes in Template and refresh. Python lint/type checks exclude the
+copied upstream code. Downloaded-project browser checks run the project helpers
+and native engine; the copied scaffold includes no maintainer tests. Its pytest
+dependency is in an optional test group and is not installed by a normal `uv sync`.
+
+Ordinary builds verify the local snapshot without GitHub access. A Core update
+also needs a compatible Template lock and refreshed snapshot. Run the full
+browser/native downloaded-project checks to verify clean installation, setup
+checks, the sample, both native selectors and saved-run rebundling.

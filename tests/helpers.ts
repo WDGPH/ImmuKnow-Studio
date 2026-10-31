@@ -1,5 +1,20 @@
 import { expect, type Page } from "@playwright/test";
 
+export async function continueProject(page: Page) {
+  await expect(page.getByRole("dialog", { name: "Continue your browser project?" })).toBeVisible();
+  await page.getByRole("button", { name: "Continue project", exact: true }).click();
+  await expect(page.locator("#recovery-dialog")).not.toBeVisible();
+}
+
+export async function saved(page: Page) {
+  // Once persistence finishes, leaving no longer needs the unsaved-edits guard.
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.dispatchEvent(new Event("beforeunload", { cancelable: true }))),
+    )
+    .toBe(true);
+}
+
 export async function chooseTemplate(page: Page, template: string, scope = "template") {
   const previous = await page.locator("#template").inputValue();
   await page.locator("#template").selectOption(template);

@@ -28,7 +28,8 @@
 <a class="brand" href="./" aria-label="ImmuKnow Studio home"><img class="brand-light" src="./src/assets/studio-logo-light.svg" alt="ImmuKnow Studio" width="300" height="64"><img class="brand-dark" src="./src/assets/studio-logo-dark.svg" alt="" aria-hidden="true" width="300" height="64"></a>
 <div class="header-actions">
 <details class="project-actions"><summary aria-label="Project"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5h7l2 2h9v13H3Z"/></svg><span>Project</span><svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></summary><section class="actions" aria-label="Project actions">
-<button id="export" disabled>Download current template</button><button id="import" disabled>Import project</button><input id="archive" type="file" accept=".zip" hidden>
+<label class="download-fonts"><input id="include-fonts" type="checkbox" checked> Include fonts for installation <small>Without these files, install the matching fonts on your workstation.</small></label>
+<button id="export" disabled>Download project</button><button id="import" disabled>Import project</button><input id="archive" type="file" accept=".zip" hidden>
 <button id="reset" disabled>Reset template…</button><button id="clear" disabled>Clear saved draft</button><button id="restart" disabled>Restart compiler</button>
 </section></details>
 <button id="theme-toggle" aria-label="Switch to dark mode"></button>
@@ -38,12 +39,11 @@
 </div>
 </header>
 <main>
-<p id="storage" class="hint" role="status" hidden></p>
 <div class="workspace" id="workspace">
 <section class="editor-pane" aria-label="Template source">
 <div class="pane-heading"><div class="editor-tabs" role="tablist" aria-label="Editor">
 <button id="theme-tab" role="tab" aria-selected="false" aria-controls="theme-panel" tabindex="-1" disabled><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14 5 5 5M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15Z"/><path d="M4 15l5 5"/></svg><span>Theme</span></button><button id="template-tab" role="tab" aria-selected="true" aria-controls="editor-panel" disabled><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H5v18h14V8Z"/><path d="M14 3v5h5M9 12h6M9 16h6"/></svg><span>Template</span></button><button id="settings-tab" role="tab" aria-selected="false" aria-controls="editor-panel" tabindex="-1" disabled><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 3-.5 2-2 .9-1.8-.6-2.5 4.3 1.5 1.4v2l-1.5 1.4 2.5 4.3 1.8-.6 2 .9.5 2h5l.5-2 2-.9 1.8.6 2.5-4.3-1.5-1.4v-2l1.5-1.4-2.5-4.3-1.8.6-2-.9-.5-2Z"/><circle cx="12" cy="12" r="3"/></svg><span>Settings</span></button>
-</div><span id="save-state" class="hint" role="status"></span></div>
+</div></div>
 <div id="settings-controls" hidden><div class="preview-options"><label><input type="checkbox" id="guide">Show window guide</label></div></div>
 <div class="source-body" id="editor-panel" role="tabpanel" aria-labelledby="template-tab"><div id="editor"></div></div>
 <section id="theme-panel" class="theme-panel" role="tabpanel" aria-labelledby="theme-tab" hidden>
@@ -56,7 +56,7 @@
 <section class="asset-card"><h3>Additional image <span>Optional</span></h3><div class="asset-preview"><img id="extra-preview" alt="Additional image preview" hidden><span id="extra-empty">No image</span></div><label class="asset-upload">Add image<input id="extra-upload" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"></label><code id="extra-path"></code></section>
 </div>
 </section>
-<section id="feedback" class="feedback" aria-label="Findings" hidden><ul id="diagnostics" aria-live="polite"></ul></section>
+<section id="feedback" class="feedback" aria-label="Findings" hidden><div id="diagnostics" aria-live="polite"><ul id="errors" hidden></ul><details id="notice-warnings" hidden><summary id="warning-count" class="warning"></summary><ul id="warnings-list"></ul></details></div></section>
 </section>
 <div id="divider" title="Drag to resize" role="separator" tabindex="0" aria-label="Resize editor and preview" aria-orientation="vertical" aria-valuemin="25" aria-valuemax="75" aria-valuenow="50"><svg viewBox="0 0 16 32" aria-hidden="true"><circle cx="5" cy="10" r="1"/><circle cx="11" cy="10" r="1"/><circle cx="5" cy="16" r="1"/><circle cx="11" cy="16" r="1"/><circle cx="5" cy="22" r="1"/><circle cx="11" cy="22" r="1"/></svg></div>
 <section class="preview-pane" aria-label="Notice preview"><div class="pane-heading"><div class="client-controls"><span>Example client</span><div class="navigation"><button id="previous" aria-label="Previous example" disabled>‹</button><span id="position"></span><button id="next" aria-label="Next example" disabled>›</button></div></div><span id="pages" aria-label="Page count">—</span><div class="zoom-controls" role="group" aria-label="Zoom"><button id="zoom-out" aria-label="Zoom out" disabled>−</button><button id="zoom-in" aria-label="Zoom in" disabled>+</button></div><span id="preview-state" data-state="updating" role="status" aria-label="Updating preview"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 9a8 8 0 1 0-1 9M20 3v6h-6"/></svg></span></div><div id="preview-scroll" tabindex="0" aria-label="Continuous notice pages"></div></section>
@@ -66,6 +66,15 @@
 <p>Built by <a href="https://wdgpublichealth.ca/" target="_blank" rel="noopener noreferrer">Wellington-Dufferin-Guelph Public Health</a> · <a href="https://github.com/WDGPH/ImmuKnow-Studio/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></p>
 <p class="footer-versions"><span id="studio-version"><span id="studio-tag"></span><a id="studio-sha" target="_blank" rel="noopener noreferrer"></a></span><span class="engine-version"><span aria-hidden="true">·</span> <span id="core-version">Engine: ImmuKnow <a id="core-sha" target="_blank" rel="noopener noreferrer"></a></span></span></p>
 </footer>
+<dialog id="recovery-dialog" aria-labelledby="recovery-title" aria-describedby="recovery-local recovery-error recovery-reset">
+<form method="dialog">
+<h2 id="recovery-title">Continue your browser project?</h2>
+<p id="recovery-local">Studio saves a working copy in this browser on this device. It does not save projects to the cloud.</p>
+<p id="recovery-error" hidden></p>
+<p id="recovery-reset">Start fresh restores the starter templates, settings and images and removes this browser copy. Download a project ZIP when you want a portable copy.</p>
+<div class="project-change-actions"><button value="reset">Start fresh</button><button id="recovery-continue" value="continue" autofocus>Continue project</button></div>
+</form>
+</dialog>
 <dialog id="project-change-dialog" aria-labelledby="project-change-title" aria-describedby="project-change-text project-change-shared">
 <form id="project-change-form">
 <h2 id="project-change-title">Reset template?</h2>

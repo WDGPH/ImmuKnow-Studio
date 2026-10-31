@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync, zipSync } from "fflate";
-import { chooseTemplate, confirmProjectChange } from "./helpers";
+import { continueProject, chooseTemplate, confirmProjectChange, saved } from "./helpers";
 import type { Bundle } from "../src/types";
 
 async function current(page: Page) {
@@ -55,8 +55,9 @@ for (const scope of ["template", "settings", "theme"]) {
     );
     await expect(page.locator("#extra-preview")).toBeVisible({ visible: scope !== "theme" });
     await expect(page.locator("#health-unit-undo")).not.toBeVisible();
-    await expect(page.locator("#save-state")).toHaveText("Saved");
+    await saved(page);
     await page.reload();
+    await continueProject(page);
     await current(page);
     const files = await download(page);
     const settings = new TextDecoder().decode(files["templates/settings.typ"]);
@@ -94,8 +95,9 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   expect(await page.locator("#preview-state").getAttribute("data-requested-revision")).toBe(before);
   await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
   await current(page);
-  await expect(page.locator("#save-state")).toHaveText("Saved");
+  await saved(page);
   await page.reload();
+  await continueProject(page);
   await current(page);
   await page.locator("#theme-tab").click();
   await chooseTemplate(page, "templates/overdue_diseases_v1.en.typ");

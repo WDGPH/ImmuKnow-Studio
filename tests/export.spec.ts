@@ -29,9 +29,17 @@ async function openProjectActions(page: Page) {
   await expect(page.locator("#export")).toBeVisible();
 }
 
+interface ExportProbe {
+  requests: number;
+  held: number;
+  holdNext: boolean;
+  failNext: boolean;
+  release?: () => void;
+}
+
 async function exportProbe(page: Page) {
   await page.addInitScript(() => {
-    const probe = { requests: 0, held: 0, delayMs: 0, failNext: false };
+    const probe: ExportProbe = { requests: 0, held: 0, holdNext: false, failNext: false };
     Object.assign(window, { exportProbe: probe });
     const NativeWorker = window.Worker;
     window.Worker = class extends NativeWorker {
@@ -50,17 +58,21 @@ async function exportProbe(page: Page) {
                 handler.call(this, event);
                 return;
               }
-              const delay = probe.delayMs;
-              probe.delayMs = 0;
-              if (delay) probe.held++;
+              const hold = probe.holdNext;
+              probe.holdNext = false;
               const reply = probe.failNext
                 ? new MessageEvent("message", {
                     data: { error: "Injected project download failure" },
                   })
                 : event;
               probe.failNext = false;
-              if (delay) setTimeout(() => handler.call(this, reply), delay);
-              else handler.call(this, reply);
+              if (hold) {
+                probe.held++;
+                probe.release = () => {
+                  probe.release = undefined;
+                  handler.call(this, reply);
+                };
+              } else handler.call(this, reply);
             }
           : null;
       }
@@ -69,17 +81,22 @@ async function exportProbe(page: Page) {
 }
 
 async function probeState(page: Page) {
-  return page.evaluate(
-    () =>
-      (
-        window as unknown as {
-          exportProbe: { requests: number; held: number; delayMs: number; failNext: boolean };
-        }
-      ).exportProbe,
-  );
+  return page.evaluate(() => {
+    const { requests, held } = (window as unknown as { exportProbe: ExportProbe }).exportProbe;
+    return { requests, held };
+  });
 }
 
-test("project download preserves authored text and always includes fonts", async ({ page }) => {
+async function releaseExport(page: Page) {
+  await page.evaluate(() => {
+    const probe = (window as unknown as { exportProbe: ExportProbe }).exportProbe;
+    if (!probe.release) throw new Error("No project download reply is held");
+    probe.release();
+  });
+  await expect(page.locator("#export")).toBeEnabled();
+}
+
+test("project download preserves authored text and includes fonts by default", async ({ page }) => {
   await exportProbe(page);
   await page.goto("./");
   await currentPreview(page);
@@ -91,15 +108,16 @@ test("project download preserves authored text and always includes fonts", async
   await currentPreview(page);
   expect((await probeState(page)).requests).toBe(0);
   await page.evaluate(() => {
-    (window as unknown as { exportProbe: { delayMs: number } }).exportProbe.delayMs = 800;
+    (window as unknown as { exportProbe: ExportProbe }).exportProbe.holdNext = true;
   });
   await openProjectActions(page);
-  await expect(page.locator("#include-fonts")).toHaveCount(0);
+  await expect(page.locator("#include-fonts")).toBeChecked();
   const downloaded = page.waitForEvent("download");
   await page.locator("#export").click();
   await expect(page.locator("#export")).toBeDisabled();
   await expect.poll(async () => (await probeState(page)).held).toBe(1);
   expect((await probeState(page)).requests).toBe(1);
+  await releaseExport(page);
   const path = await (await downloaded).path();
   expect(path).toBeTruthy();
   const files = unzipSync(readFileSync(path as string));
@@ -118,6 +136,45 @@ test("project download preserves authored text and always includes fonts", async
   await expect(page.locator("#export")).toBeEnabled();
 });
 
+test("a smaller download omits supplied fonts and can be imported again", async ({ page }) => {
+  await page.goto("./");
+  await currentPreview(page);
+  await openProjectActions(page);
+  await page.locator("#include-fonts").uncheck();
+  let fontRequests = 0;
+  page.on("request", (request) => {
+    if (request.url().includes("generated/fonts/")) fontRequests++;
+  });
+  const fresh = page.waitForEvent("download");
+  await page.locator("#export").click();
+  await fresh;
+  expect(fontRequests).toBe(0);
+  await openProjectActions(page);
+  await page.locator("#include-fonts").check();
+  const first = page.waitForEvent("download");
+  await page.locator("#export").click();
+  const original = await (await first).path();
+  expect(original).toBeTruthy();
+  await page.locator("#archive").setInputFiles(original as string);
+  await expect(page.locator("#archive")).toHaveValue("");
+  await currentPreview(page);
+  await openProjectActions(page);
+  await page.locator("#include-fonts").uncheck();
+  const second = page.waitForEvent("download");
+  await page.locator("#export").click();
+  const smaller = await (await second).path();
+  expect(smaller).toBeTruthy();
+  const files = unzipSync(readFileSync(smaller as string));
+  expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toEqual([]);
+  expect(files["templates/fonts/LICENSE"]).toBeDefined();
+  expect(files["templates/lib/immuknow/lib.typ"]).toBeDefined();
+  expect(readFileSync(smaller as string).length).toBeLessThan(readFileSync(original as string).length);
+  await page.locator("#archive").setInputFiles(smaller as string);
+  await expect(page.locator("#archive")).toHaveValue("");
+  await currentPreview(page);
+  await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
+});
+
 test("edits and template switches refuse delayed project downloads", async ({ page }) => {
   await exportProbe(page);
   const downloads: string[] = [];
@@ -125,28 +182,39 @@ test("edits and template switches refuse delayed project downloads", async ({ pa
   await page.goto("./");
   await currentPreview(page);
   await page.evaluate(() => {
-    (window as unknown as { exportProbe: { delayMs: number } }).exportProbe.delayMs = 800;
+    (window as unknown as { exportProbe: ExportProbe }).exportProbe.holdNext = true;
   });
   await openProjectActions(page);
   await page.locator("#export").click();
   await expect.poll(async () => (await probeState(page)).held).toBe(1);
+  const previousRevision = await page
+    .locator("#preview-state")
+    .getAttribute("data-requested-revision");
   await page.locator("#template-tab").click();
   const source = page.locator(".cm-content");
   await source.click();
   await source.press("Control+End");
   await page.keyboard.insertText("\n// changed after project request");
+  await expect(page.locator("#preview-state")).not.toHaveAttribute(
+    "data-requested-revision",
+    previousRevision ?? "",
+  );
+  await releaseExport(page);
   await expect(page.locator("#diagnostics")).toContainText("project changed");
   await currentPreview(page);
   expect(downloads).toEqual([]);
 
   await page.evaluate(() => {
-    (window as unknown as { exportProbe: { delayMs: number } }).exportProbe.delayMs = 800;
+    (window as unknown as { exportProbe: ExportProbe }).exportProbe.holdNext = true;
   });
   await openProjectActions(page);
   await page.locator("#export").click();
   await expect.poll(async () => (await probeState(page)).held).toBe(2);
   await page.locator("#theme-tab").click();
   await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
+  await expect(page.locator("#template")).toHaveValue("templates/overdue_diseases_v1.fr.typ");
+  await releaseExport(page);
+  await expect(page.locator("#diagnostics")).toContainText("project changed");
   await currentPreview(page);
   expect(downloads).toEqual([]);
   expect((await probeState(page)).requests).toBe(2);

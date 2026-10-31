@@ -1,11 +1,18 @@
-import { decoder, settingsPath, validateFiles, validateTemplate } from "./project";
+import {
+  decoder,
+  encoder,
+  safePath,
+  settingsPath,
+  validateFiles,
+  validateTemplate,
+} from "./project";
 import { resetSettingsKeepingTheme } from "./theme-settings";
 import type { Bundle, Example, Files } from "./types";
 
 export type ResetScope = "template" | "settings" | "theme";
 
-// Follow literal project paths conservatively, including paths used by authored
-// helper functions. Never rewrite source or discard an imported companion file.
+// Follow existing project files named by simple quoted strings in Typst source.
+// This conservative scan can include extra files; it does not rewrite source.
 export function referencedFiles(files: Files, entry: string): Set<string> {
   const found = new Set<string>();
   const visit = (path: string) => {
@@ -25,6 +32,8 @@ export function referencedFiles(files: Files, entry: string): Set<string> {
   return found;
 }
 
+// Select files for a download and fill missing setup files. ZIP validation and
+// integrity checks are handled separately by the archive code.
 export function currentProject(
   files: Files,
   template: string,
@@ -33,6 +42,32 @@ export function currentProject(
   starters: Files = {},
 ): Files {
   const required = referencedFiles(files, template);
+  // An imported sample is authored project configuration. Keep both its bytes
+  // and dependencies even when the preview moves to another fictional client.
+  if (files["sample.json"]) {
+    try {
+      const sample = JSON.parse(decoder.decode(files["sample.json"])) as Record<string, unknown>;
+      for (const key of ["csv", "assignments"] as const) {
+        const path = sample[key];
+        if (typeof path !== "string") throw new Error("Incomplete sample selection");
+        required.add(safePath(path));
+      }
+      const assignments = files[sample.assignments as string];
+      if (!assignments) throw new Error("Missing sample assignments");
+      const rows: unknown = JSON.parse(decoder.decode(assignments));
+      if (!Array.isArray(rows)) throw new Error("Incomplete sample assignments");
+      for (const row of rows) {
+        if (!row || typeof row.template !== "string")
+          throw new Error("Incomplete sample assignment");
+        const path = safePath(`templates/${row.template}`);
+        for (const dependency of referencedFiles(files, path)) required.add(dependency);
+      }
+    } catch {
+      // An unfinished project must remain downloadable. If its sample cannot
+      // describe dependencies yet, retain all candidates without rewriting it.
+      for (const path of Object.keys(files)) required.add(path);
+    }
+  }
   const inputs = example?.inputs[template.split("/").at(-1) ?? ""];
   const otherInputs = new Set(
     examples.flatMap((item) => Object.values(item.inputs).flatMap(Object.values)),
@@ -48,6 +83,30 @@ export function currentProject(
   // A scoped import may carry another example's inputs. Changing the preview
   // client must still produce a runnable download, without replacing authored inputs.
   for (const path of selected) if (!result[path] && starters[path]) result[path] = starters[path];
+  if (!result["sample.json"] && inputs) {
+    const sample = {
+      csv: "input/sample/sample_students.csv",
+      assignments: "input/sample/sample_assignments.json",
+    };
+    // Keep original authored paths; provide the conventional sample copies that
+    // Template's Git rules allow, filling only missing files.
+    if (!result[sample.csv] && result[inputs.csv]) result[sample.csv] = result[inputs.csv];
+    if (!result[sample.assignments] && result[inputs.assignments])
+      result[sample.assignments] = result[inputs.assignments];
+    result["sample.json"] = encoder.encode(`${JSON.stringify(sample, null, 2)}\n`);
+  }
+  // Fill missing Template setup files from this build's pinned snapshot.
+  // Keep any files already present in the project.
+  const templateSourceBytes = starters["template-source.json"];
+  if (templateSourceBytes) {
+    const templateSource = JSON.parse(decoder.decode(templateSourceBytes)) as {
+      files: Record<string, string>;
+    };
+    for (const path of [...Object.keys(templateSource.files), "template-source.json"]) {
+      safePath(path);
+      if (!result[path] && starters[path]) result[path] = starters[path];
+    }
+  }
   return result;
 }
 

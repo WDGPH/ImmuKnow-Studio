@@ -5,7 +5,7 @@ import { imageBytes, imagePath, relativeImage } from "./branding";
 import { Compiler, type CompileInput } from "./compile";
 import { claimEditingTab, DraftStore, type SaveState } from "./drafts";
 import { SourceEditor } from "./editor";
-import { withProjectFonts } from "./fonts";
+import { withProjectFonts, withoutProjectFonts } from "./fonts";
 import { fontFamilies } from "./font-resources";
 import { healthUnits, themedSettings } from "./health-units";
 import { initializeHelp } from "./help";
@@ -61,6 +61,7 @@ let diagnostics: Diagnostic[] = [];
 let resultChecks: CheckResult[] = [];
 let actionError: string | undefined;
 let compilerError: string | undefined;
+let draftError: string | undefined;
 let draftStore: DraftStore | undefined;
 let draftRevision = 0;
 let canSave = false;
@@ -69,25 +70,18 @@ let themeUndo: Files | undefined;
 const imageURLs = new Map<string, string>();
 
 function storageError(error: unknown) {
-  const target = byId("storage");
-  target.textContent = message(error);
-  target.hidden = false;
-  byId("save-state").hidden = true;
+  draftError = message(error);
+  findings();
 }
 function saveState(state: SaveState) {
   unsaved = !["saved", "cleared"].includes(state);
-  const target = byId("save-state");
-  target.dataset.state = state;
-  target.textContent = {
-    saving: "Saving…",
-    saved: "Saved",
-    clearing: "Clearing…",
-    cleared: "Draft cleared",
-    error: "",
-  }[state];
-  target.hidden = false;
-  byId("storage").hidden = state !== "error";
-  if (state === "error") storageError("Not saved. Download each template you want to keep.");
+  const previousError = draftError;
+  if (state === "error") {
+    draftError ??= "The browser draft could not be saved.";
+  } else {
+    draftError = undefined;
+  }
+  if (draftError !== previousError) findings();
 }
 function persist() {
   unsaved = true;
@@ -156,14 +150,11 @@ function refreshDownloads() {
   button("reset").disabled = !originals?.[template];
 }
 function findings() {
-  const target = byId("diagnostics");
-  target.replaceChildren();
-  function item(
-    text: string,
-    error: boolean,
-    navigate?: () => void,
-    measurements?: Record<string, unknown>,
-  ) {
+  const errors = byId("errors");
+  const warnings = byId("warnings-list");
+  errors.replaceChildren();
+  warnings.replaceChildren();
+  function item(text: string, error: boolean, navigate?: () => void) {
     const line = document.createElement("li");
     line.className = error ? "error" : "warning";
     if (navigate) {
@@ -172,24 +163,11 @@ function findings() {
       link.onclick = navigate;
       line.append(link);
     } else line.textContent = text;
-    if (measurements) {
-      const detail = document.createElement("details"),
-        label = document.createElement("summary"),
-        value = document.createElement("pre");
-      label.textContent = "Measurements";
-      value.textContent = Object.entries(measurements)
-        .map(([key, value]) => {
-          const label = key.replace(/_pt$/, "").replaceAll("_", " ");
-          return `${label}: ${typeof value === "number" && key.endsWith("_pt") ? `${((value * 25.4) / 72).toFixed(1)} mm` : JSON.stringify(value)}`;
-        })
-        .join("\n");
-      detail.append(label, value);
-      line.append(detail);
-    }
-    target.append(line);
+    (error ? errors : warnings).append(line);
   }
   if (compilerError) item(compilerError, true);
   if (actionError) item(actionError, true);
+  if (draftError) item(draftError, true);
   for (const diagnostic of diagnostics) {
     const path = diagnostic.path.replace(/^\//, "");
     item(
@@ -219,11 +197,13 @@ function findings() {
     item(
       `${prefix}${check.message}${check.page ? ` · Page ${check.page}` : ""} (${check.code})`,
       check.status === "fail",
-      undefined,
-      check.measurements,
     );
   }
-  byId("feedback").hidden = !target.childElementCount;
+  const count = warnings.childElementCount;
+  byId("warning-count").textContent = `${count} warning${count === 1 ? "" : "s"}`;
+  byId("notice-warnings").hidden = count === 0;
+  errors.hidden = errors.childElementCount === 0;
+  byId("feedback").hidden = errors.hidden && count === 0;
   editor.diagnostics(diagnosticRevision === revision ? diagnostics : []);
 }
 function previewStatus() {
@@ -247,6 +227,7 @@ function previewStatus() {
   target.title = text;
 }
 function newContext() {
+  byId<HTMLDetailsElement>("notice-warnings").open = false;
   compiler?.invalidate();
   displayedContext = -1;
   displayedRevision = 0;
@@ -686,21 +667,21 @@ button("export").onclick = () =>
       example,
       revision,
       context: compiler.context,
+      includeFonts: byId<HTMLInputElement>("include-fonts").checked,
     };
     exporting = true;
     refreshDownloads();
     try {
+      const project = currentProject(
+        snapshot.files,
+        snapshot.template,
+        bundle.examples,
+        snapshot.example,
+        starters,
+      );
       const bytes = await archiveJob({
         action: "export",
-        files: await withProjectFonts(
-          currentProject(
-            snapshot.files,
-            snapshot.template,
-            bundle.examples,
-            snapshot.example,
-            starters,
-          ),
-        ),
+        files: await (snapshot.includeFonts ? withProjectFonts(project) : withoutProjectFonts(project)),
         template: snapshot.template,
         build: bundle.build,
       });
@@ -793,8 +774,25 @@ initializeHelp((next) => {
   return () => showTab(original);
 });
 
+function chooseBrowserProject(error?: unknown): Promise<boolean> {
+  const dialog = byId<HTMLDialogElement>("recovery-dialog");
+  const incompatible = error !== undefined;
+  byId("recovery-title").textContent = incompatible
+    ? "Your browser project could not be opened"
+    : "Continue your browser project?";
+  byId("recovery-error").textContent = incompatible ? message(error) : "";
+  byId("recovery-error").hidden = !incompatible;
+  button("recovery-continue").textContent = incompatible ? "Keep browser copy" : "Continue project";
+  dialog.returnValue = "continue";
+  return new Promise((resolve) => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "reset"), { once: true });
+    dialog.showModal();
+  });
+}
+
 async function start() {
-  byId("workspace").inert = true;
+  const editingControls = ["editor-panel", "theme-panel", "settings-controls", "divider"].map(byId);
+  for (const control of editingControls) control.inert = true;
   const projectMenu = document.querySelector<HTMLElement>(".project-actions");
   if (projectMenu) projectMenu.inert = true;
   try {
@@ -820,16 +818,30 @@ async function start() {
   example = bundle.examples.find((item) => item.payloads[basename(template)]);
   try {
     draftStore = await DraftStore.open(bundle.build, saveState);
-    const saved = await draftStore.load();
-    canSave = true;
-    if (saved) {
-      files = saved.files;
-      originals = saved.baseline;
-      draftRevision = saved.revision;
-      template = saved.template;
-      const available = compatibleExamples();
-      example = available.find((item) => item.id === saved.example) ?? available[0];
-      saveState("saved");
+    try {
+      const saved = await draftStore.load();
+      canSave = true;
+      if (saved) {
+        if (await chooseBrowserProject()) {
+          draftStore.clear();
+        } else {
+          files = saved.files;
+          originals = saved.baseline;
+          draftRevision = saved.revision;
+          template = saved.template;
+          const available = compatibleExamples();
+          example = available.find((item) => item.id === saved.example) ?? available[0];
+          saveState("saved");
+        }
+      }
+    } catch (error) {
+      if (await chooseBrowserProject(error)) {
+        canSave = true;
+        draftStore.clear();
+      } else {
+        canSave = false;
+        storageError(error);
+      }
     }
   } catch (error) {
     storageError(error);
@@ -857,7 +869,7 @@ async function start() {
   ])
     buttonOrSelect(id).disabled = false;
   refreshProject();
-  byId("workspace").inert = false;
+  for (const control of editingControls) control.inert = false;
   if (projectMenu) projectMenu.inert = false;
   compile(true);
 }

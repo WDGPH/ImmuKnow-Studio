@@ -49,28 +49,28 @@ This is a focused authoring aid: it does not infer your own functions, imported
 aliases or all available Typst types and methods. The Typst compiler checks the
 complete source when previewing.
 
+## Navigate the editor and preview
+
 Use Ctrl+/ to comment a selection and Ctrl+[ or Ctrl+] to change indentation.
 Drag the divider to resize the panes. The preview shows all pages in one scroll;
 use its plus/minus controls to zoom. Drag across preview text to select and copy
 its displayed wording as plain text. Double-click supported content to open and
-highlight its source when the preview is current. Compiler source spans distinguish
-repeated wording and preserve accented-character and Windows line-ending offsets.
-Measured client/address blocks and generated history or overdue text lead to
-their editable component calls when there is one unambiguous call. Generated
+highlight its source when the preview is current. Measured client/address blocks
+and generated history or overdue text lead to their editable component calls
+when there is one unambiguous call. Generated
 headings, links and signature text can lead to authored values in Template or
 Settings. Other generated text can lead to shared read-only code or have no
 source target. Where no source span or component target is available, navigation
 requires a unique text match within the selected notice and its companions. Compiler
 diagnostics can also link to a source location.
 
-Example navigation shows only prepared variants for the selected entry point.
-The five scenarios cover short history, long history, source warnings, an
-up-to-date notice and a suspension order. Across them, eleven explicit variants
-exercise six maintained filenames: English/French overdue disease and agent
-notices, an English affirmative notice and an English suspension order. Names,
-addresses and schools match the selected language. The Example client arrows preserve all template, Settings and Theme edits and
-do not open a reset dialog. Switching examples never changes a client's clinical
-facts or invents a missing language variant.
+## Review examples and findings
+
+Example navigation shows prepared examples for the selected notice. The five
+scenarios cover short history, long history, source warnings, an up-to-date notice
+and a suspension order. Names, addresses and schools match the selected language.
+The Example client arrows preserve your edits and do not open a reset dialog.
+Not every notice has an example in both languages.
 
 Findings combine source-preparation warnings, compiler diagnostics and placed
 Typst checks. Extra diseases covered by a forecasted agent are a warning;
@@ -78,9 +78,16 @@ they do not stop the preview. For example, MMR also covers Mumps and Rubella
 when only Measles is overdue. Examples contain valid source history. Invalid history rejects a
 native input file before rendering, even if a template omits the history table.
 Display checks, such as unknown dose validity, follow the components actually placed.
-Expand **Measurements** for layout details. Long content stays
+
+Warnings start collapsed with a count, such as **6 warnings**. Select the count
+to read them. Errors stay visible. A different notice or example starts with
+warnings collapsed again; ordinary edits keep your choice. Long content stays
 visible with a warning where possible. A readable preview with missing checking
-evidence retains a finding; it is not treated as checked success. During ordinary edits, the last successful preview remains visible while the
+evidence retains a finding; it is not treated as checked success.
+
+## Preview updates
+
+During ordinary edits, the last successful preview remains visible while the
 refresh icon spins. Temporary errors retain those pages and leave the icon visible.
 The icon's tooltip and accessible label describe the preview state. Findings and envelope
 measurements describe the displayed pages; new errors describe the current
@@ -105,10 +112,18 @@ the native pipeline for a different cohort or factual configuration.
 
 Studio saves the current draft as you edit, including file bytes, uploaded
 images, the selected template and example, and the project's starting files.
-The status shows **Saving…**, **Saved**, or a storage error. Wait for **Saved**
-before closing or reloading. Pending or failed saves keep the browser's
-leave-page warning active. Download the project for a portable copy; storage
-errors leave your open work available to download, and another edit retries saving.
+When you reload or return to Studio, a dialog asks whether to **Continue project**
+or **Start fresh**. The copy lives only in this browser on this device; it is not
+saved to the cloud. Continue keeps your edits and starting files. Start fresh
+removes the browser copy and restores all starter templates, settings and images.
+Escape continues the saved project. If the copy cannot be opened, **Keep browser
+copy** retains it without replacing it; the starters open with saving blocked
+until you clear that copy or import a compatible project.
+
+Saving happens in the background. The browser warns before you leave while
+edits are still unsaved. Storage errors appear in Findings; the open project
+remains available to download, and another edit retries saving. Download the
+project for a portable copy.
 
 Only one tab can edit Studio on a site at a time. A second tab asks you to close
 the editing tab and reload. Another device or site address has separate storage.
@@ -146,7 +161,7 @@ but has no preview.
 ## Download the project
 
 Open **Project** at the top-right of the webpage.
-**Download current template** saves the selected notice with current Settings,
+**Download project** saves the selected notice with current Settings,
 Theme, translations, components, images and configuration. It includes only the
 selected fictional client’s CSV and assignment file; unrelated starter notices
 and example inputs are omitted. Explicitly referenced notices and authored
@@ -154,14 +169,20 @@ companion files remain available, preserving project dependencies. Other notices
 in the browser draft are not backed up by this download; download each notice
 you want to keep.
 Authored files keep their bytes and relative paths. Import the ZIP to resume
-editing, or use it with a separately installed native ImmuKnow engine.
-The download includes no Python runner, dependency environment or engine wheel.
+editing, or run it locally using the included ImmuKnow-Template Python setup,
+locked Core dependency and helper scripts. The ZIP includes a README
+and sample copies under `input/sample/` when a prepared example is available.
+An imported project's existing sample selection and authored files are preserved.
+The installed environment, engine wheel and native Typst compiler are not bundled.
 If the project changes while the ZIP is being prepared, download it again.
 A project with unfinished edits or no prepared example can still be saved.
 
-Downloads always include Studio's FreeSans and FreeSerif files and licences
-for manual installation. The production
-pipeline uses system fonts; downloading the files does not install them.
+Downloads include Studio's FreeSans and FreeSerif files and licences by default
+for manual installation. Clear **Include fonts for installation** for a smaller
+download when the matching fonts are already installed on the workstation.
+The production pipeline uses system fonts; downloading the files does not install them.
+Studio removes only byte-identical copies of its supplied font files; other
+project files remain in the download.
 The ZIP's `immuknow-project.json` records format version, selected entry, build identity
 and SHA-256 file hashes, which are verified on import. Files are limited to
 12 MiB each and 32 MiB in total. Absolute/traversal paths, duplicate paths,
@@ -170,10 +191,10 @@ symlinks and corrupt archives are rejected.
 ## Use the project with the native engine
 
 Production notice generation happens with ImmuKnow core on your local
-workstation. Follow [Use templates on your workstation](local-production.md)
+workstation. Follow [Use projects on your workstation](local-production.md)
 for the complete handoff, native command examples, fonts and output review.
-Keep the extracted template tree and its assets together. The engine and native
-Typst compiler are installed separately; they are not included in the download.
+Keep the extracted project and its assets together. `uv sync --locked` installs
+the pinned engine; install native Typst and the supplied fonts separately.
 
 The footer identifies the Studio commit and latest reachable version tag, plus
 the pinned ImmuKnow commit targeted by its supplied resources. A `+` after the

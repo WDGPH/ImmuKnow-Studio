@@ -6,6 +6,7 @@
 | --- | --- |
 | ImmuKnow core | Python pipeline, input validation, prepared notice facts, schemas, default templates, configuration, shared Typst components and native generation/review results |
 | ImmuKnow Studio | Browser editor, Theme controls, draft storage, project import/download, browser compiler and renderer, fonts, fictional examples and Studio tests |
+| ImmuKnow Template | Runnable project setup, Python dependency lock, native helper scripts and project tests |
 | PHIZ documentation hub | Shared manual presentation, version selection, search and documentation publication |
 
 Studio installs Core as a Python build dependency. Build preparation obtains
@@ -50,15 +51,35 @@ requirements and the shared resources. Files are limited to 12 MiB each and
 rejected. See [Editing, drafts and downloads](studio.md) for format and reset
 details.
 
+Preview source spans distinguish repeated wording and preserve accented-character
+and Windows line-ending offsets. The five prepared scenarios provide eleven
+variants across six maintained filenames: English and French overdue disease and
+agent notices, an English affirmative notice and an English suspension order.
+
+## Template scaffold
+
+Studio bundles an allowlisted snapshot of ImmuKnow-Template at an exact commit
+under `assets/project-template/`. Asset preparation verifies every upstream file
+against `template-source.json` and checks that its lock selects the same Core
+commit as Studio. Normal builds and browser downloads need no private repository
+credentials or fetches. Refresh the snapshot explicitly as described in
+[Build and contribute](development.md#update-the-project-template).
+
+Downloads combine this scaffold with the selected authored project and fictional
+inputs. Missing setup files are supplied for older imported projects; existing
+files are preserved. `template-source.json` identifies the original upstream
+snapshot, while `immuknow-project.json` hashes the actual downloaded bytes.
+
+
 ## Core versions
 
 Studio v0.1.0 has its own release number. Its Core dependency currently selects
-Core's `v2.0.0-rc1` tag in `pyproject.toml`, with an exact commit recorded
+Core's `v2.0.0-rc2` tag in `pyproject.toml`, with an exact commit recorded
 in `uv.lock`. Ordinary locked builds use that commit. A manual build can
 explicitly refresh the configured reference; its effective lockfile and Core
 identity are retained in the workflow artifacts.
 
-The current pin is the **ImmuKnow v2.0.0-rc1** release candidate. Do not infer
+The current pin is the **ImmuKnow v2.0.0-rc2** release candidate. Do not infer
 Core compatibility from Studio's version number.
 
 When adopting a tagged Core release, update both dependency files, prepare and

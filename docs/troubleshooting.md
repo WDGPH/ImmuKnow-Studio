@@ -55,12 +55,14 @@ Check the selected template, input facts, dates, configuration, installed fonts
 and Core/Typst versions. Studio's examples have fixed facts and dates. Native
 ImmuKnow uses system fonts and prepares facts from your actual input. Review
 the native report as well as the page appearance. See
-[Use templates on your workstation](local-production.md).
+[Use projects on your workstation](local-production.md).
 
 ## Report a problem
 
 Use the [Studio issue tracker](https://github.com/WDGPH/ImmuKnow-Studio/issues)
 for editor, preview, draft or download problems. Use
+[ImmuKnow-Template's issue tracker](https://github.com/WDGPH/ImmuKnow-Template/issues)
+for project setup, helper scripts or project tests. Use
 [ImmuKnow's issue tracker](https://github.com/WDGPH/ImmuKnow/issues) for native
 input preparation, generation or delivery problems.
 

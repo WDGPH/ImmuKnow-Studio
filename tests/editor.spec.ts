@@ -1,4 +1,4 @@
-import { chooseTemplate } from "./helpers";
+import { continueProject, chooseTemplate } from "./helpers";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -51,6 +51,39 @@ test("a component error opens the supplied library for reading without changing 
   await expect(source).toHaveAttribute("contenteditable", "true");
   await source.press("Control+z");
   await currentPreview(page);
+});
+
+test("notice warnings start collapsed with a count while errors stay visible", async ({ page }) => {
+  await page.goto("./");
+  await currentPreview(page);
+  const summary = page.locator("#notice-warnings summary");
+  const warnings = page.locator("#warnings-list > li");
+  const count = await warnings.count();
+  expect(count).toBeGreaterThan(0);
+  await expect(summary).toHaveText(`${count} warning${count === 1 ? "" : "s"}`);
+  await expect(warnings.first()).toBeHidden();
+  await expect(page.getByText("Measurements", { exact: true })).toHaveCount(0);
+  await summary.focus();
+  await page.keyboard.press("Enter");
+  await expect(warnings.first()).toBeVisible();
+  const source = page.locator(".cm-content");
+  await source.click();
+  await source.press("Control+End");
+  await page.keyboard.insertText("\n// Keep warnings open while editing");
+  await currentPreview(page);
+  await expect(warnings.first()).toBeVisible();
+  await page.locator("#next").click();
+  await currentPreview(page);
+  await expect(warnings.first()).toBeHidden();
+  const nextCount = await warnings.count();
+  expect(nextCount).toBeGreaterThan(0);
+  await expect(summary).toHaveText(`${nextCount} warning${nextCount === 1 ? "" : "s"}`);
+  await source.click();
+  await source.press("Control+End");
+  await page.keyboard.insertText('\n#panic("visible source error")');
+  await expect(page.locator("#errors")).toContainText("visible source error");
+  await expect(page.locator("#errors button").first()).toBeVisible();
+  await expect(warnings.first()).toBeHidden();
 });
 
 test("history warnings follow edited suspension content and recover after errors", async ({
@@ -196,6 +229,7 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   // Normal editing never starts a PDF parser worker.
   expect(pdfWorkers).toBe(0);
   await page.reload();
+  await continueProject(page);
   await currentPreview(page);
   await expect(page.locator("#position")).toHaveText("3 of 3");
   await page.locator("#theme-tab").click();
@@ -557,7 +591,9 @@ test("a prepared replacement cannot publish after the viewer context is cleared"
   await expect(page.locator(".preview-page")).not.toContainText("Obsolete prepared notice");
 });
 
-test("a worker script load failure has a readable error and recovers after restart", async ({ page }) => {
+test("a worker script load failure has a readable error and recovers after restart", async ({
+  page,
+}) => {
   let attempts = 0;
   await page.route("**/compile.worker*.js", async (route) => {
     attempts++;
