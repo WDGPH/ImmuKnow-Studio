@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync, zipSync } from "fflate";
-import { restoredProject, chooseTemplate, confirmProjectChange, saved } from "./helpers";
+import { downloadProject, restoredProject, chooseTemplate, confirmProjectChange, saved } from "./helpers";
 import type { Bundle } from "../src/types";
 
 async function current(page: Page) {
@@ -14,7 +14,7 @@ async function download(page: Page) {
   if (!(await menu.evaluate((element) => (element as HTMLDetailsElement).open)))
     await menu.locator("summary").click();
   const pending = page.waitForEvent("download");
-  await page.locator("#export").click();
+  await downloadProject(page);
   return unzipSync(readFileSync((await (await pending).path()) as string));
 }
 
@@ -90,6 +90,8 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   await page.locator("#theme-tab").click();
   await page.locator("#template").selectOption("templates/overdue_diseases_v1.fr.typ");
   await expect(page.locator("#project-change-dialog")).toBeVisible();
+  await expect(page.locator('input[value="workspace"]')).not.toBeVisible();
+  await expect(page.locator('input[value="clear"]')).not.toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.locator("#template")).toHaveValue("templates/overdue_diseases_v1.en.typ");
   expect(await page.locator("#preview-state").getAttribute("data-requested-revision")).toBe(before);

@@ -487,18 +487,22 @@ function requestProjectChange(target = template) {
   const label = Array.from(select("template").options).find(
     (option) => option.value === target,
   )?.text;
-  byId("project-change-title").textContent = switching ? "Switch template?" : "Reset template?";
+  byId("project-change-title").textContent = switching ? "Switch template?" : "Reset workspace?";
   byId("project-change-text").textContent = switching
     ? `Load ${label ?? basename(target)} from its starting copy. Edits to that template will be replaced. Your current template's wording stays saved in this draft.`
-    : "Restore the selected template from its starting copy, even when Settings or Theme is open. Choose what else to reset.";
+    : "Choose how much of the workspace to reset. Your changes are kept until you confirm.";
   byId("project-change-error").hidden = true;
-  button("project-change-confirm").textContent = switching ? "Switch template" : "Reset template";
+  button("project-change-confirm").textContent = switching ? "Switch template" : "Reset workspace";
+  for (const option of changeDialog.querySelectorAll<HTMLElement>("[data-workspace-scope]"))
+    option.hidden = switching;
   const hasSettings = Boolean(settingsPath(originals, target));
   for (const input of changeDialog.querySelectorAll<HTMLInputElement>(
     'input[name="reset-scope"]',
   )) {
     input.checked = input.value === "template";
-    input.disabled = input.value !== "template" && !hasSettings;
+    input.disabled = ["clear", "workspace"].includes(input.value)
+      ? switching || (input.value === "clear" && !draftStore)
+      : input.value !== "template" && !hasSettings;
   }
   changeDialog.showModal();
 }
@@ -514,7 +518,19 @@ byId<HTMLFormElement>("project-change-form").onsubmit = (event) => {
       throw new Error("The project changed while this dialog was open. Cancel and try again.");
     const scope = new FormData(byId<HTMLFormElement>("project-change-form")).get(
       "reset-scope",
-    ) as ResetScope;
+    ) as ResetScope | "clear" | "workspace";
+    if (scope === "clear") {
+      if (!draftStore) throw new Error("Draft storage is unavailable.");
+      canSave = true;
+      draftStore.clear();
+      changeDialog.close();
+      return;
+    }
+    if (scope === "workspace") {
+      resetWorkspace();
+      changeDialog.close();
+      return;
+    }
     files = resetProject(files, originals, pendingChange.template, scope, template);
     template = pendingChange.template;
     const available = availableExamples();
@@ -656,7 +672,12 @@ byId<HTMLInputElement>("guide").onchange = () =>
   viewer.setGuide(byId<HTMLInputElement>("guide").checked);
 button("zoom-in").onclick = () => void action(() => viewer.zoomBy(1.2));
 button("zoom-out").onclick = () => void action(() => viewer.zoomBy(1 / 1.2));
-button("export").onclick = () =>
+const downloadDialog = byId<HTMLDialogElement>("download-dialog");
+button("export").onclick = () => downloadDialog.showModal();
+button("download-cancel").onclick = () => downloadDialog.close();
+byId<HTMLFormElement>("download-form").onsubmit = (event) => {
+  event.preventDefault();
+  downloadDialog.close();
   void action(async () => {
     if (exporting) return;
     const snapshot = {
@@ -697,6 +718,7 @@ button("export").onclick = () =>
       refreshDownloads();
     }
   });
+};
 button("import").onclick = () => byId<HTMLInputElement>("archive").click();
 byId<HTMLInputElement>("archive").onchange = () =>
   void action(async () => {
@@ -731,29 +753,20 @@ byId<HTMLInputElement>("archive").onchange = () =>
     input.value = "";
   });
 button("reset").onclick = () => requestProjectChange();
-button("clear").onclick = () =>
-  void action(() => {
-    if (!draftStore)
-      throw new Error("Draft storage is unavailable. Download your project to keep your work.");
-    canSave = true;
-    draftStore.clear();
-  });
-button("fresh").onclick = () =>
-  void action(async () => {
-    if (!(await chooseBrowserProject())) return;
-    files = { ...starters };
-    originals = starters;
-    template = "templates/overdue_diseases_v1.en.typ";
-    example = availableExamples()[0];
-    themeUndo = undefined;
-    button("health-unit-undo").hidden = true;
-    select("health-unit-preset").value = "";
-    canSave = Boolean(draftStore);
-    if (draftStore) draftStore.clear();
-    else unsaved = false;
-    refreshProject();
-    compile(true);
-  });
+function resetWorkspace() {
+  files = { ...starters };
+  originals = starters;
+  template = "templates/overdue_diseases_v1.en.typ";
+  example = availableExamples()[0];
+  themeUndo = undefined;
+  button("health-unit-undo").hidden = true;
+  select("health-unit-preset").value = "";
+  canSave = Boolean(draftStore);
+  if (draftStore) draftStore.clear();
+  else unsaved = false;
+  refreshProject();
+  compile(true);
+}
 button("restart").onclick = () => {
   compilerError = undefined;
   compiler.restart();
@@ -788,15 +801,12 @@ initializeHelp((next) => {
   return () => showTab(original);
 });
 
-function chooseBrowserProject(error?: unknown): Promise<boolean> {
+function chooseBrowserProject(error: unknown): Promise<boolean> {
   const dialog = byId<HTMLDialogElement>("recovery-dialog");
-  const incompatible = error !== undefined;
-  byId("recovery-title").textContent = incompatible
-    ? "Your browser project could not be opened"
-    : "Start a fresh project?";
-  byId("recovery-error").textContent = incompatible ? message(error) : "";
-  byId("recovery-error").hidden = !incompatible;
-  button("recovery-continue").textContent = incompatible ? "Keep browser copy" : "Keep current project";
+  byId("recovery-title").textContent = "Your browser project could not be opened";
+  byId("recovery-error").textContent = message(error);
+  byId("recovery-error").hidden = false;
+  button("recovery-continue").textContent = "Keep browser copy";
   dialog.returnValue = "continue";
   return new Promise((resolve) => {
     dialog.addEventListener("close", () => resolve(dialog.returnValue === "reset"), { once: true });
@@ -872,8 +882,6 @@ async function start() {
     "theme-tab",
     "template",
     "import",
-    "clear",
-    "fresh",
     "restart",
     "zoom-in",
     "zoom-out",

@@ -42,15 +42,17 @@ each browser profile, device and site address. It is not an account, cloud
 backup or synchronization service.
 
 When you reopen Studio, a compatible browser copy opens automatically. Choose
-**Project → Start fresh…** to remove it and restore the starter templates,
-settings and images. Nothing is removed until you confirm **Start fresh**.
+**Project → Reset workspace… → Entire workspace** to remove it and restore
+the starter templates, settings and images. Nothing is removed until you confirm
+**Reset workspace**.
 
 The browser warns before you leave while edits are still unsaved. If storage is
 unavailable or full, the open project remains available to download. Private
 browsing, clearing site data or browser storage cleanup can remove a draft.
 Download copies of work you want to keep.
 
-**Project → Clear saved draft** removes the stored draft while keeping the
+**Project → Reset workspace… → Saved draft only** removes the stored draft
+while keeping the
 open project available to download. Later edits save it again. For reset and
 storage behaviour, see [Keep your work](studio.md#keep-your-work).
 

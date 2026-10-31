@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
 import type { Bundle } from "../src/types";
-import { chooseExample, chooseTemplate, restoredProject, saved } from "./helpers";
+import { downloadProject, chooseExample, chooseTemplate, restoredProject, saved } from "./helpers";
 
 async function current(page: Page) {
   await expect.poll(() => page.locator("#preview-state").evaluate((element) => {
@@ -67,7 +67,7 @@ test("one client stays selected across notices, languages, a reload and download
   const filename = filenames.at(-1) as string;
   await page.locator(".project-actions summary").click();
   const pending = page.waitForEvent("download");
-  await page.locator("#export").click();
+  await downloadProject(page);
   const files = unzipSync(readFileSync((await (await pending).path()) as string));
   const inputs = client.inputs[filename];
   expect(Buffer.from(files[inputs.csv])).toEqual(Buffer.from(bundle.files[inputs.csv], "base64"));

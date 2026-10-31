@@ -1,4 +1,4 @@
-import { restoredProject, chooseTemplate, editExampleData } from "./helpers";
+import { downloadProject, restoredProject, chooseTemplate, editExampleData } from "./helpers";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -244,7 +244,7 @@ test("authored project survives editing, warning/error recovery, drafts and expo
 
   await page.locator(".project-actions summary").click();
   const downloaded = page.waitForEvent("download");
-  await page.locator("#export").click();
+  await downloadProject(page);
   const path = await (await downloaded).path();
   const saved = unzipSync(new Uint8Array(await readFile(path as string)));
   const expectedSettings = `\ufeff${settings.replace('#let body-font = "FreeSans"', '#let body-font = "FreeSerif"')}`;

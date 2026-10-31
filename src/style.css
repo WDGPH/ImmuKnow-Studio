@@ -185,7 +185,8 @@ summary:focus-visible {
   border: 0;
 }
 .download-fonts {
-  padding: 6px 8px;
+  display: block;
+  margin: 20px 0;
   font-size: 14px;
 }
 .download-fonts small {
@@ -730,7 +731,7 @@ main {
 #coding-cheatsheet-dialog code {
   overflow-wrap: anywhere;
 }
-:is(#project-change-dialog, #recovery-dialog) {
+:is(#project-change-dialog, #recovery-dialog, #download-dialog) {
   width: 540px;
   max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 32px);
@@ -740,14 +741,14 @@ main {
   border-radius: 10px;
   padding: 24px;
 }
-:is(#project-change-dialog, #recovery-dialog)::backdrop {
+:is(#project-change-dialog, #recovery-dialog, #download-dialog)::backdrop {
   background: #10243677;
 }
-:is(#project-change-dialog, #recovery-dialog) h2 {
+:is(#project-change-dialog, #recovery-dialog, #download-dialog) h2 {
   margin: 0 0 12px;
   font-size: 20px;
 }
-:is(#project-change-dialog, #recovery-dialog) p {
+:is(#project-change-dialog, #recovery-dialog, #download-dialog) p {
   line-height: 1.5;
 }
 #project-change-dialog fieldset {
@@ -776,6 +777,9 @@ main {
 #project-change-dialog label:has(:disabled) {
   opacity: 0.5;
 }
+#project-change-dialog label[hidden] {
+  display: none;
+}
 #project-change-dialog small {
   display: block;
   margin-top: 4px;
@@ -788,7 +792,7 @@ main {
   justify-content: end;
   gap: 10px;
 }
-:is(#project-change-confirm, #recovery-continue) {
+:is(#project-change-confirm, #recovery-continue, #download-confirm) {
   color: var(--teal);
   font-weight: 600;
 }

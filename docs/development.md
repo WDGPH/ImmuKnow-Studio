@@ -156,7 +156,8 @@ For a stripping notebook proxy, set `IMMUKNOW_DEV_PROXY_BASE` to the full path
 with leading/trailing slashes and set
 `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS` to the proxy hostname when starting dev.
 To see updated starters instead of a saved draft, export work you want to keep,
-clear the saved draft in Studio, then reload.
+choose **Project → Reset workspace… → Saved draft only** in Studio, confirm,
+then reload.
 
 ## Checks
 

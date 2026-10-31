@@ -28,9 +28,8 @@
 <a class="brand" href="./" aria-label="ImmuKnow Studio home"><img class="brand-light" src="./src/assets/studio-logo-light.svg" alt="ImmuKnow Studio" width="300" height="64"><img class="brand-dark" src="./src/assets/studio-logo-dark.svg" alt="" aria-hidden="true" width="300" height="64"></a>
 <div class="header-actions">
 <details class="project-actions"><summary aria-label="Project"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5h7l2 2h9v13H3Z"/></svg><span>Project</span><svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></summary><section class="actions" aria-label="Project actions">
-<label class="download-fonts"><input id="include-fonts" type="checkbox" checked> Include fonts for installation <small>Without these files, install the matching fonts on your workstation.</small></label>
 <button id="export" disabled>Download project</button><button id="import" disabled>Import project</button><input id="archive" type="file" accept=".zip" hidden>
-<button id="reset" disabled>Reset template…</button><button id="clear" disabled>Clear saved draft</button><button id="fresh" disabled>Start fresh…</button><button id="restart" disabled>Restart compiler</button>
+<button id="reset" disabled>Reset workspace…</button><button id="restart" disabled>Restart compiler</button>
 </section></details>
 <button id="theme-toggle" aria-label="Switch to dark mode"></button>
 <a class="github-link" href="https://github.com/WDGPH/ImmuKnow" target="_blank" rel="noopener noreferrer" aria-label="ImmuKnow on GitHub" title="ImmuKnow on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .9a11.1 11.1 0 0 0-3.5 21.6c.6.1.8-.2.8-.5v-2.1c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.6-1.3-1.6-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.5 0-1.2.4-2.2 1.2-3-.1-.3-.5-1.5.1-3 0 0 1-.3 3.1 1.2a10.8 10.8 0 0 1 5.7 0c2.1-1.5 3.1-1.2 3.1-1.2.6 1.5.2 2.7.1 3 .8.8 1.2 1.8 1.2 3 0 4.2-2.7 5.2-5.3 5.5.4.4.8 1.1.8 2.2V22c0 .3.2.6.8.5A11.1 11.1 0 0 0 12 .9Z"/></svg></a>
@@ -66,27 +65,36 @@
 <p>Built by <a href="https://wdgpublichealth.ca/" target="_blank" rel="noopener noreferrer">Wellington-Dufferin-Guelph Public Health</a> · <a href="https://github.com/WDGPH/ImmuKnow-Studio/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></p>
 <p class="footer-versions"><span id="studio-version"><span id="studio-tag"></span><a id="studio-sha" target="_blank" rel="noopener noreferrer"></a></span><span class="engine-version"><span aria-hidden="true">·</span> <span id="core-version">Engine: ImmuKnow <a id="core-sha" target="_blank" rel="noopener noreferrer"></a></span></span></p>
 </footer>
+<dialog id="download-dialog" aria-labelledby="download-title">
+<form id="download-form">
+<h2 id="download-title">Download project</h2>
+<label class="download-fonts"><input id="include-fonts" type="checkbox" checked> Include fonts for installation <small>Without these files, install the matching fonts on your workstation.</small></label>
+<div class="project-change-actions"><button id="download-cancel" type="button">Cancel</button><button id="download-confirm" type="submit" autofocus>Download ZIP</button></div>
+</form>
+</dialog>
 <dialog id="recovery-dialog" aria-labelledby="recovery-title" aria-describedby="recovery-local recovery-error recovery-reset">
 <form method="dialog">
-<h2 id="recovery-title">Start a fresh project?</h2>
+<h2 id="recovery-title">Your browser project could not be opened</h2>
 <p id="recovery-local">Studio saves a working copy in this browser on this device. It does not save projects to the cloud.</p>
 <p id="recovery-error" hidden></p>
 <p id="recovery-reset">Start fresh restores the starter templates, settings and images and removes this browser copy. Download a project ZIP when you want a portable copy.</p>
-<div class="project-change-actions"><button value="reset">Start fresh</button><button id="recovery-continue" value="continue" autofocus>Keep current project</button></div>
+<div class="project-change-actions"><button value="reset">Start fresh</button><button id="recovery-continue" value="continue" autofocus>Keep browser copy</button></div>
 </form>
 </dialog>
 <dialog id="project-change-dialog" aria-labelledby="project-change-title" aria-describedby="project-change-text project-change-shared">
 <form id="project-change-form">
-<h2 id="project-change-title">Reset template?</h2>
+<h2 id="project-change-title">Reset workspace?</h2>
 <p id="project-change-text"></p>
 <fieldset><legend>What should start over?</legend>
+<label data-workspace-scope><input type="radio" name="reset-scope" value="clear"><span><strong>Saved draft only</strong><small>Remove the saved browser copy. Keep the open workspace; later edits save it again.</small></span></label>
 <label><input type="radio" name="reset-scope" value="template" checked><span><strong>Template only</strong><small>Keep current settings, fonts, colours and images.</small></span></label>
 <label><input type="radio" name="reset-scope" value="settings"><span><strong>Template + settings</strong><small>Restore page layout, contacts, dates and display options. Keep Theme and uploaded images.</small></span></label>
 <label><input type="radio" name="reset-scope" value="theme"><span><strong>Template + settings + theme</strong><small>Also restore fonts, colours, organization name, signature and starting images. Remove images added since opening this project.</small></span></label>
+<label data-workspace-scope><input type="radio" name="reset-scope" value="workspace"><span><strong>Entire workspace</strong><small>Restore all of Studio’s current starter templates, settings and images. Discard imported files and remove the saved browser draft.</small></span></label>
 </fieldset>
 <p id="project-change-shared" class="hint">The starting copy comes from the starter or imported project. Shared settings and images affect every template that uses them. Download your current template first to keep a portable copy.</p>
 <p id="project-change-error" role="alert" hidden></p>
-<div class="project-change-actions"><button id="project-change-cancel" type="button" autofocus>Cancel</button><button id="project-change-confirm" type="submit">Reset template</button></div>
+<div class="project-change-actions"><button id="project-change-cancel" type="button" autofocus>Cancel</button><button id="project-change-confirm" type="submit">Reset workspace</button></div>
 </form>
 </dialog>
 <dialog id="coding-cheatsheet-dialog" aria-labelledby="coding-cheatsheet-title">

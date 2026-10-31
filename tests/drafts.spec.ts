@@ -28,7 +28,13 @@ async function append(page: Page, text: string) {
 }
 async function menu(page: Page, id: string) {
   await page.locator(".project-actions").evaluate((element) => element.setAttribute("open", ""));
-  await page.locator(`#${id}`).click();
+  if (id === "clear") {
+    await page.locator("#reset").click();
+    await confirmProjectChange(page, "clear");
+  } else {
+    await page.locator(`#${id}`).click();
+    if (id === "export") await page.locator("#download-confirm").click();
+  }
 }
 async function stored(page: Page, name = database): Promise<Draft | undefined> {
   return page.evaluate(async (name) => {
@@ -205,7 +211,7 @@ test("import replaces a pending save and retains its reset baseline after reload
 
 test("starting fresh discards the browser copy and restores the complete starter project", async ({
   page,
-}) => {
+}, info) => {
   await page.goto("./");
   await ready(page);
   await expect(page.locator("#recovery-dialog")).not.toBeVisible();
@@ -237,16 +243,22 @@ test("starting fresh discards the browser copy and restores the complete starter
   const before = await stored(page);
   await page.reload();
   await restoredProject(page);
-  await menu(page, "fresh");
-  await expect(page.getByRole("dialog", { name: "Start a fresh project?" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Keep current project" })).toBeFocused();
+  await expect(page.locator("#fresh, #clear")).toHaveCount(0);
+  await expect(page.locator(".project-actions #reset")).toHaveText("Reset workspace…");
+  await menu(page, "reset");
+  await expect(page.getByRole("dialog", { name: "Reset workspace?" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Cancel", exact: true })).toBeFocused();
+  await page.screenshot({ path: info.outputPath("reset-workspace-desktop.png") });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: info.outputPath("reset-workspace-mobile.png") });
+  await page.setViewportSize({ width: 1280, height: 720 });
   await page.keyboard.press("Escape");
   expect(await stored(page)).toEqual(before);
   await expect(page.locator("#template")).toHaveValue(custom);
-  await menu(page, "fresh");
-  await expect(page.locator("#recovery-reset")).toContainText("removes this browser copy");
+  await menu(page, "reset");
+  await expect(page.getByText("Entire workspace", { exact: true })).toBeVisible();
   expect(await stored(page)).toEqual(before);
-  await page.getByRole("button", { name: "Start fresh", exact: true }).click();
+  await confirmProjectChange(page, "workspace");
   await ready(page);
   await saved(page);
   expect(await stored(page)).toBeUndefined();

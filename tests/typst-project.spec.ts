@@ -1,4 +1,4 @@
-import { chooseExample, chooseTemplate } from "./helpers";
+import { downloadProject, chooseExample, chooseTemplate } from "./helpers";
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -127,9 +127,8 @@ for (const [scenario, filename] of cases) {
     }
     await page.screenshot({ path: info.outputPath("preview.png"), fullPage: true });
     await page.locator(".project-actions summary").click();
-    if (scenario === "short") await page.locator("#include-fonts").uncheck();
     const projectDownload = page.waitForEvent("download", { timeout: 30_000 });
-    await page.locator("#export").click();
+    await downloadProject(page, scenario !== "short");
     await (await projectDownload).saveAs(info.outputPath("typst-project.zip"));
     const files = unzipSync(readFileSync(info.outputPath("typst-project.zip")));
     delete files["immuknow-project.json"];

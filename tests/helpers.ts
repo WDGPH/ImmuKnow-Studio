@@ -50,3 +50,10 @@ export async function chooseExample(page: Page, index: number) {
     await expect(position).toHaveText(`Example client ${String(current + 1).padStart(2, "0")}`);
   }
 }
+
+export async function downloadProject(page: Page, includeFonts?: boolean) {
+  await page.locator("#export").click();
+  await expect(page.getByRole("dialog", { name: "Download project", exact: true })).toBeVisible();
+  if (includeFonts !== undefined) await page.locator("#include-fonts").setChecked(includeFonts);
+  await page.locator("#download-confirm").click();
+}

@@ -57,7 +57,8 @@ leave while edits are still unsaved. To make a copy you can keep or move to
 another computer:
 
 1. Open **Project** at the top-right of the webpage.
-2. Choose **Download project** to save `immuknow-project.zip`.
+2. Choose **Download project**, review **Include fonts for installation**, and
+   select **Download ZIP** to save `immuknow-project.zip`.
 3. Keep the ZIP somewhere you control. It contains the selected template,
    supporting files, assets, Python setup, helper scripts and selected fictional example inputs.
 
@@ -66,8 +67,8 @@ other notice in the browser draft. To return to a downloaded project, open
 **Project → Import project** and select its ZIP.
 
 When you return, Studio automatically reopens a compatible browser copy. Choose
-**Project → Start fresh…** to remove it and restore the starters after
-confirmation. This copy is local to this browser and device; Studio does not
+**Project → Reset workspace… → Entire workspace** to remove it and restore
+the starters after confirmation. This copy is local to this browser and device; Studio does not
 save it to the cloud.
 
 When your template is ready, follow
