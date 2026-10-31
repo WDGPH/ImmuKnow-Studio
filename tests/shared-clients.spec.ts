@@ -33,7 +33,7 @@ test("one client stays selected across notices, languages, a reload and download
   await chooseExample(page, bundle.examples.indexOf(client));
   await expect(page.getByRole("button", { name: "Next example" })).toBeDisabled();
   await page.getByRole("button", { name: "Previous example" }).click();
-  await expect(name).toHaveText(bundle.examples[bundle.examples.indexOf(client) - 1].label);
+  await expect(name).toHaveText(`Example client ${String(bundle.examples.indexOf(client)).padStart(2, "0")}`);
   await page.getByRole("button", { name: "Next example" }).click();
   await current(page);
   await expect(page.locator("#project-change-dialog")).not.toBeVisible();
@@ -44,7 +44,7 @@ test("one client stays selected across notices, languages, a reload and download
   for (const filename of filenames) {
     await chooseTemplate(page, `templates/${filename}`);
     await current(page);
-    await expect(name).toHaveText(client.label);
+    await expect(name).toHaveText(`Example client ${String(bundle.examples.indexOf(client) + 1).padStart(2, "0")}`);
     const firstName = String(client.payloads[filename].client_data.first_name).split(" ")[0];
     await expect(page.locator(".preview-text-run").filter({ hasText: firstName }).first()).toBeAttached();
     if (filename.startsWith("affirmative")) {
@@ -58,7 +58,7 @@ test("one client stays selected across notices, languages, a reload and download
   await page.reload();
   await continueProject(page);
   await current(page);
-  await expect(name).toHaveText(client.label);
+  await expect(name).toHaveText(`Example client ${String(bundle.examples.indexOf(client) + 1).padStart(2, "0")}`);
   await page.screenshot({ path: info.outputPath("shared-clients-desktop.png") });
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(name).toBeVisible();

@@ -135,7 +135,7 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   await expect(page.locator("#archive")).toHaveValue("");
   await current(page);
   await expect(page.locator("#template option")).toHaveCount(1);
-  await expect(page.locator("#position")).toHaveText(/^2 of \d+$/);
+  await expect(page.locator("#example")).toHaveText("Example client 02");
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");
   await page.locator("#next").click();
   await current(page);

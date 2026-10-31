@@ -138,12 +138,8 @@ function availableExamples(): Example[] {
 function refreshNavigation() {
   const available = availableExamples();
   const index = available.findIndex((item) => item.id === example?.id);
-  byId("example").textContent = example?.label ?? "No prepared example";
-  byId("example").title = example?.description ?? "No prepared example for this entry";
-  byId("position").textContent = index < 0 ? "—" : `${index + 1} of ${available.length}`;
-  byId("position").title = example
-    ? `${example.label}: ${example.description}`
-    : "No prepared example for this entry";
+  byId("example").textContent =
+    index < 0 ? "No prepared example" : `Example client ${String(index + 1).padStart(2, "0")}`;
   button("previous").disabled = index <= 0;
   button("next").disabled = index < 0 || index >= available.length - 1;
 }

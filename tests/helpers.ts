@@ -41,13 +41,13 @@ export async function editExampleData(page: Page, edit: (bundle: Bundle) => void
 }
 
 export async function chooseExample(page: Page, index: number) {
-  const position = page.locator("#position");
-  await expect(position).toHaveText(/\d+ of \d+/);
-  let current = Number((await position.innerText()).split(" ")[0]) - 1;
+  const position = page.locator("#example");
+  await expect(position).toHaveText(/^Example client \d+$/);
+  let current = Number((await position.innerText()).split(" ").at(-1)) - 1;
   while (current !== index) {
     const direction = current < index ? 1 : -1;
     await page.getByRole("button", { name: direction > 0 ? "Next example" : "Previous example" }).click();
     current += direction;
-    await expect(position).toHaveText(new RegExp(`^${current + 1} of `));
+    await expect(position).toHaveText(`Example client ${String(current + 1).padStart(2, "0")}`);
   }
 }

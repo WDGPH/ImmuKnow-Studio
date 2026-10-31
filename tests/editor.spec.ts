@@ -237,7 +237,7 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   await page.reload();
   await continueProject(page);
   await currentPreview(page);
-  await expect(page.locator("#position")).toHaveText(/^3 of \d+$/);
+  await expect(page.locator("#example")).toHaveText("Example client 03");
   await page.locator("#theme-tab").click();
   await expect(page.locator("#body-font-picker")).toHaveValue("FreeSerif");
   await expect(page.locator("#extra-preview")).toBeVisible();

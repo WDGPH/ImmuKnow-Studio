@@ -73,9 +73,8 @@ for (const [scenario, filename] of cases) {
         authored.replace('#let body-font = "FreeSans"', '#let body-font = "FreeSerif"'),
       ).toString("base64");
     }
-    await expect(page.locator("#position")).toHaveAttribute(
-      "title",
-      `${examples[index].label}: ${examples[index].description}`,
+    await expect(page.locator("#example")).toHaveText(
+      `Example client ${String(index + 1).padStart(2, "0")}`,
     );
     await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
     await expect
