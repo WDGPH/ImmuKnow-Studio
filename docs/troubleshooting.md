@@ -67,5 +67,5 @@ for project setup, helper scripts or project tests. Use
 input preparation, generation or delivery problems.
 
 Include the steps to reproduce, browser, operating system, error wording and
-Studio/Core identities from the footer. Reproduce with fictional data and public
+Studio version from the footer (hover for the full commit). Reproduce with fictional data and public
 assets before sharing a template, ZIP, screenshot, log or report.

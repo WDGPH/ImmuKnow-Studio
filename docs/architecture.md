@@ -110,7 +110,7 @@ review examples, and run the browser/native export checks described in
 identity determine whether an existing draft or project is compatible; matching
 a version label alone is insufficient.
 
-The application footer shows Studio's commit and latest reachable version tag,
-along with its targeted ImmuKnow commit. A `+` after the Studio tag means later
-commits are included. Hover over a short hash for the full value. These identities
-help contributors reproduce a problem without conflating the two releases.
+The application footer shows **ImmuKnow Studio** with its exact release tag,
+that tag plus `+` for later commits, or a short commit before the first version
+tag. Hover over the label for the full Studio commit or follow its link to GitHub.
+That build identifies the pinned ImmuKnow resources as well.

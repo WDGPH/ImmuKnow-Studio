@@ -119,8 +119,8 @@ or set `IMMUKNOW_COMPILER_BUILD_DIR`.
 
 After the initial compiler preparation, `npm run dev` and `npm run build`
 regenerate the examples, fonts, notices and browser validators automatically.
-The footer's Studio SHA and latest reachable version tag are embedded during that
-build. Actions supplies `IMMUKNOW_STUDIO_BUILD_SHA` and
+The Studio SHA and latest reachable version tag are embedded during that build.
+The footer displays only **ImmuKnow Studio** and its tag or short SHA. Actions supplies `IMMUKNOW_STUDIO_BUILD_SHA` and
 `IMMUKNOW_STUDIO_BUILD_TAG`; local builds read Git directly. The targeted
 ImmuKnow revision comes from the prepared Core resources.
 For example, an exact v0.1.0 release shows `v0.1.0`; later commits show

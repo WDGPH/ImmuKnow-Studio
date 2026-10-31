@@ -218,9 +218,8 @@ for the complete handoff, native command examples, fonts and output review.
 Keep the extracted project and its assets together. `uv sync --locked` installs
 the pinned engine; install native Typst and the supplied fonts separately.
 
-The footer identifies the Studio commit and latest reachable version tag, plus
-the pinned ImmuKnow commit targeted by its supplied resources. A `+` after the
-Studio version means the build includes commits after that tag. Hover over a
-short hash to see the complete commit, or click it to open that commit on GitHub.
-When Core has no recorded source commit,
-the footer shows its application version instead.
+The footer shows **ImmuKnow Studio** followed by the exact release tag (such as
+`v0.1.0`), that tag with `+` for later commits, or the short Studio commit before
+the first version tag. Hover over the label for the complete commit, or click it
+to open the commit on GitHub. The Studio build also identifies its pinned
+ImmuKnow resources.
