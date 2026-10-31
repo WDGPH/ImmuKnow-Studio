@@ -3,10 +3,9 @@
 import argparse
 import os
 import subprocess
-import sys
 from pathlib import Path
 
-from scripts.browser_assets import copy_metadata, prepare, verify
+from scripts.browser_assets import prepare, verify
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -34,13 +33,7 @@ def main() -> None:
         except (FileNotFoundError, ValueError) as exc:
             print(f"Preparing missing or stale browser artifacts: {exc}", flush=True)
             prepare(args.compiler_source)
-    copy_metadata()
-    for command in (
-        [sys.executable, "-m", "scripts.notices"],
-        [sys.executable, "-m", "scripts.examples", "--check"],
-        ["npm", "run", "build"],
-    ):
-        subprocess.run(command, cwd=ROOT, check=True)
+    subprocess.run(["npm", "run", "build"], cwd=ROOT, check=True)
     print(f"Complete static artifact: {ROOT / 'dist'}")
 
 

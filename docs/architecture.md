@@ -65,8 +65,9 @@ in English notices.
 `examples/scenarios.json` owns the client records, the maintained template
 filenames and the fixed dates used by the examples. Asset preparation writes one
 CSV per client and uses the locked Core package to prepare a view and assignment
-for each notice. The browser reads these prepared facts; it does not assess
-clients or change their records to fit a notice.
+for each notice. Dev startup and production builds generate these assets; the
+prepared payloads are not committed. The browser reads these prepared facts; it
+does not assess clients or change their records to fit a notice.
 
 All examples remain available, including combinations that produce warnings.
 Core's source and applicability findings stay attached to the selected view.

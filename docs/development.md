@@ -30,12 +30,9 @@ uv sync --locked
 npm run prepare:assets
 ```
 
-Preparation checks the committed example facts. If Core intentionally changes
-those facts, regenerate and review `examples/prepared.json` instead:
-
-```bash
-uv run --locked python -m scripts.examples
-```
+The authored clients live in `examples/scenarios.json`. Dev startup and builds
+prepare their preview facts with the locked Core package. After changing Core or
+example inputs, review the regenerated previews and downloaded samples.
 
 The current locked commit is `e58e889c28c2efe29ee95564fd66277884856854`,
 tagged `v2.0.0-rc2` in Core. To select another published Core tag, use
@@ -62,8 +59,8 @@ To rebuild against the configured Core reference, open **Actions → Studio Page
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
 currently it is Core's `v2.0.0-rc2` tag. A configured tag or revision stays
-at that reference. The workflow still checks the committed example facts and
-resource compatibility; a failed required check prevents deployment. Enable
+at that reference. The workflow regenerates example facts and checks resource
+compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.
 If selected, those tests must also pass before deployment.
 
@@ -120,7 +117,8 @@ Use `--compiler-source /path/to/typst.ts` with
 `uv run --locked python -m scripts.build-site` to reuse a source checkout,
 or set `IMMUKNOW_COMPILER_BUILD_DIR`.
 
-After initial preparation, use `npm run build` to rebuild frontend changes.
+After the initial compiler preparation, `npm run dev` and `npm run build`
+regenerate the examples, fonts, notices and browser validators automatically.
 The footer's Studio SHA and latest reachable version tag are embedded during that
 build. Actions supplies `IMMUKNOW_STUDIO_BUILD_SHA` and
 `IMMUKNOW_STUDIO_BUILD_TAG`; local builds read Git directly. The targeted
@@ -128,9 +126,11 @@ ImmuKnow revision comes from the prepared Core resources.
 For example, an exact v0.1.0 release shows `v0.1.0`; later commits show
 `v0.1.0+`. Before the first
 version tag, only the Studio SHA is shown.
-Re-run `npm run prepare:assets` after Core or example inputs change. npm's dev,
-build, type and unit commands refresh the generated Core resource copies and
-validators automatically. No generated browser assets are committed.
+Restart `npm run dev` after Core or example inputs change, or run
+`npm run prepare:assets` to refresh the project data without restarting the server.
+Type and unit commands also refresh the Core resource copies and validators.
+Generated browser assets stay under `public/generated/` and `generated/`;
+none are committed.
 
 Python dependency groups separate the usual build and lint tools (`dev`),
 browser/native comparison tools (`browser`), and documentation tools (`docs`).
@@ -146,7 +146,9 @@ validators include their helper code. Their licences stay in the site notices.
 npm run dev -- --host 0.0.0.0 --port 5173
 ```
 
-Open <http://localhost:5173/>. This checks prepared assets and starts hot reload.
+Open <http://localhost:5173/>. Startup checks the prepared compiler and renderer,
+regenerates the current example data and starts hot reload. It does not build Rust
+or download a compiler automatically.
 To serve the production artifact instead, run `npm run serve` and open
 <http://localhost:4173/>. Relative production URLs also support a proxy prefix.
 
@@ -248,7 +250,7 @@ its `studio-scaffold.json` allowlist and a lock for Studio's Core revision:
 ```bash
 uv run --locked python -m scripts.project_template \
   --source ../ImmuKnow-Template --revision <full-template-commit-sha>
-uv run --locked python -m scripts.examples --check
+npm run prepare:assets
 ```
 
 The refresh reads committed Git blobs, records source identity and SHA-256 hashes,

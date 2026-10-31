@@ -1,8 +1,7 @@
-"""Prepare a small deterministic Studio cohort through the native facts contract.
+"""Generate Studio examples and project files from the authored client records.
 
-Run ``uv run python -m scripts.examples`` to regenerate. ``--check``
-verifies committed facts and still assembles the browser project, fonts and
-current build metadata. Clinical facts never change to fit a selected notice.
+Run ``uv run --locked python -m scripts.examples`` to write ignored browser
+assets under public/generated. Clinical facts never change to fit a notice.
 """
 
 from __future__ import annotations
@@ -195,23 +194,9 @@ def assemble(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--check",
-        action="store_true",
-        help="Reject stale committed facts and still assemble assets",
-    )
     parser.add_argument("--destination", type=Path, default=ROOT / "public/generated")
     args = parser.parse_args()
     prepared, resources = generate()
-    rendered = json.dumps(prepared, ensure_ascii=False, indent=2) + "\n"
-    target = EXAMPLES / "prepared.json"
-    if args.check:
-        if not target.is_file() or target.read_text(encoding="utf-8") != rendered:
-            raise SystemExit(
-                "Example files are stale. Run uv run python -m scripts.examples"
-            )
-    else:
-        target.write_text(rendered, encoding="utf-8")
     assemble(prepared, resources, args.destination)
     count = sum(len(example["payloads"]) for example in prepared["examples"])
     print(
