@@ -65,6 +65,15 @@
 <p>Built by <a href="https://wdgpublichealth.ca/" target="_blank" rel="noopener noreferrer">Wellington-Dufferin-Guelph Public Health</a> · <a href="https://github.com/WDGPH/ImmuKnow-Studio/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></p>
 <p class="footer-versions"><span id="studio-version"><span id="studio-tag"></span><a id="studio-sha" target="_blank" rel="noopener noreferrer"></a></span><span class="engine-version"><span aria-hidden="true">·</span> <span id="core-version">Engine: ImmuKnow <a id="core-sha" target="_blank" rel="noopener noreferrer"></a></span></span></p>
 </footer>
+<dialog id="recovery-dialog" aria-labelledby="recovery-title" aria-describedby="recovery-local recovery-error recovery-reset">
+<form method="dialog">
+<h2 id="recovery-title">Continue your browser project?</h2>
+<p id="recovery-local">Studio saves a working copy in this browser on this device. It does not save projects to the cloud.</p>
+<p id="recovery-error" hidden></p>
+<p id="recovery-reset">Start fresh restores the starter templates, settings and images and removes this browser copy. Download a project ZIP when you want a portable copy.</p>
+<div class="project-change-actions"><button value="reset">Start fresh</button><button id="recovery-continue" value="continue" autofocus>Continue project</button></div>
+</form>
+</dialog>
 <dialog id="project-change-dialog" aria-labelledby="project-change-title" aria-describedby="project-change-text project-change-shared">
 <form id="project-change-form">
 <h2 id="project-change-title">Reset template?</h2>

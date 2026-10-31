@@ -698,7 +698,7 @@ main {
 #coding-cheatsheet-dialog code {
   overflow-wrap: anywhere;
 }
-#project-change-dialog {
+:is(#project-change-dialog, #recovery-dialog) {
   width: 540px;
   max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 32px);
@@ -708,14 +708,14 @@ main {
   border-radius: 10px;
   padding: 24px;
 }
-#project-change-dialog::backdrop {
+:is(#project-change-dialog, #recovery-dialog)::backdrop {
   background: #10243677;
 }
-#project-change-dialog h2 {
+:is(#project-change-dialog, #recovery-dialog) h2 {
   margin: 0 0 12px;
   font-size: 20px;
 }
-#project-change-dialog p {
+:is(#project-change-dialog, #recovery-dialog) p {
   line-height: 1.5;
 }
 #project-change-dialog fieldset {
@@ -752,10 +752,11 @@ main {
 }
 .project-change-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: end;
   gap: 10px;
 }
-#project-change-confirm {
+:is(#project-change-confirm, #recovery-continue) {
   color: var(--teal);
   font-weight: 600;
 }

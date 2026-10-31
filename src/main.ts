@@ -788,6 +788,22 @@ initializeHelp((next) => {
   return () => showTab(original);
 });
 
+function chooseBrowserProject(error?: unknown): Promise<boolean> {
+  const dialog = byId<HTMLDialogElement>("recovery-dialog");
+  const incompatible = error !== undefined;
+  byId("recovery-title").textContent = incompatible
+    ? "Your browser project could not be opened"
+    : "Continue your browser project?";
+  byId("recovery-error").textContent = incompatible ? message(error) : "";
+  byId("recovery-error").hidden = !incompatible;
+  button("recovery-continue").textContent = incompatible ? "Keep browser copy" : "Continue project";
+  dialog.returnValue = "continue";
+  return new Promise((resolve) => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "reset"), { once: true });
+    dialog.showModal();
+  });
+}
+
 async function start() {
   const editingControls = ["editor-panel", "theme-panel", "settings-controls", "divider"].map(byId);
   for (const control of editingControls) control.inert = true;
@@ -816,16 +832,30 @@ async function start() {
   example = bundle.examples.find((item) => item.payloads[basename(template)]);
   try {
     draftStore = await DraftStore.open(bundle.build, saveState);
-    const saved = await draftStore.load();
-    canSave = true;
-    if (saved) {
-      files = saved.files;
-      originals = saved.baseline;
-      draftRevision = saved.revision;
-      template = saved.template;
-      const available = compatibleExamples();
-      example = available.find((item) => item.id === saved.example) ?? available[0];
-      saveState("saved");
+    try {
+      const saved = await draftStore.load();
+      canSave = true;
+      if (saved) {
+        if (await chooseBrowserProject()) {
+          draftStore.clear();
+        } else {
+          files = saved.files;
+          originals = saved.baseline;
+          draftRevision = saved.revision;
+          template = saved.template;
+          const available = compatibleExamples();
+          example = available.find((item) => item.id === saved.example) ?? available[0];
+          saveState("saved");
+        }
+      }
+    } catch (error) {
+      if (await chooseBrowserProject(error)) {
+        canSave = true;
+        draftStore.clear();
+      } else {
+        canSave = false;
+        storageError(error);
+      }
     }
   } catch (error) {
     storageError(error);

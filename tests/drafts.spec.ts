@@ -1,4 +1,4 @@
-import { confirmProjectChange, saved } from "./helpers";
+import { confirmProjectChange, continueProject, saved } from "./helpers";
 import { readFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -113,7 +113,16 @@ test("an immediate reload is guarded until the newest edit has saved", async ({ 
   await page.evaluate(() => window.draftProbe.release());
   await saved(page);
   expect((await stored(page))?.revision).toBeGreaterThan(before);
+  const recovered = await stored(page);
   await page.reload();
+  await expect(page.getByRole("dialog", { name: "Continue your browser project?" })).toBeVisible();
+  await expect(page.locator("#recovery-local")).toContainText(
+    "does not save projects to the cloud",
+  );
+  await expect(page.getByRole("button", { name: "Continue project", exact: true })).toBeFocused();
+  await expect(page.locator("#template-tab")).toBeDisabled();
+  expect(await stored(page)).toEqual(recovered);
+  await page.keyboard.press("Escape");
   await ready(page);
   await expect(page.locator(".cm-content")).toContainText("Newest edit survives reload");
 });
@@ -151,6 +160,7 @@ test("import replaces a pending save and retains its reset baseline after reload
   await page.evaluate(() => window.draftProbe.release());
   await saved(page);
   await page.reload();
+  await continueProject(page);
   await ready(page);
   await expect(page.locator("#template")).toHaveValue(custom);
   await expect(page.locator(".cm-content")).not.toContainText("Old project waiting to save");
@@ -162,9 +172,57 @@ test("import replaces a pending save and retains its reset baseline after reload
   await expect(page.locator(".cm-content")).toContainText("Imported baseline");
   await expect(page.locator(".cm-content")).not.toContainText("Remove this edit on reset");
   await page.reload();
+  await continueProject(page);
   await ready(page);
   await expect(page.locator(".cm-content")).toContainText("Imported baseline");
   await expect(page.locator(".cm-content")).not.toContainText("Remove this edit on reset");
+});
+
+test("starting fresh discards the browser copy and restores the complete starter project", async ({
+  page,
+}) => {
+  await page.goto("./");
+  await ready(page);
+  await expect(page.locator("#recovery-dialog")).not.toBeVisible();
+  const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
+  const starters: Files = Object.fromEntries(
+    Object.entries(bundle.files).map(([name, bytes]) => [
+      name,
+      new Uint8Array(Buffer.from(bytes, "base64")),
+    ]),
+  );
+  const custom = "templates/custom_notice_v1.en.typ";
+  const files = {
+    ...starters,
+    [custom]: new TextEncoder().encode(
+      `${new TextDecoder().decode(starters[template])}\n// Imported notice`,
+    ),
+    "templates/settings.typ": new TextEncoder().encode(
+      `${new TextDecoder().decode(starters["templates/settings.typ"])}\n// Imported settings`,
+    ),
+  };
+  const archive = await exportProject(files, custom, bundle.build);
+  await page.locator("#archive").setInputFiles({
+    name: "authored.zip",
+    mimeType: "application/zip",
+    buffer: Buffer.from(archive),
+  });
+  await expect(page.locator("#archive")).toHaveValue("");
+  await saved(page);
+  const before = await stored(page);
+  await page.reload();
+  await expect(page.locator("#recovery-dialog")).toBeVisible();
+  await expect(page.locator("#recovery-reset")).toContainText("removes this browser copy");
+  expect(await stored(page)).toEqual(before);
+  await page.getByRole("button", { name: "Start fresh", exact: true }).click();
+  await ready(page);
+  await saved(page);
+  expect(await stored(page)).toBeUndefined();
+  await expect(page.locator("#template")).toHaveValue(template);
+  await expect(page.locator(".cm-content")).not.toContainText("Imported notice");
+  await append(page, "First edit in the fresh project");
+  await saved(page);
+  expect((await stored(page))?.baseline).toEqual(starters);
 });
 
 test("clearing cancels pending saves, preserves the open project and leaves older storage untouched", async ({
@@ -204,6 +262,7 @@ test("clearing cancels pending saves, preserves the open project and leaves olde
   await append(page, "Editing saves again");
   await saved(page);
   await page.reload();
+  await continueProject(page);
   await ready(page);
   await expect(page.locator(".cm-content")).toContainText("Editing saves again");
   expect(await stored(page, "immuknow-studio-drafts")).toEqual(legacy);
@@ -236,6 +295,7 @@ test("failed storage keeps current work downloadable and a later edit retries sa
     "The browser draft could not be saved.",
   );
   await page.reload();
+  await continueProject(page);
   await ready(page);
   await expect(page.locator(".cm-content")).toContainText("Keep this unsaved edit in the ZIP");
   await expect(page.locator(".cm-content")).toContainText("Retry succeeds");
@@ -258,11 +318,13 @@ test("a second tab cannot overwrite the draft and can reopen it after the first 
   await expect(second.locator("#import")).toBeDisabled();
   await page.close();
   await second.reload();
+  await continueProject(second);
   await ready(second);
   await expect(second.locator(".cm-content")).toContainText("Work from the first tab");
   await append(second, "Work from the next tab");
   await saved(second);
   await second.reload();
+  await continueProject(second);
   await ready(second);
   await expect(second.locator(".cm-content")).toContainText("Work from the next tab");
 });
@@ -352,7 +414,9 @@ for (const incompatible of [
     );
     const before = await stored(page);
     await page.goto("./");
-    await ready(page);
+    await expect(
+      page.getByRole("dialog", { name: "Your browser project could not be opened" }),
+    ).toBeVisible();
     const reason =
       incompatible === "format"
         ? "unsupported format"
@@ -361,6 +425,20 @@ for (const incompatible of [
           : incompatible === "template"
             ? "entry point"
             : "differs from the supplied version";
+    await expect(page.locator("#recovery-error")).toContainText(reason);
+    expect(await stored(page)).toEqual(before);
+    if (incompatible === "build") {
+      await page.getByRole("button", { name: "Start fresh", exact: true }).click();
+      await ready(page);
+      await saved(page);
+      expect(await stored(page)).toBeUndefined();
+      await append(page, "Save after discarding the incompatible copy");
+      await saved(page);
+      expect((await stored(page))?.schemaVersion).toBe(2);
+      return;
+    }
+    await page.getByRole("button", { name: "Keep browser copy", exact: true }).click();
+    await ready(page);
     await expect(page.locator("#diagnostics")).toContainText(reason);
     await append(page, "Do not replace stored work without clearing");
     await expect(page.locator("#diagnostics")).toContainText(reason);

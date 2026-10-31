@@ -110,6 +110,14 @@ the native pipeline for a different cohort or factual configuration.
 
 Studio saves the current draft as you edit, including file bytes, uploaded
 images, the selected template and example, and the project's starting files.
+When you reload or return to Studio, a dialog asks whether to **Continue project**
+or **Start fresh**. The copy lives only in this browser on this device; it is not
+saved to the cloud. Continue keeps your edits and starting files. Start fresh
+removes the browser copy and restores all starter templates, settings and images.
+Escape continues the saved project. If the copy cannot be opened, **Keep browser
+copy** retains it without replacing it; the starters open with saving blocked
+until you clear that copy or import a compatible project.
+
 Saving happens in the background. The browser warns before you leave while
 edits are still unsaved. Storage errors appear in Findings; the open project
 remains available to download, and another edit retries saving. Download the

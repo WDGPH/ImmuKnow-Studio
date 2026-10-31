@@ -1,4 +1,4 @@
-import { chooseTemplate } from "./helpers";
+import { continueProject, chooseTemplate } from "./helpers";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -196,6 +196,7 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   // Normal editing never starts a PDF parser worker.
   expect(pdfWorkers).toBe(0);
   await page.reload();
+  await continueProject(page);
   await currentPreview(page);
   await expect(page.locator("#position")).toHaveText("3 of 3");
   await page.locator("#theme-tab").click();
@@ -557,7 +558,9 @@ test("a prepared replacement cannot publish after the viewer context is cleared"
   await expect(page.locator(".preview-page")).not.toContainText("Obsolete prepared notice");
 });
 
-test("a worker script load failure has a readable error and recovers after restart", async ({ page }) => {
+test("a worker script load failure has a readable error and recovers after restart", async ({
+  page,
+}) => {
   let attempts = 0;
   await page.route("**/compile.worker*.js", async (route) => {
     attempts++;
