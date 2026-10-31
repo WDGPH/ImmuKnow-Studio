@@ -104,7 +104,7 @@ remaining document. All replacement pages are prepared before the notice changes
 Scrolling and zooming keep the painted pages available. Extremely large output
 may exceed the preview resource limit; Studio reports this and retains the last
 usable preview. There is no five-page output limit. Switching examples or languages, importing a project,
-confirming a template reset and restarting the compiler clear the previous preview.
+confirming a template reset and refreshing the page clear the previous preview.
 During continuous typing, newer successful versions can appear while the refresh
 icon continues to spin.
 
@@ -159,7 +159,8 @@ project and survives draft reloads. Shared Settings and images affect other temp
 Complex Settings that cannot safely separate Theme are left unchanged with an
 explanation; use a template-only or complete reset instead.
 
-**Restart compiler** retries the open project after a compiler problem.
+Refresh the webpage to retry after a compiler problem. Your compatible saved
+browser project reopens automatically.
 
 Import project accepts the current complete ZIP format. Authored source,
 companions and assets keep their bytes; Studio performs no source rewriting or

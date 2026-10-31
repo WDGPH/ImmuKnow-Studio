@@ -786,12 +786,6 @@ function resetWorkspace() {
   refreshProject();
   compile(true);
 }
-button("restart").onclick = () => {
-  compilerError = undefined;
-  compiler.restart();
-  compile(true);
-};
-
 const divider = byId("divider");
 function resizeSplit(value: number) {
   const percent = Math.max(25, Math.min(75, value));
@@ -897,7 +891,6 @@ async function start() {
     "theme-tab",
     "template",
     "import",
-    "restart",
     "zoom-in",
     "zoom-out",
   ])

@@ -7,8 +7,9 @@ Studio keeps the last successful pages and shows the current error. Check the
 findings below the editor, correct the source and wait for a successful preview.
 The visible pages may still contain earlier wording until then.
 
-Use **Project → Restart compiler** if the compiler has stopped responding.
-Restarting may need access to the application files again if you are offline.
+Refresh the webpage if the compiler has stopped responding. Refreshing starts a
+new compiler and restores your saved browser project automatically. It may need
+access to the application files again if you are offline.
 
 ## A Theme control says “Edit in Settings”
 

@@ -38,7 +38,7 @@ export class Compiler {
     this.active = undefined;
     this.status("Loading compiler and fonts…");
     this.timer = setTimeout(
-      () => this.fail("Compiler loading timed out. Use Restart compiler to retry."),
+      () => this.fail("Compiler loading timed out. Refresh the page to retry."),
       45_000,
     );
     worker.onmessage = (event: MessageEvent<WorkerReply | ExportReply>) => {
@@ -90,12 +90,12 @@ export class Compiler {
     worker.onerror = (event) => {
       if (this.worker === worker) {
         const detail = event.message ? `: ${event.message}` : "";
-        this.fail(`Compiler worker failed${detail}. Use Restart compiler.`);
+        this.fail(`Compiler worker failed${detail}. Refresh the page to retry.`);
       }
     };
   }
   submit(job: CompileInput, immediate = false): number {
-    if (!this.worker) throw new Error("Compiler is stopped. Use Restart compiler to retry.");
+    if (!this.worker) throw new Error("Compiler is stopped. Refresh the page to retry.");
     const now = performance.now();
     if (!this.pending) this.burstStart = now;
     this.pending = {
@@ -111,7 +111,7 @@ export class Compiler {
     return this.revision;
   }
   exportPdf(job: CompileInput, revision: number, context: number): Promise<ExportResult> {
-    if (!this.worker) return Promise.reject(new Error("Compiler is stopped. Restart it to export."));
+    if (!this.worker) return Promise.reject(new Error("Compiler is stopped. Refresh the page to retry."));
     if (this.exportTask) return Promise.reject(new Error("A PDF export is already in progress."));
     if (context !== this.context || revision !== this.revision)
       return Promise.reject(new Error("The notice changed. Wait for the current preview and download again."));
@@ -145,7 +145,7 @@ export class Compiler {
       this.active = task.request;
       this.status("Exporting PDF…");
       this.timer = setTimeout(
-        () => this.fail("PDF export exceeded 20 seconds. Restart the compiler to retry."),
+        () => this.fail("PDF export exceeded 20 seconds. Refresh the page to retry."),
         20_000,
       );
       if (task.request.timing)
@@ -166,7 +166,7 @@ export class Compiler {
     this.timer = setTimeout(
       () =>
         this.fail(
-          "Compilation exceeded 20 seconds. The worker was stopped. Edit the source and restart.",
+          "Compilation exceeded 20 seconds. The worker was stopped. Edit the source, then refresh the page.",
         ),
       20_000,
     );

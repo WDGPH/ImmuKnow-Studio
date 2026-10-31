@@ -19,9 +19,9 @@ offline in the open tab. Wait for the first preview before disconnecting.
 
 Some actions load more static files when you use them. Project downloads read
 the bundled fonts and their licences again; imports and downloads load the ZIP
-worker, and Theme starters load their images. Reloading, reopening the site or
-restarting the compiler can also require application files again. Browser
-caching is not a guaranteed offline installation.
+worker, and Theme starters load their images. Reloading or reopening the site
+can also require application files again. Browser caching is not a guaranteed
+offline installation.
 
 For a disconnected editing session on the hosted site, choose your Theme and
 download a backup before disconnecting, then keep the loaded tab open. A later
