@@ -52,8 +52,9 @@ and images can be shared between templates, so check each notice you plan to use
 
 ## Save a portable copy
 
-Studio saves a draft in this browser as you edit. Wait for **Saved** before
-closing the tab. To make a copy you can keep or move to another computer:
+Studio saves a draft in this browser as you edit. The browser warns before you
+leave while edits are still unsaved. To make a copy you can keep or move to
+another computer:
 
 1. Open **Project** at the top-right of the webpage.
 2. Choose **Download project** to save `immuknow-project.zip`.

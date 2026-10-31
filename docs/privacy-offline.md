@@ -41,10 +41,10 @@ edits, imported images and the project's starting files. It is separate for
 each browser profile, device and site address. It is not an account, cloud
 backup or synchronization service.
 
-Wait for **Saved** before closing or reloading. If storage is unavailable or
-full, the open project remains available to download. Private browsing, clearing
-site data or browser storage cleanup can remove a draft. Download copies of
-work you want to keep.
+The browser warns before you leave while edits are still unsaved. If storage is
+unavailable or full, the open project remains available to download. Private
+browsing, clearing site data or browser storage cleanup can remove a draft.
+Download copies of work you want to keep.
 
 **Project → Clear saved draft** removes the stored draft while keeping the
 open project available to download. Later edits save it again. For reset and

@@ -110,10 +110,10 @@ the native pipeline for a different cohort or factual configuration.
 
 Studio saves the current draft as you edit, including file bytes, uploaded
 images, the selected template and example, and the project's starting files.
-The status shows **Saving…**, **Saved**, or a storage error. Wait for **Saved**
-before closing or reloading. Pending or failed saves keep the browser's
-leave-page warning active. Download the project for a portable copy; storage
-errors leave your open work available to download, and another edit retries saving.
+Saving happens in the background. The browser warns before you leave while
+edits are still unsaved. Storage errors appear in Findings; the open project
+remains available to download, and another edit retries saving. Download the
+project for a portable copy.
 
 Only one tab can edit Studio on a site at a time. A second tab asks you to close
 the editing tab and reload. Another device or site address has separate storage.

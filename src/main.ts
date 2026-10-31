@@ -61,6 +61,7 @@ let diagnostics: Diagnostic[] = [];
 let resultChecks: CheckResult[] = [];
 let actionError: string | undefined;
 let compilerError: string | undefined;
+let draftError: string | undefined;
 let draftStore: DraftStore | undefined;
 let draftRevision = 0;
 let canSave = false;
@@ -69,25 +70,18 @@ let themeUndo: Files | undefined;
 const imageURLs = new Map<string, string>();
 
 function storageError(error: unknown) {
-  const target = byId("storage");
-  target.textContent = message(error);
-  target.hidden = false;
-  byId("save-state").hidden = true;
+  draftError = message(error);
+  findings();
 }
 function saveState(state: SaveState) {
   unsaved = !["saved", "cleared"].includes(state);
-  const target = byId("save-state");
-  target.dataset.state = state;
-  target.textContent = {
-    saving: "Saving…",
-    saved: "Saved",
-    clearing: "Clearing…",
-    cleared: "Draft cleared",
-    error: "",
-  }[state];
-  target.hidden = false;
-  byId("storage").hidden = state !== "error";
-  if (state === "error") storageError("Not saved. Download each template you want to keep.");
+  const previousError = draftError;
+  if (state === "error") {
+    draftError ??= "The browser draft could not be saved.";
+  } else {
+    draftError = undefined;
+  }
+  if (draftError !== previousError) findings();
 }
 function persist() {
   unsaved = true;
@@ -190,6 +184,7 @@ function findings() {
   }
   if (compilerError) item(compilerError, true);
   if (actionError) item(actionError, true);
+  if (draftError) item(draftError, true);
   for (const diagnostic of diagnostics) {
     const path = diagnostic.path.replace(/^\//, "");
     item(
@@ -794,7 +789,8 @@ initializeHelp((next) => {
 });
 
 async function start() {
-  byId("workspace").inert = true;
+  const editingControls = ["editor-panel", "theme-panel", "settings-controls", "divider"].map(byId);
+  for (const control of editingControls) control.inert = true;
   const projectMenu = document.querySelector<HTMLElement>(".project-actions");
   if (projectMenu) projectMenu.inert = true;
   try {
@@ -857,7 +853,7 @@ async function start() {
   ])
     buttonOrSelect(id).disabled = false;
   refreshProject();
-  byId("workspace").inert = false;
+  for (const control of editingControls) control.inert = false;
   if (projectMenu) projectMenu.inert = false;
   compile(true);
 }

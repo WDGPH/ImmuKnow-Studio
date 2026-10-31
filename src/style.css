@@ -244,10 +244,6 @@ main {
   align-items: center;
   gap: 8px;
 }
-#save-state {
-  flex: 0 0 4.5em;
-  text-align: right;
-}
 .editor-tabs {
   display: flex;
   flex: 1;
