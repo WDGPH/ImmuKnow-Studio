@@ -130,6 +130,7 @@ for (const [scenario, filename] of cases) {
     }
     await page.screenshot({ path: info.outputPath("preview.png"), fullPage: true });
     await page.locator(".project-actions summary").click();
+    if (scenario === "short") await page.locator("#include-fonts").uncheck();
     const projectDownload = page.waitForEvent("download", { timeout: 30_000 });
     await page.locator("#export").click();
     await (await projectDownload).saveAs(info.outputPath("typst-project.zip"));
@@ -169,8 +170,10 @@ for (const [scenario, filename] of cases) {
     const source = JSON.parse(new TextDecoder().decode(files["template-source.json"]));
     expect(source.repository).toBe("https://github.com/WDGPH/ImmuKnow-Template");
     expect(source.revision).toMatch(/^[0-9a-f]{40}$/);
-    expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toHaveLength(fontCount);
-    expect(files["templates/fonts/LICENSE"]).toBeDefined();
+    expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toHaveLength(
+      scenario === "short" ? 0 : fontCount,
+    );
+    if (scenario !== "short") expect(files["templates/fonts/LICENSE"]).toBeDefined();
     writeFileSync(
       info.outputPath("selected-example.json"),
       JSON.stringify({

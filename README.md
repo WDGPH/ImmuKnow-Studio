@@ -18,6 +18,7 @@ Production notice generation runs with ImmuKnow on your local workstation.
 In Studio, open **Project** at the top-right of the webpage and choose
 **Download project**. Extract the ZIP, install uv, Git, Typst and the supplied
 fonts, then run `uv sync --locked` and `uv run python scripts/check.py --sample`.
+You can omit the fonts from the ZIP if the matching fonts are already installed.
 The project includes [ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template)'s
 Python setup and helper scripts, your authored notice/configuration, and the
 selected fictional sample. See [Use projects on your workstation](docs/local-production.md).

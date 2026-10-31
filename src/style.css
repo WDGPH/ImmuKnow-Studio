@@ -184,6 +184,15 @@ summary:focus-visible {
   text-align: left;
   border: 0;
 }
+.download-fonts {
+  padding: 6px 8px;
+  font-size: 14px;
+}
+.download-fonts small {
+  display: block;
+  margin: 4px 0 0 22px;
+  color: var(--muted);
+}
 main {
   max-width: 1920px;
   margin: auto;

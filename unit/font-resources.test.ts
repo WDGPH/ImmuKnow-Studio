@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "vitest";
 import { FontInputs, fontManifest } from "../src/font-resources";
+import { withoutProjectFonts } from "../src/fonts";
 import { encoder, sha256 } from "../src/project";
 import type { Files } from "../src/types";
 
@@ -8,6 +9,18 @@ const bundled: Files = Object.fromEntries(Object.keys(fontManifest).map((name) =
   `/templates/fonts/${name}`,
   new Uint8Array(readFileSync(new URL(`../assets/fonts/${name}`, import.meta.url))),
 ]));
+
+test("omitting supplied fonts preserves other files and refuses to remove modified copies", async () => {
+  const files = Object.fromEntries(Object.entries(bundled).map(([path, bytes]) => [path.slice(1), bytes]));
+  const authored = encoder.encode("authored asset");
+  files["templates/assets/logo.svg"] = authored;
+  files["templates/fonts/LICENSE"] = authored;
+  const smaller = await withoutProjectFonts(files);
+  expect(Object.keys(smaller).sort()).toEqual(["templates/assets/logo.svg", "templates/fonts/LICENSE"]);
+  expect(smaller["templates/assets/logo.svg"]).toBe(authored);
+  files["templates/fonts/FreeSans.ttf"] = authored;
+  expect(await withoutProjectFonts(files)).toEqual(files);
+}, 60_000);
 
 test("supplied fonts match their fixed hashes and accept unchanged copies or no files", async () => {
   const fonts = new FontInputs(bundled);

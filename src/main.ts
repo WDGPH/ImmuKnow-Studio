@@ -5,7 +5,7 @@ import { imageBytes, imagePath, relativeImage } from "./branding";
 import { Compiler, type CompileInput } from "./compile";
 import { claimEditingTab, DraftStore, type SaveState } from "./drafts";
 import { SourceEditor } from "./editor";
-import { withProjectFonts } from "./fonts";
+import { withProjectFonts, withoutProjectFonts } from "./fonts";
 import { fontFamilies } from "./font-resources";
 import { healthUnits, themedSettings } from "./health-units";
 import { initializeHelp } from "./help";
@@ -667,21 +667,21 @@ button("export").onclick = () =>
       example,
       revision,
       context: compiler.context,
+      includeFonts: byId<HTMLInputElement>("include-fonts").checked,
     };
     exporting = true;
     refreshDownloads();
     try {
+      const project = currentProject(
+        snapshot.files,
+        snapshot.template,
+        bundle.examples,
+        snapshot.example,
+        starters,
+      );
       const bytes = await archiveJob({
         action: "export",
-        files: await withProjectFonts(
-          currentProject(
-            snapshot.files,
-            snapshot.template,
-            bundle.examples,
-            snapshot.example,
-            starters,
-          ),
-        ),
+        files: await (snapshot.includeFonts ? withProjectFonts(project) : withoutProjectFonts(project)),
         template: snapshot.template,
         build: bundle.build,
       });

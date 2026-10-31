@@ -18,7 +18,7 @@ Extract `immuknow-project.zip` into a folder you control.
 | `config/` | Configuration for native ImmuKnow runs |
 | `input/sample/`, `sample.json` | Selected fictional sample and its configured paths |
 | `examples/` | Original selected fictional input files and their explanation |
-| `templates/fonts/` | Fonts and licences for manual installation |
+| `templates/fonts/` | Fonts and licences for manual installation, when included in the download |
 | `template-source.json` | Template repository, source commit and original scaffold file hashes |
 | `immuknow-project.json` | Studio import format, selected notice, build identity and current file hashes |
 
@@ -33,7 +33,9 @@ Install [uv](https://docs.astral.sh/uv/), Git, and
 [Typst 0.15.1](https://typst.app/docs/changelog/0.15.1/), exactly.
 Put `typst` on `PATH` or set `TYPST_BIN`. Core requires Python 3.11 or later;
 uv installs the interpreter selected by `.python-version`.
-Install the supplied fonts on your workstation for matching typography.
+Install the supplied fonts on your workstation for matching typography. If you
+cleared **Include fonts for installation** when downloading, use the same fonts
+already installed on the workstation or download them from Studio separately.
 Extracting them does not install them; native Typst uses system fonts.
 
 Open a terminal in the extracted folder:

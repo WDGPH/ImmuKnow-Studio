@@ -177,9 +177,12 @@ The installed environment, engine wheel and native Typst compiler are not bundle
 If the project changes while the ZIP is being prepared, download it again.
 A project with unfinished edits or no prepared example can still be saved.
 
-Downloads always include Studio's FreeSans and FreeSerif files and licences
-for manual installation. The production
-pipeline uses system fonts; downloading the files does not install them.
+Downloads include Studio's FreeSans and FreeSerif files and licences by default
+for manual installation. Clear **Include fonts for installation** for a smaller
+download when the matching fonts are already installed on the workstation.
+The production pipeline uses system fonts; downloading the files does not install them.
+Studio removes only byte-identical copies of its supplied font files; other
+project files remain in the download.
 The ZIP's `immuknow-project.json` records format version, selected entry, build identity
 and SHA-256 file hashes, which are verified on import. Files are limited to
 12 MiB each and 32 MiB in total. Absolute/traversal paths, duplicate paths,

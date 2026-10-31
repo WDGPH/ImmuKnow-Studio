@@ -96,7 +96,7 @@ async function releaseExport(page: Page) {
   await expect(page.locator("#export")).toBeEnabled();
 }
 
-test("project download preserves authored text and always includes fonts", async ({ page }) => {
+test("project download preserves authored text and includes fonts by default", async ({ page }) => {
   await exportProbe(page);
   await page.goto("./");
   await currentPreview(page);
@@ -111,7 +111,7 @@ test("project download preserves authored text and always includes fonts", async
     (window as unknown as { exportProbe: ExportProbe }).exportProbe.holdNext = true;
   });
   await openProjectActions(page);
-  await expect(page.locator("#include-fonts")).toHaveCount(0);
+  await expect(page.locator("#include-fonts")).toBeChecked();
   const downloaded = page.waitForEvent("download");
   await page.locator("#export").click();
   await expect(page.locator("#export")).toBeDisabled();
@@ -134,6 +134,45 @@ test("project download preserves authored text and always includes fonts", async
   await expect(page.locator("#pdf, #source, #python-project")).toHaveCount(0);
   expect((await probeState(page)).requests).toBe(1);
   await expect(page.locator("#export")).toBeEnabled();
+});
+
+test("a smaller download omits supplied fonts and can be imported again", async ({ page }) => {
+  await page.goto("./");
+  await currentPreview(page);
+  await openProjectActions(page);
+  await page.locator("#include-fonts").uncheck();
+  let fontRequests = 0;
+  page.on("request", (request) => {
+    if (request.url().includes("generated/fonts/")) fontRequests++;
+  });
+  const fresh = page.waitForEvent("download");
+  await page.locator("#export").click();
+  await fresh;
+  expect(fontRequests).toBe(0);
+  await openProjectActions(page);
+  await page.locator("#include-fonts").check();
+  const first = page.waitForEvent("download");
+  await page.locator("#export").click();
+  const original = await (await first).path();
+  expect(original).toBeTruthy();
+  await page.locator("#archive").setInputFiles(original as string);
+  await expect(page.locator("#archive")).toHaveValue("");
+  await currentPreview(page);
+  await openProjectActions(page);
+  await page.locator("#include-fonts").uncheck();
+  const second = page.waitForEvent("download");
+  await page.locator("#export").click();
+  const smaller = await (await second).path();
+  expect(smaller).toBeTruthy();
+  const files = unzipSync(readFileSync(smaller as string));
+  expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toEqual([]);
+  expect(files["templates/fonts/LICENSE"]).toBeDefined();
+  expect(files["templates/lib/immuknow/lib.typ"]).toBeDefined();
+  expect(readFileSync(smaller as string).length).toBeLessThan(readFileSync(original as string).length);
+  await page.locator("#archive").setInputFiles(smaller as string);
+  await expect(page.locator("#archive")).toHaveValue("");
+  await currentPreview(page);
+  await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
 });
 
 test("edits and template switches refuse delayed project downloads", async ({ page }) => {

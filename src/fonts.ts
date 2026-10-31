@@ -4,7 +4,23 @@ import type { Files } from "./types";
 
 const fontRoot = "templates/fonts/";
 
-// Downloads always include the supplied preview fonts and their licences.
+// Only byte-identical supplied fonts may be omitted from an imported project.
+// Preserve every other file, including unknown or modified files.
+export async function withoutProjectFonts(files: Files): Promise<Files> {
+  validateFiles(files);
+  const result = { ...files };
+  const present: string[] = [];
+  for (const [name, hash] of Object.entries(fontManifest)) {
+    const path = `${fontRoot}${name}`;
+    if (!files[path]) continue;
+    if ((await sha256(files[path])) !== hash) return result;
+    present.push(path);
+  }
+  for (const path of present) delete result[path];
+  return result;
+}
+
+// Include the supplied preview fonts and their licences.
 export async function withProjectFonts(files: Files): Promise<Files> {
   validateFiles(files);
   const result = Object.fromEntries(
