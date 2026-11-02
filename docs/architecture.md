@@ -96,7 +96,7 @@ snapshot, while `immuknow-project.json` hashes the actual downloaded bytes.
 ## Core versions
 
 Studio v0.1.0 has its own release number. Its Core dependency currently selects
-reviewed Core commit `65368e0fbd5eb469ee100d3fc6eeb9ff6dd1d325`
+reviewed Core commit `6df6993b33fb884a4c76155b4174d45d21846edd`
 in `pyproject.toml`, with the same commit recorded
 in `uv.lock`. Ordinary locked builds use that commit. A manual build can
 explicitly refresh the configured reference; its effective lockfile and Core

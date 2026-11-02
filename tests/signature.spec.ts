@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test";
 import { unzipSync } from "fflate";
 import { chooseTemplate, confirmProjectChange, downloadProject, editExampleData } from "./helpers";
 
+test.use({ actionTimeout: 15_000 });
+
 test("Theme edits explicit signature paths and names without changing the authored width", async ({
   page,
 }) => {
@@ -25,6 +27,7 @@ test("Theme edits explicit signature paths and names without changing the author
   await page.locator("#signature-name-picker").fill("Dr. Example, MD, MPH");
   await page.locator("#signature-name-picker").press("Tab");
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
+  await page.locator(".project-actions summary").click();
   await page.locator("#reset").click();
   await confirmProjectChange(page, "template");
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
