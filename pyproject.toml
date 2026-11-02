@@ -12,7 +12,8 @@ immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", tag = "v2.0.0-rc2" }
 
 [dependency-groups]
 dev = [
-    "ruff==0.17.1",
+    "ruff==0.17.2",
+    "prek",
     "ty>=0.0.89",
 ]
 browser = [

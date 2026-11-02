@@ -161,6 +161,13 @@ then reload.
 
 ## Checks
 
+Install Git hooks once per clone with `uv run --locked prek install`. The hooks
+lint and format Python with Ruff; CI checks the same rules without rewriting
+files. Run them
+manually with `uv run --locked prek run --all-files`. The hooks run the Ruff version
+locked by the project. The copied Template
+scaffold is excluded; change and check those Python helpers in Template.
+
 Install native Typst 0.15.1 for native/browser comparisons. The Playwright
 configuration makes native test subprocesses use the same verified fonts in
 `assets/fonts` as the browser, ignoring system fonts. This keeps comparisons
