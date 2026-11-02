@@ -21,8 +21,23 @@ def project_build() -> dict:
         ).strip()
     )
     package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
+    core = rendering_build_info()
+    # Project compatibility follows authored paths and bytes, not package layout.
+    shared = [
+        {
+            **item,
+            "path": "templates/lib/immuknow/" + item["path"].removeprefix("typst/"),
+        }
+        if item["path"].startswith("typst/")
+        else item
+        for item in core["shared_resources"]["files"]
+    ]
+    core["shared_resources"] = {
+        "sha256": sha256(json.dumps(shared, sort_keys=True).encode()).hexdigest(),
+        "files": shared,
+    }
     return {
-        **rendering_build_info(),
+        **core,
         **pins,
         "studio_version": package["version"],
         "compiler_build_sha256": sha256(

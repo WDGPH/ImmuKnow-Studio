@@ -120,15 +120,19 @@ test("legacy downloads gain the pinned scaffold without overwriting authored set
   const files = { ...baseline, "README.md": encoder.encode("Authored instructions") };
   const starters = {
     "template-source.json": encoder.encode(
-      JSON.stringify({ files: { "README.md": "hash", "scripts/run.py": "hash" } }),
+      JSON.stringify({ files: { "README.md": "hash", "scripts/run.py": "hash", "templates/other.fr.typ": "hash", "config/new.json": "hash" } }),
     ),
     "README.md": encoder.encode("Upstream instructions"),
     "scripts/run.py": encoder.encode("Upstream runner"),
+    "templates/other.fr.typ": encoder.encode("Unselected starter"),
+    "config/new.json": encoder.encode("{}"),
   };
   const result = currentProject(files, template, [], undefined, starters);
   expect(result["README.md"]).toBe(files["README.md"]);
   expect(result["scripts/run.py"]).toBe(starters["scripts/run.py"]);
   expect(result["template-source.json"]).toBe(starters["template-source.json"]);
+  expect(result["templates/other.fr.typ"]).toBeUndefined();
+  expect(result["config/new.json"]).toBeUndefined();
 });
 
 test("switching preview retains an imported sample and its original inputs", () => {

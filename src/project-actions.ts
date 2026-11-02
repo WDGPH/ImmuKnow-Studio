@@ -132,6 +132,7 @@ export function currentProject(
     };
     for (const path of [...Object.keys(templateSource.files), "template-source.json"]) {
       safePath(path);
+      if (path.startsWith("templates/") || path.startsWith("config/")) continue;
       if (!result[path] && starters[path]) result[path] = starters[path];
     }
   }

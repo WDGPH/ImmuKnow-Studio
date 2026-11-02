@@ -12,7 +12,8 @@ Start with the [user guide](docs/getting-started.md) or read the
 ## From template development to production
 
 [ImmuKnow](https://github.com/WDGPH/ImmuKnow) is the core engine. Studio uses its
-templates, shared components and data format to make template development faster.
+shared components and data format, with starter projects maintained in
+[ImmuKnow Template](https://github.com/WDGPH/ImmuKnow-Template), to make template development faster.
 Production notice generation runs with ImmuKnow on your local workstation.
 
 In Studio, open **Project** at the top-right of the webpage and choose
@@ -39,5 +40,5 @@ browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/
 - [Documentation and releases](docs/documentation.md): strict manual builds,
   the PHIZ documentation hub and v0.1.0 preparation.
 
-Studio pins Core to commit **`57ee717`**. The exact revision is
+Studio pins Core to commit **`e87d8bc`**. The exact revision is
 recorded in `uv.lock`. Studio and Core have separate version numbers.

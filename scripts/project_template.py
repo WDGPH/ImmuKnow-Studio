@@ -1,4 +1,4 @@
-"""Verify the bundled Template scaffold, or refresh it from a local Git checkout.
+"""Verify the bundled starter project, or refresh it from a local Git checkout.
 
 Normal builds read only the reviewed snapshot; no private repository access is
 needed. Refresh explicitly with --source and --revision (a full commit SHA).
@@ -37,7 +37,7 @@ def safe_path(value: str) -> str:
 
 
 def scaffold_files(snapshot: Path = SNAPSHOT) -> dict[str, bytes]:
-    """Load intact upstream files and their original source identity."""
+    """Load Template-owned starters and setup files with verified source identity."""
     provenance = (snapshot / PROVENANCE).read_bytes()
     manifest = json.loads(provenance)
     if manifest["repository"] != REPOSITORY or not re.fullmatch(
@@ -45,6 +45,10 @@ def scaffold_files(snapshot: Path = SNAPSHOT) -> dict[str, bytes]:
     ):
         raise ValueError("Invalid Template source identity")
     hashes = manifest["files"]
+    if any(name.startswith("templates/lib/") for name in hashes):
+        raise ValueError(
+            "The shared Typst library must come from Core, not Template snapshots"
+        )
     actual = {
         path.relative_to(snapshot).as_posix()
         for path in snapshot.rglob("*")

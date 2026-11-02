@@ -4,14 +4,18 @@
 
 | Project | Responsibility |
 | --- | --- |
-| ImmuKnow core | Python pipeline, input validation, prepared notice facts, schemas, default templates, configuration, shared Typst components and native generation/review results |
+| ImmuKnow core | Python pipeline, input validation, prepared notice facts, schemas, reference configuration, shared Typst components and native generation/review results |
 | ImmuKnow Studio | Browser editor, Theme controls, draft storage, project import/download, browser compiler and renderer, fonts, fictional examples and Studio tests |
-| ImmuKnow Template | Runnable project setup, Python dependency lock, native helper scripts and project tests |
+| ImmuKnow Template | Starter letters, Settings, translations, example branding, project configuration, runnable setup, dependency lock, helpers and starter tests |
 | PHIZ documentation hub | Shared manual presentation, version selection, search and documentation publication |
 
-Studio installs Core as a Python build dependency. Build preparation obtains
-resources from the installed package through `immuknow.resources.resource_root()`
-and `rendering_build_info()`, copies disposable resources into `generated/core/`,
+Core contains no starter project. Studio obtains authored starters from the
+verified Template snapshot and the shared library from installed Core. Fictional
+client scenarios remain in Studio.
+
+Studio installs Core as a Python build dependency. Build preparation uses
+`immuknow.resources` to locate engine files and obtain their rendering identity.
+It copies the shared library and schemas into disposable `generated/core/`,
 prepares examples and generates browser validators. The deployed Studio is a
 static application: it runs no Python service and requires no application backend.
 
@@ -78,7 +82,7 @@ remain authored project files and are preserved. The native preparation checks
 confirm that the exported inputs reproduce each view; browser checks cover
 selection, edits, reloads and downloads.
 
-## Template scaffold
+## Starter project snapshot
 
 Studio bundles an allowlisted snapshot of ImmuKnow-Template at an exact commit
 under `assets/project-template/`. Asset preparation verifies every upstream file
@@ -87,7 +91,12 @@ commit as Studio. Normal builds and browser downloads need no private repository
 credentials or fetches. Refresh the snapshot explicitly as described in
 [Build and contribute](development.md#update-the-project-template).
 
-Downloads combine this scaffold with the selected authored project and fictional
+Studio maps Core’s installed library paths to authored project paths when
+recording compatibility. Relocating installed files alone does not invalidate
+projects whose shared bytes and formats still match.
+
+Build preparation combines Template’s authored starter files with Core’s shared
+library. Downloads include the selected authored project and Studio’s fictional
 inputs. Downloads supply any missing setup files and preserve files already
 present in imported projects. `template-source.json` identifies the upstream
 snapshot, while `immuknow-project.json` hashes the actual downloaded bytes.
@@ -96,7 +105,7 @@ snapshot, while `immuknow-project.json` hashes the actual downloaded bytes.
 ## Core versions
 
 Studio v0.1.0 has its own release number. Its Core dependency currently selects
-reviewed Core commit `57ee717b29bcb5a316be850f08356fe3cdc1ddac`
+reviewed Core commit `e87d8bc486f7635977bf5248dd88201a0b012811`
 in `pyproject.toml`, with the same commit recorded
 in `uv.lock`. Ordinary locked builds use that commit. A manual build can
 explicitly refresh the configured reference; its effective lockfile and Core

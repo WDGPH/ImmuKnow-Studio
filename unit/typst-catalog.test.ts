@@ -5,18 +5,18 @@ import { describe, expect, it } from "vitest";
 import { functionCatalog } from "../src/typst-catalog";
 
 // Keep authoring help aligned with the same installed Core used for Studio's assets.
-const templates = execFileSync(
+const library = execFileSync(
   "uv",
   [
     "run",
     "--locked",
     "python",
     "-c",
-    "from immuknow.resources import resource_root; print(resource_root() / 'templates')",
+    "from immuknow.resources import typst_library_root; print(typst_library_root())",
   ],
   { encoding: "utf8" },
 ).trim();
-const library = join(templates, "lib", "immuknow");
+const templates = "assets/project-template/templates";
 const components = readdirSync(join(library, "src"))
   .filter((name) => name.endsWith(".typ"))
   .map((name) => readFileSync(join(library, "src", name), "utf8"))

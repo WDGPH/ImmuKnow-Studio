@@ -8,7 +8,7 @@ dependencies = ["ImmuKnow", "PyYAML"]
 package = false
 
 [tool.uv.sources]
-immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", rev = "57ee717b29bcb5a316be850f08356fe3cdc1ddac" }
+immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", rev = "e87d8bc486f7635977bf5248dd88201a0b012811" }
 
 [dependency-groups]
 dev = [

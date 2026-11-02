@@ -24,17 +24,16 @@ from immuknow.data_models import CheckResult
 from immuknow.generate_notices import build_notice_data, prepare_render_jobs
 from immuknow.load_config import load_config
 from immuknow.preprocess import prepare_clients, read_input
-from immuknow.resources import resource_root
+from immuknow.resources import typst_library_root
 from immuknow.version_notices import load_catalog, template_identity
 
 from .build_info import project_build
-from .project_template import scaffold_files
+from .project_template import SNAPSHOT, scaffold_files
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
-PACKAGE = resource_root()
-CONFIG = PACKAGE / "config"
-TEMPLATES = PACKAGE / "templates"
+CONFIG = SNAPSHOT / "config"
+TEMPLATES = SNAPSHOT / "templates"
 
 
 def write_csv(path: Path, source: dict[str, str]) -> None:
@@ -47,20 +46,18 @@ def write_csv(path: Path, source: dict[str, str]) -> None:
 
 def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
     """Prepare each shared client for every maintained notice and return export files."""
+    resources = scaffold_files()
     authored = json.loads((EXAMPLES / "scenarios.json").read_text(encoding="utf-8"))
     config = load_config(CONFIG / "parameters.yaml")
     config.update(authored["dates"])
     catalog = load_catalog(CONFIG)
     examples = []
-    resources = {
-        "templates/" + path.relative_to(TEMPLATES).as_posix(): path.read_bytes()
-        for path in sorted(TEMPLATES.rglob("*"))
-        if path.is_file()
-    }
+    library = typst_library_root()
     resources.update(
         {
-            "config/" + path.relative_to(CONFIG).as_posix(): path.read_bytes()
-            for path in sorted(CONFIG.rglob("*"))
+            "templates/lib/immuknow/"
+            + path.relative_to(library).as_posix(): path.read_bytes()
+            for path in sorted(library.rglob("*"))
             if path.is_file()
         }
     )
@@ -71,6 +68,7 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
     with tempfile.TemporaryDirectory(prefix="immuknow-studio-examples-") as scratch:
         workspace = Path(scratch)
         shutil.copytree(TEMPLATES, workspace / "resources/templates")
+        shutil.copytree(library, workspace / "resources/templates/lib/immuknow")
         for scenario in authored["clients"]:
             payloads, preparation_checks, inputs = {}, {}, {}
             source = scenario["source"]
@@ -147,7 +145,6 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                 }
             )
     resources["examples/README.md"] = (EXAMPLES / "README.md").read_bytes()
-    resources.update(scaffold_files())
     resources["build.json"] = (json.dumps(project_build(), indent=2) + "\n").encode()
     prepared = {
         "schemaVersion": 1,

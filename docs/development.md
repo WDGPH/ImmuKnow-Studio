@@ -8,8 +8,12 @@ application.
 ## Choose the right repository
 
 Change the editor, browser previews, drafts, imports, exports, fictional examples
-and this manual here. Change the native pipeline, schemas, default templates,
+and this manual here. Change the native pipeline, schemas, reference
 configuration and shared Typst components in [ImmuKnow](https://github.com/WDGPH/ImmuKnow).
+Change starter letters, Settings, translations, example branding, project
+configuration and native helper scripts in
+[ImmuKnow Template](https://github.com/WDGPH/ImmuKnow-Template), then refresh
+its pinned snapshot here. Core ships no starter letters.
 Change the shared documentation presentation and catalogue in
 [WDGPH/docs](https://github.com/WDGPH/docs).
 
@@ -18,10 +22,11 @@ small changes, and include the checks and any remaining limits in your PR.
 
 ## Core dependency
 
-Studio installs Core from reviewed commit `57ee717b29bcb5a316be850f08356fe3cdc1ddac`
+Studio installs Core from reviewed commit `e87d8bc486f7635977bf5248dd88201a0b012811`
 of <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` and `uv.lock` pin that
-revision. It supplies the starter templates and shared components used by
-previews and downloaded projects.
+revision. It supplies the shared components and native behavior used by
+previews and downloaded projects. Starter content comes from the separate
+Template snapshot.
 A local Core checkout is not required.
 
 To adopt a different Core revision, update `rev` in `pyproject.toml`, then:
@@ -59,7 +64,7 @@ To rebuild against the configured Core reference, open **Actions → Studio Page
 → Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
-currently it is Core commit `57ee717b29bcb5a316be850f08356fe3cdc1ddac`. A configured tag or revision stays
+currently it is Core commit `e87d8bc486f7635977bf5248dd88201a0b012811`. A configured tag or revision stays
 at that reference. The workflow regenerates example facts and checks resource
 compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.
@@ -245,12 +250,13 @@ locked Core commit. Those calls intentionally stay internal; dependency updates
 must pass example preparation and native/browser checks.
 
 Core resources are copied into disposable `generated/core/` for browser builds.
-Edits belong in Core or the open authored project, never the installed package
-or generated copy. Builds and imports check shared library file integrity.
+Edit engine components in Core, starter content in Template, or the open
+authored project. Never edit the installed package or generated copy. Builds and
+imports check shared library file integrity.
 
 ## Update the project template
 
-The reviewed scaffold in `assets/project-template/` comes from
+The starter project snapshot in `assets/project-template/` comes from
 [ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template). Clone that private
 repository locally when changing the snapshot. Select a full commit containing
 its `studio-scaffold.json` allowlist and a lock for Studio's Core revision:
@@ -262,11 +268,12 @@ npm run prepare:assets
 ```
 
 The refresh reads committed Git blobs, records source identity and SHA-256 hashes,
-and copies only the allowlisted setup files, scripts, licence and README.
+and copies the allowlisted starter files, configuration, setup, scripts, licence
+and README. The shared library is excluded and comes from Core.
 Commit the snapshot and its provenance together. Do not edit the copied files in
 Studio; make changes in Template and refresh. Python lint/type checks exclude the
 copied upstream code. Downloaded-project browser checks run the project helpers
-and native engine; the copied scaffold includes no maintainer tests. Its pytest
+and native engine; the snapshot includes no maintainer tests. Its pytest
 dependency is in an optional test group and is not installed by a normal `uv sync`.
 
 Ordinary builds verify the local snapshot without GitHub access. A Core update
