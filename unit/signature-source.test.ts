@@ -1,8 +1,13 @@
 import { expect, test } from "vitest";
-import { themeImage, updateThemeImage } from "../src/branding";
+import { themeImage, updateThemeImage, signatureName, updateSignatureName } from "../src/branding";
 import { decoder, encoder } from "../src/project";
 import { resetProject } from "../src/project-actions";
-import { inlineSignatureImage, updateInlineSignatureImage } from "../src/signature-source";
+import {
+  inlineSignatureImage,
+  updateInlineSignatureImage,
+  inlineSignatureName,
+  orderSignatoryName,
+} from "../src/signature-source";
 
 const image = 'image("assets/signature.png", width: 4.5cm)';
 const block = `#immuknow.signature-block(\n  signature: ${image},\n  name: signature-name,\n)`;
@@ -71,4 +76,19 @@ test("older projects keep their signature image in Settings", () => {
   expect(decoder.decode(changed["templates/settings.typ"])).toBe(
     `#let signature = ${image.replace("signature.png", "new.svg")}\n`,
   );
+});
+
+test("printed credentials can change without changing the name in the order", () => {
+  const template = "templates/order.en.typ";
+  const source =
+    '#let order-signatory-name = "Dr. Example"\r\n' +
+    block.replace("name: signature-name", 'name: "Dr. Example, MD"');
+  const files = { [template]: encoder.encode(source) };
+  expect(signatureName(files, template)?.value).toBe("Dr. Example, MD");
+  const changed = updateSignatureName(files, template, "Dr. Example, MD, MPH");
+  expect(orderSignatoryName(changed[template])?.value).toBe("Dr. Example");
+  const baseline = { [template]: encoder.encode(source.replace("Dr. Example", "Dr. Starter")) };
+  expect(
+    inlineSignatureName(resetProject(changed, baseline, template, "template")[template])?.value,
+  ).toBe("Dr. Example, MD, MPH");
 });

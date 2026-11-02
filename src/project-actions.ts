@@ -8,7 +8,14 @@ import {
 } from "./project";
 import { resetSettingsKeepingTheme } from "./theme-settings";
 import { imagePath, relativeImage } from "./branding";
-import { inlineSignatureImage, updateInlineSignatureImage } from "./signature-source";
+import {
+  inlineSignatureImage,
+  inlineSignatureName,
+  updateInlineSignatureImage,
+  updateInlineSignatureName,
+  orderSignatoryName,
+  updateOrderSignatoryName,
+} from "./signature-source";
 import type { Bundle, Example, Files } from "./types";
 
 export type ResetScope = "template" | "settings" | "theme";
@@ -145,6 +152,14 @@ export function resetProject(
     const asset = current && imagePath(previousTemplate, current.relative);
     if (asset)
       next[template] = updateInlineSignatureImage(next[template], relativeImage(template, asset));
+  }
+  if (scope !== "theme") {
+    const name = inlineSignatureName(files[previousTemplate]);
+    if (name && inlineSignatureName(next[template]))
+      next[template] = updateInlineSignatureName(next[template], name.value);
+    const orderName = orderSignatoryName(files[previousTemplate]);
+    if (orderName && orderSignatoryName(next[template]))
+      next[template] = updateOrderSignatoryName(next[template], orderName.value);
   }
   if (scope !== "template") {
     const path = settingsPath(baseline, template);

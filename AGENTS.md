@@ -17,6 +17,12 @@ Preserve complete authored project bytes and relative paths. Shared components
 remain read-only and must match Core. Preserve draft recovery, archive limits,
 comment-aware editing and compatibility checks.
 
+Follow Core's [template authoring principles](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#template-authoring-principles).
+Theme controls should support clear literal arguments in Templates rather than
+require Settings aliases solely for UI convenience. Preserve image aspect ratios,
+authored sizes, independent printed/prose names, and Theme choices through resets
+and downloads. Change shared starters and helper defaults in Core.
+
 Follow docs/documentation.md for plain language and current-behavior guidance.
 Use short, plain pull request descriptions focused on the reason for the change
 and its effect. Omit agent attribution and detailed verification logs.

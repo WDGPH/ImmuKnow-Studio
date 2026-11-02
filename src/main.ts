@@ -1,8 +1,20 @@
 import "./style.css";
 import { initializeCodingCheatsheet } from "./coding-cheatsheet";
 import { archiveJob } from "./archive";
-import { imageBytes, imagePath, themeImage, updateThemeImage } from "./branding";
-import { inlineSignatureImage } from "./signature-source";
+import {
+  imageBytes,
+  imagePath,
+  themeImage,
+  updateThemeImage,
+  signatureName,
+  updateSignatureName,
+} from "./branding";
+import {
+  inlineSignatureImage,
+  inlineSignatureName,
+  orderSignatoryName,
+  updateOrderSignatoryName,
+} from "./signature-source";
 import { Compiler, type CompileInput } from "./compile";
 import { claimEditingTab, DraftStore, type SaveState } from "./drafts";
 import { SourceEditor } from "./editor";
@@ -395,10 +407,10 @@ function refreshTheme() {
     if (color) input.value = color;
   }
   const signatory = byId<HTMLInputElement>("signature-name-picker");
-  const signatureName = bytes ? settingValue(bytes, "signature-name") : undefined;
-  signatory.disabled = !signatureName?.startsWith('"');
-  signatory.value = signatory.disabled ? "" : JSON.parse(signatureName as string);
-  signatory.title = signatory.disabled ? "Edit the printed name in Settings." : "";
+  const printedName = signatureName(files, template);
+  signatory.disabled = !printedName;
+  signatory.value = printedName?.value ?? "";
+  signatory.title = signatory.disabled ? "Edit the printed name in Template or Settings." : "";
   for (const kind of ["logo", "signature", "extra"]) {
     const reference = kind === "extra" ? undefined : themeImage(files, template, kind);
     const relative = reference?.relative;
@@ -568,11 +580,17 @@ for (const name of ["heading", "link", "accent"])
       }),
     );
 byId<HTMLInputElement>("signature-name-picker").onchange = () =>
-  void action(() =>
-    changeSettings({
-      "signature-name": JSON.stringify(byId<HTMLInputElement>("signature-name-picker").value),
-    }),
-  );
+  void action(() => {
+    const reference = signatureName(files, template);
+    if (!reference) throw new Error("Edit the printed name in Template or Settings.");
+    const next = updateSignatureName(
+      files,
+      template,
+      byId<HTMLInputElement>("signature-name-picker").value,
+    );
+    editor.replaceFile(reference.path, files[reference.path], next[reference.path]);
+    refreshTheme();
+  });
 for (const unit of healthUnits) select("health-unit-preset").add(new Option(unit.name, unit.id));
 select("health-unit-preset").onchange = () =>
   void action(async () => {
@@ -584,10 +602,18 @@ select("health-unit-preset").onchange = () =>
     const previous = files;
     let themed = {
       ...files,
-      [path]: themedSettings(files[path], unit, Boolean(inlineSignatureImage(files[template]))),
+      [path]: themedSettings(
+        files[path],
+        unit,
+        Boolean(inlineSignatureImage(files[template])),
+        Boolean(inlineSignatureName(files[template])),
+      ),
     };
     for (const kind of ["logo", "signature"])
       themed = updateThemeImage(themed, template, kind, `templates/assets/${kind}.png`);
+    themed = updateSignatureName(themed, template, unit.signatory);
+    if (orderSignatoryName(themed[template]))
+      themed[template] = updateOrderSignatoryName(themed[template], unit.signatory);
     const [logo, signature] = await Promise.all(
       [unit.logo, unit.signature].map(async (url) => {
         const response = await fetch(url);

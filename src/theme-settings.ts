@@ -272,7 +272,8 @@ export function resetSettingsKeepingTheme(baseline: Uint8Array, current: Uint8Ar
   for (const name of themeBindings) {
     // Custom projects may omit theme controls entirely, but a removed or repeated
     // binding cannot be safely merged into a different starting layout.
-    if (!active.code.includes(name) && !starting.code.includes(name)) continue;
+    const referenced = new RegExp(`(?<![\\w-])${name}(?![\\w-])`);
+    if (!referenced.test(active.code) && !referenced.test(starting.code)) continue;
     preserve(wholeValue(active, name), wholeValue(starting, name));
   }
   if (binding(starting, "qr") || binding(active, "qr")) {

@@ -58,9 +58,26 @@ table using your Settings choices.</p>
   labels: presentation.selected-labels())
 #immuknow.qr-code(notice, ..qr)</code></pre>
 <p>Use <code>overdue-agents</code> for the vaccine agent list.
+Bullet indentation defaults to 0.8cm; set <code>indent: 1cm</code> on the helper
+to change just that list.
 These functions display the client's information; their options control how
 it looks. <code>..qr</code> uses the group of QR options defined in Settings.
 Review <strong>Findings</strong> for any warnings about the letter.</p>
+</section>
+
+<section>
+<h2>Signature image and printed name</h2>
+<pre><code>#immuknow.signature-block(
+  signature: image("assets/signature.png", width: 4.5cm),
+  name: "Dr. Annie Body, MD",
+  title: "Medical Officer of Health",
+)</code></pre>
+<p>For a smaller signature, change <code>width: 4.5cm</code> to
+<code>width: 3cm</code>. Leave height out to preserve the image's aspect ratio.
+The filename, size and printed name are visible in the Template. Theme can
+change the image and printed name without changing its width. In a suspension
+order, <code>order-signatory-name</code> controls the name in the legal wording
+separately from credentials printed below the signature.</p>
 </section>
 
 <section>

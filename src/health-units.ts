@@ -35,6 +35,7 @@ export function themedSettings(
   bytes: Uint8Array,
   unit: HealthUnit,
   inlineSignature = false,
+  inlineName = false,
 ): Uint8Array {
   const images: Record<string, string> = {};
   for (const name of ["logo", "signature"]) {
@@ -47,7 +48,7 @@ export function themedSettings(
   return updateQRStyle(
     updateThemeSettings(bytes, {
       ...images,
-      "signature-name": JSON.stringify(unit.signatory),
+      ...(inlineName ? {} : { "signature-name": JSON.stringify(unit.signatory) }),
       "health-unit-name": JSON.stringify(`${unit.name} Health Unit`),
       "body-font": JSON.stringify(unit.font),
       "heading-color": `rgb("${unit.heading}")`,

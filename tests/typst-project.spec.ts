@@ -57,7 +57,9 @@ for (const [scenario, filename] of cases) {
       const templatePath = `templates/${filename}`;
       const labelled = new TextDecoder()
         .decode(imported[templatePath])
-        .replace("  notice,", '  notice, id-label: "Record number",');
+        .replace("  notice,", '  notice, id-label: "Record number",')
+        .replace("width: 4.5cm", "width: 3cm")
+        .replace('name: "Dr. Annie Body"', 'name: "Dr. Annie Body, MD"');
       imported[templatePath] = new TextEncoder().encode(labelled);
       expectedFiles[templatePath] = Buffer.from(labelled).toString("base64");
       const zip = await exportProject(imported, `templates/${filename}`, bundle.build);

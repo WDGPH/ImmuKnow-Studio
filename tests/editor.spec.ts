@@ -1,4 +1,10 @@
-import { downloadProject, restoredProject, saved, chooseTemplate, editExampleData } from "./helpers";
+import {
+  downloadProject,
+  restoredProject,
+  saved,
+  chooseTemplate,
+  editExampleData,
+} from "./helpers";
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
@@ -139,10 +145,13 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   const settings = new TextDecoder()
     .decode(files["templates/settings.typ"])
     .replace("#let body-size = 10pt", "#let body-size = 10.12345pt")
-    .replace('#let signature-name = "Dr. Annie Body"', '#let signature-name = ""')
     .replace("  enabled: true,", "  enabled: false,")
     .replaceAll("\n", "\r\n");
   files["templates/settings.typ"] = new TextEncoder().encode(`\ufeff${settings}`);
+  const entry = "templates/overdue_diseases_v1.en.typ";
+  files[entry] = new TextEncoder().encode(
+    new TextDecoder().decode(files[entry]).replace('name: "Dr. Annie Body"', 'name: ""'),
+  );
   const untouched = new Uint8Array([0, 1, 127, 128, 255]);
   files["templates/assets/preserved.bin"] = untouched;
   const archive = await exportProject(files, "templates/overdue_diseases_v1.en.typ", bundle.build);
@@ -641,6 +650,8 @@ test("a failed local renderer load can recover after refreshing", async ({ page 
   await currentPreview(page);
   expect(attempts).toBeGreaterThan(beforeRefresh);
   await page.locator(".cm-content").press("Control+End");
-  await expect(page.locator(".cm-content")).toContainText("Keep my work while recovering the preview");
+  await expect(page.locator(".cm-content")).toContainText(
+    "Keep my work while recovering the preview",
+  );
   await expect(page.locator(".preview-page canvas")).toHaveCount(2);
 });

@@ -1,7 +1,36 @@
 import { MAX_FILE, settingsPath } from "./project";
-import { inlineSignatureImage, updateInlineSignatureImage } from "./signature-source";
+import {
+  inlineSignatureImage,
+  inlineSignatureName,
+  updateInlineSignatureImage,
+  updateInlineSignatureName,
+} from "./signature-source";
 import { settingValue, updateThemeSettings } from "./theme-settings";
 import type { Files } from "./types";
+
+export function signatureName(files: Files, template: string) {
+  const inline = inlineSignatureName(files[template]);
+  if (inline) return { path: template, value: inline.value, inline: true };
+  const path = settingsPath(files, template);
+  const value = path ? settingValue(files[path], "signature-name") : undefined;
+  try {
+    if (path && value?.startsWith('"'))
+      return { path, value: JSON.parse(value) as string, inline: false };
+  } catch {
+    /* Calculated or incomplete names stay in source editing. */
+  }
+}
+
+export function updateSignatureName(files: Files, template: string, name: string): Files {
+  const reference = signatureName(files, template);
+  if (!reference) throw new Error("Edit the printed signature name in Template or Settings.");
+  return {
+    ...files,
+    [reference.path]: reference.inline
+      ? updateInlineSignatureName(files[reference.path], name)
+      : updateThemeSettings(files[reference.path], { "signature-name": JSON.stringify(name) }),
+  };
+}
 
 export function themeImage(files: Files, template: string, kind: string) {
   const inline = kind === "signature" ? inlineSignatureImage(files[template]) : undefined;

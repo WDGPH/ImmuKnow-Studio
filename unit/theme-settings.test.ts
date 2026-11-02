@@ -105,7 +105,6 @@ test("maintained Settings keep every byte outside the requested values", () => {
   const source = decoder.decode(original);
   const changes = {
     "body-font": '"FreeSerif"',
-    "signature-name": '"Dr. Example"',
     "link-color": 'rgb("#123456")',
     logo: 'image("assets/edited.png", width: logo-width)',
   };
