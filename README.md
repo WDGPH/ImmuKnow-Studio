@@ -12,16 +12,19 @@ Start with the [user guide](docs/getting-started.md) or read the
 ## From template development to production
 
 [ImmuKnow](https://github.com/WDGPH/ImmuKnow) is the core engine. Studio uses its
-templates, shared components and data format to make template development faster.
+shared components and data format, with starter projects maintained in
+[ImmuKnow Template](https://github.com/WDGPH/ImmuKnow-Template), to make template development faster.
 Production notice generation runs with ImmuKnow on your local workstation.
 
 In Studio, open **Project** at the top-right of the webpage and choose
 **Download project**. Extract the ZIP, install uv, Git, Typst and the supplied
 fonts, then run `uv sync --locked` and `uv run python scripts/check.py --sample`.
 You can omit the fonts from the ZIP if the matching fonts are already installed.
+Clear **Include fictional client data** to omit the sample and use your own inputs.
+The `--sample` commands above require an included or custom sample.
 The project includes [ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template)'s
 Python setup and helper scripts, your authored notice/configuration, and the
-selected fictional sample. See [Use projects on your workstation](docs/local-production.md).
+selected fictional sample when requested. See [Use projects on your workstation](docs/local-production.md).
 
 ## Local browser work
 
@@ -39,7 +42,5 @@ browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/
 - [Documentation and releases](docs/documentation.md): strict manual builds,
   the PHIZ documentation hub and v0.1.0 preparation.
 
-Studio pins Core to reviewed commit **`6df6993`**, based on the latest `main`
-and the starter-template changes in [Core PR #230](https://github.com/WDGPH/ImmuKnow/pull/230).
-The exact revision is recorded in `uv.lock`. This is a development pin,
-not another release candidate. Studio and Core have separate version numbers.
+Studio pins Core to commit **`3304385`**. The exact revision is
+recorded in `uv.lock`. Studio and Core have separate version numbers.

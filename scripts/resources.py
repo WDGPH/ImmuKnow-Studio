@@ -11,7 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> None:
     source = resource_root()
     destination = ROOT / "generated/core"
-    for name in ("schemas", "templates", "config"):
+    if destination.exists():
+        shutil.rmtree(destination)
+    for name in ("schemas", "typst"):
         target = destination / name
         if target.exists():
             shutil.rmtree(target)

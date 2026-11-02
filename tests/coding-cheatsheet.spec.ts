@@ -19,8 +19,8 @@ test("the Typst Reference works offline and preserves the source and selected ta
   await expect(
     dialog.getByRole("heading", { name: "Client information", exact: true }),
   ).toBeVisible();
-  await expect(dialog).toContainText("notice.client_data.over_16");
-  await expect(dialog).toContainText("#immunization-history()");
+  await expect(dialog).toContainText("#if to_student");
+  await expect(dialog).toContainText("#immuknow.immunization-history()");
   await expect(dialog).toContainText("immuknow.query-url");
   await expect(dialog).toContainText('image("assets/signature.png", width: 4.5cm)');
   await expect(dialog.getByRole("button", { name: "Close reference" })).toBeFocused();

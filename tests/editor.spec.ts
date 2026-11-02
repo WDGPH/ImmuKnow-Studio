@@ -38,7 +38,7 @@ test("a component error opens the supplied library for reading without changing 
   await source.click();
   await source.press("Control+End");
   await page.keyboard.insertText(
-    '\n#immuknow.check-notice(notice, version: "wrong", language: "en")',
+    '\n#immuknow.check-notice(version: "wrong", language: "en")',
   );
   const finding = page
     .locator("#diagnostics button")
@@ -111,7 +111,7 @@ test("history warnings follow edited suspension content and recover after errors
   await source.click();
   await source.press("Control+End");
   await page.keyboard.insertText(
-    "\n#pagebreak()\n#immuknow.immunization-history(notice, show-validity: true)\n",
+    "\n#pagebreak()\n#immuknow.immunization-history(show-validity: true)\n",
   );
   await currentPreview(page);
   await expect(page.locator("#diagnostics")).toContainText("content.history_validity");

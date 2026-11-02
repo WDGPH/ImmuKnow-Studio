@@ -9,14 +9,52 @@ async function current(page: Page) {
     timeout: 60_000,
   });
 }
-async function download(page: Page) {
+async function download(page: Page, includeFictionalData?: boolean) {
   const menu = page.locator(".project-actions");
   if (!(await menu.evaluate((element) => (element as HTMLDetailsElement).open)))
     await menu.locator("summary").click();
   const pending = page.waitForEvent("download");
-  await downloadProject(page);
+  await downloadProject(page, undefined, includeFictionalData);
   return unzipSync(readFileSync((await (await pending).path()) as string));
 }
+
+test("fictional data can be omitted without affecting editing or reopening the project", async ({ page }) => {
+  await page.goto("./");
+  await current(page);
+  await page.locator(".project-actions summary").click();
+  await page.locator("#export").click();
+  const checkbox = page.getByRole("checkbox", { name: "Include fictional client data", includeHidden: true });
+  await expect(checkbox).toBeChecked();
+  await page.getByRole("radio", { name: "Authored .typ files only" }).check();
+  await expect(checkbox).toBeHidden();
+  await expect(checkbox).toBeDisabled();
+  await page.getByRole("radio", { name: "Complete project" }).check();
+  await expect(checkbox).toBeVisible();
+  await expect(checkbox).toBeEnabled();
+  await page.locator("#download-cancel").click();
+  const included = await download(page, true);
+  expect(included["sample.json"]).toBeDefined();
+  // Imported copies of the supplied sample can also be excluded.
+  await page.locator("#archive").setInputFiles({
+    name: "with-sample.zip", mimeType: "application/zip", buffer: Buffer.from(zipSync(included)),
+  });
+  await expect(page.locator("#archive")).toHaveValue("");
+  await current(page);
+  const omitted = await download(page, false);
+  expect(Object.keys(omitted).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
+  expect(Object.keys(omitted).filter((path) => path.startsWith("input/sample/"))).toEqual([]);
+  expect(omitted["sample.json"]).toBeUndefined();
+  for (const path of ["templates/overdue_diseases_v1.en.typ", "templates/settings.typ", "scripts/run.py", "pyproject.toml"])
+    expect(omitted[path]).toEqual(included[path]);
+  await page.locator("#archive").setInputFiles({
+    name: "without-sample.zip", mimeType: "application/zip", buffer: Buffer.from(zipSync(omitted)),
+  });
+  await expect(page.locator("#archive")).toHaveValue("");
+  await current(page);
+  const restored = await download(page, true);
+  expect(restored["input/sample/sample_students.csv"]).toEqual(included["input/sample/sample_students.csv"]);
+  expect(restored["sample.json"]).toEqual(included["sample.json"]);
+});
 
 for (const scope of ["template", "settings", "theme"]) {
   test(`reset ${scope} has the same scope from Theme and survives reloading`, async ({ page }) => {

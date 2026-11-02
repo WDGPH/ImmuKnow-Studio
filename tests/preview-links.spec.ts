@@ -2,11 +2,11 @@ import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
 
-const source = `#import "settings.typ": *
-#show: notice-style
-#immuknow.qr-code(notice, url: n => "https://example.test/record?id=" + n.client_id)
+const source = `#import "setup.typ": *
+#show: immuknow.letter
+#immuknow.qr-code(url: n => "https://example.test/record?id=" + n.client_id)
 
-#immuknow.notice-link("https://example.test/text#details")[Open the record]
+#immuknow.link("https://example.test/text#details")[Open the record]
 
 #rotate(15deg, reflow: true)[#link("https://example.test/rotated")[Rotated link]]
 
@@ -32,6 +32,15 @@ async function compile(page: Page) {
       },
     ]);
   }, source);
+  await page.waitForFunction(
+    (revision) => window.proof.results.some((result) => result.revision === revision),
+    revision,
+  );
+  const diagnostics = await page.evaluate(
+    (revision) => window.proof.results.find((result) => result.revision === revision)?.diagnostics,
+    revision,
+  );
+  expect(diagnostics?.filter((item) => item.severity === "error")).toEqual([]);
   await page.waitForFunction(
     (revision) =>
       Boolean(

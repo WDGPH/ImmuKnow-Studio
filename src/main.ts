@@ -689,9 +689,11 @@ const downloadDialog = byId<HTMLDialogElement>("download-dialog");
 function refreshDownloadOptions() {
   const typstOnly =
     new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst";
-  byId<HTMLInputElement>("include-fonts").disabled = typstOnly;
-  const fontOption = downloadDialog.querySelector<HTMLElement>(".download-fonts");
-  if (fontOption) fontOption.hidden = typstOnly;
+  for (const id of ["include-fonts", "include-fictional-data"]) {
+    const option = byId<HTMLInputElement>(id);
+    option.disabled = typstOnly;
+    if (option.parentElement) option.parentElement.hidden = typstOnly;
+  }
 }
 byId("download-form").onchange = refreshDownloadOptions;
 button("export").onclick = () => {
@@ -711,6 +713,7 @@ byId<HTMLFormElement>("download-form").onsubmit = (event) => {
       revision,
       context: compiler.context,
       includeFonts: byId<HTMLInputElement>("include-fonts").checked,
+      includeFictionalData: byId<HTMLInputElement>("include-fictional-data").checked,
       typstOnly:
         new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst",
     };
@@ -731,6 +734,7 @@ byId<HTMLFormElement>("download-form").onsubmit = (event) => {
           bundle.examples,
           snapshot.example,
           starters,
+          snapshot.includeFictionalData,
         );
         bytes = await archiveJob({
           action: "export",

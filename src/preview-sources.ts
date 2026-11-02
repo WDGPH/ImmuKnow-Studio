@@ -37,10 +37,7 @@ export function previewSources(
 ): Preview {
   if (!summary) return preview;
   const client = callOrigin(files, template, ["immuknow.client-block"]);
-  const history = callOrigin(files, template, [
-    "immunization-history",
-    "immuknow.immunization-history",
-  ]);
+  const history = callOrigin(files, template, ["immuknow.immunization-history"]);
   const diseases = callOrigin(files, template, ["immuknow.overdue-diseases"]);
   const agents = callOrigin(files, template, ["immuknow.overdue-agents"]);
   const overdueDiseases = Array.isArray(summary.notice.overdue_diseases)

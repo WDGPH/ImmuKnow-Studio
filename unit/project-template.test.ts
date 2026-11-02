@@ -13,7 +13,12 @@ test("Template snapshot rejects changed files and mismatched Core pins", () => {
 import hashlib, json, shutil, tempfile
 from pathlib import Path
 from scripts.project_template import PROVENANCE, SNAPSHOT, scaffold_files
-assert "scripts/run.py" in scaffold_files()
+files = scaffold_files()
+assert "scripts/run.py" in files
+assert "templates/overdue_diseases_v1.en.typ" in files
+assert "templates/settings.typ" in files
+assert "config/notice_versions.yaml" in files
+assert not any(name.startswith("templates/lib/") for name in files)
 with tempfile.TemporaryDirectory() as temporary:
     snapshot = Path(temporary) / "snapshot"
     shutil.copytree(SNAPSHOT, snapshot)

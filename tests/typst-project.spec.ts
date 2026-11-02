@@ -19,6 +19,7 @@ const cases = [
   ["short", "overdue_diseases_v1.en.typ"],
   ["long-history", "overdue_diseases_v1.fr.typ"],
   ["source-warnings", "overdue_agents_v1.fr.typ"],
+  ["guardian-reader", "suspension_order_v1.en.typ"],
 ];
 
 for (const [scenario, filename] of cases) {
@@ -36,7 +37,7 @@ for (const [scenario, filename] of cases) {
     await chooseTemplate(page, `templates/${filename}`);
     await chooseExample(page, index);
     if (scenario === "short" && filename.startsWith("overdue_diseases_v1.")) {
-      // Check a custom ID label, Unicode QR destination and font control after download.
+      // Check local history/page options, ID labels, QR destinations and fonts after download.
       const imported: Files = Object.fromEntries(
         Object.entries(bundle.files).map(([path, bytes]) => [
           path,
@@ -57,9 +58,17 @@ for (const [scenario, filename] of cases) {
       const templatePath = `templates/${filename}`;
       const labelled = new TextDecoder()
         .decode(imported[templatePath])
-        .replace("  notice,", '  notice, id-label: "Record number",')
+        .replace("#immuknow.client-block(", '#immuknow.client-block(id-label: "Record number",')
         .replace("width: 4.5cm", "width: 3cm")
-        .replace('name: "Dr. Annie Body"', 'name: "Dr. Annie Body, MD"');
+        .replace('name: "Dr. Annie Body"', 'name: "Dr. Annie Body, MD"')
+        .replace(
+          "#immuknow.immunization-history()",
+          "#immuknow.immunization-history(show-age: true, font-size: 12pt)",
+        )
+        .replace(
+          '#immuknow.notice-page("Immunization Record")',
+          '#immuknow.notice-page("Immunization Record", title-size: 18pt)',
+        );
       imported[templatePath] = new TextEncoder().encode(labelled);
       expectedFiles[templatePath] = Buffer.from(labelled).toString("base64");
       const zip = await exportProject(imported, `templates/${filename}`, bundle.build);
@@ -113,6 +122,18 @@ for (const [scenario, filename] of cases) {
       }),
     );
     expect(preview.length).toBeGreaterThan(0);
+    if (scenario === "guardian-reader") {
+      const notice = examples[index].payloads[filename];
+      expect(notice.client_data.over_16).toBe(true);
+      expect(notice.reader).toBe("guardian");
+      const text = preview
+        .map((page) => page.plainText)
+        .join(" ")
+        .replace(/\s+/g, " ");
+      expect(text).toContain("To Parent/Guardian of:");
+      expect(text).toContain("Serve: Parent/Guardian.");
+      expect(text).not.toContain("Serve: Parent/Guardian and student.");
+    }
     writeFileSync(
       info.outputPath("preview-pages.json"),
       JSON.stringify(

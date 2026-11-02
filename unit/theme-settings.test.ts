@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "vitest";
+import { healthUnits, themedSettings } from "../src/health-units";
 import { decoder, encoder } from "../src/project";
 import {
   resetSettingsKeepingTheme,
@@ -100,7 +101,7 @@ test("QR overrides, repeated fields and computed style values are left to source
 
 test("maintained Settings keep every byte outside the requested values", () => {
   const original = readFileSync(
-    new URL("../generated/core/templates/settings.typ", import.meta.url),
+    new URL("../assets/project-template/templates/settings.typ", import.meta.url),
   );
   const source = decoder.decode(original);
   const changes = {
@@ -147,7 +148,7 @@ test("calculated colours are not rewritten by a theme change", () => {
 
 test("Settings reset preserves branding and QR style while restoring layout and contacts", () => {
   const baseline = readFileSync(
-    new URL("../generated/core/templates/settings.typ", import.meta.url),
+    new URL("../assets/project-template/templates/settings.typ", import.meta.url),
   );
   const source = decoder.decode(baseline);
   const current = bytes(
@@ -197,4 +198,12 @@ test("refuses to preserve theme expressions whose dependencies would be removed"
     expect(() => resetSettingsKeepingTheme(baseline, bytes(source))).toThrow(
       "Cannot safely separate Theme",
     );
+});
+
+test("theme starters work when organization and signature wording live in Template", () => {
+  const source = readFileSync("assets/project-template/templates/settings.typ", "utf8").replace(/^#let health-unit-name = .*\n/m, "");
+  const result = themedSettings(bytes(source), healthUnits[1], true, true);
+  expect(settingValue(result, "body-font")).toBe('"FreeSans"');
+  expect(settingValue(result, "heading-color")).toBe('rgb("#034770")');
+  expect(settingValue(result, "health-unit-name")).toBeUndefined();
 });

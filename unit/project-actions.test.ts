@@ -50,6 +50,36 @@ const edited: Files = {
   "templates/assets/studio-extra.svg": new Uint8Array([9]),
 };
 
+test("fictional inputs are optional, including after importing a Studio sample", () => {
+  const inputs = { csv: "examples/selected.csv", assignments: "examples/selected.json" };
+  const example: Example = {
+    id: "selected", label: "", description: "", payloads: {}, preparationChecks: {},
+    inputs: { "notice.en.typ": inputs },
+  };
+  const starters = {
+    ...baseline,
+    [inputs.csv]: encoder.encode("Fictional client"),
+    [inputs.assignments]: encoder.encode('[{"client_id":"123","template":"notice.en.typ"}]'),
+  };
+  const included = currentProject(starters, template, [example], example, starters);
+  for (const files of [starters, included]) {
+    const omitted = currentProject(files, template, [example], example, starters, false);
+    for (const path of [inputs.csv, inputs.assignments, "sample.json", "input/sample/sample_students.csv", "input/sample/sample_assignments.json"])
+      expect(omitted[path], path).toBeUndefined();
+    for (const [path, bytes] of Object.entries(baseline)) expect(omitted[path]).toBe(bytes);
+  }
+  expect(included["sample.json"]).toBeDefined();
+  expect(starters[inputs.csv]).toBeDefined();
+
+  const custom: Files = {
+    ...included,
+    "input/sample/sample_students.csv": encoder.encode("Custom imported data"),
+  };
+  const preserved = currentProject(custom, template, [example], example, starters, false);
+  for (const path of ["sample.json", "input/sample/sample_students.csv", "input/sample/sample_assignments.json"])
+    expect(preserved[path]).toBe(custom[path]);
+});
+
 test("template-only reset keeps settings and every image", () => {
   expect(resetProject(edited, baseline, template, "template")).toEqual({
     ...edited,
@@ -120,15 +150,19 @@ test("legacy downloads gain the pinned scaffold without overwriting authored set
   const files = { ...baseline, "README.md": encoder.encode("Authored instructions") };
   const starters = {
     "template-source.json": encoder.encode(
-      JSON.stringify({ files: { "README.md": "hash", "scripts/run.py": "hash" } }),
+      JSON.stringify({ files: { "README.md": "hash", "scripts/run.py": "hash", "templates/other.fr.typ": "hash", "config/new.json": "hash" } }),
     ),
     "README.md": encoder.encode("Upstream instructions"),
     "scripts/run.py": encoder.encode("Upstream runner"),
+    "templates/other.fr.typ": encoder.encode("Unselected starter"),
+    "config/new.json": encoder.encode("{}"),
   };
   const result = currentProject(files, template, [], undefined, starters);
   expect(result["README.md"]).toBe(files["README.md"]);
   expect(result["scripts/run.py"]).toBe(starters["scripts/run.py"]);
   expect(result["template-source.json"]).toBe(starters["template-source.json"]);
+  expect(result["templates/other.fr.typ"]).toBeUndefined();
+  expect(result["config/new.json"]).toBeUndefined();
 });
 
 test("switching preview retains an imported sample and its original inputs", () => {

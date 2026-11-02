@@ -22,8 +22,8 @@ to that template. Cancel keeps your current work.
 
 | Tab | What to use it for |
 | --- | --- |
-| **Template** | Letter wording, headings, privacy text and the content placed on each page |
-| **Settings** | Page and envelope layout, dates, contacts, QR destinations and display choices |
+| **Template** | Letter wording, contacts and suspension dates, headings, privacy text and the content placed on each page |
+| **Settings** | Shared page and envelope layout, QR destinations and display choices |
 | **Theme** | Fonts, colours, logo, signature and an additional image |
 
 The preview updates as you edit. Try a small wording change first. If an edit
@@ -61,7 +61,8 @@ another computer:
    **Include fonts for installation**, and
    select **Download ZIP** to save `immuknow-project.zip`.
 3. Keep the ZIP somewhere you control. It contains the selected template,
-   supporting files, assets, Python setup, helper scripts and selected fictional example inputs.
+   supporting files, assets, Python setup and helper scripts. Keep **Include fictional
+   client data** selected to include the example inputs for a local test run.
 
 Download each template you want to keep: this action does not back up every
 other notice in the browser draft. To return to a downloaded project, open

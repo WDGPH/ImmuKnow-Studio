@@ -17,9 +17,9 @@ ImmuKnow's shared components as described in
 
 ## Edit and review
 
-Use **Template** for letter wording, **Settings** for page/envelope setup,
-dates, QR destinations and display choices, and **Theme** for fonts, colours,
-logo, signature and an additional image. Template starters and Theme starters
+Use **Template** for letter wording, contacts and suspension dates,
+**Settings** for shared page/envelope setup, QR destinations and display choices,
+and **Theme** for fonts, colours, logo, signature and an additional image. Template starters and Theme starters
 are in Theme. Selecting a different template opens a confirmation dialog: load
 that template from its starting copy, optionally resetting Settings or Settings
 and Theme too. Edits to the target template are replaced only after confirmation;
@@ -51,9 +51,24 @@ Changing printed credentials leaves that name unchanged. Theme starters fill bot
 names initially. Template-only and Settings-only resets preserve Theme images
 and names; a reset that includes Theme restores their starting values.
 
+Settings supplies shared defaults for `immuknow.immunization-history()` and `immuknow.notice-page`.
+Change one table or page directly in Template, for example
+`#immuknow.immunization-history(show-age: true, font-size: 12pt)` or
+`#immuknow.notice-page("Immunization Record", title-size: 18pt)[...]`.
+Other tables and pages keep the Settings defaults. Shared setup connects the
+client data once, so ImmuKnow helper calls do not need a `notice` argument.
+Keep the opening Settings marker, setup import and `#show: immuknow.letter`
+line in place; they are essential setup. Use `to_student` and
+`to_guardian` directly in `if`/`else` wording, including a neutral final branch.
+The optional CSV `reader` choice takes priority over the age default and controls
+the address addressee too, including in suspension orders. Try the older student
+with a guardian choice in Example clients.
+Omit QR calls when a letter has no QR code. Client blocks use `details: "right"`
+and `font-size: 10pt` by default; set a different value directly on the block.
+
 A refused theme change leaves the project unchanged.
 
-The editor keeps native imports such as `#import "settings.typ": *` visible.
+The editor keeps native imports such as `#import "setup.typ": *` visible.
 Open **Typst Reference** using the book icon in the top header, beside the
 walkthrough button, for
 examples of letter wording, client information, page layout and ImmuKnow functions.
@@ -169,8 +184,8 @@ match. The selected file must be an English or French notice under `templates/`.
 - **Saved draft only** removes the browser copy, including pending saves, while
   keeping the open workspace. Later edits save it again.
 - **Template only** restores the selected template and keeps current Settings and Theme, including images.
-- **Template + settings** also restores layout, dates, contacts and display
-  options, while keeping fonts, colours, organization name, signature, image
+- **Template + settings** also restores layout and display
+  options, while keeping fonts, colours, signature, image
   sizes and QR appearance. Uploaded images stay available.
 - **Template + settings + theme** restores the complete starting Settings and
   images, and removes images added since the project was opened.
@@ -197,16 +212,21 @@ Open **Project** at the top-right of the webpage.
 **Download project** opens a dialog offering **Complete project** (the default)
 or **Authored .typ files only**. With **Complete project**, choose **Download ZIP**
 to save the selected notice with current Settings,
-Theme, translations, components, images and configuration. It includes only the
-selected fictional client’s CSV and assignment file; unrelated starter notices
-and example inputs are omitted. Explicitly referenced notices and authored
+Theme, translations, components, images and configuration.
+The **Include fictional client data** checkbox is selected by default. Keep it
+to include the selected fictional client’s CSV, assignment file and sample setup
+for a local test run. Clear it to download without Studio’s fictional inputs,
+including unchanged sample copies from a previously imported Studio ZIP. Custom
+imported sample data is preserved. Unrelated starter notices and example inputs
+are omitted. Explicitly referenced notices and authored
 companion files remain available, preserving project dependencies. Other notices
 in the browser draft are not backed up by this download; download each notice
 you want to keep.
 Authored files keep their bytes and relative paths. Import the ZIP to resume
 editing, or run it locally using the included ImmuKnow-Template Python setup,
 locked Core dependency and helper scripts. The ZIP includes a README
-and sample copies under `input/sample/` when a prepared example is available.
+and sample copies under `input/sample/` when fictional client data is included
+and a prepared example is available.
 An imported project's existing sample selection and authored files are preserved.
 The installed environment, engine wheel and native Typst compiler are not bundled.
 If the project changes while the ZIP is being prepared, download it again.

@@ -5,12 +5,14 @@ import io
 import json
 import tempfile
 import unittest
+from hashlib import sha256
 from pathlib import Path
 
 from immuknow.assignment_manifest import load_manifest
 from immuknow.generate_notices import build_notice_data
 from immuknow.load_config import load_config
 from immuknow.preprocess import prepare_clients, read_input
+from immuknow.resources import typst_library_root
 from immuknow.version_notices import load_catalog, template_identity
 
 from scripts.examples import EXAMPLES, generate
@@ -21,6 +23,28 @@ class SharedClientsTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.prepared, cls.resources = generate()
         cls.authored = json.loads((EXAMPLES / "scenarios.json").read_text())
+
+    def test_library_identity_uses_project_paths_and_actual_library_bytes(self) -> None:
+        build = json.loads(self.resources["build.json"])
+        entries = build["shared_resources"]["files"]
+        library = {
+            item["path"]: item["sha256"]
+            for item in entries
+            if item["path"].startswith("templates/lib/immuknow/")
+        }
+        self.assertIn("templates/lib/immuknow/lib.typ", library)
+        self.assertFalse(any(item["path"].startswith("typst/") for item in entries))
+        actual = {
+            "templates/lib/immuknow/"
+            + path.relative_to(typst_library_root()).as_posix(): sha256(
+                path.read_bytes()
+            ).hexdigest()
+            for path in typst_library_root().rglob("*")
+            if path.is_file()
+        }
+        self.assertEqual(library, actual)
+        for name, expected in library.items():
+            self.assertEqual(sha256(self.resources[name]).hexdigest(), expected)
 
     def test_every_notice_uses_the_same_client_source_and_facts(self) -> None:
         expected = {client["id"]: client for client in self.authored["clients"]}

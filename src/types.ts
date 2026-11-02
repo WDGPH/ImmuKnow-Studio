@@ -16,6 +16,7 @@ export interface Notice {
   client_id: string;
   version_id: string;
   language: "en" | "fr";
+  reader?: "student" | "guardian" | null;
   client_data: { name: string; [key: string]: unknown };
   [key: string]: unknown;
 }

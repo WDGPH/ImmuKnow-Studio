@@ -12,6 +12,10 @@ Keep **Complete project** for the runnable ZIP described below. Choose
 **Authored .typ files only** to copy the active notice, settings and referenced
 `.typ` companions into an existing matching repository instead; that smaller ZIP
 uses your repository’s existing ImmuKnow components, fonts and assets.
+**Include fictional client data** is selected by default for a local test run.
+Clear it to omit Studio’s fictional inputs and sample setup. Custom imported
+sample data is preserved. Without a sample, use your own CSV and assignments
+as described under [Run your own notices](#run-your-own-notices).
 Extract `immuknow-project.zip` into a folder you control.
 
 | Item | Purpose |
@@ -20,8 +24,8 @@ Extract `immuknow-project.zip` into a folder you control.
 | `scripts/`, `README.md` | Template's run/check helpers and instructions |
 | `templates/` | Your selected notice, Settings, supporting files, images and shared components |
 | `config/` | Configuration for native ImmuKnow runs |
-| `input/sample/`, `sample.json` | Selected fictional sample and its configured paths |
-| `examples/` | Original selected fictional input files and their explanation |
+| `input/sample/`, `sample.json` | Selected fictional sample and its configured paths, when included |
+| `examples/` | Original selected fictional input files, when included, and their explanation |
 | `templates/fonts/` | Fonts and licences for manual installation, when included in the download |
 | `template-source.json` | Template repository, source commit and original scaffold file hashes |
 | `immuknow-project.json` | Studio import format, selected notice, build identity and current file hashes |
@@ -51,16 +55,17 @@ uv run python scripts/run.py --sample
 ```
 
 The first command needs network access to install the locked dependencies,
-including Core from reviewed commit `7254f86`. The ZIP includes setup
+including Core from reviewed commit `3304385`. The ZIP includes setup
 files, not an installed environment, engine wheel or native Typst compiler.
 The check validates configuration, compiler and shared resources, then runs the
 sample in a temporary folder. The last command keeps a run and prints its report
 location. Warnings can be expected; review them in the report.
 
-Studio supplies copies of the selected fictional inputs in `input/sample/` and
+When **Include fictional client data** is selected, Studio supplies copies of
+the selected fictional inputs in `input/sample/` and
 points `sample.json` to them. Original example paths remain intact. An imported
 project's existing sample selection and authored sample bytes are preserved,
-even when you change the preview client. With no prepared example, a project can
+even when you change the preview client. Without fictional data or a prepared example, a project can
 still be downloaded: provide inputs and a `sample.json` selection before running
 `--sample`. Changing source CSVs does not change Studio's fixed browser facts.
 

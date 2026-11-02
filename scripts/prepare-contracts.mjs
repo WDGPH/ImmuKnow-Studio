@@ -13,7 +13,7 @@ execFileSync("uv", ["run", "--locked", "python", "-m", "scripts.resources"], {
 });
 
 const payload = JSON.parse(readFileSync(new URL("../generated/core/schemas/rendering-v1.json", import.meta.url)));
-const report = JSON.parse(readFileSync(new URL("../generated/core/templates/lib/immuknow/report-v2.json", import.meta.url)));
+const report = JSON.parse(readFileSync(new URL("../generated/core/typst/report-v2.json", import.meta.url)));
 const ajv = new Ajv2020({ code: { source: true, lines: true } });
 for (const keyword of ["x-evaluator", "x-adjustable", "x-components"]) ajv.addKeyword(keyword);
 addFormats(ajv);

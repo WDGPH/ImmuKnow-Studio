@@ -5,18 +5,17 @@ import { describe, expect, it } from "vitest";
 import { functionCatalog } from "../src/typst-catalog";
 
 // Keep authoring help aligned with the same installed Core used for Studio's assets.
-const templates = execFileSync(
+const library = execFileSync(
   "uv",
   [
     "run",
     "--locked",
     "python",
     "-c",
-    "from immuknow.resources import resource_root; print(resource_root() / 'templates')",
+    "from immuknow.resources import typst_library_root; print(typst_library_root())",
   ],
   { encoding: "utf8" },
 ).trim();
-const library = join(templates, "lib", "immuknow");
 const components = readdirSync(join(library, "src"))
   .filter((name) => name.endsWith(".typ"))
   .map((name) => readFileSync(join(library, "src", name), "utf8"))
@@ -42,18 +41,11 @@ describe("authoring help follows installed Core", () => {
   it("suggests only supported named options for shared functions", () => {
     for (const [name, help] of Object.entries(functionCatalog)) {
       if (!name.startsWith("immuknow.")) continue;
-      const actual = namedOptions(components, name.slice("immuknow.".length));
+      const component =
+        name === "immuknow.notice-page" ? "notice-section" : name.slice("immuknow.".length);
+      const actual = namedOptions(components, component);
       for (const option of help.namedParameters ?? [])
         expect(actual, `${name}: ${option}`).toContain(option);
-    }
-  });
-
-  it("describes the Settings helpers separately from Core functions", () => {
-    const settings = readFileSync(join(templates, "settings.typ"), "utf8");
-    for (const name of ["notice-style", "notice-page", "immunization-history"]) {
-      const actual = namedOptions(settings, name);
-      expect(functionCatalog[name]).toBeDefined();
-      expect(functionCatalog[name].namedParameters ?? []).toEqual(actual);
     }
   });
 });

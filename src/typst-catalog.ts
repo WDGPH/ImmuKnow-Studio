@@ -53,17 +53,6 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     example: '#image("assets/logo.png", width: 6cm)',
     reference: "visualize/image/",
   },
-  "notice-page": {
-    namedParameters: ["allow-overflow"],
-    description:
-      "Starts a named page with the logo, heading, and standard spacing. Reports a finding if it unexpectedly continues onto more pages.",
-    parameters: [
-      ["title", "The heading text, in quotes."],
-      ["body", "The page content inside square brackets."],
-      ["allow-overflow", "Set true to allow this content to continue onto more pages."],
-    ],
-    example: '#notice-page("Request for Immunization Record")[Your letter here.]',
-  },
   "immuknow.notice-header": {
     namedParameters: ["logo", "title", "logo-width", "title-size", "fill", "placement", "spacing"],
     description: "Places the logo and letter heading together.",
@@ -91,11 +80,10 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     ],
     description: "Places the mailing address and client details.",
     parameters: [
-      ["notice", "This client’s data."],
       ["window", "Position and size of the envelope window."],
       ["details", 'Use "right" beside the address or "below" underneath it.'],
     ],
-    example: '#immuknow.client-block(notice, details: "below")',
+    example: '#immuknow.client-block(details: "below")',
   },
   "immuknow.qr-code": {
     namedParameters: [
@@ -113,12 +101,11 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     ],
     description: "Draws a QR code using the client’s link function or a fixed URL.",
     parameters: [
-      ["notice", "This client’s information."],
       ["url", "A fixed URL, or a function that builds a link from this notice."],
       ["width", "Displayed width, such as 3cm."],
       ["enabled", "Set false to hide the code."],
     ],
-    example: '#immuknow.qr-code(notice, url: "https://example.org/update", width: 3cm)',
+    example: '#immuknow.qr-code(url: "https://example.org/update", width: 3cm)',
   },
   h: {
     description: "Adds horizontal space within a line.",
@@ -483,37 +470,23 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     namedParameters: ["encoding"],
     reference: "data-loading/read/",
   },
-  "notice-style": {
-    description: "Applies the Settings document wrapper. Normally used in a show rule.",
-    parameters: [["body", "The document content supplied by the show rule."]],
-    example: "#show: notice-style",
-    namedParameters: [],
-  },
-  "immunization-history": {
-    description: "Inserts the history table using the options chosen in Settings.",
-    parameters: [],
-    example: "#immunization-history()",
-    namedParameters: [],
-  },
   "immuknow.notice-page": {
-    description: "Sets up the page layout. Use notice-page to start a page with a heading.",
+    namedParameters: ["allow-overflow", "title-size", "fill", "heading-above", "heading-below"],
+    description:
+      "Starts a named page using Settings defaults. Named options change only this page; unexpected continuation produces a finding.",
     parameters: [
-      ["body", "Content in square brackets."],
-      ["language", 'Use "en", "fr", or auto where supported.'],
-      ["paper", 'Paper size, such as "us-letter" or "a4".'],
-      ["margins", "Space around the page edges, with top, bottom, left and right values."],
-      ["font", "Typeface name, such as body-font."],
-      ["font-size", "Text size, such as 10pt."],
-      ["page-numbers", "Set true to show page numbers."],
+      ["title", "The heading text, in quotes."],
+      ["body", "The page content inside square brackets."],
+      ["allow-overflow", "Set true to allow this content to continue onto more pages."],
+      ["title-size / fill", "Heading size and colour for this page."],
+      ["heading-above / heading-below", "Space above and below this page’s heading."],
     ],
-    example: "#immuknow.notice-page[Page content]",
-    namedParameters: ["language", "paper", "margins", "font", "font-size", "page-numbers"],
+    example: '#immuknow.notice-page("Request for Immunization Record")[Your letter here.]',
   },
-  "immuknow.notice-style": {
+  "immuknow.letter": {
     description: "Applies the letter layout and includes the results of ImmuKnow’s checks.",
     parameters: [
       ["body", "Document content supplied by the show rule."],
-      ["notice", "Client information supplied by Settings."],
       ["language", 'Use "en", "fr", or auto where supported.'],
       ["paper", 'Paper size, such as "us-letter" or "a4".'],
       ["margins", "Space around the page edges, with top, bottom, left and right values."],
@@ -523,9 +496,8 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["paragraph-spacing", "Gap between paragraphs, such as 0.55em."],
       ["page-numbers", "Set true to show page numbers."],
     ],
-    example: "#show: immuknow.notice-style.with(notice: notice)",
+    example: "#show: immuknow.letter",
     namedParameters: [
-      "notice",
       "language",
       "paper",
       "margins",
@@ -563,12 +535,11 @@ export const functionCatalog: Record<string, FunctionHelp> = {
   "immuknow.address-block": {
     description: "Places the client mailing address and records it for checking.",
     parameters: [
-      ["notice", "Client information."],
       ["language", 'Use "en", "fr", or auto where supported.'],
       ["addressee", "Optional addressee setting."],
       ["province", "Optional province setting."],
     ],
-    example: "#immuknow.address-block(notice)",
+    example: "#immuknow.address-block()",
     namedParameters: ["language", "addressee", "province"],
   },
   "immuknow.signature-block": {
@@ -590,7 +561,6 @@ export const functionCatalog: Record<string, FunctionHelp> = {
   "immuknow.overdue-diseases": {
     description: "Displays the overdue diseases as bullets or inline text.",
     parameters: [
-      ["notice", "Client information."],
       ["style", "Optional style setting."],
       ["columns", "Number of columns, such as 1 or 2."],
       ["indent", "Bullet indentation; defaults to 0.8cm. Overrides only this list."],
@@ -601,7 +571,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["language", 'Use "en", "fr", or auto where supported.'],
       ["labels", "Optional labels setting."],
     ],
-    example: '#immuknow.overdue-diseases(notice, style: "bullets")',
+    example: '#immuknow.overdue-diseases(style: "bullets")',
     namedParameters: [
       "style",
       "columns",
@@ -617,7 +587,6 @@ export const functionCatalog: Record<string, FunctionHelp> = {
   "immuknow.overdue-agents": {
     description: "Displays the overdue vaccine agents.",
     parameters: [
-      ["notice", "Client information."],
       ["style", "Optional style setting."],
       ["columns", "Number of columns, such as 1 or 2."],
       ["indent", "Bullet indentation; defaults to 0.8cm. Overrides only this list."],
@@ -626,13 +595,13 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["empty", "Optional empty setting."],
       ["language", 'Use "en", "fr", or auto where supported.'],
     ],
-    example: "#immuknow.overdue-agents(notice)",
+    example: "#immuknow.overdue-agents()",
     namedParameters: ["style", "columns", "indent", "spacing", "row-spacing", "empty", "language"],
   },
   "immuknow.immunization-history": {
-    description: "Builds the history table with explicit display options.",
+    description:
+      "Inserts the history table using Settings defaults. Named options change only this table.",
     parameters: [
-      ["notice", "Client information."],
       ["diseases", "Optional diseases setting."],
       ["ignore-agents", "Optional ignore agents setting."],
       ["include-other", "Optional include other setting."],
@@ -654,7 +623,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["indicator-size", "Optional indicator size setting."],
       ["indicator-offset", "Optional indicator offset setting."],
     ],
-    example: "#immuknow.immunization-history(notice, show-validity: true)",
+    example: "#immuknow.immunization-history(show-validity: true)",
     namedParameters: [
       "diseases",
       "ignore-agents",
@@ -684,13 +653,13 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     example: "#immuknow.privacy-notice[Your information is confidential.]",
     namedParameters: [],
   },
-  "immuknow.notice-link": {
-    description: "Creates an external link recorded for PDF checks.",
+  "immuknow.link": {
+    description: "Adds a website, email or phone link and checks its address format.",
     parameters: [
-      ["destination", "Quoted URL or a URL variable."],
+      ["destination", "Address starting with https:, mailto: or tel:."],
       ["body", "Optional display text in square brackets."],
     ],
-    example: "#immuknow.notice-link(records-url)[Send your record]",
+    example: '#immuknow.link("https://example.org/immunization")[Send your record]',
     namedParameters: [],
   },
   "immuknow.query-url": {
@@ -703,7 +672,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
         "Names and values to add, such as (client: notice.client_id). Pass the original text.",
       ],
     ],
-    example: "#immuknow.query-url(records-url, (client: notice.client_id))",
+    example: '#immuknow.query-url("https://example.org/update", (client: notice.client_id))',
     namedParameters: [],
   },
   "immuknow.url-encode": {
@@ -714,10 +683,18 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     example: "#immuknow.url-encode(notice.client_id)",
     namedParameters: [],
   },
+  "immuknow.reader": {
+    description:
+      "Returns the intended reader: student, guardian or none. Use to_student and to_guardian in letter wording.",
+    parameters: [],
+    example:
+      "#if to_student [you have] else if to_guardian [your child has] else [the named client has]",
+    namedParameters: [],
+  },
   "immuknow.notice-dates": {
     description: "Provides delivery, as-of and birth dates in the notice’s language.",
-    parameters: [["notice", "Client information."]],
-    example: "#immuknow.notice-dates(notice)",
+    parameters: [],
+    example: "#immuknow.notice-dates()",
     namedParameters: [],
   },
   "immuknow.long-date": {
@@ -734,12 +711,11 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     description:
       "Checks that the client information matches the expected notice version and language.",
     parameters: [
-      ["notice", "Client information."],
       ["version", 'Expected notice version, such as "v1".'],
       ["language", 'Use "en", "fr", or auto where supported.'],
     ],
     example:
-      '#immuknow.check-notice(notice, version: sys.inputs.at("notice-version"), language: sys.inputs.at("notice-language"))',
+      '#immuknow.check-notice(version: sys.inputs.at("notice-version"), language: sys.inputs.at("notice-language"))',
     namedParameters: ["version", "language"],
   },
 };
