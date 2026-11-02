@@ -18,10 +18,11 @@ small changes, and include the checks and any remaining limits in your PR.
 
 ## Core dependency
 
-Studio installs Core from reviewed commit `6df6993b33fb884a4c76155b4174d45d21846edd`
+Studio installs Core from reviewed commit `dcc8ceb83d27ecf50da7948516a26956583ef410`
 of <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` and `uv.lock` pin that
-revision. It includes [Core PR #230](https://github.com/WDGPH/ImmuKnow/pull/230),
-based on the latest `main` after `v2.0.0-rc2`; it is not a new release candidate.
+revision. It includes the merged template and dependency updates in
+[Core PR #230](https://github.com/WDGPH/ImmuKnow/pull/230) and
+[Core PR #229](https://github.com/WDGPH/ImmuKnow/pull/229); it is not a new release candidate.
 A local Core checkout is not required.
 
 To adopt a different Core revision, update `rev` in `pyproject.toml`, then:
@@ -59,7 +60,7 @@ To rebuild against the configured Core reference, open **Actions → Studio Page
 → Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
-currently it is Core commit `6df6993b33fb884a4c76155b4174d45d21846edd`. A configured tag or revision stays
+currently it is Core commit `dcc8ceb83d27ecf50da7948516a26956583ef410`. A configured tag or revision stays
 at that reference. The workflow regenerates example facts and checks resource
 compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.
@@ -165,8 +166,8 @@ then reload.
 Install Git hooks once per clone with `uv run --locked prek install`. The hooks
 lint and format Python with Ruff; CI checks the same rules without rewriting
 files. Run them
-manually with `uv run --locked prek run --all-files`. Keep Ruff's version in
-`pyproject.toml` and `.pre-commit-config.yaml` aligned. The copied Template
+manually with `uv run --locked prek run --all-files`. The hooks run the Ruff version
+locked by the project. The copied Template
 scaffold is excluded; change and check those Python helpers in Template.
 
 Install native Typst 0.15.1 for native/browser comparisons. The Playwright
