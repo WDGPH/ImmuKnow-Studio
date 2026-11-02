@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { unzipSync } from "fflate";
 import { chooseTemplate, confirmProjectChange, downloadProject, editExampleData } from "./helpers";
@@ -14,6 +15,7 @@ test("Theme edits explicit signature paths and names without changing the author
       .toString("utf8")
       .replace("width: 4.5cm", "width: 3cm");
     bundle.files[path] = Buffer.from(source).toString("base64");
+    bundle.hashes[path] = createHash("sha256").update(source).digest("hex");
   });
   await page.goto("./");
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
@@ -59,5 +61,6 @@ test("printed credentials stay separate from the suspension order name", async (
   await expect(page.locator(".cm-content")).toContainText(
     '#let order-signatory-name = "Dr. Phil Better"',
   );
+  await page.locator(".cm-content").press("Control+End");
   await expect(page.locator(".cm-content")).toContainText('name: "Dr. Phil Better, MD, MPH"');
 });
