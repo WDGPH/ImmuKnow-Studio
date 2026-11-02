@@ -16,7 +16,6 @@ const library = execFileSync(
   ],
   { encoding: "utf8" },
 ).trim();
-const templates = "assets/project-template/templates";
 const components = readdirSync(join(library, "src"))
   .filter((name) => name.endsWith(".typ"))
   .map((name) => readFileSync(join(library, "src", name), "utf8"))
@@ -42,24 +41,11 @@ describe("authoring help follows installed Core", () => {
   it("suggests only supported named options for shared functions", () => {
     for (const [name, help] of Object.entries(functionCatalog)) {
       if (!name.startsWith("immuknow.")) continue;
-      const actual = namedOptions(components, name.slice("immuknow.".length));
+      const component =
+        name === "immuknow.notice-page" ? "notice-section" : name.slice("immuknow.".length);
+      const actual = namedOptions(components, component);
       for (const option of help.namedParameters ?? [])
         expect(actual, `${name}: ${option}`).toContain(option);
-    }
-  });
-
-  it("describes project defaults and suggests supported forwarded options", () => {
-    const settings = readFileSync(join(templates, "settings.typ"), "utf8");
-    expect(functionCatalog["notice-style"].namedParameters).toEqual(
-      namedOptions(settings, "notice-style"),
-    );
-    for (const [helper, component] of [
-      ["notice-page", "notice-section"],
-      ["immunization-history", "immunization-history"],
-    ]) {
-      const actual = namedOptions(components, component);
-      for (const option of functionCatalog[helper].namedParameters ?? [])
-        expect(actual, `${helper}: ${option}`).toContain(option);
     }
   });
 });

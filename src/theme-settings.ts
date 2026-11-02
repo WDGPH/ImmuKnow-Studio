@@ -188,7 +188,6 @@ const themeBindings = [
   "link-color",
   "accent-color",
   "title-size",
-  "client-font-size",
   "logo",
   "logo-width",
   "signature",

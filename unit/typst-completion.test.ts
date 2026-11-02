@@ -23,8 +23,8 @@ describe("Typst coding suggestions", () => {
         "text",
         "grid",
         "table",
-        "notice-page",
-        "immunization-history",
+        "immuknow.notice-page",
+        "immuknow.immunization-history",
         "immuknow.overdue-diseases",
         "immuknow.signature-block",
         "immuknow.query-url",
@@ -41,9 +41,9 @@ describe("Typst coding suggestions", () => {
 
   it("offers named options for direct and multiline function calls", () => {
     expect(labels("#text(si|)")).toContain("size");
-    expect(labels("#immuknow.qr-code(\nnotice,\nwi|)")).toContain("width");
-    expect(labels("#show: immuknow.notice-style.with(no|)")).toContain("notice");
-    expect(labels("#immuknow.immunization-history(notice, sh|)")).toContain("show-validity");
+    expect(labels("#immuknow.qr-code(\nwi|)")).toContain("width");
+    expect(labels("#show: immuknow.letter.with(pa|)")).toContain("paper");
+    expect(labels("#immuknow.immunization-history(sh|)")).toContain("show-validity");
   });
 
   it("inserts named option punctuation and omits options already supplied", () => {
@@ -90,10 +90,10 @@ describe("function hover help", () => {
   it("shows help for qualified table helpers and function references", () => {
     for (const source of [
       "#table.header([Date])",
-      "#show: notice-style",
-      "#immuknow.immunization-history(notice)",
+      "#show: immuknow.letter",
+      "#immuknow.immunization-history()",
     ]) {
-      const name = source.startsWith("#show") ? "notice-style" : source.slice(1).split("(")[0];
+      const name = source.startsWith("#show") ? "immuknow.letter" : source.slice(1).split("(")[0];
       const state = EditorState.create({ doc: source, extensions: [typst] });
       expect(functionHelp(state, source.indexOf(name) + 2)?.name).toBe(name);
     }

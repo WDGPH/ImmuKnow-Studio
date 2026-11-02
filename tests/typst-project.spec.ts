@@ -57,11 +57,17 @@ for (const [scenario, filename] of cases) {
       const templatePath = `templates/${filename}`;
       const labelled = new TextDecoder()
         .decode(imported[templatePath])
-        .replace("  notice,", '  notice, id-label: "Record number",')
+        .replace("#immuknow.client-block(", '#immuknow.client-block(id-label: "Record number",')
         .replace("width: 4.5cm", "width: 3cm")
         .replace('name: "Dr. Annie Body"', 'name: "Dr. Annie Body, MD"')
-        .replace("#immunization-history()", "#immunization-history(show-age: true, font-size: 12pt)")
-        .replace('#notice-page("Immunization Record")', '#notice-page("Immunization Record", title-size: 18pt)');
+        .replace(
+          "#immuknow.immunization-history()",
+          "#immuknow.immunization-history(show-age: true, font-size: 12pt)",
+        )
+        .replace(
+          '#immuknow.notice-page("Immunization Record")',
+          '#immuknow.notice-page("Immunization Record", title-size: 18pt)',
+        );
       imported[templatePath] = new TextEncoder().encode(labelled);
       expectedFiles[templatePath] = Buffer.from(labelled).toString("base64");
       const zip = await exportProject(imported, `templates/${filename}`, bundle.build);

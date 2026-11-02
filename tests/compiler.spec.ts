@@ -11,7 +11,7 @@ const root = resolve(".");
 const clockSource = `#import "lib/immuknow/lib.typ" as immuknow
 #let notice = json(sys.inputs.at("data"))
 #immuknow.check-notice(notice, version: sys.inputs.at("notice-version"), language: sys.inputs.at("notice-language"))
-#show: immuknow.notice-style.with(notice: notice)
+#show: immuknow.letter.with(notice: notice)
 Today: #datetime.today().display("[year]-[month]-[day]")
 `;
 
@@ -171,7 +171,7 @@ test("browser snapshots retain native findings, frozen dates and recover from er
     const job = window.proof.job;
     const source = `#import "lib/immuknow/lib.typ" as immuknow
 #let notice = json(sys.inputs.at("data"))
-#show: immuknow.notice-style.with(notice: notice)
+#show: immuknow.letter.with(notice: notice)
 #immuknow.notice-section("Long section")[#for _ in range(75) [Extra paragraph. #parbreak()]]`;
     return window.proof.submit([
       { ...job, files: { ...job.files, [`/${job.template}`]: new TextEncoder().encode(source) } },
@@ -649,7 +649,7 @@ test("seven-page preview is fully painted and scrolling does not repaint", async
   const revision = await page.evaluate(() => {
     const job = window.proof.job;
     const pages = Array.from({ length: 7 }, (_, index) => `Page ${index + 1} of seven`);
-    const source = `#import "settings.typ": *\n#show: notice-style\n${pages.join("\n#pagebreak()\n")}`;
+    const source = `#import "setup.typ": *\n#show: immuknow.letter\n${pages.join("\n#pagebreak()\n")}`;
     return window.proof.submit([
       {
         ...job,

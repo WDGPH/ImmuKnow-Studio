@@ -120,7 +120,7 @@ test("double-click finds editable sources across generated notice components and
     ["Dr. Annie Body", "Dr. Annie Body", "template"],
     ["Associate Medical Officer", "Associate Medical Officer of Health", "template"],
     ["Immunization Record", "Immunization Record", "template"],
-    ["2020-05-01", "immunization-history()", "template"],
+    ["2020-05-01", "immuknow.immunization-history()", "template"],
     ["Health Protection and Promotion Act", "Health Protection and Promotion Act", "template"],
   ];
   for (const zoom of ["fit", "in", "out"]) {
@@ -148,7 +148,7 @@ test("double-click finds editable sources across generated notice components and
     "immuknow.overdue-diseases",
   );
   await page.locator(".preview-text-run").filter({ hasText: "2020-05-01" }).first().dblclick();
-  await expect(page.locator("#editor .source-target")).toHaveText("immunization-history()");
+  await expect(page.locator("#editor .source-target")).toHaveText("immuknow.immunization-history()");
   await page.waitForTimeout(400);
   expect(popups).toBe(0);
 });

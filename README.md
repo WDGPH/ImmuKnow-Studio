@@ -40,5 +40,5 @@ browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/
 - [Documentation and releases](docs/documentation.md): strict manual builds,
   the PHIZ documentation hub and v0.1.0 preparation.
 
-Studio pins Core to commit **`104c2cc`**. The exact revision is
+Studio pins Core to commit **`30be3d7`**. The exact revision is
 recorded in `uv.lock`. Studio and Core have separate version numbers.

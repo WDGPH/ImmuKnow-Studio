@@ -51,15 +51,21 @@ Changing printed credentials leaves that name unchanged. Theme starters fill bot
 names initially. Template-only and Settings-only resets preserve Theme images
 and names; a reset that includes Theme restores their starting values.
 
-Settings supplies shared defaults for `immunization-history()` and `notice-page`.
+Settings supplies shared defaults for `immuknow.immunization-history()` and `immuknow.notice-page`.
 Change one table or page directly in Template, for example
-`#immunization-history(show-age: true, font-size: 12pt)` or
-`#notice-page("Immunization Record", title-size: 18pt)[...]`.
-Other tables and pages keep the Settings defaults.
+`#immuknow.immunization-history(show-age: true, font-size: 12pt)` or
+`#immuknow.notice-page("Immunization Record", title-size: 18pt)[...]`.
+Other tables and pages keep the Settings defaults. Shared setup connects the
+client data once, so ImmuKnow helper calls do not need a `notice` argument.
+Keep the opening Settings marker, setup import and `#show: immuknow.letter`
+line in place; they are essential setup. Use the direct `over_16` variable in
+age-dependent `if`/`else` wording, including a neutral branch for unknown age.
+Omit QR calls when a letter has no QR code. Client blocks use `details: "right"`
+and `font-size: 10pt` by default; set a different value directly on the block.
 
 A refused theme change leaves the project unchanged.
 
-The editor keeps native imports such as `#import "settings.typ": *` visible.
+The editor keeps native imports such as `#import "setup.typ": *` visible.
 Open **Typst Reference** using the book icon in the top header, beside the
 walkthrough button, for
 examples of letter wording, client information, page layout and ImmuKnow functions.

@@ -1,19 +1,17 @@
+// Essential setup: keep these opening lines.
 // @immuknow-settings: settings.typ
-#import "settings.typ": *
-#show: notice-style // Apply the layout and theme from Settings
+#import "setup.typ": *
+#show: immuknow.letter // Apply the letter layout
 
 // Name used in the legal wording; the printed signature may include credentials.
 #let order-signatory-name = "Dr. Annie Body"
 
 // The explicit assignment comes from the upstream assessment.
 // The supplied overdue diseases must already reflect exemptions and the MOH's assessment.
-#notice-page("Order for Suspension from Attendance at School")[
+#immuknow.notice-page("Order for Suspension from Attendance at School")[
 #align(center)[_Pursuant to s. 6 of the Immunization of School Pupils Act_]
 #immuknow.client-block(
-  notice,
   window: if envelope-window == none { none } else { (..envelope-window, y: 135pt) }, // Room for the order title
-  font-size: client-font-size,
-  details: client-details,
   addressee: "Student:",
   school-label: "School",
 )
@@ -21,7 +19,7 @@
 #v(0.1cm)
 #block[
   _To: Principal of_ *#notice.client_data.school*#linebreak()
-  _Serve: Parent/Guardian#if notice.client_data.over_16 == true [ and student]._
+  _Serve: Parent/Guardian#if over_16 == true [ and student]._
 ]
 
 #v(10pt) // Separate service instructions from the order
@@ -46,10 +44,8 @@ The reasons for this order are:
       [A statement that the student has completed the prescribed program of immunization in relation to:
         #block(above: 10pt, below: 10pt)[
           #strong(immuknow.overdue-diseases(
-            notice,
             style: "comma-separated",
             include-dose: false,
-            labels: presentation.selected-labels(),
           ))
         ]
       ],
@@ -62,7 +58,7 @@ The reasons for this order are:
 )
 
 #v(10pt) // Separate the reasons from the reader information
-*#if notice.client_data.over_16 == true [Student] else if notice.client_data.over_16 == false [Parent/Guardian] else [Client or representative]:*
+*#if over_16 == true [Student] else if over_16 == false [Parent/Guardian] else [Client or representative]:*
 
 Questions about this Order can be directed to Cedar Ridge Health Unit — Toll-free: #immuknow.link("tel:1-800-555-0100").
 

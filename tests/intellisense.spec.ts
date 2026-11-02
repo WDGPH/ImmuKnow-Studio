@@ -22,7 +22,7 @@ test("complete a shared component and its arguments, then undo the insertion", a
   await source.press("Control+z");
   await expect(source).toHaveText("#immuknow.immunization-hist");
 
-  await replaceSource(page, "#immuknow.immunization-history(notice, show-val");
+  await replaceSource(page, "#immuknow.immunization-history(show-val");
   await source.press("Control+Space");
   await expect(page.getByRole("option").filter({ hasText: "show-validity" })).toBeVisible();
   await page.waitForTimeout(100);
@@ -34,8 +34,8 @@ test("complete local history and page options", async ({ page }) => {
   await page.goto("./");
   await page.locator("#template-tab").click();
   for (const [text, name] of [
-    ["#immunization-history(show-a", "show-age"],
-    ['#notice-page("History", title-s', "title-size"],
+    ["#immuknow.immunization-history(show-a", "show-age"],
+    ['#immuknow.notice-page("History", title-s', "title-size"],
   ]) {
     const source = await replaceSource(page, text);
     await source.press("Control+Space");
@@ -65,7 +65,7 @@ test("completion stays out of prose, comments, strings and raw examples", async 
 test("expanded hover help explains shared notice components", async ({ page }) => {
   await page.goto("./");
   await page.locator("#template-tab").click();
-  await replaceSource(page, "#immuknow.immunization-history(notice)");
+  await replaceSource(page, "#immuknow.immunization-history()");
   await page.locator(".cm-line").getByText("immunization-history", { exact: true }).hover();
   await expect(page.locator(".function-help")).toContainText("show-validity");
 });

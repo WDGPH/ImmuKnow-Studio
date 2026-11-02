@@ -2,9 +2,11 @@
      so the manual and the dialog use the same examples without a Markdown parser. -->
 <h1 id="coding-cheatsheet-title">Typst Reference</h1>
 <p>Examples for editing ImmuKnow letters. Keep the opening
-<code>#import "settings.typ": *</code> and <code>#show: notice-style</code>
-lines in <strong>Template</strong>. They provide the client information,
-dates and page settings used below.</p>
+<code>#import "setup.typ": *</code> and <code>#show: immuknow.letter</code>
+lines and the <code>@immuknow-settings</code> comment in <strong>Template</strong>
+in place; they are essential setup. They provide the client information,
+dates and page settings used below. Shared setup connects the selected client
+once; the helpers already know whose information to display.</p>
 
 <div class="coding-cheatsheet-grid">
 <section>
@@ -26,46 +28,47 @@ at sign, and <code>\#</code> for a literal hash.</p>
 <pre><code>Record: #notice.client_id
 As of #date_as_of
 
-#if notice.client_data.over_16 == true [
+#if over_16 == true [
   Please update your record.
-] else if notice.client_data.over_16 == false [
+] else if over_16 == false [
   Please update your child's record.
 ] else [
   Please update the named client's record.
 ]</code></pre>
-<p><code>notice</code> contains the selected client's information.
+<p><code>over_16</code> is supplied by setup: true for age 16 or older, false
+for younger clients. <code>notice</code> contains the other client information.
 Age can be unknown, so the final <code>else</code> uses neutral wording.
 Use the Example client arrows to try the letter with different clients.</p>
 </section>
 
 <section>
 <h2>Pages and headings</h2>
-<pre><code>#notice-page("Immunization Record")[
+<pre><code>#immuknow.notice-page("Immunization Record")[
   For your reference:
-  #immunization-history()
+  #immuknow.immunization-history()
 ]</code></pre>
-<p><code>notice-page</code> starts a new page with a heading and warns if the
+<p><code>immuknow.notice-page</code> starts a new page with a heading and warns if the
 content runs onto another page. Add <code>allow-overflow: true</code> when you
-want to allow extra pages. <code>immunization-history()</code> places the history
+want to allow extra pages. <code>immuknow.immunization-history()</code> places the history
 table using your Settings choices. To change just this table, pass an option
-such as <code>#immunization-history(show-age: true, font-size: 12pt)</code>.
+such as <code>#immuknow.immunization-history(show-age: true, font-size: 12pt)</code>.
 Page options work the same way, for example
-<code>#notice-page("Immunization Record", title-size: 18pt)[...]</code>.
+<code>#immuknow.notice-page("Immunization Record", title-size: 18pt)[...]</code>.
 These choices leave other calls unchanged.</p>
 </section>
 
 <section>
 <h2>Address, overdue list and QR code</h2>
-<pre><code>#immuknow.client-block(notice,
-  window: envelope-window, details: "below")
-#immuknow.overdue-diseases(notice,
-  labels: presentation.selected-labels())
-#immuknow.qr-code(notice, ..qr)</code></pre>
+<pre><code>#immuknow.client-block(window: envelope-window)
+#immuknow.overdue-diseases(columns: 1)
+#immuknow.qr-code(..qr)</code></pre>
 <p>Use <code>overdue-agents</code> for the vaccine agent list.
 Bullet indentation defaults to 0.8cm; set <code>indent: 1cm</code> on the helper
 to change just that list.
 These functions display the client's information; their options control how
-it looks. <code>..qr</code> uses the group of QR options defined in Settings.
+it looks. Add <code>font-size: 11pt</code> or <code>details: "below"</code>
+to a client block when you want to change its defaults. Omit the QR call when
+the letter does not use a QR code. <code>..qr</code> uses the group of QR options defined in Settings.
 Review <strong>Findings</strong> for any warnings about the letter.</p>
 </section>
 
