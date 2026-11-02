@@ -58,8 +58,11 @@ Change one table or page directly in Template, for example
 Other tables and pages keep the Settings defaults. Shared setup connects the
 client data once, so ImmuKnow helper calls do not need a `notice` argument.
 Keep the opening Settings marker, setup import and `#show: immuknow.letter`
-line in place; they are essential setup. Use the direct `over_16` variable in
-age-dependent `if`/`else` wording, including a neutral branch for unknown age.
+line in place; they are essential setup. Use `to_student` and
+`to_guardian` directly in `if`/`else` wording, including a neutral final branch.
+The optional CSV `reader` choice takes priority over the age default and controls
+the address addressee too, including in suspension orders. Try the older student
+with a guardian choice in Example clients.
 Omit QR calls when a letter has no QR code. Client blocks use `details: "right"`
 and `font-size: 10pt` by default; set a different value directly on the block.
 

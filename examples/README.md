@@ -2,7 +2,9 @@
 
 These fictional clients help you develop notice wording and layout. They include
 short and long histories, English/French notices, an up-to-date notice and a
-suspension order. They contain no real client information and do not describe a
+suspension order. An older student has an explicit `reader=guardian` choice,
+which keeps their age facts and directs ordinary and suspension wording to a
+guardian. They contain no real client information and do not describe a
 vaccination schedule.
 
 `scenarios.json` owns one source record per client, the maintained notice

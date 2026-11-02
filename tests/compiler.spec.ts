@@ -201,7 +201,7 @@ test("browser snapshots retain native findings, frozen dates and recover from er
   expect(sourceWarning.preview?.artifact.length).toBeGreaterThan(1000);
   expect(
     sourceWarning.summary?.checks.some(
-      (check) => check.code === "content.address_age_unknown" && check.status === "warn",
+      (check) => check.code === "content.address_reader_unknown" && check.status === "warn",
     ),
   ).toBe(true);
   expect(

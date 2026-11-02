@@ -196,6 +196,30 @@
         "school_id": "0014",
         "board_id": "0034"
       }
+    },
+    {
+      "id": "guardian-reader",
+      "label": "Riley Example 09",
+      "description": "Older student; correspondence directed to guardian",
+      "source": {
+        "school_name": "Lilac Demonstration School",
+        "board_name": "Example School Board",
+        "date_of_birth": "2008-02-01",
+        "street_address_line_1": "100 Example Lane",
+        "street_address_line_2": "",
+        "city": "Demo City",
+        "province": "ON",
+        "postal_code": "N0N 0N0",
+        "overdue_disease": "Measles - 2",
+        "overdue_agent": "MMR",
+        "imms_given": "2020-05-01 - MMR - Valid; 2021-06-15 - IPV;",
+        "client_id": "0000000009",
+        "first_name": "Riley",
+        "last_name": "Example 09",
+        "school_id": "0016",
+        "board_id": "0034",
+        "reader": "guardian"
+      }
     }
   ]
 }

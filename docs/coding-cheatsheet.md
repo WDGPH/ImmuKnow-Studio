@@ -28,17 +28,19 @@ at sign, and <code>\#</code> for a literal hash.</p>
 <pre><code>Record: #notice.client_id
 As of #date_as_of
 
-#if over_16 == true [
+#if to_student [
   Please update your record.
-] else if over_16 == false [
+] else if to_guardian [
   Please update your child's record.
 ] else [
   Please update the named client's record.
 ]</code></pre>
-<p><code>over_16</code> is supplied by setup: true for age 16 or older, false
-for younger clients. <code>notice</code> contains the other client information.
-Age can be unknown, so the final <code>else</code> uses neutral wording.
-Use the Example client arrows to try the letter with different clients.</p>
+<p><code>to_student</code> and <code>to_guardian</code> are boolean flags supplied
+by setup. An explicit CSV <code>reader</code> choice takes priority over the age
+default. Only one flag can be true; both are false when the reader is unknown,
+so the final <code>else</code> uses neutral wording. The address block uses the
+same reader, including in suspension orders. Use the Example client arrows to
+try different readers, including the older student with a guardian choice.</p>
 </section>
 
 <section>

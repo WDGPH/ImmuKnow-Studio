@@ -19,6 +19,7 @@ const cases = [
   ["short", "overdue_diseases_v1.en.typ"],
   ["long-history", "overdue_diseases_v1.fr.typ"],
   ["source-warnings", "overdue_agents_v1.fr.typ"],
+  ["guardian-reader", "suspension_order_v1.en.typ"],
 ];
 
 for (const [scenario, filename] of cases) {
@@ -121,6 +122,18 @@ for (const [scenario, filename] of cases) {
       }),
     );
     expect(preview.length).toBeGreaterThan(0);
+    if (scenario === "guardian-reader") {
+      const notice = examples[index].payloads[filename];
+      expect(notice.client_data.over_16).toBe(true);
+      expect(notice.reader).toBe("guardian");
+      const text = preview
+        .map((page) => page.plainText)
+        .join(" ")
+        .replace(/\s+/g, " ");
+      expect(text).toContain("To Parent/Guardian of:");
+      expect(text).toContain("Serve: Parent/Guardian.");
+      expect(text).not.toContain("Serve: Parent/Guardian and student.");
+    }
     writeFileSync(
       info.outputPath("preview-pages.json"),
       JSON.stringify(

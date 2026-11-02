@@ -683,6 +683,14 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     example: "#immuknow.url-encode(notice.client_id)",
     namedParameters: [],
   },
+  "immuknow.reader": {
+    description:
+      "Returns the intended reader: student, guardian or none. Use to_student and to_guardian in letter wording.",
+    parameters: [],
+    example:
+      "#if to_student [you have] else if to_guardian [your child has] else [the named client has]",
+    namedParameters: [],
+  },
   "immuknow.notice-dates": {
     description: "Provides delivery, as-of and birth dates in the notice’s language.",
     parameters: [],
