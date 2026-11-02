@@ -36,7 +36,7 @@ for (const [scenario, filename] of cases) {
     await chooseTemplate(page, `templates/${filename}`);
     await chooseExample(page, index);
     if (scenario === "short" && filename.startsWith("overdue_diseases_v1.")) {
-      // Check a custom ID label, Unicode QR destination and font control after download.
+      // Check local history/page options, ID labels, QR destinations and fonts after download.
       const imported: Files = Object.fromEntries(
         Object.entries(bundle.files).map(([path, bytes]) => [
           path,
@@ -59,7 +59,9 @@ for (const [scenario, filename] of cases) {
         .decode(imported[templatePath])
         .replace("  notice,", '  notice, id-label: "Record number",')
         .replace("width: 4.5cm", "width: 3cm")
-        .replace('name: "Dr. Annie Body"', 'name: "Dr. Annie Body, MD"');
+        .replace('name: "Dr. Annie Body"', 'name: "Dr. Annie Body, MD"')
+        .replace("#immunization-history()", "#immunization-history(show-age: true, font-size: 12pt)")
+        .replace('#notice-page("Immunization Record")', '#notice-page("Immunization Record", title-size: 18pt)');
       imported[templatePath] = new TextEncoder().encode(labelled);
       expectedFiles[templatePath] = Buffer.from(labelled).toString("base64");
       const zip = await exportProject(imported, `templates/${filename}`, bundle.build);

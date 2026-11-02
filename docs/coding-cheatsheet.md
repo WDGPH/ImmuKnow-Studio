@@ -47,7 +47,11 @@ Use the Example client arrows to try the letter with different clients.</p>
 <p><code>notice-page</code> starts a new page with a heading and warns if the
 content runs onto another page. Add <code>allow-overflow: true</code> when you
 want to allow extra pages. <code>immunization-history()</code> places the history
-table using your Settings choices.</p>
+table using your Settings choices. To change just this table, pass an option
+such as <code>#immunization-history(show-age: true, font-size: 12pt)</code>.
+Page options work the same way, for example
+<code>#notice-page("Immunization Record", title-size: 18pt)[...]</code>.
+These choices leave other calls unchanged.</p>
 </section>
 
 <section>

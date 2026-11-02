@@ -54,13 +54,15 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     reference: "visualize/image/",
   },
   "notice-page": {
-    namedParameters: ["allow-overflow"],
+    namedParameters: ["allow-overflow", "title-size", "fill", "heading-above", "heading-below"],
     description:
-      "Starts a named page with the logo, heading, and standard spacing. Reports a finding if it unexpectedly continues onto more pages.",
+      "Starts a named page using Settings defaults. Named options change only this page; unexpected continuation produces a finding.",
     parameters: [
       ["title", "The heading text, in quotes."],
       ["body", "The page content inside square brackets."],
       ["allow-overflow", "Set true to allow this content to continue onto more pages."],
+      ["title-size / fill", "Heading size and colour for this page."],
+      ["heading-above / heading-below", "Space above and below this page’s heading."],
     ],
     example: '#notice-page("Request for Immunization Record")[Your letter here.]',
   },
@@ -490,10 +492,21 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     namedParameters: [],
   },
   "immunization-history": {
-    description: "Inserts the history table using the options chosen in Settings.",
-    parameters: [],
-    example: "#immunization-history()",
-    namedParameters: [],
+    description:
+      "Inserts the history table using Settings defaults. Named options change only this table.",
+    parameters: [
+      ["show-age", "Set true to show age at each vaccination."],
+      ["show-validity", "Set true to distinguish valid, invalid and unknown doses."],
+      ["omit-invalid", "Set true to leave invalid doses out of this table."],
+      ["min-rows", "Minimum number of vaccination rows."],
+      ["font-size / heading-size", "Text and column heading sizes for this table."],
+      ["diseases / ignore-agents / include-other", "Columns and vaccines included in this table."],
+    ],
+    example: "#immunization-history(show-age: true)",
+    namedParameters: [
+      "show-age", "show-validity", "omit-invalid", "min-rows", "font-size",
+      "heading-size", "diseases", "ignore-agents", "include-other",
+    ],
   },
   "immuknow.notice-page": {
     description: "Sets up the page layout. Use notice-page to start a page with a heading.",

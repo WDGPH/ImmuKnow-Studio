@@ -30,6 +30,22 @@ test("complete a shared component and its arguments, then undo the insertion", a
   await expect(source).toContainText("show-validity:");
 });
 
+test("complete local history and page options", async ({ page }) => {
+  await page.goto("./");
+  await page.locator("#template-tab").click();
+  for (const [text, name] of [
+    ["#immunization-history(show-a", "show-age"],
+    ['#notice-page("History", title-s', "title-size"],
+  ]) {
+    const source = await replaceSource(page, text);
+    await source.press("Control+Space");
+    await expect(page.getByRole("option").filter({ hasText: name })).toBeVisible();
+    await page.waitForTimeout(100);
+    await source.press("Enter");
+    await expect(source).toContainText(`${name}:`);
+  }
+});
+
 test("completion stays out of prose, comments, strings and raw examples", async ({ page }) => {
   await page.goto("./");
   await page.locator("#template-tab").click();

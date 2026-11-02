@@ -34,7 +34,6 @@ describe("authoring help follows installed Core", () => {
     for (const match of exports.matchAll(/^#import "[^"]+": (.+)$/gm)) {
       for (const name of match[1].split(", ")) {
         if (name === "envelope-preset") continue; // A dictionary, not a function.
-        if (name === "notice-link") continue; // Legacy alias; suggest immuknow.link.
         expect(functionCatalog, name).toHaveProperty(`immuknow.${name}`);
       }
     }
@@ -49,12 +48,18 @@ describe("authoring help follows installed Core", () => {
     }
   });
 
-  it("describes the Settings helpers separately from Core functions", () => {
+  it("describes project defaults and suggests supported forwarded options", () => {
     const settings = readFileSync(join(templates, "settings.typ"), "utf8");
-    for (const name of ["notice-style", "notice-page", "immunization-history"]) {
-      const actual = namedOptions(settings, name);
-      expect(functionCatalog[name]).toBeDefined();
-      expect(functionCatalog[name].namedParameters ?? []).toEqual(actual);
+    expect(functionCatalog["notice-style"].namedParameters).toEqual(
+      namedOptions(settings, "notice-style"),
+    );
+    for (const [helper, component] of [
+      ["notice-page", "notice-section"],
+      ["immunization-history", "immunization-history"],
+    ]) {
+      const actual = namedOptions(components, component);
+      for (const option of functionCatalog[helper].namedParameters ?? [])
+        expect(actual, `${helper}: ${option}`).toContain(option);
     }
   });
 });

@@ -4,12 +4,12 @@
     ".pre-commit-config.yaml": "b92512e1efd258eddceb91564ebd46680f484c8cff2cdf72f1ec57a5932ba898",
     ".python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
     "LICENSE": "e3fc41a3e9599ba793e59ce6dca2310fadfb97127305518ed4971365c131e94f",
-    "README.md": "40490774137357a81b1531e758d1bb76f83af36e6485fe7fa6e056d5a17962a7",
+    "README.md": "71b02fbae1c662ae41d2c7e7b55ff665a615849b2983df6819f3b54894f86b16",
     "config/disease_normalization.json": "58a90941664b54aa9bb77bad56e9fa2b314522ff535208eab6378d37a14aec79",
     "config/notice_versions.yaml": "c3be55944eeede6e527322bac26667d86f7a141a294f4ba364c07441bf581922",
     "config/parameters.yaml": "306eb4ec9121935f339cf12c6e3eb198fad4a902b50f68b141c4bcde4048f9ed",
     "config/vaccine_reference.json": "9d2174d402ff20cd2fad0fbcddec2b8453902e60a8637458c7a4693a37801fbd",
-    "pyproject.toml": "b85a76394e30622fd5b2306e0ece551a311ae7c09697cc87a7260d9d84964d1a",
+    "pyproject.toml": "189b3f8fb273f29d96fa8f5f0a0466958ba3e6343d7a485e24f5165a27a089b8",
     "scripts/check.py": "37d0f59930bad84bd9e2a9e76c03e2c240f9a160d2f404f779a6d1ba80efc869",
     "scripts/check_client_data.py": "044aa0900538ff338c0c5f3bd14edfb2ce1945c7ef8badc181ef3466a5f7cbb6",
     "scripts/project.py": "97cc80722b83f7c221f08ff4d351c65da74749ac44a4c638072490cefb1ce30a",
@@ -22,15 +22,15 @@
     "templates/overdue_agents_v1.fr.typ": "2c18582d6107ae28512e4a0d6aaf21ad93173ce208c51025254fb19c8a1d16ac",
     "templates/overdue_diseases_v1.en.typ": "c46eed7f32517800b117b252a6efb0ddb5de46a2f282ebdbe0d5dd5933cef525",
     "templates/overdue_diseases_v1.fr.typ": "3d9b090498345d109c881cbf321d63d0fa11f75050d7cc6128574416f14f9c6f",
-    "templates/presentation.typ": "45abacdeaab93be8c2f936f8a40a3d30e3d3d3129ea1897d2cfae631b31cf985",
-    "templates/settings.typ": "ccee008441918fd6f10db668bc2cbc8aa3cb7b48df495fcf7beafa62adaa8ea4",
+    "templates/presentation.typ": "2965755fe2f44d79c04f72469a793767ce027a5f6503c0a1bcf8cee388ae321f",
+    "templates/settings.typ": "6450f456396136f802c4e2df3b7ae67c1ae197e16c77f4eb473d9ad101cc37d2",
     "templates/suspension_order_v1.en.typ": "e97b2c31eed0601d2b5c8121ac0aae54c85c207aa71c78c088725e2fda1cca44",
     "templates/translations/en_diseases_chart.json": "868dc84c3cb58cdb7c95edf5339b0122bf519e83744085ecaf836adab9eeaac7",
     "templates/translations/en_diseases_overdue.json": "3ded5f7c21df29fe718bcb0df0dba4f98012e13373448c1318a5436e1b0a7fe9",
     "templates/translations/fr_diseases_chart.json": "916e08a67becfba9d840e70fe0c0ebddd5991839aa22cd38728f40565d2b0205",
     "templates/translations/fr_diseases_overdue.json": "916e08a67becfba9d840e70fe0c0ebddd5991839aa22cd38728f40565d2b0205",
-    "uv.lock": "cba44b76d1817799b7b4cfebecc9a8108b8a2b91b069d73a76b33bde6490d268"
+    "uv.lock": "e796ddd45e4fdc30f071deefd001d1d950a7611479e1d374b535177737030260"
   },
   "repository": "https://github.com/WDGPH/ImmuKnow-Template",
-  "revision": "9bfee8ba0a6b305f56973f4d00e860cb7cc045a0"
+  "revision": "dc3c068a6bb867b94bef40cf1b41c23e84d11bd0"
 }

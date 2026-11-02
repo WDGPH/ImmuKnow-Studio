@@ -51,6 +51,12 @@ Changing printed credentials leaves that name unchanged. Theme starters fill bot
 names initially. Template-only and Settings-only resets preserve Theme images
 and names; a reset that includes Theme restores their starting values.
 
+Settings supplies shared defaults for `immunization-history()` and `notice-page`.
+Change one table or page directly in Template, for example
+`#immunization-history(show-age: true, font-size: 12pt)` or
+`#notice-page("Immunization Record", title-size: 18pt)[...]`.
+Other tables and pages keep the Settings defaults.
+
 A refused theme change leaves the project unchanged.
 
 The editor keeps native imports such as `#import "settings.typ": *` visible.

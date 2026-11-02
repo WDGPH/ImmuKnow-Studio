@@ -116,7 +116,7 @@ test("double-click finds editable sources across generated notice components and
     ["Emily Example 01", "immuknow.client-block", "template"],
     ["Client ID", "immuknow.client-block", "template"],
     ["Measles", "immuknow.overdue-diseases", "template"],
-    ["https://example.org/immunization", "https://example.org/immunization", "settings"],
+    ["https://example.org/immunization", "https://example.org/immunization", "template"],
     ["Dr. Annie Body", "Dr. Annie Body", "template"],
     ["Associate Medical Officer", "Associate Medical Officer of Health", "template"],
     ["Immunization Record", "Immunization Record", "template"],
