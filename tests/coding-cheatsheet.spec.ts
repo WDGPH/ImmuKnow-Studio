@@ -15,13 +15,14 @@ test("the Typst Reference works offline and preserves the source and selected ta
   const dialog = page.getByRole("dialog", { name: "Typst Reference" });
   await trigger.click();
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("heading", { level: 2 })).toHaveCount(6);
+  await expect(dialog.getByRole("heading", { level: 2 })).toHaveCount(7);
   await expect(
     dialog.getByRole("heading", { name: "Client information", exact: true }),
   ).toBeVisible();
   await expect(dialog).toContainText("notice.client_data.over_16");
   await expect(dialog).toContainText("#immunization-history()");
   await expect(dialog).toContainText("immuknow.query-url");
+  await expect(dialog).toContainText('image("assets/signature.png", width: 4.5cm)');
   await expect(dialog.getByRole("button", { name: "Close reference" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();

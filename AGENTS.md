@@ -17,6 +17,9 @@ Preserve complete authored project bytes and relative paths. Shared components
 remain read-only and must match Core. Preserve draft recovery, archive limits,
 comment-aware editing and compatibility checks.
 
+Prefer clear, direct authoring and abstractions that earn their complexity. Follow
+Core's [authoring principles](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#template-authoring-principles).
+
 Follow docs/documentation.md for plain language and current-behavior guidance.
 Use short, plain pull request descriptions focused on the reason for the change
 and its effect. Omit agent attribution and detailed verification logs.

@@ -31,9 +31,15 @@ export const healthUnits = [
   },
 ] as const;
 export type HealthUnit = (typeof healthUnits)[number];
-export function themedSettings(bytes: Uint8Array, unit: HealthUnit): Uint8Array {
+export function themedSettings(
+  bytes: Uint8Array,
+  unit: HealthUnit,
+  inlineSignature = false,
+  inlineName = false,
+): Uint8Array {
   const images: Record<string, string> = {};
   for (const name of ["logo", "signature"]) {
+    if (name === "signature" && inlineSignature) continue;
     const expression = settingValue(bytes, name);
     if (!expression || !/^image\("[^"\r\n]+"/.test(expression))
       throw new Error(`Edit ${name} in Settings before using a theme starter.`);
@@ -42,7 +48,7 @@ export function themedSettings(bytes: Uint8Array, unit: HealthUnit): Uint8Array 
   return updateQRStyle(
     updateThemeSettings(bytes, {
       ...images,
-      "signature-name": JSON.stringify(unit.signatory),
+      ...(inlineName ? {} : { "signature-name": JSON.stringify(unit.signatory) }),
       "health-unit-name": JSON.stringify(`${unit.name} Health Unit`),
       "body-font": JSON.stringify(unit.font),
       "heading-color": `rgb("${unit.heading}")`,

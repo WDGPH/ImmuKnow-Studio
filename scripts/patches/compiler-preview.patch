@@ -1,12 +1,11 @@
 diff --git a/packages/compiler/src/lib.rs b/packages/compiler/src/lib.rs
+index b9de839b..58373d22 100644
 --- a/packages/compiler/src/lib.rs
 +++ b/packages/compiler/src/lib.rs
-@@ -416,8 +416,42 @@ impl TypstCompileWorld {
-         Ok(self
-             .get_doc(kind)?
+@@ -419,6 +419,48 @@ impl TypstCompileWorld {
              .and_then(|doc| Some(doc.info().title.as_ref()?.to_string())))
      }
- 
+
 +    /// Page geometry and ordinary text positions from the compiled paged layout.
 +    /// Text in transformed groups remains available to accessibility readers,
 +    /// but is omitted from hit targets when its position cannot be represented
@@ -29,7 +28,15 @@ diff --git a/packages/compiler/src/lib.rs b/packages/compiler/src/lib.rs
 +                    &mut text,
 +                    &mut plain_text,
 +                );
++                let mut links = Vec::new();
++                collect_preview_links(
++                    &page.frame,
++                    ::typst::layout::Transform::identity(),
++                    &doc,
++                    &mut links,
++                );
 +                serde_json::json!({
++                    "links": links,
 +                    "width": page.frame.size().x.to_pt(),
 +                    "height": page.frame.size().y.to_pt(),
 +                    "text": text,
@@ -44,10 +51,61 @@ diff --git a/packages/compiler/src/lib.rs b/packages/compiler/src/lib.rs
      pub fn get_artifact(&mut self, fmt: u8, diagnostics_format: u8) -> Result<JsValue, JsValue> {
          #[cfg(feature = "svg")]
          use reflexo_vec2svg::DefaultExportFeature;
-@@ -585,6 +619,83 @@ impl TypstCompileWorld {
+@@ -587,6 +629,134 @@ impl TypstCompileWorld {
      }
  }
 
++// Use the same transformed bounding rectangles as PDF link annotations.
++fn collect_preview_links(
++    frame: &::typst::layout::Frame,
++    transform: ::typst::layout::Transform,
++    doc: &TypstPagedDocument,
++    links: &mut Vec<serde_json::Value>,
++) {
++    use ::typst::layout::{FrameItem, Point, Transform};
++    use ::typst::model::Destination;
++
++    for (position, item) in frame.items() {
++        let transform = transform.pre_concat(Transform::translate(position.x, position.y));
++        match item {
++            FrameItem::Group(group) => collect_preview_links(
++                &group.frame, transform.pre_concat(group.transform), doc, links,
++            ),
++            FrameItem::Link(destination, size) => {
++                let corners = [Point::zero(), Point::with_x(size.x),
++                    Point::with_y(size.y), size.to_point()];
++                let corners = corners.map(|p| p.transform(transform));
++                let x = corners.iter().map(|p| p.x.to_pt()).fold(f64::INFINITY, f64::min);
++                let y = corners.iter().map(|p| p.y.to_pt()).fold(f64::INFINITY, f64::min);
++                let right = corners.iter().map(|p| p.x.to_pt()).fold(f64::NEG_INFINITY, f64::max);
++                let bottom = corners.iter().map(|p| p.y.to_pt()).fold(f64::NEG_INFINITY, f64::max);
++                let width = right - x;
++                let height = bottom - y;
++                if ![x, y, width, height].iter().all(|v| v.is_finite()) || width <= 0.0 || height <= 0.0 {
++                    continue;
++                }
++                let mut link = serde_json::json!({"x": x, "y": y, "width": width, "height": height});
++                match destination {
++                    Destination::Url(url) => link["url"] = serde_json::json!(url.as_str()),
++                    _ => {
++                        let position = match destination {
++                            Destination::Position(position) => Some(*position),
++                            Destination::Location(location) => doc.introspector().position(*location),
++                            _ => None,
++                        };
++                        let Some(position) = position else { continue; };
++                        link["page"] = serde_json::json!(position.page.get());
++                        link["targetX"] = serde_json::json!(position.point.x.to_pt());
++                        link["targetY"] = serde_json::json!(position.point.y.to_pt());
++                    }
++                }
++                links.push(link);
++            }
++            _ => {}
++        }
++    }
++}
++
 +fn collect_preview_text(
 +    frame: &::typst::layout::Frame,
 +    world: &dyn ::typst::World,

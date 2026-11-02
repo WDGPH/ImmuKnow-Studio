@@ -574,13 +574,17 @@ export const functionCatalog: Record<string, FunctionHelp> = {
   "immuknow.signature-block": {
     description: "Places a signature image, name and title together.",
     parameters: [
-      ["signature", "Signature image, or none to leave it out."],
+      [
+        "signature",
+        'Use image("assets/signature.png", width: 4.5cm); leave height out to preserve aspect ratio, or use none.',
+      ],
       ["name", "Printed name below the signature."],
       ["title", "Job title below the printed name."],
       ["spacing", "Space between items, such as 6pt."],
       ["allow-overflow", "Set true to allow the content to run onto another page."],
     ],
-    example: "#immuknow.signature-block(signature: signature, name: signature-name)",
+    example:
+      '#immuknow.signature-block(signature: image("assets/signature.png", width: 4.5cm), name: "Dr. Annie Body, MD")',
     namedParameters: ["signature", "name", "title", "spacing", "allow-overflow"],
   },
   "immuknow.overdue-diseases": {
@@ -588,7 +592,8 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     parameters: [
       ["notice", "Client information."],
       ["style", "Optional style setting."],
-      ["columns", "Column count or tuple of column widths."],
+      ["columns", "Number of columns, such as 1 or 2."],
+      ["indent", "Bullet indentation; defaults to 0.8cm. Overrides only this list."],
       ["include-dose", "Optional include dose setting."],
       ["spacing", "Space between items, such as 6pt."],
       ["row-spacing", "Optional row spacing setting."],
@@ -600,6 +605,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     namedParameters: [
       "style",
       "columns",
+      "indent",
       "include-dose",
       "spacing",
       "row-spacing",
@@ -613,14 +619,15 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     parameters: [
       ["notice", "Client information."],
       ["style", "Optional style setting."],
-      ["columns", "Column count or tuple of column widths."],
+      ["columns", "Number of columns, such as 1 or 2."],
+      ["indent", "Bullet indentation; defaults to 0.8cm. Overrides only this list."],
       ["spacing", "Space between items, such as 6pt."],
       ["row-spacing", "Optional row spacing setting."],
       ["empty", "Optional empty setting."],
       ["language", 'Use "en", "fr", or auto where supported.'],
     ],
     example: "#immuknow.overdue-agents(notice)",
-    namedParameters: ["style", "columns", "spacing", "row-spacing", "empty", "language"],
+    namedParameters: ["style", "columns", "indent", "spacing", "row-spacing", "empty", "language"],
   },
   "immuknow.immunization-history": {
     description: "Builds the history table with explicit display options.",

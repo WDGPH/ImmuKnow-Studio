@@ -21,7 +21,11 @@ async function current(page: Page) {
     )
     .toBe(true);
 }
-async function importSettings(page: Page, change: (source: string) => string) {
+async function importSettings(
+  page: Page,
+  change: (source: string) => string,
+  changeTemplate?: (source: string) => string,
+) {
   await page.goto("./");
   await expect(page.locator("#import")).toBeEnabled();
   const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
@@ -33,6 +37,10 @@ async function importSettings(page: Page, change: (source: string) => string) {
   );
   const source = change(new TextDecoder().decode(files["templates/settings.typ"]));
   files["templates/settings.typ"] = new TextEncoder().encode(source);
+  if (changeTemplate) {
+    const path = "templates/overdue_diseases_v1.en.typ";
+    files[path] = new TextEncoder().encode(changeTemplate(new TextDecoder().decode(files[path])));
+  }
   const archive = await exportProject(files, "templates/overdue_diseases_v1.en.typ", bundle.build);
   await page.locator("#archive").setInputFiles({
     name: "settings.zip",
@@ -87,16 +95,22 @@ test("theme changes preserve commented examples and update the active QR fields"
 test("calculated values stay in source editing and a refused theme leaves all Settings unchanged", async ({
   page,
 }) => {
-  const source = await importSettings(page, (source) =>
-    source
-      .replace(
-        '#let body-font = "FreeSans"',
-        '#let body-font = if true { "FreeSans" } else { "FreeSerif" }',
-      )
-      .replace('#let logo = image("assets/logo.png",', '#let logo = image("assets/" + "logo.png",')
-      .replace(
-        '#let signature-name = "Dr. Annie Body"',
-        '#let signature-name = if true { "Dr. Annie Body" } else { "Dr. Other" }',
+  const source = await importSettings(
+    page,
+    (source) =>
+      source
+        .replace(
+          '#let body-font = "FreeSans"',
+          '#let body-font = if true { "FreeSans" } else { "FreeSerif" }',
+        )
+        .replace(
+          '#let logo = image("assets/logo.png",',
+          '#let logo = image("assets/" + "logo.png",',
+        ),
+    (source) =>
+      source.replace(
+        'name: "Dr. Annie Body"',
+        'name: if true { "Dr. Annie Body" } else { "Dr. Other" }',
       ),
   );
   await expect(page.locator("#body-font-picker")).toBeDisabled();
@@ -105,7 +119,7 @@ test("calculated values stay in source editing and a refused theme leaves all Se
   await expect(page.locator("#signature-name-picker")).toBeDisabled();
   await expect(page.locator("#signature-name-picker")).toHaveValue("");
   await expect(page.locator("#logo-upload")).toBeDisabled();
-  await expect(page.locator("#logo-empty")).toHaveText("Edit in Settings");
+  await expect(page.locator("#logo-empty")).toHaveText("Edit in Template or Settings");
   await page.locator("#health-unit-preset").selectOption("trillium-valley");
   await expect(page.locator("#diagnostics")).toContainText(
     /Edit (signature-name|body-font|logo) in Settings/,

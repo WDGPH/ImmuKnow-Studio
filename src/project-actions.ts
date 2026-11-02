@@ -7,6 +7,15 @@ import {
   validateTemplate,
 } from "./project";
 import { resetSettingsKeepingTheme } from "./theme-settings";
+import { imagePath, relativeImage } from "./branding";
+import {
+  inlineSignatureImage,
+  inlineSignatureName,
+  updateInlineSignatureImage,
+  updateInlineSignatureName,
+  orderSignatoryName,
+  updateOrderSignatoryName,
+} from "./signature-source";
 import type { Bundle, Example, Files } from "./types";
 
 export type ResetScope = "template" | "settings" | "theme";
@@ -39,13 +48,14 @@ export function authoredTypstFiles(files: Files, template: string): Files {
   validateTemplate(files, template);
   const required = referencedFiles(files, template);
   const settings = settingsPath(files, template);
-  if (settings)
-    for (const path of referencedFiles(files, settings)) required.add(path);
+  if (settings) for (const path of referencedFiles(files, settings)) required.add(path);
   return Object.fromEntries(
-    Object.entries(files).filter(([path]) =>
-      required.has(path) && path.endsWith(".typ") &&
-      !path.startsWith("templates/lib/immuknow/") &&
-      !path.startsWith("templates/fonts/"),
+    Object.entries(files).filter(
+      ([path]) =>
+        required.has(path) &&
+        path.endsWith(".typ") &&
+        !path.startsWith("templates/lib/immuknow/") &&
+        !path.startsWith("templates/fonts/"),
     ),
   );
 }
@@ -137,6 +147,20 @@ export function resetProject(
 ): Files {
   validateTemplate(baseline, template);
   const next = { ...files, [template]: baseline[template] };
+  if (scope !== "theme" && inlineSignatureImage(baseline[template])) {
+    const current = inlineSignatureImage(files[previousTemplate]);
+    const asset = current && imagePath(previousTemplate, current.relative);
+    if (asset)
+      next[template] = updateInlineSignatureImage(next[template], relativeImage(template, asset));
+  }
+  if (scope !== "theme") {
+    const name = inlineSignatureName(files[previousTemplate]);
+    if (name && inlineSignatureName(next[template]))
+      next[template] = updateInlineSignatureName(next[template], name.value);
+    const orderName = orderSignatoryName(files[previousTemplate]);
+    if (orderName && orderSignatoryName(next[template]))
+      next[template] = updateOrderSignatoryName(next[template], orderName.value);
+  }
   if (scope !== "template") {
     const path = settingsPath(baseline, template);
     if (!path) throw new Error("This template has no starting Settings file to restore.");

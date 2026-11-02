@@ -44,6 +44,7 @@ export class Viewer {
   private guide = false;
   private sheets: Sheet[] = [];
   private canvasesPainted = 0;
+  private linkClick?: ReturnType<typeof setTimeout>;
   get resources() {
     return {
       documents: Number(Boolean(this.document)),
@@ -71,12 +72,15 @@ export class Viewer {
     this.observer.observe(container);
     container.addEventListener("scroll", this.scrolled);
     container.addEventListener("dblclick", this.selectText);
+    container.addEventListener("click", this.followLink);
+    container.addEventListener("auxclick", this.followLink);
     document.addEventListener("copy", this.copyText);
   }
   private free(sheets: Sheet[]) {
     for (const sheet of sheets) sheet.canvas.width = sheet.canvas.height = 0;
   }
   clear() {
+    clearTimeout(this.linkClick);
     this.generation++;
     this.pending?.resolve(false);
     this.pending = undefined;
@@ -97,6 +101,8 @@ export class Viewer {
     this.observer.disconnect();
     this.container.removeEventListener("scroll", this.scrolled);
     this.container.removeEventListener("dblclick", this.selectText);
+    this.container.removeEventListener("click", this.followLink);
+    this.container.removeEventListener("auxclick", this.followLink);
     document.removeEventListener("copy", this.copyText);
     // An in-flight renderer owns its session until its async draw finishes.
     if (!this.running) this.releaseRenderer();
@@ -235,6 +241,55 @@ export class Viewer {
         canvas.setAttribute("aria-hidden", "true");
         overlay.className = "preview-overlay";
         overlay.setAttribute("aria-hidden", "true");
+        const links = document.createElement("div");
+        links.className = "preview-link-layer";
+        const pageLinks = page.links ?? [];
+        const linkAnchors = new Map<number, HTMLAnchorElement>();
+        for (const [index, link] of pageLinks.entries()) {
+          if (
+            ![link.x, link.y, link.width, link.height].every(Number.isFinite) ||
+            link.width <= 0 ||
+            link.height <= 0
+          )
+            continue;
+          const anchor = document.createElement("a");
+          if ("url" in link) {
+            // Authored links are data, never HTML or executable browser URLs.
+            try {
+              if (!["http:", "https:", "mailto:", "tel:"].includes(new URL(link.url).protocol))
+                continue;
+            } catch {
+              continue;
+            }
+            anchor.href = link.url;
+            anchor.target = "_blank";
+            anchor.rel = "noopener noreferrer";
+            anchor.referrerPolicy = "no-referrer";
+            anchor.setAttribute("aria-label", `Open ${link.url} (opens in a new tab)`);
+            anchor.title = `${link.url} (opens in a new tab)`;
+          } else {
+            if (
+              !Number.isInteger(link.page) ||
+              link.page < 1 ||
+              link.page > preview.pages.length ||
+              ![link.targetX, link.targetY].every(Number.isFinite)
+            )
+              continue;
+            anchor.href = `#notice-page-${link.page}`;
+            anchor.setAttribute("aria-label", `Go to notice page ${link.page}`);
+            anchor.title = `Go to notice page ${link.page}`;
+          }
+          anchor.className = "preview-link";
+          anchor.dataset.linkIndex = String(index);
+          Object.assign(anchor.style, {
+            left: `${(link.x / page.width) * 100}%`,
+            top: `${(link.y / page.height) * 100}%`,
+            width: `${(link.width / page.width) * 100}%`,
+            height: `${(link.height / page.height) * 100}%`,
+          });
+          links.append(anchor);
+          linkAnchors.set(index, anchor);
+        }
         const layer = document.createElement("div");
         layer.className = "preview-text-layer";
         layer.setAttribute("aria-hidden", "true");
@@ -256,6 +311,10 @@ export class Viewer {
                 : "");
           span.dataset.textIndex = String(i);
           span.className = "preview-text-run";
+          const linked = [...linkAnchors].find(([index]) =>
+            this.contains(pageLinks[index], text.x + text.width / 2, text.y + text.height / 2),
+          )?.[1];
+          if (linked) span.classList.add("preview-linked-text");
           const fontSize = text.fontSize ?? text.height;
           if (measure) measure.font = `${fontSize}px "Notice selection"`;
           const measured = measure?.measureText(text.text).width || text.width;
@@ -266,13 +325,22 @@ export class Viewer {
             lineHeight: `${text.height}px`,
             transform: `scale(var(--page-scale)) scaleX(${text.width / measured})`,
           });
-          layer.append(span);
+          if (linked) {
+            // Preserve selection, native link menus and middle-click. The full-area
+            // anchor supplies the single keyboard/accessibility target.
+            const anchor = linked.cloneNode(false) as HTMLAnchorElement;
+            anchor.className = "preview-text-link";
+            anchor.removeAttribute("style");
+            anchor.tabIndex = -1;
+            anchor.append(span);
+            layer.append(anchor);
+          } else layer.append(span);
         }
         const accessibleText = document.createElement("span");
         accessibleText.className = "visually-hidden";
         accessibleText.style.userSelect = "none";
         accessibleText.textContent = page.plainText;
-        paper.append(canvas, accessibleText, layer, overlay);
+        paper.append(canvas, accessibleText, links, layer, overlay);
         sheets.push({
           paper,
           canvas,
@@ -288,7 +356,7 @@ export class Viewer {
         options.pixel_per_pt = resolution;
         options.data_selection = 1;
         options.background_color = "#ffffff";
-        // The binding consumes options. No HTML, links, or document scripts are inserted.
+        // The binding consumes options. Document content is painted, never inserted as HTML.
         await this.renderer.render_page_to_canvas(session, canvas.getContext("2d"), options);
         this.canvasesPainted++;
         if (generation !== this.generation || this.disposed) return;
@@ -356,6 +424,43 @@ export class Viewer {
     // so pasting into another application cannot carry invisible HTML styling.
     event.clipboardData.setData("text/plain", selection.toString());
     event.preventDefault();
+  };
+  private contains(box: Pick<PreviewText, "x" | "y" | "width" | "height">, x: number, y: number) {
+    return x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height;
+  }
+  private followLink = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    const paper = target.closest<HTMLElement>(".preview-page");
+    const sheet = this.sheets[Number(paper?.dataset.page) - 1];
+    if (!paper || !sheet) return;
+    const anchor = target.closest<HTMLAnchorElement>(".preview-link, .preview-text-link");
+    if (!anchor) return;
+    const link = sheet.page.links?.[Number(anchor.dataset.linkIndex)];
+    if (!link) return;
+    if (event.type === "auxclick") {
+      if (event.button !== 1) return;
+      event.preventDefault();
+      anchor.click();
+      return;
+    }
+    if (event.detail > 0) {
+      event.preventDefault();
+      clearTimeout(this.linkClick);
+      // Give a double-click time to navigate to source, and leave drag selection intact.
+      if (event.detail === 1 && window.getSelection()?.isCollapsed !== false) {
+        const selected = anchor;
+        this.linkClick = setTimeout(() => {
+          if (selected.isConnected) selected.click();
+        }, 300);
+      }
+    } else if (!("url" in link)) {
+      event.preventDefault();
+      const destination = this.sheets[link.page - 1];
+      if (destination) {
+        this.container.scrollTop = destination.top + link.targetY * destination.scale;
+        this.container.scrollLeft = link.targetX * destination.scale;
+      }
+    }
   };
   private selectText = (event: MouseEvent) => {
     const paper = (event.target as HTMLElement).closest<HTMLElement>(".preview-page");

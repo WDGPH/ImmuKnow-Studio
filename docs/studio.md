@@ -31,7 +31,27 @@ Theme controls use the supplied Settings layout and ignore commented examples,
 including nested comments. Changes preserve surrounding text and line endings.
 For calculated values, repeated definitions or more complex source, use the
 Settings editor; controls that cannot safely read a value show **Edit in Settings**
-or explain where to edit it. A refused theme change leaves the project unchanged.
+or explain where to edit it. Signature image paths, widths and printed names are
+written directly in the Template. For example:
+
+```typst
+#immuknow.signature-block(
+  signature: image("assets/signature.png", width: 4.5cm),
+  name: "Dr. Annie Body, MD",
+  title: "Medical Officer of Health",
+)
+```
+
+Change the width to `3cm` for a smaller signature. Leaving height unspecified
+preserves the image's aspect ratio. Theme uploads change the image path and keep
+that width; the printed-name control edits the Template value. Older projects
+that define these values in Settings remain supported. In suspension orders,
+`order-signatory-name` is a separate Template value for the legal wording.
+Changing printed credentials leaves that name unchanged. Theme starters fill both
+names initially. Template-only and Settings-only resets preserve Theme images
+and names; a reset that includes Theme restores their starting values.
+
+A refused theme change leaves the project unchanged.
 
 The editor keeps native imports such as `#import "settings.typ": *` visible.
 Open **Typst Reference** using the book icon in the top header, beside the
@@ -54,7 +74,10 @@ complete source when previewing.
 Use Ctrl+/ to comment a selection and Ctrl+[ or Ctrl+] to change indentation.
 Drag the divider to resize the panes. The preview shows all pages in one scroll;
 use its plus/minus controls to zoom. Drag across preview text to select and copy
-its displayed wording as plain text. Double-click supported content to open and
+its displayed wording as plain text. Click a QR code or text link to open its
+destination in a new tab. Email and telephone links use your browser’s configured
+apps; links within the notice scroll to their destination. Links can also be
+focused with Tab and opened with Enter. Double-click supported content to open and
 highlight its source when the preview is current. Measured client/address blocks
 and generated history or overdue text lead to their editable component calls
 when there is one unambiguous call. Generated

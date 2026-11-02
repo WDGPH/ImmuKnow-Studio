@@ -113,6 +113,8 @@ export interface PreviewPage {
   height: number;
   text: PreviewText[];
   plainText: string;
+  links?: (Pick<PreviewText, "x" | "y" | "width" | "height"> &
+    ({ url: string } | { page: number; targetX: number; targetY: number }))[];
   targets?: (Pick<PreviewText, "x" | "y" | "width" | "height"> & {
     origin: NonNullable<PreviewText["origin"]>;
   })[];
