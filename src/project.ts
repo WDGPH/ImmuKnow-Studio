@@ -135,6 +135,7 @@ export function settingsPath(files: Files, template: string): string | undefined
 // These exact builds differ only in preview source/position metadata. Keep older
 // drafts and ZIPs usable without accepting a different compiler or Core contract.
 const previewCompatibleBuilds = new Set([
+  "45bd168df85634794874dfc82783e841152f57896f7fd299999a6581ff34e37d",
   "6aecf70c6e831c1d6b538064aec1620eb57c44e59c840323a51b1ebc690bbdca",
   "6ff9cfe83ce2d4bf533fe160b847141a877af037faccae1729bc12b8eeeeab12",
   "fd11e90e9704755503826450c4088ad14ff4a6321725e5719e2e27d47a1d7d31",

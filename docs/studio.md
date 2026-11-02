@@ -54,7 +54,10 @@ complete source when previewing.
 Use Ctrl+/ to comment a selection and Ctrl+[ or Ctrl+] to change indentation.
 Drag the divider to resize the panes. The preview shows all pages in one scroll;
 use its plus/minus controls to zoom. Drag across preview text to select and copy
-its displayed wording as plain text. Double-click supported content to open and
+its displayed wording as plain text. Click a QR code or text link to open its
+destination in a new tab. Email and telephone links use your browser’s configured
+apps; links within the notice scroll to their destination. Links can also be
+focused with Tab and opened with Enter. Double-click supported content to open and
 highlight its source when the preview is current. Measured client/address blocks
 and generated history or overdue text lead to their editable component calls
 when there is one unambiguous call. Generated

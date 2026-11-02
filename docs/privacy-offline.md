@@ -11,7 +11,8 @@ them to a remote service for compilation.
 When you first open the hosted webpage, your browser downloads the static
 application, compiler, fonts and prepared fictional examples. Those requests
 retrieve application files; they do not carry your project contents. Following
-an external help, GitHub or other link opens that destination as usual.
+an external help, GitHub, preview QR code or other link opens that destination
+as usual. Preview destinations are contacted only when you open a link.
 
 Once the application and its resources have finished loading, you can continue
 editing, previewing and saving a browser draft

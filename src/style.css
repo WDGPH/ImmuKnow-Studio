@@ -437,7 +437,9 @@ main {
     0 10px 28px #15343f0a;
 }
 :root[data-theme="dark"] .preview-page {
-  box-shadow: 0 3px 8px #0003, 0 16px 40px #0003;
+  box-shadow:
+    0 3px 8px #0003,
+    0 16px 40px #0003;
 }
 .preview-page canvas {
   display: block;
@@ -943,13 +945,39 @@ main {
   user-select: text;
   color: transparent;
   cursor: text;
+  pointer-events: none;
 }
 .preview-text-run {
+  pointer-events: auto;
   position: absolute;
   white-space: pre;
   line-height: 1;
   transform-origin: top left;
   font-family: "Notice selection", sans-serif;
+}
+.preview-link-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.preview-link {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.preview-linked-text {
+  cursor: pointer;
+}
+.preview-text-link {
+  display: contents;
+  color: transparent;
+  text-decoration: none;
+}
+.preview-link:focus-visible {
+  outline: 2px solid #196fc0;
+  outline-offset: 2px;
+  background: #3c9cdb22;
 }
 .preview-text-layer ::selection {
   color: transparent;

@@ -93,9 +93,10 @@ describe("current project archives", () => {
   it("accepts only the known preview-only compiler builds while preserving authored bytes", async () => {
     const current = {
       ...build,
-      compiler_build_sha256: "fd11e90e9704755503826450c4088ad14ff4a6321725e5719e2e27d47a1d7d31",
+      compiler_build_sha256: "45bd168df85634794874dfc82783e841152f57896f7fd299999a6581ff34e37d",
     };
     for (const hash of [
+      "fd11e90e9704755503826450c4088ad14ff4a6321725e5719e2e27d47a1d7d31",
       "6aecf70c6e831c1d6b538064aec1620eb57c44e59c840323a51b1ebc690bbdca",
       "6ff9cfe83ce2d4bf533fe160b847141a877af037faccae1729bc12b8eeeeab12",
     ]) {

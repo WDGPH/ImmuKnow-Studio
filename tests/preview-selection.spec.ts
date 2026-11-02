@@ -107,6 +107,8 @@ test("double-clicking a repeated French phrase highlights its exact CRLF source 
 test("double-click finds editable sources across generated notice components and zoom levels", async ({
   page,
 }) => {
+  let popups = 0;
+  page.on("popup", () => popups++);
   await page.goto("./");
   await current(page);
   const components = [
@@ -147,4 +149,6 @@ test("double-click finds editable sources across generated notice components and
   );
   await page.locator(".preview-text-run").filter({ hasText: "2020-05-01" }).first().dblclick();
   await expect(page.locator("#editor .source-target")).toHaveText("immunization-history()");
+  await page.waitForTimeout(400);
+  expect(popups).toBe(0);
 });
