@@ -36,6 +36,7 @@ test("Theme edits explicit signature paths and names without changing the author
   await page.locator("#theme-tab").click();
   await expect(page.locator("#signature-name-picker")).toHaveValue("Dr. Example, MD, MPH");
   await expect(page.locator("#signature-preview")).toBeVisible();
+  await page.locator(".project-actions summary").click();
   const pending = page.waitForEvent("download");
   await downloadProject(page);
   const path = await (await pending).path();
