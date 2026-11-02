@@ -18,11 +18,12 @@ small changes, and include the checks and any remaining limits in your PR.
 
 ## Core dependency
 
-Studio installs Core from the `v2.0.0-rc2` tag of
-<https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` selects the tag and
-`uv.lock` records the exact commit. A local Core checkout is not required.
+Studio installs Core from reviewed commit `65368e0fbd5eb469ee100d3fc6eeb9ff6dd1d325`
+of <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` and `uv.lock` pin that
+revision. It follows `v2.0.0-rc2` on `main`; it is not a new release candidate.
+A local Core checkout is not required.
 
-To adopt a different Core release, update the tag in `pyproject.toml`, then:
+To adopt a different Core revision, update `rev` in `pyproject.toml`, then:
 
 ```bash
 uv lock --upgrade-package immuknow
@@ -34,8 +35,7 @@ The authored clients live in `examples/scenarios.json`. Dev startup and builds
 prepare their preview facts with the locked Core package. After changing Core or
 example inputs, review the regenerated previews and downloaded samples.
 
-The current locked commit is `e58e889c28c2efe29ee95564fd66277884856854`,
-tagged `v2.0.0-rc2` in Core. To select another published Core tag, use
+To select a published Core tag instead, use
 `uv add git+https://github.com/WDGPH/ImmuKnow.git --tag <core-tag>`.
 Commit both dependency files and run the checks before releasing. Core and
 Studio provenance are recorded separately; compatibility continues to compare
@@ -58,7 +58,7 @@ To rebuild against the configured Core reference, open **Actions → Studio Page
 → Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
-currently it is Core's `v2.0.0-rc2` tag. A configured tag or revision stays
+currently it is Core commit `65368e0fbd5eb469ee100d3fc6eeb9ff6dd1d325`. A configured tag or revision stays
 at that reference. The workflow regenerates example facts and checks resource
 compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.
