@@ -117,7 +117,7 @@ test("double-click finds editable sources across generated notice components and
     ["Client ID", "immuknow.client-block", "template"],
     ["Measles", "immuknow.overdue-diseases", "template"],
     ["https://example.org/immunization", "https://example.org/immunization", "settings"],
-    ["Dr. Annie Body", "Dr. Annie Body", "settings"],
+    ["Dr. Annie Body", "Dr. Annie Body", "template"],
     ["Associate Medical Officer", "Associate Medical Officer of Health", "template"],
     ["Immunization Record", "Immunization Record", "template"],
     ["2020-05-01", "immunization-history()", "template"],
