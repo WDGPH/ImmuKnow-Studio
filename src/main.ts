@@ -1,7 +1,8 @@
 import "./style.css";
 import { initializeCodingCheatsheet } from "./coding-cheatsheet";
 import { archiveJob } from "./archive";
-import { imageBytes, imagePath, relativeImage } from "./branding";
+import { imageBytes, imagePath, themeImage, updateThemeImage } from "./branding";
+import { inlineSignatureImage } from "./signature-source";
 import { Compiler, type CompileInput } from "./compile";
 import { claimEditingTab, DraftStore, type SaveState } from "./drafts";
 import { SourceEditor } from "./editor";
@@ -38,8 +39,10 @@ const basename = (path: string) => path.split("/").at(-1) ?? path;
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
 initializeTheme();
-byId("studio-version").textContent = `ImmuKnow Studio ${__STUDIO_BUILD__.tag ?? __STUDIO_BUILD__.revision.slice(0, 7)}`;
-byId<HTMLAnchorElement>("studio-version").href = `https://github.com/WDGPH/ImmuKnow-Studio/commit/${encodeURIComponent(__STUDIO_BUILD__.revision)}`;
+byId("studio-version").textContent =
+  `ImmuKnow Studio ${__STUDIO_BUILD__.tag ?? __STUDIO_BUILD__.revision.slice(0, 7)}`;
+byId<HTMLAnchorElement>("studio-version").href =
+  `https://github.com/WDGPH/ImmuKnow-Studio/commit/${encodeURIComponent(__STUDIO_BUILD__.revision)}`;
 byId("studio-version").title = __STUDIO_BUILD__.revision;
 let bundle: Bundle;
 let starters: Files;
@@ -397,20 +400,21 @@ function refreshTheme() {
   signatory.value = signatory.disabled ? "" : JSON.parse(signatureName as string);
   signatory.title = signatory.disabled ? "Edit the printed name in Settings." : "";
   for (const kind of ["logo", "signature", "extra"]) {
-    const expression = kind === "extra" ? undefined : bytes ? settingValue(bytes, kind) : undefined;
-    const relative = expression?.match(/^image\("([^"\r\n]+)"/)?.[1];
+    const reference = kind === "extra" ? undefined : themeImage(files, template, kind);
+    const relative = reference?.relative;
     const asset =
       kind === "extra"
         ? Object.keys(files).find((name) => /^templates\/assets\/studio-extra\./.test(name))
-        : relative && path
-          ? imagePath(path, relative)
+        : relative && reference
+          ? imagePath(reference.path, relative)
           : undefined;
     if (imageURLs.has(kind)) URL.revokeObjectURL(imageURLs.get(kind) as string);
     const image = byId<HTMLImageElement>(`${kind}-preview`);
     image.hidden = !asset || !files[asset];
     const empty = byId(`${kind}-empty`);
     empty.hidden = !image.hidden;
-    empty.textContent = kind !== "extra" && bytes && !relative ? "Edit in Settings" : "No image";
+    empty.textContent =
+      kind !== "extra" && bytes && !relative ? "Edit in Template or Settings" : "No image";
     if (asset && files[asset]) {
       const type = asset.endsWith(".svg")
         ? "image/svg+xml"
@@ -425,7 +429,7 @@ function refreshTheme() {
     }
     const upload = byId<HTMLInputElement>(`${kind}-upload`);
     upload.disabled = kind !== "extra" && (!bytes || !relative);
-    upload.title = upload.disabled ? "Edit this image in Settings." : "";
+    upload.title = upload.disabled ? "Edit this image in Template or Settings." : "";
     if (kind === "extra")
       byId("extra-path").textContent = asset
         ? `#image("${asset.replace(/^templates\//, "")}")`
@@ -515,9 +519,10 @@ byId<HTMLFormElement>("project-change-form").onsubmit = (event) => {
   try {
     if (files !== pendingChange.files)
       throw new Error("The project changed while this dialog was open. Cancel and try again.");
-    const scope = new FormData(byId<HTMLFormElement>("project-change-form")).get(
-      "reset-scope",
-    ) as ResetScope | "clear" | "workspace";
+    const scope = new FormData(byId<HTMLFormElement>("project-change-form")).get("reset-scope") as
+      | ResetScope
+      | "clear"
+      | "workspace";
     if (scope === "clear") {
       if (!draftStore) throw new Error("Draft storage is unavailable.");
       canSave = true;
@@ -577,16 +582,12 @@ select("health-unit-preset").onchange = () =>
     if (!path) throw new Error("This template has no companion Settings file.");
     const selectedTemplate = template;
     const previous = files;
-    let settings = themedSettings(files[path], unit);
-    for (const kind of ["logo", "signature"]) {
-      const expression = settingValue(settings, kind) as string;
-      settings = updateThemeSettings(settings, {
-        [kind]: expression.replace(
-          /^image\("[^"\r\n]+"/,
-          `image(${JSON.stringify(relativeImage(path, `templates/assets/${kind}.png`))}`,
-        ),
-      });
-    }
+    let themed = {
+      ...files,
+      [path]: themedSettings(files[path], unit, Boolean(inlineSignatureImage(files[template]))),
+    };
+    for (const kind of ["logo", "signature"])
+      themed = updateThemeImage(themed, template, kind, `templates/assets/${kind}.png`);
     const [logo, signature] = await Promise.all(
       [unit.logo, unit.signature].map(async (url) => {
         const response = await fetch(url);
@@ -597,8 +598,7 @@ select("health-unit-preset").onchange = () =>
     if (files !== previous || template !== selectedTemplate)
       throw new Error("The project changed while the theme loaded. Select the theme again.");
     const next = {
-      ...files,
-      [path]: settings,
+      ...themed,
       "templates/assets/logo.png": logo,
       "templates/assets/signature.png": signature,
     };
@@ -628,7 +628,6 @@ for (const kind of ["logo", "signature", "extra"])
       const file = input.files?.[0];
       if (!file) return;
       const previous = files;
-      const path = settingsPath(files, template);
       const bytes = await imageBytes(file);
       if (previous !== files)
         throw new Error("The project changed while the image loaded. Choose it again.");
@@ -639,24 +638,13 @@ for (const kind of ["logo", "signature", "extra"])
         "image/svg+xml": "svg",
       }[file.type];
       const asset = `templates/assets/studio-${kind}.${extension}`;
-      const next = { ...files, [asset]: bytes };
+      let next = { ...files, [asset]: bytes };
       if (kind === "extra") {
         for (const name of Object.keys(next)) {
           if (name !== asset && /^templates\/assets\/studio-extra\./.test(name)) delete next[name];
         }
       }
-      if (kind !== "extra") {
-        if (!path) throw new Error("This template has no companion Settings file.");
-        const expression = settingValue(files[path], kind);
-        if (!expression || !/^image\("[^"\r\n]+"/.test(expression))
-          throw new Error(`Edit ${kind} in Settings to use your image.`);
-        next[path] = updateThemeSettings(files[path], {
-          [kind]: expression.replace(
-            /^image\("[^"\r\n]+"/,
-            `image(${JSON.stringify(relativeImage(path, asset))}`,
-          ),
-        });
-      }
+      if (kind !== "extra") next = updateThemeImage(next, template, kind, asset);
       validateFiles(next);
       files = next;
       editor.clear();
@@ -673,7 +661,8 @@ button("zoom-in").onclick = () => void action(() => viewer.zoomBy(1.2));
 button("zoom-out").onclick = () => void action(() => viewer.zoomBy(1 / 1.2));
 const downloadDialog = byId<HTMLDialogElement>("download-dialog");
 function refreshDownloadOptions() {
-  const typstOnly = new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst";
+  const typstOnly =
+    new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst";
   byId<HTMLInputElement>("include-fonts").disabled = typstOnly;
   const fontOption = downloadDialog.querySelector<HTMLElement>(".download-fonts");
   if (fontOption) fontOption.hidden = typstOnly;
@@ -696,7 +685,8 @@ byId<HTMLFormElement>("download-form").onsubmit = (event) => {
       revision,
       context: compiler.context,
       includeFonts: byId<HTMLInputElement>("include-fonts").checked,
-      typstOnly: new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst",
+      typstOnly:
+        new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst",
     };
     exporting = true;
     refreshDownloads();
@@ -718,7 +708,9 @@ byId<HTMLFormElement>("download-form").onsubmit = (event) => {
         );
         bytes = await archiveJob({
           action: "export",
-          files: await (snapshot.includeFonts ? withProjectFonts(project) : withoutProjectFonts(project)),
+          files: await (snapshot.includeFonts
+            ? withProjectFonts(project)
+            : withoutProjectFonts(project)),
           template: snapshot.template,
           build: bundle.build,
         });
@@ -731,7 +723,11 @@ byId<HTMLFormElement>("download-form").onsubmit = (event) => {
         compiler.context !== snapshot.context
       )
         throw new Error("The project changed during download. Download it again.");
-      download(snapshot.typstOnly ? "immuknow-typst.zip" : "immuknow-project.zip", bytes, "application/zip");
+      download(
+        snapshot.typstOnly ? "immuknow-typst.zip" : "immuknow-project.zip",
+        bytes,
+        "application/zip",
+      );
     } finally {
       exporting = false;
       refreshDownloads();
@@ -886,14 +882,7 @@ async function start() {
     },
     (result) => void compiled(result),
   );
-  for (const id of [
-    "template-tab",
-    "theme-tab",
-    "template",
-    "import",
-    "zoom-in",
-    "zoom-out",
-  ])
+  for (const id of ["template-tab", "theme-tab", "template", "import", "zoom-in", "zoom-out"])
     buttonOrSelect(id).disabled = false;
   refreshProject();
   for (const control of editingControls) control.inert = false;

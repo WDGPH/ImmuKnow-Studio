@@ -1,4 +1,40 @@
-import { MAX_FILE } from "./project";
+import { MAX_FILE, settingsPath } from "./project";
+import { inlineSignatureImage, updateInlineSignatureImage } from "./signature-source";
+import { settingValue, updateThemeSettings } from "./theme-settings";
+import type { Files } from "./types";
+
+export function themeImage(files: Files, template: string, kind: string) {
+  const inline = kind === "signature" ? inlineSignatureImage(files[template]) : undefined;
+  if (inline) return { path: template, relative: inline.relative, inline: true };
+  const path = settingsPath(files, template);
+  const expression = path ? settingValue(files[path], kind) : undefined;
+  const relative = expression?.match(/^image\("([^"\r\n]+)"/)?.[1];
+  return path && relative ? { path, relative, inline: false } : undefined;
+}
+
+export function updateThemeImage(
+  files: Files,
+  template: string,
+  kind: string,
+  asset: string,
+): Files {
+  const reference = themeImage(files, template, kind);
+  if (!reference) throw new Error(`Edit the ${kind} image in Template or Settings.`);
+  const relative = relativeImage(reference.path, asset);
+  if (reference.inline)
+    return {
+      ...files,
+      [reference.path]: updateInlineSignatureImage(files[reference.path], relative),
+    };
+  const expression = settingValue(files[reference.path], kind);
+  if (!expression) throw new Error(`Edit ${kind} in Settings.`);
+  return {
+    ...files,
+    [reference.path]: updateThemeSettings(files[reference.path], {
+      [kind]: expression.replace(/^image\("[^"\r\n]+"/, `image(${JSON.stringify(relative)}`),
+    }),
+  };
+}
 
 export async function imageBytes(file: File): Promise<Uint8Array> {
   if (!["image/png", "image/jpeg", "image/webp", "image/svg+xml"].includes(file.type))

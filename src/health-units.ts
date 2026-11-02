@@ -31,9 +31,14 @@ export const healthUnits = [
   },
 ] as const;
 export type HealthUnit = (typeof healthUnits)[number];
-export function themedSettings(bytes: Uint8Array, unit: HealthUnit): Uint8Array {
+export function themedSettings(
+  bytes: Uint8Array,
+  unit: HealthUnit,
+  inlineSignature = false,
+): Uint8Array {
   const images: Record<string, string> = {};
   for (const name of ["logo", "signature"]) {
+    if (name === "signature" && inlineSignature) continue;
     const expression = settingValue(bytes, name);
     if (!expression || !/^image\("[^"\r\n]+"/.test(expression))
       throw new Error(`Edit ${name} in Settings before using a theme starter.`);
