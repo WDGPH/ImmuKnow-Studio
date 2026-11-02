@@ -6,7 +6,7 @@ const source = `#import "settings.typ": *
 #show: notice-style
 #immuknow.qr-code(notice, url: n => "https://example.test/record?id=" + n.client_id)
 
-#immuknow.notice-link("https://example.test/text#details")[Open the record]
+#immuknow.link("https://example.test/text#details")[Open the record]
 
 #rotate(15deg, reflow: true)[#link("https://example.test/rotated")[Rotated link]]
 

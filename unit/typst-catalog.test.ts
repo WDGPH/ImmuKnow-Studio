@@ -34,6 +34,7 @@ describe("authoring help follows installed Core", () => {
     for (const match of exports.matchAll(/^#import "[^"]+": (.+)$/gm)) {
       for (const name of match[1].split(", ")) {
         if (name === "envelope-preset") continue; // A dictionary, not a function.
+        if (name === "notice-link") continue; // Legacy alias; suggest immuknow.link.
         expect(functionCatalog, name).toHaveProperty(`immuknow.${name}`);
       }
     }

@@ -18,11 +18,10 @@ small changes, and include the checks and any remaining limits in your PR.
 
 ## Core dependency
 
-Studio installs Core from reviewed commit `7254f86c9b4dccf56cb7bea805f30bd5419bb806`
+Studio installs Core from reviewed commit `57ee717b29bcb5a316be850f08356fe3cdc1ddac`
 of <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` and `uv.lock` pin that
-revision. It includes the merged template and dependency updates in
-[Core PR #230](https://github.com/WDGPH/ImmuKnow/pull/230) and
-[Core PR #229](https://github.com/WDGPH/ImmuKnow/pull/229); it is not a new release candidate.
+revision. It supplies the starter templates and shared components used by
+previews and downloaded projects.
 A local Core checkout is not required.
 
 To adopt a different Core revision, update `rev` in `pyproject.toml`, then:
@@ -60,7 +59,7 @@ To rebuild against the configured Core reference, open **Actions → Studio Page
 → Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
-currently it is Core commit `7254f86c9b4dccf56cb7bea805f30bd5419bb806`. A configured tag or revision stays
+currently it is Core commit `57ee717b29bcb5a316be850f08356fe3cdc1ddac`. A configured tag or revision stays
 at that reference. The workflow regenerates example facts and checks resource
 compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.

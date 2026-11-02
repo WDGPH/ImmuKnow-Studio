@@ -684,13 +684,13 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     example: "#immuknow.privacy-notice[Your information is confidential.]",
     namedParameters: [],
   },
-  "immuknow.notice-link": {
-    description: "Creates an external link recorded for PDF checks.",
+  "immuknow.link": {
+    description: "Adds a website, email or phone link and checks its address format.",
     parameters: [
-      ["destination", "Quoted URL or a URL variable."],
+      ["destination", "Address starting with https:, mailto: or tel:."],
       ["body", "Optional display text in square brackets."],
     ],
-    example: "#immuknow.notice-link(records-url)[Send your record]",
+    example: '#immuknow.link("https://example.org/immunization")[Send your record]',
     namedParameters: [],
   },
   "immuknow.query-url": {
@@ -703,7 +703,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
         "Names and values to add, such as (client: notice.client_id). Pass the original text.",
       ],
     ],
-    example: "#immuknow.query-url(records-url, (client: notice.client_id))",
+    example: '#immuknow.query-url("https://example.org/update", (client: notice.client_id))',
     namedParameters: [],
   },
   "immuknow.url-encode": {

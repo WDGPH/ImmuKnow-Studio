@@ -17,9 +17,9 @@ ImmuKnow's shared components as described in
 
 ## Edit and review
 
-Use **Template** for letter wording, **Settings** for page/envelope setup,
-dates, QR destinations and display choices, and **Theme** for fonts, colours,
-logo, signature and an additional image. Template starters and Theme starters
+Use **Template** for letter wording, contacts and suspension dates,
+**Settings** for shared page/envelope setup, QR destinations and display choices,
+and **Theme** for fonts, colours, logo, signature and an additional image. Template starters and Theme starters
 are in Theme. Selecting a different template opens a confirmation dialog: load
 that template from its starting copy, optionally resetting Settings or Settings
 and Theme too. Edits to the target template are replaced only after confirmation;
@@ -169,8 +169,8 @@ match. The selected file must be an English or French notice under `templates/`.
 - **Saved draft only** removes the browser copy, including pending saves, while
   keeping the open workspace. Later edits save it again.
 - **Template only** restores the selected template and keeps current Settings and Theme, including images.
-- **Template + settings** also restores layout, dates, contacts and display
-  options, while keeping fonts, colours, organization name, signature, image
+- **Template + settings** also restores layout and display
+  options, while keeping fonts, colours, signature, image
   sizes and QR appearance. Uploaded images stay available.
 - **Template + settings + theme** restores the complete starting Settings and
   images, and removes images added since the project was opened.

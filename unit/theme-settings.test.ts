@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "vitest";
+import { healthUnits, themedSettings } from "../src/health-units";
 import { decoder, encoder } from "../src/project";
 import {
   resetSettingsKeepingTheme,
@@ -197,4 +198,12 @@ test("refuses to preserve theme expressions whose dependencies would be removed"
     expect(() => resetSettingsKeepingTheme(baseline, bytes(source))).toThrow(
       "Cannot safely separate Theme",
     );
+});
+
+test("theme starters work when organization and signature wording live in Template", () => {
+  const source = readFileSync("generated/core/templates/settings.typ", "utf8").replace(/^#let health-unit-name = .*\n/m, "");
+  const result = themedSettings(bytes(source), healthUnits[1], true, true);
+  expect(settingValue(result, "body-font")).toBe('"FreeSans"');
+  expect(settingValue(result, "heading-color")).toBe('rgb("#034770")');
+  expect(settingValue(result, "health-unit-name")).toBeUndefined();
 });

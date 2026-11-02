@@ -86,9 +86,9 @@ separately from credentials printed below the signature.</p>
   Please reply by *#deadline*.
 ]
 #reply-line("March 2")
-#immuknow.notice-link(records-url)[Update your record]</code></pre>
+#immuknow.link("https://example.org/immunization")[Update your record]</code></pre>
 <p><code>#let</code> defines a value or a function you can use again.
-Use <code>immuknow.notice-link</code> to include a link in ImmuKnow's checks.
+Use <code>immuknow.link</code> to include a link in ImmuKnow's checks.
 To put a client ID in a web address, use
 <code>immuknow.query-url(base, (client: notice.client_id))</code>, where
 <code>base</code> is your website address. It handles special characters in

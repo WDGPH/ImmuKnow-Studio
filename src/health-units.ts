@@ -49,7 +49,9 @@ export function themedSettings(
     updateThemeSettings(bytes, {
       ...images,
       ...(inlineName ? {} : { "signature-name": JSON.stringify(unit.signatory) }),
-      "health-unit-name": JSON.stringify(`${unit.name} Health Unit`),
+      ...(settingValue(bytes, "health-unit-name") === undefined
+        ? {}
+        : { "health-unit-name": JSON.stringify(`${unit.name} Health Unit`) }),
       "body-font": JSON.stringify(unit.font),
       "heading-color": `rgb("${unit.heading}")`,
       "link-color": `rgb("${unit.link}")`,

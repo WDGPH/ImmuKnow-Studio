@@ -39,7 +39,5 @@ browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/
 - [Documentation and releases](docs/documentation.md): strict manual builds,
   the PHIZ documentation hub and v0.1.0 preparation.
 
-Studio pins Core to reviewed commit **`6df6993`**, based on the latest `main`
-and the starter-template changes in [Core PR #230](https://github.com/WDGPH/ImmuKnow/pull/230).
-The exact revision is recorded in `uv.lock`. This is a development pin,
-not another release candidate. Studio and Core have separate version numbers.
+Studio pins Core to commit **`57ee717`**. The exact revision is
+recorded in `uv.lock`. Studio and Core have separate version numbers.
