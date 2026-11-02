@@ -184,12 +184,14 @@ summary:focus-visible {
   text-align: left;
   border: 0;
 }
-.download-fonts {
+.download-fonts,
+.download-sample {
   display: block;
   margin: 20px 0;
   font-size: 14px;
 }
-.download-fonts small {
+.download-fonts small,
+.download-sample small {
   display: block;
   margin: 4px 0 0 22px;
   color: var(--muted);

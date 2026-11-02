@@ -51,9 +51,11 @@ export async function chooseExample(page: Page, index: number) {
   }
 }
 
-export async function downloadProject(page: Page, includeFonts?: boolean) {
+export async function downloadProject(page: Page, includeFonts?: boolean, includeFictionalData?: boolean) {
   await page.locator("#export").click();
   await expect(page.getByRole("dialog", { name: "Download project", exact: true })).toBeVisible();
   if (includeFonts !== undefined) await page.locator("#include-fonts").setChecked(includeFonts);
+  if (includeFictionalData !== undefined)
+    await page.locator("#include-fictional-data").setChecked(includeFictionalData);
   await page.locator("#download-confirm").click();
 }

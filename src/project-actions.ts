@@ -17,6 +17,7 @@ import {
   updateOrderSignatoryName,
 } from "./signature-source";
 import type { Bundle, Example, Files } from "./types";
+import { sameBytes } from "./compiler-inputs";
 
 export type ResetScope = "template" | "settings" | "theme";
 
@@ -68,8 +69,39 @@ export function currentProject(
   examples: Bundle["examples"],
   example?: Example,
   starters: Files = {},
+  includeFictionalData = true,
 ): Files {
   const required = referencedFiles(files, template);
+  if (!includeFictionalData) {
+    files = { ...files };
+    const inputs = examples.flatMap((item) => Object.values(item.inputs));
+    const matches = (path: string, original: string) =>
+      !!starters[original] && !!files[path] && sameBytes(files[path], starters[original]);
+    // Remove an unchanged Studio sample on re-export too. Custom or unfinished
+    // imported samples keep their files and dependencies.
+    if (files["sample.json"]) {
+      try {
+        const sample = JSON.parse(decoder.decode(files["sample.json"])) as Record<string, unknown>;
+        const { csv, assignments } = sample;
+        if (
+          typeof csv === "string" &&
+          typeof assignments === "string" &&
+          !required.has("sample.json") &&
+          !required.has(csv) &&
+          !required.has(assignments) &&
+          inputs.some(
+            (input) => matches(csv, input.csv) && matches(assignments, input.assignments),
+          )
+        ) {
+          delete files["sample.json"];
+          delete files[csv];
+          delete files[assignments];
+        }
+      } catch {
+        // The existing sample-preservation path below retains unfinished work.
+      }
+    }
+  }
   // An imported sample is authored project configuration. Keep both its bytes
   // and dependencies even when the preview moves to another fictional client.
   if (files["sample.json"]) {
@@ -96,7 +128,9 @@ export function currentProject(
       for (const path of Object.keys(files)) required.add(path);
     }
   }
-  const inputs = example?.inputs[template.split("/").at(-1) ?? ""];
+  const inputs = includeFictionalData
+    ? example?.inputs[template.split("/").at(-1) ?? ""]
+    : undefined;
   const otherInputs = new Set(
     examples.flatMap((item) => Object.values(item.inputs).flatMap(Object.values)),
   );
@@ -105,6 +139,8 @@ export function currentProject(
     Object.entries(files).filter(([path]) => {
       if (required.has(path) || selected.has(path)) return true;
       if (/^templates\/.+\.(en|fr)\.typ$/.test(path)) return false;
+      if (!includeFictionalData && otherInputs.has(path))
+        return !starters[path] || !sameBytes(files[path], starters[path]);
       return !otherInputs.has(path);
     }),
   );

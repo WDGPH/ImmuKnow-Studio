@@ -4,7 +4,7 @@
     ".pre-commit-config.yaml": "b92512e1efd258eddceb91564ebd46680f484c8cff2cdf72f1ec57a5932ba898",
     ".python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
     "LICENSE": "e3fc41a3e9599ba793e59ce6dca2310fadfb97127305518ed4971365c131e94f",
-    "README.md": "c414fa354764914a33ac2d80e712e160b08e4db342efc40bf98b6a9d57dae8a6",
+    "README.md": "1fc35d28be6b3b4c651e4f402c99b9d119c78ae51bf0da002e74d9ea7c8e38fc",
     "config/disease_normalization.json": "58a90941664b54aa9bb77bad56e9fa2b314522ff535208eab6378d37a14aec79",
     "config/notice_versions.yaml": "c3be55944eeede6e527322bac26667d86f7a141a294f4ba364c07441bf581922",
     "config/parameters.yaml": "306eb4ec9121935f339cf12c6e3eb198fad4a902b50f68b141c4bcde4048f9ed",
@@ -33,5 +33,5 @@
     "uv.lock": "dfae2de65b9d149f9698943cbd5253d20b5a2b989f001502947e2ec97b2a8d35"
   },
   "repository": "https://github.com/WDGPH/ImmuKnow-Template",
-  "revision": "ce5015347884df36d5865f305d3ad9f7d2173d0d"
+  "revision": "a95649a21f3069e827be5af193790d2d847cc3d5"
 }

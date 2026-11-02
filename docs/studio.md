@@ -212,16 +212,21 @@ Open **Project** at the top-right of the webpage.
 **Download project** opens a dialog offering **Complete project** (the default)
 or **Authored .typ files only**. With **Complete project**, choose **Download ZIP**
 to save the selected notice with current Settings,
-Theme, translations, components, images and configuration. It includes only the
-selected fictional client’s CSV and assignment file; unrelated starter notices
-and example inputs are omitted. Explicitly referenced notices and authored
+Theme, translations, components, images and configuration.
+The **Include fictional client data** checkbox is selected by default. Keep it
+to include the selected fictional client’s CSV, assignment file and sample setup
+for a local test run. Clear it to download without Studio’s fictional inputs,
+including unchanged sample copies from a previously imported Studio ZIP. Custom
+imported sample data is preserved. Unrelated starter notices and example inputs
+are omitted. Explicitly referenced notices and authored
 companion files remain available, preserving project dependencies. Other notices
 in the browser draft are not backed up by this download; download each notice
 you want to keep.
 Authored files keep their bytes and relative paths. Import the ZIP to resume
 editing, or run it locally using the included ImmuKnow-Template Python setup,
 locked Core dependency and helper scripts. The ZIP includes a README
-and sample copies under `input/sample/` when a prepared example is available.
+and sample copies under `input/sample/` when fictional client data is included
+and a prepared example is available.
 An imported project's existing sample selection and authored files are preserved.
 The installed environment, engine wheel and native Typst compiler are not bundled.
 If the project changes while the ZIP is being prepared, download it again.

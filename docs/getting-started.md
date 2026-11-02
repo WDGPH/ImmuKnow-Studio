@@ -61,7 +61,8 @@ another computer:
    **Include fonts for installation**, and
    select **Download ZIP** to save `immuknow-project.zip`.
 3. Keep the ZIP somewhere you control. It contains the selected template,
-   supporting files, assets, Python setup, helper scripts and selected fictional example inputs.
+   supporting files, assets, Python setup and helper scripts. Keep **Include fictional
+   client data** selected to include the example inputs for a local test run.
 
 Download each template you want to keep: this action does not back up every
 other notice in the browser draft. To return to a downloaded project, open

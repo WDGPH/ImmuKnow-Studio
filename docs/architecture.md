@@ -77,8 +77,9 @@ Core's source and applicability findings stay attached to the selected view.
 A custom entry point without prepared facts remains exportable.
 
 The selected example ID survives template changes and draft reloads. Downloads
-include its source CSV and the chosen notice's assignment. Imported sample files
-remain authored project files and are preserved. The native preparation checks
+can include its source CSV and the chosen notice's assignment through the
+**Include fictional client data** checkbox. Clearing it also removes unchanged
+Studio sample copies from imported ZIPs; custom imported samples are preserved. The native preparation checks
 confirm that the exported inputs reproduce each view; browser checks cover
 selection, edits, reloads and downloads.
 
@@ -96,8 +97,8 @@ recording compatibility. Relocating installed files alone does not invalidate
 projects whose shared bytes and formats still match.
 
 Build preparation combines Template’s authored starter files with Core’s shared
-library. Downloads include the selected authored project and Studio’s fictional
-inputs. Downloads supply any missing setup files and preserve files already
+library. Downloads include the selected authored project and, when requested,
+Studio’s fictional inputs. Downloads supply any missing setup files and preserve files already
 present in imported projects. `template-source.json` identifies the upstream
 snapshot, while `immuknow-project.json` hashes the actual downloaded bytes.
 
