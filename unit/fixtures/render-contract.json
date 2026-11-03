@@ -16,7 +16,6 @@
       "postal_code": "N1H 2T2",
       "date_of_birth_iso": "2015-01-02",
       "age": 9,
-      "over_16": false,
       "school": "Tunnel Academy"
     },
     "school": {
@@ -84,7 +83,6 @@
         "postal_code": "N1H 2T2",
         "date_of_birth_iso": "2015-01-02",
         "age": 9,
-        "over_16": false,
         "school": "Tunnel Academy"
       },
       "school": {
@@ -1368,7 +1366,6 @@
               "postal_code": "N1H 2T2",
               "date_of_birth_iso": "2015-01-02",
               "age": 9,
-              "over_16": false,
               "school": "Tunnel Academy"
             },
             "language": "en",
@@ -1382,7 +1379,7 @@
       ]
     },
     {
-      "name": "rendered source flag has the wrong type",
+      "name": "rendered age has the wrong type",
       "valid": false,
       "changes": [
         {
@@ -1390,9 +1387,9 @@
           "path": [
             "notice",
             "client_data",
-            "over_16"
+            "age"
           ],
-          "value": 0
+          "value": "nine"
         }
       ]
     },
@@ -1445,13 +1442,13 @@
       ]
     },
     {
-      "name": "explicit student reader override",
+      "name": "explicit student intended reader override",
       "valid": true,
       "changes": [
         {
           "target": "payload",
           "path": [
-            "reader"
+            "intended_reader"
           ],
           "value": "student"
         },
@@ -1459,47 +1456,47 @@
           "target": "report",
           "path": [
             "notice",
-            "reader"
+            "intended_reader"
           ],
           "value": "student"
         }
       ]
     },
     {
-      "name": "invalid reader value",
+      "name": "invalid intended reader value",
       "valid": false,
       "changes": [
         {
           "target": "payload",
           "path": [
-            "reader"
+            "intended_reader"
           ],
           "value": "parent"
         }
       ]
     },
     {
-      "name": "reader must not be boolean",
+      "name": "intended reader must not be boolean",
       "valid": false,
       "changes": [
         {
           "target": "payload",
           "path": [
-            "reader"
+            "intended_reader"
           ],
           "value": true
         }
       ]
     },
     {
-      "name": "report reader differs from prepared facts",
+      "name": "report intended reader differs from prepared facts",
       "valid": false,
       "changes": [
         {
           "target": "report",
           "path": [
             "notice",
-            "reader"
+            "intended_reader"
           ],
           "value": "guardian"
         }

@@ -36,10 +36,11 @@ As of #date_as_of
   Please update the named client's record.
 ]</code></pre>
 <p><code>to_student</code> and <code>to_guardian</code> are boolean flags supplied
-by setup. An explicit CSV <code>reader</code> choice takes priority over the age
+by setup. An explicit CSV <code>intended_reader</code> choice takes priority over the age
 default. Only one flag can be true; both are false when the reader is unknown,
 so the final <code>else</code> uses neutral wording. The address block uses the
-same reader, including in suspension orders. Use the Example client arrows to
+same reader by default, including in suspension orders. Its <code>addressee</code>
+option overrides the label without changing the intended reader. Use the Example client arrows to
 try different readers, including the older student with a guardian choice.</p>
 </section>
 

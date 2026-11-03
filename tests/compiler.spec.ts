@@ -193,7 +193,6 @@ test("browser snapshots retain native findings, frozen dates and recover from er
       postal_code: "",
       date_of_birth_iso: "",
       age: null,
-      over_16: null,
     });
     return window.proof.submit([{ ...job, notice }]);
   });

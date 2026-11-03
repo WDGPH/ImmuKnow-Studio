@@ -201,7 +201,7 @@
       }
     },
     {
-      "id": "guardian-reader",
+      "id": "guardian-intended-reader",
       "label": "Riley Example 09",
       "description": "Older student; correspondence directed to guardian",
       "source": {
@@ -221,7 +221,7 @@
         "last_name": "Example 09",
         "school_id": "0016",
         "board_id": "0034",
-        "reader": "guardian"
+        "intended_reader": "guardian"
       }
     },
     {

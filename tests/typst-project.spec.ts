@@ -19,7 +19,7 @@ const cases = [
   ["short", "overdue_diseases_v1.en.typ"],
   ["long-history", "overdue_diseases_v1.fr.typ"],
   ["source-warnings", "overdue_agents_v1.fr.typ"],
-  ["guardian-reader", "suspension_order_v1.en.typ"],
+  ["guardian-intended-reader", "suspension_order_v1.en.typ"],
 ];
 
 for (const [scenario, filename] of cases) {
@@ -122,10 +122,10 @@ for (const [scenario, filename] of cases) {
       }),
     );
     expect(preview.length).toBeGreaterThan(0);
-    if (scenario === "guardian-reader") {
+    if (scenario === "guardian-intended-reader") {
       const notice = examples[index].payloads[filename];
-      expect(notice.client_data.over_16).toBe(true);
-      expect(notice.reader).toBe("guardian");
+      expect(notice.client_data.age).toBeGreaterThan(16);
+      expect(notice.intended_reader).toBe("guardian");
       const text = preview
         .map((page) => page.plainText)
         .join(" ")

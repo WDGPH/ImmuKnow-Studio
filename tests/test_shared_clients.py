@@ -67,6 +67,12 @@ class SharedClientsTest(unittest.TestCase):
                     for payload in example["payloads"].values()
                 ]
                 self.assertTrue(all(fact == facts[0] for fact in facts))
+                source = expected[example["id"]]["source"]
+                for part in ("first", "last"):
+                    self.assertEqual(
+                        facts[0]["client_data"][f"{part}_initial"],
+                        source[f"{part}_name"].strip()[:1],
+                    )
 
     def test_downloaded_inputs_reproduce_each_preview(self) -> None:
         with tempfile.TemporaryDirectory(prefix="studio-shared-clients-") as scratch:
