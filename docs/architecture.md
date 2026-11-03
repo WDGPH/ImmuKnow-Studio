@@ -10,7 +10,7 @@
 | PHIZ documentation hub | Shared manual presentation, version selection, search and documentation publication |
 
 Core contains no starter project. Studio obtains authored starters from the
-verified Template resource package and the shared library from installed Core. Fictional
+pinned Template resource package and the shared library from installed Core. Fictional
 client scenarios remain in Studio.
 
 Studio installs Core as a Python build dependency. Build preparation uses
@@ -87,10 +87,9 @@ selection, edits, reloads and downloads.
 
 Studio installs `immuknow-template-resources` from an exact Git revision of
 ImmuKnow-Template, alongside its separately pinned Core dependency. Asset
-preparation reads the installed resource API, verifies its complete allowlist
-and hashes, and checks that the included project lock selects the same Core
-commit as Studio. Installed files are read-only. No scaffold copies are committed
-in Studio; copies are created only for build output and downloaded projects.
+preparation reads the installed resource API and checks that the included
+project lock selects the same Core commit as Studio. Installed files are
+read-only. No scaffold copies are committed in Studio; copies are created only for build output and downloaded projects.
 The default theme logo and signature are generated from those same installed
 Template assets, rather than separate committed image copies.
 

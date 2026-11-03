@@ -258,8 +258,9 @@ imports check shared library file integrity.
 
 The starter project comes from the `immuknow-template-resources` distribution
 built from ImmuKnow-Template's root `pyproject.toml` using Hatch's declarative
-file mappings. Standard wheel records supply resource hashes, and installer
-metadata supplies the Git source identity. The shared Typst library is
+directory inclusions and targeted exclusions. New authored files are included
+automatically. The resource helper reads the installed files and uses installer
+metadata for Git source provenance. The shared Typst library is
 excluded and continues to come from Core. Studio commits only the dependency
 pin and lock, with no copied scaffold under `assets/`.
 
@@ -274,9 +275,9 @@ npm run prepare:assets
 ```
 
 A Core upgrade also requires a Template revision whose project lock selects
-that Core commit. `scripts.project_template` verifies the installed package and
-compatibility; it no longer refreshes files from a separate checkout. Never edit
-installed resources. Template uses `tool.uv.package = false`, so downloaded
+that Core commit. `scripts.project_template` checks Core compatibility and
+Git source provenance; it no longer refreshes files from a separate checkout.
+Never edit installed resources. Template uses `tool.uv.package = false`, so downloaded
 projects install Core without building or installing the resource package.
 
 Core and Template are public repositories, so dependency installation needs no

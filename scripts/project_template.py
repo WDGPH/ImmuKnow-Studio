@@ -1,4 +1,4 @@
-"""Read the verified starter scaffold from the locked Template resource package."""
+"""Read the starter scaffold from the locked Template resource package."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ PROJECT_TEMPLATE = resource_root()
 
 
 def scaffold_files() -> dict[str, bytes]:
-    """Require Template's complete package payload and the same locked Core revision."""
+    """Read Template resources and require the same locked Core revision."""
     files = project_files()
     lock = tomllib.loads(files["uv.lock"].decode())
     (core,) = [package for package in lock["package"] if package["name"] == "immuknow"]
@@ -32,7 +32,7 @@ def scaffold_files() -> dict[str, bytes]:
 
 def main() -> None:
     files = scaffold_files()
-    print(f"Verified {len(files) - 1} installed Template scaffold files")
+    print(f"Read {len(files) - 1} installed Template scaffold files")
 
 
 if __name__ == "__main__":
