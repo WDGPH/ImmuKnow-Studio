@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import re
 import tomllib
 
 from immuknow.resources import rendering_build_info
@@ -20,6 +22,11 @@ def scaffold_files() -> dict[str, bytes]:
         != rendering_build_info()["core_source_revision"]
     ):
         raise ValueError("Template and Studio must lock the same Core commit")
+    revision = json.loads(files["template-source.json"])["revision"]
+    if not isinstance(revision, str) or not re.fullmatch(r"[0-9a-f]{40}", revision):
+        raise ValueError(
+            "Template resources must be installed from the pinned Git source"
+        )
     return files
 
 

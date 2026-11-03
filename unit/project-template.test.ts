@@ -3,6 +3,7 @@ import { expect, test } from "vitest";
 
 test("installed Template resources must select the same Core revision as Studio", () => {
   const output = execFileSync("uv", ["run", "--locked", "python", "-c", `
+import json
 from unittest.mock import patch
 from immuknow.resources import rendering_build_info
 from scripts.project_template import scaffold_files
@@ -20,6 +21,17 @@ with patch("scripts.project_template.project_files", return_value=wrong):
         assert "same Core commit" in str(error)
     else:
         raise AssertionError("Mismatched Core pin accepted")
+wrong = dict(files)
+origin = json.loads(files["template-source.json"])
+origin["revision"] = None
+wrong["template-source.json"] = json.dumps(origin).encode()
+with patch("scripts.project_template.project_files", return_value=wrong):
+    try:
+        scaffold_files()
+    except ValueError as error:
+        assert "pinned Git source" in str(error)
+    else:
+        raise AssertionError("Missing Template revision accepted")
 print("verified")
 `], { encoding: "utf8" });
   expect(output.trim()).toBe("verified");

@@ -94,7 +94,7 @@ in Studio; copies are created only for build output and downloaded projects.
 The default theme logo and signature are generated from those same installed
 Template assets, rather than separate committed image copies.
 
-Dependency installation needs repository access while Template is private.
+Core and Template are public, so installation needs no GitHub credentials.
 After installation, asset preparation does not fetch Template files. Browser
 previews and downloads continue to use the built local resources. See
 [Build and contribute](development.md#update-the-project-template).
