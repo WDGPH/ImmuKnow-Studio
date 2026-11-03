@@ -60,6 +60,18 @@ test("a component error opens the supplied library for reading without changing 
 });
 
 test("notice warnings start collapsed with a count while errors stay visible", async ({ page }) => {
+  await editExampleData(page, (bundle) => {
+    for (const example of bundle.examples) {
+      for (const checks of Object.values(example.preparationChecks)) {
+        checks.push({
+          code: "data.preparation_warning",
+          stage: "preparation",
+          status: "warn",
+          message: "Warning fixture for collapsed findings",
+        });
+      }
+    }
+  });
   await page.goto("./");
   await currentPreview(page);
   const summary = page.locator("#notice-warnings summary");
@@ -165,7 +177,7 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   await page.locator("#next").click();
   await currentPreview(page);
   await page.locator("#next").click();
-  await expect(page.locator("#diagnostics")).toContainText("source.age_unknown");
+  await expect(page.locator("#diagnostics")).toContainText("data.forecast_coverage");
   await currentPreview(page);
 
   await expect(page.locator(".preview-page")).toHaveCount(2);

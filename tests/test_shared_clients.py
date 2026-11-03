@@ -5,6 +5,7 @@ import io
 import json
 import tempfile
 import unittest
+from datetime import date
 from hashlib import sha256
 from pathlib import Path
 
@@ -15,7 +16,7 @@ from immuknow.preprocess import prepare_clients, read_input
 from immuknow.resources import typst_library_root
 from immuknow.version_notices import load_catalog, template_identity
 
-from scripts.examples import EXAMPLES, generate
+from scripts.examples import CONFIG, EXAMPLES, generate
 
 
 class SharedClientsTest(unittest.TestCase):
@@ -73,6 +74,40 @@ class SharedClientsTest(unittest.TestCase):
                         facts[0]["client_data"][f"{part}_initial"],
                         source[f"{part}_name"].strip()[:1],
                     )
+
+    def test_authored_clients_have_complete_details_and_consistent_history(
+        self,
+    ) -> None:
+        reference = json.loads((CONFIG / "vaccine_reference.json").read_text())
+        as_of = date.fromisoformat(self.authored["dates"]["date_as_of"])
+        sources = {
+            client["id"]: client["source"] for client in self.authored["clients"]
+        }
+        identifiers = [source["client_id"] for source in sources.values()]
+        self.assertEqual(len(identifiers), len(set(identifiers)))
+        for example in self.prepared["examples"]:
+            with self.subTest(client=example["id"]):
+                source = sources[example["id"]]
+                for field in (
+                    "first_name",
+                    "last_name",
+                    "date_of_birth",
+                    "street_address_line_1",
+                    "city",
+                    "province",
+                    "postal_code",
+                    "school_name",
+                    "board_name",
+                ):
+                    self.assertTrue(source[field].strip(), field)
+                born = date.fromisoformat(source["date_of_birth"])
+                self.assertLessEqual(born, as_of)
+                payload = next(iter(example["payloads"].values()))
+                for dose in payload["history"]:
+                    self.assertIn(dose["agent"], reference)
+                    self.assertLessEqual(born, date.fromisoformat(dose["date_given"]))
+                    self.assertLessEqual(date.fromisoformat(dose["date_given"]), as_of)
+                    self.assertIn(dose["validity"], ("valid", "invalid"))
 
     def test_downloaded_inputs_reproduce_each_preview(self) -> None:
         with tempfile.TemporaryDirectory(prefix="studio-shared-clients-") as scratch:

@@ -19,7 +19,7 @@ const cases = [
   ["short", "overdue_diseases_v1.en.typ"],
   ["long-history", "overdue_diseases_v1.fr.typ"],
   ["source-warnings", "overdue_agents_v1.fr.typ"],
-  ["guardian-intended-reader", "suspension_order_v1.en.typ"],
+  ["source-warnings", "suspension_order_v1.en.typ"],
 ];
 
 for (const [scenario, filename] of cases) {
@@ -84,6 +84,18 @@ for (const [scenario, filename] of cases) {
         authored.replace('#let body-font = "FreeSans"', '#let body-font = "FreeSerif"'),
       ).toString("base64");
     }
+    if (scenario === "long-history") {
+      // Continuation pressure belongs to this layout handoff test.
+      const path = `templates/${filename}`;
+      const authored = Buffer.from(bundle.files[path], "base64").toString("utf8").replace(
+        "#immuknow.immunization-history()",
+        "#immuknow.immunization-history(font-size: 18pt)",
+      );
+      await page.locator("#template-tab").click();
+      await page.locator(".cm-content").press("Control+a");
+      await page.keyboard.insertText(authored);
+      expectedFiles[path] = Buffer.from(authored).toString("base64");
+    }
     await expect(page.locator("#example")).toHaveText(
       `Example client ${String(index + 1).padStart(2, "0")}`,
     );
@@ -122,7 +134,7 @@ for (const [scenario, filename] of cases) {
       }),
     );
     expect(preview.length).toBeGreaterThan(0);
-    if (scenario === "guardian-intended-reader") {
+    if (filename === "suspension_order_v1.en.typ") {
       const notice = examples[index].payloads[filename];
       expect(notice.client_data.age).toBeGreaterThan(16);
       expect(notice.intended_reader).toBe("guardian");

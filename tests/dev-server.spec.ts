@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
 import { createServer } from "vite";
+import { chooseExample } from "./helpers";
 
 test("the dev worker loads its data checks under a proxy path and renders despite extra coverage", async ({ page }) => {
   const previous = process.env.IMMUKNOW_DEV_PROXY_BASE;
@@ -17,6 +18,7 @@ test("the dev worker loads its data checks under a proxy path and renders despit
     if (!address || typeof address === "string") throw new Error("No dev server address");
     await page.goto(`http://127.0.0.1:${address.port}${prefix}`);
     await expect(page.locator(".preview-page canvas")).toHaveCount(2, { timeout: 60_000 });
+    await chooseExample(page, 2);
     await expect(page.locator("#diagnostics")).toContainText("data.forecast_coverage");
     await expect(page.locator("#diagnostics .error")).toHaveCount(0);
   } finally {

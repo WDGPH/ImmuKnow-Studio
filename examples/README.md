@@ -1,6 +1,6 @@
 # Example notices
 
-These fictional clients help you develop notice wording and layout. They include
+These six fictional clients help you develop notice wording and layout. They include
 short and long histories, English/French notices, an up-to-date notice and a
 suspension order. An older student has an explicit `intended_reader=guardian` choice,
 which keeps their age facts and directs ordinary and suspension wording to a
@@ -48,18 +48,18 @@ immuknow examples/clients/source-warnings.csv --config config \
   --templates templates --output runs
 ```
 
-The no-records client previews the bilingual request for records. The 2009/2010
-varicella clients demonstrate the ISPA birth-year boundary. Some clients include
+The no-records client previews the bilingual request for records or a suspension
+notice. Some clients include
 a fictional OIID with leading zeros; enable `show-oiid` in Settings to show it.
 Each downloaded client CSV is a one-client cohort, so enabling OIID display for
 a client without an OIID raises the all-absent error. In a production mixed
 cohort, `missing-oiid` controls omitted, blank or unavailable text.
 
-Warning clients retain source findings such as an absent birth date. Their
-history entries all have validity flags, so the default validity display remains
-usable. Combining examples creates a different input cohort. The long-history example intentionally permits reviewers to
-see content continuation and findings. The suspension example has valid source
-history but places no history component or display checks.
+The combination-vaccine example retains the forecast warning when MMR covers
+more diseases than the recorded overdue Mumps. Client contact details and birth
+dates remain complete. Every recorded dose has a validity flag, so the default
+history display remains usable. The long histories support continuation review;
+the suspension notice places no history component.
 
 Preview facts are fixed for each generated build. Edit `scenarios.json` and
 restart the dev server or rebuild to change them. Edit the native Settings file

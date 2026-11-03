@@ -66,8 +66,7 @@ block’s `addressee` option overrides its label without changing the intended
 reader. Try the older student with a guardian choice in Example clients.
 Setup also supplies `no_records` and disease-based `up_to_date`. The affirmative
 and suspension starters enforce their wording with rendering assertions; choose
-a matching example client to preview them. Try the no-records and 2009/2010
-varicella examples to compare these paths. Settings expose independent Client ID
+a matching example client to preview them. Try the no-records and up-to-date examples to compare these paths. Settings expose independent Client ID
 and OIID display, missing-OIID text and applicable history legend wording.
 See the [Typst Reference](coding-cheatsheet.md) for the options.
 Omit QR calls when a letter has no QR code. Settings can use a fixed destination
@@ -120,8 +119,8 @@ and recorded facts stay the same when you switch notices or languages. Changing
 examples preserves your edits and does not open a reset dialog.
 
 The examples include clients with English and French names. They are
-fictional records for notice design, not vaccination schedules. Some examples
-have incomplete details or do not fit a particular notice. Their warnings remain
+fictional records for notice design, not vaccination schedules. Each has complete contact details and consistent history dates. A client may
+not fit a particular notice; the resulting warnings remain
 available for review; Studio does not rewrite the facts to make a notice fit.
 
 Findings combine source-preparation warnings, compiler diagnostics and placed

@@ -28,12 +28,13 @@
         "postal_code": "N0G 3A5",
         "overdue_disease": "Meningococcal - 2",
         "overdue_agent": "Men-C-ACYW-135",
-        "imms_given": "2019-01-27 - Pneu-C-13 - Valid; 2021-06-15 - MMR - Valid;",
+        "imms_given": "2020-03-27 - Pneu-C-13 - Valid; 2021-06-15 - MMR - Valid;",
         "client_id": "3327626416",
         "first_name": "Dolores",
         "last_name": "Green",
-        "school_id": "81800",
-        "board_id": "5386"
+        "school_id": "103445",
+        "board_id": "5386",
+        "oiid": "0000123456"
       }
     },
     {
@@ -51,22 +52,22 @@
         "postal_code": "N0B 8N2",
         "overdue_disease": "Varicella - 2",
         "overdue_agent": "Var",
-        "imms_given": "2016-01-12 - Tdap-IPV - Valid; 2016-01-31 - MMR - Valid; 2016-02-14 - rota-unspecified - Valid; 2016-03-25 - Men-C-C - Valid; 2016-04-12 - HB - Valid; 2016-04-19 - Influenza (IIV4) - Valid; 2016-05-13 - Tdap - Valid; 2016-06-30 - Men-C-ACYW-135 - Valid; 2017-01-12 - Tdap-IPV - Valid; 2017-01-31 - MMR - Valid; 2017-02-28 - rota-unspecified - Valid; 2017-03-25 - Men-C-C - Valid; 2017-04-03 - HB - Valid; 2017-04-19 - Influenza (IIV4) - Valid; 2017-06-13 - Tdap - Valid; 2017-07-30 - Men-C-ACYW-135 - Valid; 2018-01-12 - Tdap-IPV - Valid; 2018-01-31 - MMR - Valid; 2018-02-12 - rota-unspecified - Valid; 2018-03-25 - Men-C-C - Valid; 2018-04-03 - HB - Valid; 2018-04-19 - Influenza (IIV4) - Valid; 2018-06-13 - Tdap - Valid; 2018-07-30 - Men-C-ACYW-135 - Valid; 2019-01-12 - Tdap-IPV - Valid; 2019-01-31 - MMR - Valid; 2019-02-23 - rota-unspecified - Valid; 2019-03-25 - Men-C-C - Valid; 2019-04-03 - HB - Valid; 2019-04-19 - Influenza (IIV4) - Valid; 2019-06-13 - Tdap - Valid; 2019-07-30 - Men-C-ACYW-135 - Valid; 2020-01-12 - Tdap-IPV - Valid; 2020-01-31 - MMR - Valid; 2020-02-03 - rota-unspecified - Valid; 2020-03-25 - Men-C-C - Valid; 2020-04-03 - HB - Valid; 2020-04-19 - Influenza (IIV4) - Valid; 2020-05-14 - Tdap - Valid; 2020-07-30 - Men-C-ACYW-135 - Valid; 2021-01-12 - Tdap-IPV - Valid; 2021-01-31 - MMR - Valid; 2021-02-18 - rota-unspecified - Valid; 2021-03-25 - Men-C-C - Valid; 2021-04-05 - HB - Valid; 2021-04-19 - Influenza (IIV4) - Valid; 2021-06-13 - Tdap - Valid; 2021-07-30 - Men-C-ACYW-135 - Valid;",
+        "imms_given": "2012-12-17 - DTaP-IPV-Hib - Valid; 2012-12-17 - Pneu-C-13 - Valid; 2012-12-17 - rota-unspecified - Valid; 2013-02-17 - DTaP-IPV-Hib - Valid; 2013-02-17 - Pneu-C-13 - Valid; 2013-02-17 - rota-unspecified - Valid; 2013-04-17 - DTaP-IPV-Hib - Valid; 2013-05-17 - Inf (TIV) - Valid; 2013-06-17 - Inf (TIV) - Valid; 2013-10-17 - MMR - Valid; 2013-10-17 - Men-C-C - Valid; 2013-10-17 - Pneu-C-13 - Valid; 2013-10-20 - Inf (TIV) - Valid; 2014-01-17 - Var - Valid; 2014-04-17 - DTaP-IPV-Hib - Valid; 2014-10-20 - Inf (TIV) - Valid; 2015-10-20 - Inf (QIV) - Valid; 2016-10-17 - DTaP-IPV - Valid; 2016-10-17 - MMR - Valid; 2016-10-20 - Inf (QIV) - Valid; 2017-10-20 - Inf (QIV) - Valid; 2018-10-20 - Inf (QIV) - Valid; 2019-10-17 - HA - Valid; 2019-10-17 - Typh-I - Valid; 2019-10-20 - Inf (QIV) - Valid; 2020-04-17 - HA - Valid; 2020-10-20 - Inf (QIV) - Valid; 2021-10-20 - Inf (QIV) - Valid; 2022-10-17 - Typh-I - Valid; 2022-10-20 - Inf (QIV) - Valid; 2023-10-20 - Inf (QIV) - Valid; 2024-10-17 - HB - Valid; 2024-10-17 - HPV-9 - Valid; 2024-10-17 - Men-C-ACYW-135 - Valid; 2024-10-20 - Inf (QIV) - Valid; 2025-04-17 - HB - Valid; 2025-04-17 - HPV-9 - Valid; 2025-10-17 - Tdap - Valid; 2025-10-17 - Typh-I - Valid; 2025-10-20 - Inf (QIV) - Valid;",
         "client_id": "1855602591",
         "first_name": "Florence",
         "last_name": "Madrigal",
-        "school_id": "96578",
-        "board_id": "1287"
+        "school_id": "103426",
+        "board_id": "5386"
       }
     },
     {
       "id": "source-warnings",
       "label": "James Okafor",
-      "description": "Source warnings",
+      "description": "Older student, guardian-directed notice and combination-vaccine forecast",
       "source": {
         "school_name": "College Heights SS - 103430",
         "board_name": "Wellington Catholic DSB",
-        "date_of_birth": "2012-12-31",
+        "date_of_birth": "2008-12-31",
         "street_address_line_1": "452 MACLEMANN ST",
         "street_address_line_2": "",
         "city": "Harriston",
@@ -74,12 +75,13 @@
         "postal_code": "N0G 5S2",
         "overdue_disease": "Mumps - 2",
         "overdue_agent": "MMR",
-        "imms_given": "2015-12-09 - Pneu-C-13 - Invalid; 2019-06-13 - HepA - Valid; 2021-06-15 - IPV;",
+        "imms_given": "2015-12-09 - Pneu-C-13 - Invalid; 2019-06-13 - HA - Valid; 2021-06-15 - IPV - Valid;",
         "client_id": "1514815746",
         "first_name": "James",
         "last_name": "Okafor",
-        "school_id": "0014",
-        "board_id": "0034"
+        "school_id": "103430",
+        "board_id": "0034",
+        "intended_reader": "guardian"
       }
     },
     {
@@ -87,7 +89,7 @@
       "label": "Paige Robin",
       "description": "Up to date",
       "source": {
-        "school_name": "Guelph CVI - 103431",
+        "school_name": "Elora PS - 103445",
         "board_name": "Upper Grand DSB",
         "date_of_birth": "2016-09-10",
         "street_address_line_1": "494 Edwards St",
@@ -97,18 +99,18 @@
         "postal_code": "N0B 1P0",
         "overdue_disease": "",
         "overdue_agent": "",
-        "imms_given": "2014-03-18 - Pneu-C-13 - Valid; 2018-07-15 - Hib - Valid;",
+        "imms_given": "2017-03-18 - Pneu-C-13 - Valid; 2018-07-15 - Hib - Valid;",
         "client_id": "6760850716",
         "first_name": "Paige",
         "last_name": "Robin",
-        "school_id": "64750",
-        "board_id": "1054"
+        "school_id": "103445",
+        "board_id": "5386"
       }
     },
     {
-      "id": "suspension",
+      "id": "no-records",
       "label": "Victoria Soucy",
-      "description": "Suspension order",
+      "description": "No recorded immunizations; request for records or suspension notice",
       "source": {
         "school_name": "Elora PS - 103445",
         "board_name": "Upper Grand DSB",
@@ -120,12 +122,12 @@
         "postal_code": "L9W 8M3",
         "overdue_disease": "Measles - 2; Mumps - 2; Rubella - 2",
         "overdue_agent": "MMR",
-        "imms_given": "2020-05-01 - Hib - Valid; 2021-06-15 - IPV;",
+        "imms_given": "",
         "client_id": "4634337042",
         "first_name": "Victoria",
         "last_name": "Soucy",
-        "school_id": "0016",
-        "board_id": "0034"
+        "school_id": "103445",
+        "board_id": "5386"
       }
     },
     {
@@ -147,54 +149,8 @@
         "client_id": "0800691042",
         "first_name": "Franck",
         "last_name": "Manne",
-        "school_id": "56234",
-        "board_id": "0967"
-      }
-    },
-    {
-      "id": "long-history-fr",
-      "label": "Amy Beaudoin",
-      "description": "Long history",
-      "source": {
-        "school_name": "Mitchell Woods PS - 103427",
-        "board_name": "Wellington Catholic DSB",
-        "date_of_birth": "2011-04-11",
-        "street_address_line_1": "360 Lorna Dr",
-        "street_address_line_2": "Bureau 200",
-        "city": "Alton",
-        "province": "ON",
-        "postal_code": "L7K 4R1",
-        "overdue_disease": "Hib - 2",
-        "overdue_agent": "Hib",
-        "imms_given": "2016-01-12 - Tdap-IPV - Valid; 2016-01-31 - MMR - Valid; 2016-02-14 - rota-unspecified - Valid; 2016-03-25 - Men-C-C - Valid; 2016-04-12 - HB - Valid; 2016-04-19 - Influenza (IIV4) - Valid; 2016-05-13 - Tdap - Valid; 2016-06-30 - Men-C-ACYW-135 - Valid; 2017-01-12 - Tdap-IPV - Valid; 2017-01-31 - MMR - Valid; 2017-02-21 - rota-unspecified - Valid; 2017-03-25 - Men-C-C - Valid; 2017-04-03 - HB - Valid; 2017-04-19 - Influenza (IIV4) - Valid; 2017-06-13 - Tdap - Valid; 2017-07-30 - Men-C-ACYW-135 - Valid; 2018-01-12 - Tdap-IPV - Valid; 2018-01-31 - MMR - Valid; 2018-02-23 - rota-unspecified - Valid; 2018-03-25 - Men-C-C - Valid; 2018-04-03 - HB - Valid; 2018-04-19 - Influenza (IIV4) - Valid; 2018-06-13 - Tdap - Valid; 2018-07-30 - Men-C-ACYW-135 - Valid; 2019-01-12 - Tdap-IPV - Valid; 2019-01-31 - MMR - Valid; 2019-02-14 - rota-unspecified - Valid; 2019-03-25 - Men-C-C - Valid; 2019-04-03 - HB - Valid; 2019-04-19 - Influenza (IIV4) - Valid; 2019-06-13 - Tdap - Valid; 2019-07-30 - Men-C-ACYW-135 - Valid; 2020-01-12 - Tdap-IPV - Valid; 2020-01-31 - MMR - Valid; 2020-02-08 - rota-unspecified - Valid; 2020-03-25 - Men-C-C - Valid; 2020-04-03 - HB - Valid; 2020-04-19 - Influenza (IIV4) - Valid; 2020-05-14 - Tdap - Valid; 2020-07-30 - Men-C-ACYW-135 - Valid; 2021-01-12 - Tdap-IPV - Valid; 2021-01-31 - MMR - Valid; 2021-02-17 - rota-unspecified - Valid; 2021-03-25 - Men-C-C - Valid; 2021-04-05 - HB - Valid; 2021-04-19 - Influenza (IIV4) - Valid; 2021-06-13 - Tdap - Valid; 2021-07-30 - Men-C-ACYW-135 - Valid;",
-        "client_id": "5814460414",
-        "first_name": "Amy",
-        "last_name": "Beaudoin",
-        "school_id": "61896",
-        "board_id": "3718"
-      }
-    },
-    {
-      "id": "source-warnings-fr",
-      "label": "Marcelle Saxena",
-      "description": "Source warnings",
-      "source": {
-        "school_name": "Victory PS - 103426",
-        "board_name": "Upper Grand DSB",
-        "date_of_birth": "2011-06-23",
-        "street_address_line_1": "931 Vanier Dr",
-        "street_address_line_2": "",
-        "city": "Alton",
-        "province": "ON",
-        "postal_code": "L7K 6C7",
-        "overdue_disease": "Meningococcal - 2",
-        "overdue_agent": "Men-C-ACYW-135",
-        "imms_given": "2019-03-03 - HepA - Invalid; 2024-05-14 - HPV-9 - Valid; 2024-06-15 - IPV;",
-        "client_id": "0028678053",
-        "first_name": "Marcelle",
-        "last_name": "Saxena",
-        "school_id": "50725",
-        "board_id": "6062"
+        "school_id": "103453",
+        "board_id": "5386"
       }
     }
   ]

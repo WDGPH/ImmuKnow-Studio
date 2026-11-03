@@ -304,7 +304,7 @@ def main(evidence: Path) -> None:
             membership = entry["bundle"]
             review = PdfReader(run_dir / membership["path"])
             review_text = " ".join(page.extract_text() for page in review.pages)
-            assert "source.age_unknown" in review_text and "REVIEW" in review_text
+            assert "data.forecast_coverage" in review_text and "REVIEW" in review_text
             # Saved originals must suffice after removing authored inputs.
             for directory in ("templates", "config", "examples"):
                 shutil.rmtree(project / directory)
