@@ -36,3 +36,9 @@ test("nonfinite measurements are refused", () => {
     expect(() => validateSummary(changedSource, cases.payload)).toThrow();
   }
 });
+
+test("preview facts accept client initials", () => {
+  const payload = structuredClone(cases.payload);
+  Object.assign(payload.client_data, { first_initial: "É", last_initial: "L" });
+  expect(() => validateNotice(payload)).not.toThrow();
+});

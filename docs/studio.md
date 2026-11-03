@@ -60,16 +60,20 @@ client data once, so ImmuKnow helper calls do not need a `notice` argument.
 Keep the opening Settings marker, setup import and `#show: immuknow.letter`
 line in place; they are essential setup. Use `to_student` and
 `to_guardian` directly in `if`/`else` wording, including a neutral final branch.
-The optional CSV `reader` choice takes priority over the age default and controls
-the address addressee too, including in suspension orders. Try the older student
-with a guardian choice in Example clients.
+The optional CSV `intended_reader` choice takes priority over the age default and controls
+the default address addressee too, including in suspension orders. An address
+block’s `addressee` option overrides its label without changing the intended
+reader. Try the older student with a guardian choice in Example clients.
 Setup also supplies `no_records` and disease-based `up_to_date`. The affirmative
 and suspension starters enforce their wording with rendering assertions; choose
 a matching example client to preview them. Try the no-records and 2009/2010
 varicella examples to compare these paths. Settings expose independent Client ID
 and OIID display, missing-OIID text and applicable history legend wording.
 See the [Typst Reference](coding-cheatsheet.md) for the options.
-Omit QR calls when a letter has no QR code. Client blocks use `details: "right"`
+Omit QR calls when a letter has no QR code. Settings can use a fixed destination
+or a function of client facts. Initials are available as optional query values;
+they do not change the destination automatically. See the [Core template guide](https://docs.phiz.ca/immuknow/latest/user_guide/phu_templates/#component-choices-and-findings)
+for a QR example and how to include initials. Client blocks use `details: "right"`
 and `font-size: 10pt` by default; set a different value directly on the block.
 
 A refused theme change leaves the project unchanged.
@@ -269,6 +273,9 @@ workstation. Follow [Use projects on your workstation](local-production.md)
 for the complete handoff, native command examples, fonts and output review.
 Keep the extracted project and its assets together. `uv sync --locked` installs
 the pinned engine; install native Typst and the supplied fonts separately.
+For native delivery grouping and optional PDF encryption, edit the project
+configuration on your workstation and follow the [Core configuration guide](https://docs.phiz.ca/immuknow/latest/user_guide/configuration/).
+That guide also explains optional password placeholders, including initials.
 
 The footer shows **ImmuKnow Studio** followed by the exact release tag (such as
 `v0.1.0`), that tag with `+` for later commits, or the short Studio commit before

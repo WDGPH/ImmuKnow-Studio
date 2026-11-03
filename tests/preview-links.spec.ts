@@ -4,7 +4,7 @@ import { expect, type Page, test } from "@playwright/test";
 
 const source = `#import "setup.typ": *
 #show: immuknow.letter
-#immuknow.qr-code(url: n => "https://example.test/record?id=" + n.client_id)
+#immuknow.qr-code(url: n => "https://example.test/record?id=" + n.client_id + "&initials=" + n.client_data.first_initial + n.client_data.last_initial)
 
 #immuknow.link("https://example.test/text#details")[Open the record]
 
@@ -104,6 +104,7 @@ print(json.dumps(links))
     (page.links ?? []).filter((link) => "url" in link).map((link) => ({ ...link, page: index })),
   );
   expect(links).toHaveLength(annotations.length);
+  expect(links.some((link) => "url" in link && link.url.endsWith("&initials=EE"))).toBe(true);
   for (const annotation of annotations) {
     expect(
       links.some(

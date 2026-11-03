@@ -28,11 +28,12 @@ function namedOptions(source: string, name: string) {
 }
 
 describe("authoring help follows installed Core", () => {
-  it("covers every directly exported Core function", () => {
+  it("covers exported functions available through the starter setup", () => {
     const exports = readFileSync(join(library, "lib.typ"), "utf8");
     for (const match of exports.matchAll(/^#import "[^"]+": (.+)$/gm)) {
       for (const name of match[1].split(", ")) {
         if (name === "envelope-preset") continue; // A dictionary, not a function.
+        if (name === "intended-reader") continue; // Starter setup exposes the reader flags instead.
         expect(functionCatalog, name).toHaveProperty(`immuknow.${name}`);
       }
     }

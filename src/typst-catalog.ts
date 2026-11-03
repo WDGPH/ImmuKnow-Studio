@@ -550,7 +550,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     description: "Places the client mailing address and records it for checking.",
     parameters: [
       ["language", 'Use "en", "fr", or auto where supported.'],
-      ["addressee", "Optional addressee setting."],
+      ["addressee", "Optional address label override; it does not change the intended reader."],
       ["province", "Optional province setting."],
     ],
     example: "#immuknow.address-block()",
@@ -733,17 +733,9 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     example: "#immuknow.url-encode(notice.client_id)",
     namedParameters: [],
   },
-  "immuknow.reader": {
-    description:
-      "Returns the intended reader: student, guardian or none. Use to_student and to_guardian in letter wording.",
-    parameters: [],
-    example:
-      "#if to_student [you have] else if to_guardian [your child has] else [the named client has]",
-    namedParameters: [],
-  },
   "immuknow.notice-flags": {
     description:
-      "Returns reader, no_records and disease-based up_to_date booleans. Setup exports these for #if wording.",
+      "Returns to_student, to_guardian, no_records and disease-based up_to_date booleans. Setup exports these for #if wording.",
     parameters: [
       ["include-ispa", "Set true to also return the birth-cohort-aware ispa_up_to_date flag."],
     ],
