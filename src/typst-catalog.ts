@@ -74,6 +74,10 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       "school-label",
       "show-birth-date",
       "show-school",
+      "show-client-id",
+      "show-oiid",
+      "oiid-label",
+      "missing-oiid",
       "details",
       "spacing",
       "border",
@@ -82,6 +86,16 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     parameters: [
       ["window", "Position and size of the envelope window."],
       ["details", 'Use "right" beside the address or "below" underneath it.'],
+      ["show-client-id", "Show the Client ID; defaults to true."],
+      [
+        "show-oiid",
+        "Show the optional Ontario Immunization ID; requires at least one in the input cohort.",
+      ],
+      ["oiid-label", "Plain-text label; auto uses the notice language."],
+      [
+        "missing-oiid",
+        'Use none to omit missing OIIDs, "" for a blank value, auto for bilingual unavailable text, or custom text.',
+      ],
     ],
     example: '#immuknow.client-block(details: "below")',
   },
@@ -567,6 +581,14 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["include-dose", "Optional include dose setting."],
       ["spacing", "Space between items, such as 6pt."],
       ["row-spacing", "Optional row spacing setting."],
+      [
+        "no-records",
+        "Use auto for a bilingual request for missing records, none for the list, or custom content.",
+      ],
+      [
+        "ispa-only",
+        "Filter diseases by the client’s ISPA birth cohort; unsupported for immunizing-agent lists.",
+      ],
       ["empty", "Optional empty setting."],
       ["language", 'Use "en", "fr", or auto where supported.'],
       ["labels", "Optional labels setting."],
@@ -580,6 +602,8 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       "spacing",
       "row-spacing",
       "empty",
+      "no-records",
+      "ispa-only",
       "language",
       "labels",
     ],
@@ -592,11 +616,29 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["indent", "Bullet indentation; defaults to 0.8cm. Overrides only this list."],
       ["spacing", "Space between items, such as 6pt."],
       ["row-spacing", "Optional row spacing setting."],
+      [
+        "no-records",
+        "Use auto for a bilingual request for missing records, none for the list, or custom content.",
+      ],
+      [
+        "ispa-only",
+        "Filter diseases by the client’s ISPA birth cohort; unsupported for immunizing-agent lists.",
+      ],
       ["empty", "Optional empty setting."],
       ["language", 'Use "en", "fr", or auto where supported.'],
     ],
     example: "#immuknow.overdue-agents()",
-    namedParameters: ["style", "columns", "indent", "spacing", "row-spacing", "empty", "language"],
+    namedParameters: [
+      "style",
+      "columns",
+      "indent",
+      "spacing",
+      "row-spacing",
+      "empty",
+      "no-records",
+      "ispa-only",
+      "language",
+    ],
   },
   "immuknow.immunization-history": {
     description:
@@ -605,7 +647,14 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["diseases", "Optional diseases setting."],
       ["ignore-agents", "Optional ignore agents setting."],
       ["include-other", "Optional include other setting."],
-      ["show-validity", "Set true to display validity marks and a legend."],
+      [
+        "show-validity",
+        "Enabled by default. Unflagged histories use recorded marks; partially flagged histories error.",
+      ],
+      [
+        "legend-labels",
+        "Override valid, invalid or unspecified legend text; only applicable entries appear.",
+      ],
       ["omit-invalid", "Optional omit invalid setting."],
       ["show-age", "Optional show age setting."],
       ["age-width", "Optional age width setting."],
@@ -629,6 +678,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       "ignore-agents",
       "include-other",
       "show-validity",
+      "legend-labels",
       "omit-invalid",
       "show-age",
       "age-width",
@@ -690,6 +740,15 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     example:
       "#if to_student [you have] else if to_guardian [your child has] else [the named client has]",
     namedParameters: [],
+  },
+  "immuknow.notice-flags": {
+    description:
+      "Returns reader, no_records and disease-based up_to_date booleans. Setup exports these for #if wording.",
+    parameters: [
+      ["include-ispa", "Set true to also return the birth-cohort-aware ispa_up_to_date flag."],
+    ],
+    namedParameters: ["include-ispa"],
+    example: "#let ispa_up_to_date = immuknow.notice-flags(include-ispa: true).ispa_up_to_date",
   },
   "immuknow.notice-dates": {
     description: "Provides delivery, as-of and birth dates in the notice’s language.",

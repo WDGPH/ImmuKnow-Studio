@@ -44,6 +44,40 @@ try different readers, including the older student with a guardian choice.</p>
 </section>
 
 <section>
+<h2>Records and notice eligibility</h2>
+<pre><code>#if no_records [Please send any available vaccination records.]
+#if up_to_date [No diseases are reported overdue.]
+#immuknow.overdue-diseases(no-records: auto)
+#immuknow.overdue-diseases(ispa-only: true)
+#let ispa_up_to_date = immuknow.notice-flags(include-ispa: true).ispa_up_to_date</code></pre>
+<p><code>no_records</code> describes the original history before exclusions.
+<code>up_to_date</code> reflects overdue diseases, independently of overdue
+immunizing agents. Wrap a whole section in <code>#if not no_records […]</code>
+to omit it when records are absent. The affirmative starter errors when diseases
+are overdue. The suspension starter requires an overdue ISPA disease and lists
+only diseases covered for the client's birth cohort, including varicella for
+births from 2010. ISPA-only agent lists are unsupported. Keep upstream
+assessments and explicit notice assignments; these flags do not assess exemptions.</p>
+</section>
+
+<section>
+<h2>Client identifiers and history legends</h2>
+<pre><code>#immuknow.client-block(show-client-id: false, show-oiid: true, missing-oiid: auto)
+#immuknow.immunization-history(legend-labels: (invalid: "Does not count toward requirements"))</code></pre>
+<p>Client ID and OIID display are independent. The optional CSV <code>oiid</code>
+column preserves leading zeros. For a missing OIID, use <code>none</code> to
+omit the line, <code>""</code> for a blank value, <code>auto</code> for
+“Not available” / “Non disponible”, or custom text. Enabling OIID display errors
+if the entire input cohort lacks OIIDs. Each downloaded example is a one-client
+cohort. Labels are customizable with <code>id-label</code> and <code>oiid-label</code>.</p>
+<p>Validity display defaults to true. Fully unflagged histories use recorded-dose
+marks; partially flagged histories error unless validity display is explicitly
+disabled. Legends appear only when applicable and have English/Canadian French
+defaults. Customize <code>valid</code>, <code>invalid</code> or
+<code>unspecified</code> entries in <code>legend-labels</code>.</p>
+</section>
+
+<section>
 <h2>Pages and headings</h2>
 <pre><code>#immuknow.notice-page("Immunization Record")[
   For your reference:

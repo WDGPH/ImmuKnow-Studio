@@ -43,10 +43,16 @@ test("one client stays selected across notices, languages, a reload and download
   const filenames = Object.keys(client.payloads);
   for (const filename of filenames) {
     await chooseTemplate(page, `templates/${filename}`);
-    await current(page);
+    if (filename.startsWith("affirmative")) {
+      await expect(page.locator("#diagnostics")).toContainText("affirmative notice requires no overdue diseases");
+    } else {
+      await current(page);
+    }
     await expect(name).toHaveText(`Example client ${String(bundle.examples.indexOf(client) + 1).padStart(2, "0")}`);
     const firstName = String(client.payloads[filename].client_data.first_name).split(" ")[0];
-    await expect(page.locator(".preview-text-run").filter({ hasText: firstName }).first()).toBeAttached();
+    if (!filename.startsWith("affirmative")) {
+      await expect(page.locator(".preview-text-run").filter({ hasText: firstName }).first()).toBeAttached();
+    }
     if (filename.startsWith("affirmative")) {
       await expect(page.locator("#diagnostics")).toContainText("assignment.eligibility_conflict");
     }

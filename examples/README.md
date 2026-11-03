@@ -14,7 +14,10 @@ with English and French names. History dates use Core's `YYYY-MM-DD` input forma
 
 Dev startup and production builds generate preview facts through Core's source
 preparation and notice assignment checks. Warnings remain beside each view,
-including when the supplied facts do not fit the chosen notice. Studio does not change facts to make them fit.
+including when the supplied facts do not fit the chosen notice. The affirmative
+starter errors for overdue diseases; the suspension starter errors when no
+birth-cohort ISPA disease is overdue. Select a suitable client or customize the
+notice deliberately. Studio does not change facts to make them fit.
 
 ```bash
 npm run prepare:assets
@@ -41,13 +44,20 @@ immuknow examples/clients/short.csv --config config \
   --notice-assignments examples/assignments/short.overdue_agents_v1.fr.json \
   --templates templates --output runs
 immuknow examples/clients/source-warnings.csv --config config \
-  --notice-assignments examples/assignments/source-warnings.affirmative_schedule_v1.en.json \
+  --notice-assignments examples/assignments/source-warnings.overdue_diseases_v1.en.json \
   --templates templates --output runs
 ```
 
-Keep the warning source alone when reproducing its preview: validity coverage
-is measured over the complete input cohort, so combining scenarios creates a
-different cohort. The long-history example intentionally permits reviewers to
+The no-records client previews the bilingual request for records. The 2009/2010
+varicella clients demonstrate the ISPA birth-year boundary. Some clients include
+a fictional OIID with leading zeros; enable `show-oiid` in Settings to show it.
+Each downloaded client CSV is a one-client cohort, so enabling OIID display for
+a client without an OIID raises the all-absent error. In a production mixed
+cohort, `missing-oiid` controls omitted, blank or unavailable text.
+
+Warning clients retain source findings such as an absent birth date. Their
+history entries all have validity flags, so the default validity display remains
+usable. Combining examples creates a different input cohort. The long-history example intentionally permits reviewers to
 see content continuation and findings. The suspension example has valid source
 history but places no history component or display checks.
 
