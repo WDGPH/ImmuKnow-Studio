@@ -15,11 +15,14 @@ test("the Typst Reference works offline and preserves the source and selected ta
   const dialog = page.getByRole("dialog", { name: "Typst Reference" });
   await trigger.click();
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("heading", { level: 2 })).toHaveCount(7);
+  await expect(dialog.getByRole("heading", { level: 2 })).toHaveCount(9);
   await expect(
     dialog.getByRole("heading", { name: "Client information", exact: true }),
   ).toBeVisible();
   await expect(dialog).toContainText("#if to_student");
+  await expect(dialog).toContainText("#if no_records");
+  await expect(dialog).toContainText("missing-oiid: auto");
+  await expect(dialog).toContainText("ispa_up_to_date");
   await expect(dialog).toContainText("#immuknow.immunization-history()");
   await expect(dialog).toContainText("immuknow.query-url");
   await expect(dialog).toContainText('image("assets/signature.png", width: 4.5cm)');

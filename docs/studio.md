@@ -63,6 +63,12 @@ line in place; they are essential setup. Use `to_student` and
 The optional CSV `reader` choice takes priority over the age default and controls
 the address addressee too, including in suspension orders. Try the older student
 with a guardian choice in Example clients.
+Setup also supplies `no_records` and disease-based `up_to_date`. The affirmative
+and suspension starters enforce their wording with rendering assertions; choose
+a matching example client to preview them. Try the no-records and 2009/2010
+varicella examples to compare these paths. Settings expose independent Client ID
+and OIID display, missing-OIID text and applicable history legend wording.
+See the [Typst Reference](coding-cheatsheet.md) for the options.
 Omit QR calls when a letter has no QR code. Client blocks use `details: "right"`
 and `font-size: 10pt` by default; set a different value directly on the block.
 
@@ -119,7 +125,9 @@ Typst checks. Extra diseases covered by a forecasted agent are a warning;
 they do not stop the preview. For example, MMR also covers Mumps and Rubella
 when only Measles is overdue. Examples contain valid source history. Invalid history rejects a
 native input file before rendering, even if a template omits the history table.
-Display checks, such as unknown dose validity, follow the components actually placed.
+Display checks follow the components actually placed. A partially flagged history
+errors when validity display is enabled; a suspension without a history table
+does not evaluate history display choices.
 
 Warnings start collapsed with a count, such as **6 warnings**. Select the count
 to read them. Errors stay visible. A different notice or example starts with

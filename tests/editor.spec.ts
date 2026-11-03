@@ -92,20 +92,21 @@ test("notice warnings start collapsed with a count while errors stay visible", a
   await expect(warnings.first()).toBeHidden();
 });
 
-test("history warnings follow edited suspension content and recover after errors", async ({
+test("history errors follow edited suspension content and recover after errors", async ({
   page,
 }) => {
   await editExampleData(page, (bundle) => {
     for (const notice of Object.values(bundle.examples[0].payloads)) {
       (notice.history as { validity: string }[])[0].validity = "unknown";
       notice.validity_coverage = "mixed";
+      notice.history_validity_coverage = "mixed";
     }
   });
   await page.goto("./");
   await page.locator("#theme-tab").click();
   await chooseTemplate(page, "templates/suspension_order_v1.en.typ");
   await currentPreview(page);
-  await expect(page.locator("#diagnostics")).not.toContainText("content.history_validity");
+  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
   await page.locator("#template-tab").click();
   const source = page.locator(".cm-content");
   await source.click();
@@ -113,18 +114,17 @@ test("history warnings follow edited suspension content and recover after errors
   await page.keyboard.insertText(
     "\n#pagebreak()\n#immuknow.immunization-history(show-validity: true)\n",
   );
-  await currentPreview(page);
-  await expect(page.locator("#diagnostics")).toContainText("content.history_validity");
+  await expect(page.locator("#diagnostics")).toContainText("Validity display requires Valid or Invalid", { timeout: 30_000 });
   await source.press("Control+z");
   await currentPreview(page);
-  await expect(page.locator("#diagnostics")).not.toContainText("content.history_validity");
+  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
   await source.press("Control+End");
   await page.keyboard.insertText('\n#panic("failed preview")');
   await expect(page.locator("#diagnostics")).toContainText("failed preview", { timeout: 30_000 });
-  await expect(page.locator("#diagnostics")).not.toContainText("content.history_validity");
+  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
   await source.press("Control+z");
   await currentPreview(page);
-  await expect(page.locator("#diagnostics")).not.toContainText("content.history_validity");
+  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
 });
 
 test("authored project survives editing, warning/error recovery, drafts and export", async ({
@@ -546,7 +546,7 @@ test("delayed compiler replies cannot cross an import or language boundary", asy
     .locator("#preview-state")
     .evaluate((el) => ({ ...(el as HTMLElement).dataset }));
   expect(state.displayedRevision).toBe(state.requestedRevision);
-  await expect(page.locator("#diagnostics")).not.toContainText("content.history_validity");
+  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
   expect(errors).toEqual([]);
 });
 

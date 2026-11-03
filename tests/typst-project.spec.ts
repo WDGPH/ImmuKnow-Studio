@@ -58,7 +58,7 @@ for (const [scenario, filename] of cases) {
       const templatePath = `templates/${filename}`;
       const labelled = new TextDecoder()
         .decode(imported[templatePath])
-        .replace("#immuknow.client-block(", '#immuknow.client-block(id-label: "Record number",')
+        .replace("#immuknow.client-block(", '#immuknow.client-block(id-label: "Record number", show-oiid: true, oiid-label: "Record key",')
         .replace("width: 4.5cm", "width: 3cm")
         .replace('name: "Dr. Annie Body"', 'name: "Dr. Annie Body, MD"')
         .replace(
@@ -262,8 +262,11 @@ for (const [scenario, filename] of cases) {
       expect(result.findings).toEqual([...new Set(findings)].sort());
     }
     expect(native.selectors).toHaveLength(scenario === "short" ? 2 : 1);
-    if (scenario === "short")
+    if (scenario === "short") {
       expect(native.selectors[0].summary).toEqual(native.selectors[1].summary);
+      expect(native.browser.text.join(" ")).toContain(String(examples[index].payloads[filename].oiid));
+      expect(native.browser.text.join(" ")).toContain("Record key:");
+    }
     if (scenario === "long-history") expect(native.browser.text.length).toBeGreaterThan(2);
     if (scenario === "source-warnings") expect(native.rebundled).toBe(true);
   });
