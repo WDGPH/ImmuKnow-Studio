@@ -13,7 +13,7 @@ configuration and shared Typst components in [ImmuKnow](https://github.com/WDGPH
 Change starter letters, Settings, translations, example branding, project
 configuration and native helper scripts in
 [ImmuKnow Template](https://github.com/WDGPH/ImmuKnow-Template), then refresh
-its pinned snapshot here. Core ships no starter letters.
+its pinned resource dependency here. Core ships no starter letters.
 Change the shared documentation presentation and catalogue in
 [WDGPH/docs](https://github.com/WDGPH/docs).
 
@@ -26,7 +26,7 @@ Studio installs Core from reviewed commit `499dd2a2a04e6d621e3720a4f0fe618727cf1
 of <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` and `uv.lock` pin that
 revision. It supplies the shared components and native behavior used by
 previews and downloaded projects. Starter content comes from the separate
-Template snapshot.
+Template resource package.
 A local Core checkout is not required.
 
 To adopt a different Core revision, update `rev` in `pyproject.toml`, then:
@@ -171,8 +171,7 @@ Install Git hooks once per clone with `uv run --locked prek install`. The hooks
 lint and format Python with Ruff; CI checks the same rules without rewriting
 files. Run them
 manually with `uv run --locked prek run --all-files`. The hooks run the Ruff version
-locked by the project. The copied Template
-scaffold is excluded; change and check those Python helpers in Template.
+locked by the project. Change and check Template-owned Python helpers in Template.
 
 Install native Typst 0.15.1 for native/browser comparisons. The Playwright
 configuration makes native test subprocesses use the same verified fonts in
@@ -257,27 +256,36 @@ imports check shared library file integrity.
 
 ## Update the project template
 
-The starter project snapshot in `assets/project-template/` comes from
-[ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template). Clone that private
-repository locally when changing the snapshot. Select a full commit containing
-its `studio-scaffold.json` allowlist and a lock for Studio's Core revision:
+The starter project comes from the `immuknow-template-resources` distribution
+built in ImmuKnow-Template's `package/` subdirectory. It packages the authored
+allowlist, original hashes and source identity. The shared Typst library is
+excluded and continues to come from Core. Studio commits only the dependency
+pin and lock, with no copied scaffold under `assets/`.
+
+After a Template change, update `immuknow-template-resources.rev` in
+`pyproject.toml` to its full reviewed commit SHA, then:
 
 ```bash
-uv run --locked python -m scripts.project_template \
-  --source ../ImmuKnow-Template --revision <full-template-commit-sha>
+uv lock --upgrade-package immuknow-template-resources
+uv sync --locked
+uv run --locked python -m scripts.project_template
 npm run prepare:assets
 ```
 
-The refresh reads committed Git blobs, records source identity and SHA-256 hashes,
-and copies the allowlisted starter files, configuration, setup, scripts, licence
-and README. The shared library is excluded and comes from Core.
-Commit the snapshot and its provenance together. Do not edit the copied files in
-Studio; make changes in Template and refresh. Python lint/type checks exclude the
-copied upstream code. Downloaded-project browser checks run the project helpers
-and native engine; the snapshot includes no maintainer tests. Its pytest
-dependency is in an optional test group and is not installed by a normal `uv sync`.
+A Core upgrade also requires a Template revision whose project lock selects
+that Core commit. `scripts.project_template` verifies the installed package and
+compatibility; it no longer refreshes files from a separate checkout. Never edit
+installed resources. Root Template setup stays separate from its distribution
+metadata, so downloaded projects install Core without a Template dependency.
 
-Ordinary builds verify the local snapshot without GitHub access. A Core update
-also needs a compatible Template lock and refreshed snapshot. Run the full
-browser/native downloaded-project checks to verify clean installation, setup
-checks, the sample, both native selectors and saved-run rebundling.
+While Template is private, dependency installation requires GitHub read access.
+Local Git credentials can provide this. Studio CI optionally uses the repository
+secret `TEMPLATE_READ_TOKEN` for the dependency installation step. A public
+Template repository needs no token. Dependencies stay locked and installed;
+ordinary builds perform no ad hoc upstream fetches. Credentials are never
+included in the downloaded project or provenance.
+
+Run the browser/native downloaded-project checks after either dependency changes
+to verify clean installation, setup, the sample, both native selectors and
+saved-run rebundling. Template maintains its resource-wheel/source-archive and
+helper tests in its own repository.

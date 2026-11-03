@@ -27,7 +27,7 @@ Extract `immuknow-project.zip` into a folder you control.
 | `input/sample/`, `sample.json` | Selected fictional sample and its configured paths, when included |
 | `examples/` | Original selected fictional input files, when included, and their explanation |
 | `templates/fonts/` | Fonts and licences for manual installation, when included in the download |
-| `template-source.json` | Template repository, source commit and original scaffold file hashes |
+| `template-source.json` | Template package source commit and original scaffold file hashes |
 | `immuknow-project.json` | Studio import format, selected notice, build identity and current file hashes |
 
 Keep the complete directory structure and relative paths. Leave

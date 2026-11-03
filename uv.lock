@@ -540,6 +540,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "immuknow" },
+    { name = "immuknow-template-resources" },
     { name = "pyyaml" },
 ]
 
@@ -564,6 +565,7 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "immuknow", git = "https://github.com/WDGPH/ImmuKnow.git?rev=499dd2a2a04e6d621e3720a4f0fe618727cf1bd5" },
+    { name = "immuknow-template-resources", git = "https://github.com/WDGPH/ImmuKnow-Template.git?subdirectory=package&rev=9c516d3fd2db100c2891f4c60f4332c9a7acbc4e" },
     { name = "pyyaml" },
 ]
 
@@ -584,6 +586,11 @@ docs = [
     { name = "mkdocs-material", specifier = "==9.7.7" },
     { name = "pymdown-extensions", specifier = "==12.3" },
 ]
+
+[[package]]
+name = "immuknow-template-resources"
+version = "0.1.0"
+source = { git = "https://github.com/WDGPH/ImmuKnow-Template.git?subdirectory=package&rev=9c516d3fd2db100c2891f4c60f4332c9a7acbc4e#9c516d3fd2db100c2891f4c60f4332c9a7acbc4e" }
 
 [[package]]
 name = "isodate"

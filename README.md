@@ -12,7 +12,7 @@ Start with the [user guide](docs/getting-started.md) or read the
 ## From template development to production
 
 [ImmuKnow](https://github.com/WDGPH/ImmuKnow) is the core engine. Studio uses its
-shared components and data format, with starter projects maintained in
+shared components and data format, with packaged starter projects maintained in
 [ImmuKnow Template](https://github.com/WDGPH/ImmuKnow-Template), to make template development faster.
 Production notice generation runs with ImmuKnow on your local workstation.
 

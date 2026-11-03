@@ -28,12 +28,12 @@ from immuknow.resources import typst_library_root
 from immuknow.version_notices import load_catalog, template_identity
 
 from .build_info import project_build
-from .project_template import SNAPSHOT, scaffold_files
+from .project_template import PROJECT_TEMPLATE, scaffold_files
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
-CONFIG = SNAPSHOT / "config"
-TEMPLATES = SNAPSHOT / "templates"
+CONFIG = PROJECT_TEMPLATE / "config"
+TEMPLATES = PROJECT_TEMPLATE / "templates"
 
 
 def write_csv(path: Path, source: dict[str, str]) -> None:
