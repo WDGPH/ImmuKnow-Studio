@@ -565,7 +565,7 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "immuknow", git = "https://github.com/WDGPH/ImmuKnow.git?rev=499dd2a2a04e6d621e3720a4f0fe618727cf1bd5" },
-    { name = "immuknow-template-resources", git = "https://github.com/WDGPH/ImmuKnow-Template.git?subdirectory=package&rev=9c516d3fd2db100c2891f4c60f4332c9a7acbc4e" },
+    { name = "immuknow-template-resources", git = "https://github.com/WDGPH/ImmuKnow-Template.git?subdirectory=package&rev=77dcbb8dd90d889c311ac0a98ff8c3f592b88384" },
     { name = "pyyaml" },
 ]
 
@@ -590,7 +590,7 @@ docs = [
 [[package]]
 name = "immuknow-template-resources"
 version = "0.1.0"
-source = { git = "https://github.com/WDGPH/ImmuKnow-Template.git?subdirectory=package&rev=9c516d3fd2db100c2891f4c60f4332c9a7acbc4e#9c516d3fd2db100c2891f4c60f4332c9a7acbc4e" }
+source = { git = "https://github.com/WDGPH/ImmuKnow-Template.git?subdirectory=package&rev=77dcbb8dd90d889c311ac0a98ff8c3f592b88384#77dcbb8dd90d889c311ac0a98ff8c3f592b88384" }
 
 [[package]]
 name = "isodate"
