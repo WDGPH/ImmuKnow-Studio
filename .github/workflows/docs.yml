@@ -23,11 +23,7 @@ jobs:
         with:
           version: '0.12.23'
       - name: Install locked documentation dependencies
-        env:
-          GH_TOKEN: ${{ secrets.TEMPLATE_READ_TOKEN }}
-        run: |
-          if [ -n "$GH_TOKEN" ]; then gh auth setup-git; fi
-          uv sync --locked --no-default-groups --group docs
+        run: uv sync --locked --no-default-groups --group docs
       - name: Build the source manual without building the application
         run: uv run --locked --no-default-groups --group docs mkdocs build --strict
       - uses: actions/upload-artifact@v7

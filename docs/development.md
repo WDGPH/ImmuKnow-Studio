@@ -278,12 +278,9 @@ compatibility; it no longer refreshes files from a separate checkout. Never edit
 installed resources. Root Template setup stays separate from its distribution
 metadata, so downloaded projects install Core without a Template dependency.
 
-While Template is private, dependency installation requires GitHub read access.
-Local Git credentials can provide this. Studio CI optionally uses the repository
-secret `TEMPLATE_READ_TOKEN` for the dependency installation step. A public
-Template repository needs no token. Dependencies stay locked and installed;
-ordinary builds perform no ad hoc upstream fetches. Credentials are never
-included in the downloaded project or provenance.
+Core and Template are public repositories, so dependency installation needs no
+GitHub credentials. Dependencies stay locked and installed; ordinary builds
+perform no ad hoc upstream fetches.
 
 Run the browser/native downloaded-project checks after either dependency changes
 to verify clean installation, setup, the sample, both native selectors and

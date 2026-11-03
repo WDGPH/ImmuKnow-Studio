@@ -46,18 +46,10 @@ jobs:
 
       - name: Refresh Core for this manual build
         if: github.event_name == 'workflow_dispatch' && inputs.refresh_core
-        env:
-          GH_TOKEN: ${{ secrets.TEMPLATE_READ_TOKEN }}
-        run: |
-          if [ -n "$GH_TOKEN" ]; then gh auth setup-git; fi
-          uv lock --upgrade-package immuknow
+        run: uv lock --upgrade-package immuknow
 
       - name: Install locked Python dependencies
-        env:
-          GH_TOKEN: ${{ secrets.TEMPLATE_READ_TOKEN }}
-        run: |
-          if [ -n "$GH_TOKEN" ]; then gh auth setup-git; fi
-          uv sync --locked
+        run: uv sync --locked
 
       - name: Read compiler pins and record Core identity
         id: core
