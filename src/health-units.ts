@@ -1,5 +1,5 @@
-import cedarLogo from "./assets/cedar-ridge.png";
-import annieSignature from "./assets/dr-annie-body-signature.png";
+import cedarLogo from "../generated/template-branding/logo.png";
+import annieSignature from "../generated/template-branding/signature.png";
 import philSignature from "./assets/dr-phil-better-signature.png";
 import trilliumLogo from "./assets/trillium-valley.png";
 import { settingValue, updateQRStyle, updateThemeSettings } from "./theme-settings";

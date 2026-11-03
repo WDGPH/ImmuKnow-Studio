@@ -2,13 +2,15 @@
 name = "immuknow-studio-tools"
 version = "0.1.0"
 requires-python = ">=3.11"
-dependencies = ["ImmuKnow", "PyYAML"]
+dependencies = ["ImmuKnow", "PyYAML", "immuknow-template-resources"]
 
 [tool.uv]
 package = false
 
 [tool.uv.sources]
 immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", rev = "499dd2a2a04e6d621e3720a4f0fe618727cf1bd5" }
+
+immuknow-template-resources = { git = "https://github.com/WDGPH/ImmuKnow-Template.git", rev = "43922f69657ad784f64db0d473435309378eb368" }
 
 [dependency-groups]
 dev = [
@@ -27,9 +29,3 @@ docs = [
     "mkdocs-material==9.7.7",
     "pymdown-extensions==12.3",
 ]
-
-[tool.ruff]
-extend-exclude = ["assets/project-template"]
-
-[tool.ty.src]
-exclude = ["assets/project-template"]

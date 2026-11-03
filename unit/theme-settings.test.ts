@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { expect, test } from "vitest";
 import { healthUnits, themedSettings } from "../src/health-units";
 import { decoder, encoder } from "../src/project";
@@ -10,6 +10,9 @@ import {
 } from "../src/theme-settings";
 
 const bytes = (source: string) => encoder.encode(source);
+const maintainedSettings = execFileSync("uv", ["run", "--locked", "python", "-c",
+  'from scripts.project_template import scaffold_files; import sys; sys.stdout.buffer.write(scaffold_files()["templates/settings.typ"])',
+]);
 
 test("reads and edits the active value while preserving nested comments, BOM and CRLF", () => {
   const source =
@@ -100,9 +103,7 @@ test("QR overrides, repeated fields and computed style values are left to source
 });
 
 test("maintained Settings keep every byte outside the requested values", () => {
-  const original = readFileSync(
-    new URL("../assets/project-template/templates/settings.typ", import.meta.url),
-  );
+  const original = maintainedSettings;
   const source = decoder.decode(original);
   const changes = {
     "body-font": '"FreeSerif"',
@@ -147,9 +148,7 @@ test("calculated colours are not rewritten by a theme change", () => {
 });
 
 test("Settings reset preserves branding and QR style while restoring layout and contacts", () => {
-  const baseline = readFileSync(
-    new URL("../assets/project-template/templates/settings.typ", import.meta.url),
-  );
+  const baseline = maintainedSettings;
   const source = decoder.decode(baseline);
   const current = bytes(
     source
@@ -201,7 +200,7 @@ test("refuses to preserve theme expressions whose dependencies would be removed"
 });
 
 test("theme starters work when organization and signature wording live in Template", () => {
-  const source = readFileSync("assets/project-template/templates/settings.typ", "utf8").replace(/^#let health-unit-name = .*\n/m, "");
+  const source = maintainedSettings.toString("utf8").replace(/^#let health-unit-name = .*\n/m, "");
   const result = themedSettings(bytes(source), healthUnits[1], true, true);
   expect(settingValue(result, "body-font")).toBe('"FreeSans"');
   expect(settingValue(result, "heading-color")).toBe('rgb("#034770")');

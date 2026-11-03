@@ -524,7 +524,7 @@ wheels = [
 [[package]]
 name = "immuknow"
 version = "2.0.0"
-source = { git = "https://github.com/WDGPH/ImmuKnow.git?rev=499dd2a2a04e6d621e3720a4f0fe618727cf1bd5#499dd2a2a04e6d621e3720a4f0fe618727cf1bd5" }
+source = { git = "https://github.com/WDGPH/ImmuKnow?rev=499dd2a2a04e6d621e3720a4f0fe618727cf1bd5#499dd2a2a04e6d621e3720a4f0fe618727cf1bd5" }
 dependencies = [
     { name = "filelock" },
     { name = "frictionless" },
@@ -540,6 +540,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "immuknow" },
+    { name = "immuknow-template-resources" },
     { name = "pyyaml" },
 ]
 
@@ -564,6 +565,7 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "immuknow", git = "https://github.com/WDGPH/ImmuKnow.git?rev=499dd2a2a04e6d621e3720a4f0fe618727cf1bd5" },
+    { name = "immuknow-template-resources", git = "https://github.com/WDGPH/ImmuKnow-Template.git?rev=43922f69657ad784f64db0d473435309378eb368" },
     { name = "pyyaml" },
 ]
 
@@ -583,6 +585,14 @@ docs = [
     { name = "mkdocs", specifier = "==1.6.1" },
     { name = "mkdocs-material", specifier = "==9.7.7" },
     { name = "pymdown-extensions", specifier = "==12.3" },
+]
+
+[[package]]
+name = "immuknow-template-resources"
+version = "0.1.0"
+source = { git = "https://github.com/WDGPH/ImmuKnow-Template.git?rev=43922f69657ad784f64db0d473435309378eb368#43922f69657ad784f64db0d473435309378eb368" }
+dependencies = [
+    { name = "immuknow" },
 ]
 
 [[package]]

@@ -6,8 +6,8 @@ docs/documentation.md for source checks and the separate PHIZ hub publication.
 This repository owns Studio's UI, browser compiler, fonts, fictional scenarios
 and browser/unit tests. Core owns the native engine, reference configuration, schemas and shared Typst
 components. Template owns starter letters, Settings, display translations,
-example branding and project configuration. Studio consumes its verified pinned
-snapshot. Core supplies no starter project. Follow the
+example branding and project configuration. Studio consumes its pinned
+resource package. Core supplies no starter project. Follow the
 [shared language and project responsibilities](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#shared-language-and-project-responsibilities).
 
 Use the installed Core package through immuknow.resources for resources and

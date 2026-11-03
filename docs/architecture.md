@@ -10,7 +10,7 @@
 | PHIZ documentation hub | Shared manual presentation, version selection, search and documentation publication |
 
 Core contains no starter project. Studio obtains authored starters from the
-verified Template snapshot and the shared library from installed Core. Fictional
+pinned Template resource package and the shared library from installed Core. Fictional
 client scenarios remain in Studio.
 
 Studio installs Core as a Python build dependency. Build preparation uses
@@ -83,13 +83,19 @@ Studio sample copies from imported ZIPs; custom imported samples are preserved. 
 confirm that the exported inputs reproduce each view; browser checks cover
 selection, edits, reloads and downloads.
 
-## Starter project snapshot
+## Starter project resources
 
-Studio bundles an allowlisted snapshot of ImmuKnow-Template at an exact commit
-under `assets/project-template/`. Asset preparation verifies every upstream file
-against `template-source.json` and checks that its lock selects the same Core
-commit as Studio. Normal builds and browser downloads need no private repository
-credentials or fetches. Refresh the snapshot explicitly as described in
+Studio installs `immuknow-template-resources` from an exact Git revision of
+ImmuKnow-Template, alongside its separately pinned Core dependency. Asset
+preparation reads the installed resource API and checks that the included
+project lock selects the same Core commit as Studio. Installed files are
+read-only. No scaffold copies are committed in Studio; copies are created only for build output and downloaded projects.
+The default theme logo and signature are generated from those same installed
+Template assets, rather than separate committed image copies.
+
+Core and Template are public, so installation needs no GitHub credentials.
+After installation, asset preparation does not fetch Template files. Browser
+previews and downloads continue to use the built local resources. See
 [Build and contribute](development.md#update-the-project-template).
 
 Studio maps Core’s installed library paths to authored project paths when
@@ -100,7 +106,7 @@ Build preparation combines Template’s authored starter files with Core’s sha
 library. Downloads include the selected authored project and, when requested,
 Studio’s fictional inputs. Downloads supply any missing setup files and preserve files already
 present in imported projects. `template-source.json` identifies the upstream
-snapshot, while `immuknow-project.json` hashes the actual downloaded bytes.
+package source, while `immuknow-project.json` hashes the actual downloaded bytes.
 
 
 ## Core versions
