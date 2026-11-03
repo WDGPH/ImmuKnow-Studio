@@ -48,7 +48,8 @@
         ],
         "agent": "DTaP",
         "display_name": "DTaP",
-        "validity": "unknown"
+        "validity": "unknown",
+        "mapping_known": true
       },
       {
         "date_given": "2021-06-15",
@@ -59,7 +60,8 @@
         ],
         "agent": "MMR",
         "display_name": "MMR",
-        "validity": "unknown"
+        "validity": "unknown",
+        "mapping_known": true
       }
     ],
     "validity_coverage": "all_absent"
@@ -115,7 +117,8 @@
           ],
           "agent": "DTaP",
           "display_name": "DTaP",
-          "validity": "unknown"
+          "validity": "unknown",
+          "mapping_known": true
         },
         {
           "date_given": "2021-06-15",
@@ -126,7 +129,8 @@
           ],
           "agent": "MMR",
           "display_name": "MMR",
-          "validity": "unknown"
+          "validity": "unknown",
+          "mapping_known": true
         }
       ],
       "validity_coverage": "all_absent"
@@ -1322,7 +1326,8 @@
                 ],
                 "agent": "DTaP",
                 "display_name": "DTaP",
-                "validity": "unknown"
+                "validity": "unknown",
+                "mapping_known": true
               },
               {
                 "date_given": "2021-06-15",
@@ -1333,7 +1338,8 @@
                 ],
                 "agent": "MMR",
                 "display_name": "MMR",
-                "validity": "unknown"
+                "validity": "unknown",
+                "mapping_known": true
               }
             ],
             "overdue_agents": [
