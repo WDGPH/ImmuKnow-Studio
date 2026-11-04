@@ -17,11 +17,7 @@ test("one client stays selected across notices, languages, a reload and download
   await page.goto("./");
   await current(page);
   const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
-  const client = [...bundle.examples].reverse().find((item) =>
-    Object.values(item.preparationChecks).some((checks) =>
-      checks.some((check) => check.code === "assignment.eligibility_conflict"),
-    ),
-  );
+  const client = bundle.examples.find((item) => item.id === "missing-meningococcal");
   if (!client) throw new Error("Missing client for a notice applicability warning");
   const name = page.locator("#example");
   await expect(page.locator("select#example")).toHaveCount(0);
@@ -31,10 +27,10 @@ test("one client stays selected across notices, languages, a reload and download
   await page.keyboard.insertText("\n// Keep these settings while comparing examples");
   await current(page);
   await chooseExample(page, bundle.examples.indexOf(client));
-  await expect(page.getByRole("button", { name: "Next example" })).toBeDisabled();
-  await page.getByRole("button", { name: "Previous example" }).click();
-  await expect(name).toHaveText(`Example client ${String(bundle.examples.indexOf(client)).padStart(2, "0")}`);
+  await expect(page.getByRole("button", { name: "Previous example" })).toBeDisabled();
   await page.getByRole("button", { name: "Next example" }).click();
+  await expect(name).toHaveText(`Example client ${String(bundle.examples.indexOf(client) + 2).padStart(2, "0")}`);
+  await page.getByRole("button", { name: "Previous example" }).click();
   await current(page);
   await expect(page.locator("#project-change-dialog")).not.toBeVisible();
   await page.locator(".cm-content").press("Control+End");
@@ -75,10 +71,10 @@ test("one client stays selected across notices, languages, a reload and download
   const pending = page.waitForEvent("download");
   await downloadProject(page);
   const files = unzipSync(readFileSync((await (await pending).path()) as string));
-  const inputs = client.inputs[filename];
-  expect(Buffer.from(files[inputs.csv])).toEqual(Buffer.from(bundle.files[inputs.csv], "base64"));
-  expect(JSON.parse(new TextDecoder().decode(files[inputs.assignments]))).toEqual([
-    { client_id: client.payloads[filename].client_id, template: filename },
-  ]);
+  expect(Buffer.from(files["input/sample/sample_students.csv"])).toEqual(
+    Buffer.from(bundle.files["examples/sample/clients.csv"], "base64"),
+  );
+  expect(JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]))).toHaveLength(6);
+  expect(files[client.inputs[filename].csv]).toBeUndefined();
   expect(new TextDecoder().decode(files["templates/settings.typ"])).toContain("Keep these settings");
 });

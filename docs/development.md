@@ -7,7 +7,7 @@ application.
 
 ## Choose the right repository
 
-Change the editor, browser previews, drafts, imports, exports, fictional examples
+Change the editor, browser previews, drafts, imports, exports, example presentation
 and this manual here. Change the native pipeline, schemas, reference
 configuration and shared Typst components in [ImmuKnow](https://github.com/WDGPH/ImmuKnow).
 Change starter letters, Settings, translations, example branding, project
@@ -22,7 +22,7 @@ small changes, and include the checks and any remaining limits in your PR.
 
 ## Core dependency
 
-Studio installs Core from reviewed commit `83045ed36eb01ce25fb5b15fd2506d5abd1c074c`
+Studio installs Core from reviewed commit `1476fba70662e2145187e31c0f9c897d3e5eaada`
 of <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` and `uv.lock` pin that
 revision. It supplies the shared components and native behavior used by
 previews and downloaded projects. Starter content comes from the separate
@@ -37,9 +37,10 @@ uv sync --locked
 npm run prepare:assets
 ```
 
-The authored clients live in `examples/scenarios.json`. Dev startup and builds
-prepare their preview facts with the locked Core package. After changing Core or
-example inputs, review the regenerated previews and downloaded samples.
+Template owns the fictional client CSV. Studio keeps preview IDs and descriptions in
+`examples/previews.json`. Dev startup and builds prepare preview facts with the
+locked Core package. After changing Core, Template or example inputs, review the
+regenerated previews and downloaded samples.
 
 To select a published Core tag instead, use
 `uv add git+https://github.com/WDGPH/ImmuKnow.git --tag <core-tag>`.
@@ -64,7 +65,7 @@ To rebuild against the configured Core reference, open **Actions → Studio Page
 → Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
-currently it is Core commit `83045ed36eb01ce25fb5b15fd2506d5abd1c074c`. A configured tag or revision stays
+currently it is Core commit `1476fba70662e2145187e31c0f9c897d3e5eaada`. A configured tag or revision stays
 at that reference. The workflow regenerates example facts and checks resource
 compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.
@@ -204,7 +205,7 @@ an older student. Template's maintainer tests run in its own
 repository; fresh downloads contain the user-facing setup and sample check.
 PDF reader checks use Studio's own example inputs.
 
-When adding or updating example clients, aim for plausible records that help
+Add or update example clients in Template. Aim for plausible records that help
 people develop notice wording and layout. Use complete contact details,
 consistent dates and notices that match the supplied facts. Keep deliberately
 incomplete or conflicting data in separate test fixtures. Core owns tests of
@@ -233,9 +234,10 @@ changes. Run the full suite for Core/compiler updates, changes to shared
 contracts and release preparation. Keep the manual workflow available for those
 checks when local tools are unavailable.
 
-The download cases cover three different handoff risks: custom source and both
-notice selectors; long French output; and saved-run review with warning findings.
-Core covers other notice families. The project sample command runs once in the
+The download cases cover four handoff risks: custom source and both notice
+selectors; long French output; saved-run review with warning findings; and a
+guardian-directed suspension notice for an older student. Core covers other
+notice families. The project sample command runs once in the
 customized English case, while the other cases compare their own native output.
 Template helper unit tests are not repeated in Studio. Add another expensive
 case only when it protects a boundary these checks do not cover.

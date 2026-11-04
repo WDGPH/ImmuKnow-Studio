@@ -64,6 +64,7 @@
         "mapping_known": true
       }
     ],
+    "history_validity_coverage": "all_absent",
     "validity_coverage": "all_absent"
   },
   "report": {
@@ -133,6 +134,7 @@
           "mapping_known": true
         }
       ],
+      "history_validity_coverage": "all_absent",
       "validity_coverage": "all_absent"
     },
     "identity": {
@@ -971,7 +973,7 @@
             "client_data",
             "name"
           ],
-          "value": "Élise #not-executable() – 王"
+          "value": "\u00c9lise #not-executable() \u2013 \u738b"
         },
         {
           "target": "report",
@@ -980,7 +982,7 @@
             "client_data",
             "name"
           ],
-          "value": "Élise #not-executable() – 王"
+          "value": "\u00c9lise #not-executable() \u2013 \u738b"
         }
       ]
     },
@@ -1315,6 +1317,7 @@
             "notice"
           ],
           "value": {
+            "history_validity_coverage": "all_absent",
             "validity_coverage": "all_absent",
             "history": [
               {
@@ -1395,7 +1398,7 @@
             "client_data",
             "age"
           ],
-          "value": "nine"
+          "value": true
         }
       ]
     },
@@ -1448,7 +1451,7 @@
       ]
     },
     {
-      "name": "explicit student intended reader override",
+      "name": "explicit student reader override",
       "valid": true,
       "changes": [
         {
@@ -1469,7 +1472,7 @@
       ]
     },
     {
-      "name": "invalid intended reader value",
+      "name": "invalid reader value",
       "valid": false,
       "changes": [
         {
@@ -1482,7 +1485,7 @@
       ]
     },
     {
-      "name": "intended reader must not be boolean",
+      "name": "reader must not be boolean",
       "valid": false,
       "changes": [
         {
@@ -1495,7 +1498,7 @@
       ]
     },
     {
-      "name": "report intended reader differs from prepared facts",
+      "name": "report reader differs from prepared facts",
       "valid": false,
       "changes": [
         {
@@ -1505,6 +1508,109 @@
             "intended_reader"
           ],
           "value": "guardian"
+        }
+      ]
+    },
+    {
+      "name": "saved payloads without source history coverage remain supported",
+      "valid": true,
+      "changes": [
+        {
+          "target": "payload",
+          "path": [
+            "history_validity_coverage"
+          ],
+          "remove": true
+        },
+        {
+          "target": "report",
+          "path": [
+            "notice",
+            "history_validity_coverage"
+          ],
+          "remove": true
+        }
+      ]
+    },
+    {
+      "name": "history mapping presence is required",
+      "valid": false,
+      "changes": [
+        {
+          "target": "payload",
+          "path": [
+            "history",
+            0,
+            "mapping_known"
+          ],
+          "remove": true
+        }
+      ]
+    },
+    {
+      "name": "history mapping presence must be boolean",
+      "valid": false,
+      "changes": [
+        {
+          "target": "payload",
+          "path": [
+            "history",
+            0,
+            "mapping_known"
+          ],
+          "value": "false"
+        }
+      ]
+    },
+    {
+      "name": "placed history mapping error",
+      "valid": true,
+      "changes": [
+        {
+          "target": "report",
+          "path": [
+            "checks",
+            0
+          ],
+          "value": {
+            "code": "content.history_mapping",
+            "stage": "render",
+            "status": "fail",
+            "message": "Unknown history agent",
+            "component": "history",
+            "page": 1,
+            "measurements": {
+              "unmapped_agents": [
+                "Unknown agent"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "unmapped history names must be strings",
+      "valid": false,
+      "changes": [
+        {
+          "target": "report",
+          "path": [
+            "checks",
+            0
+          ],
+          "value": {
+            "code": "content.history_mapping",
+            "stage": "render",
+            "status": "fail",
+            "message": "Unknown history agent",
+            "component": "history",
+            "page": 1,
+            "measurements": {
+              "unmapped_agents": [
+                1
+              ]
+            }
+          }
         }
       ]
     }

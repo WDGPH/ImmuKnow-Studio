@@ -60,6 +60,18 @@ test("a component error opens the supplied library for reading without changing 
 });
 
 test("notice warnings start collapsed with a count while errors stay visible", async ({ page }) => {
+  await editExampleData(page, (bundle) => {
+    for (const example of bundle.examples) {
+      for (const checks of Object.values(example.preparationChecks)) {
+        checks.push({
+          code: "data.preparation_warning",
+          stage: "preparation",
+          status: "warn",
+          message: "Warning fixture for collapsed findings",
+        });
+      }
+    }
+  });
   await page.goto("./");
   await currentPreview(page);
   const summary = page.locator("#notice-warnings summary");
@@ -130,6 +142,15 @@ test("history errors follow edited suspension content and recover after errors",
 test("authored project survives editing, warning/error recovery, drafts and export", async ({
   page,
 }, testInfo) => {
+  await editExampleData(page, (bundle) => {
+    const checks = bundle.examples[2].preparationChecks["overdue_diseases_v1.en.typ"];
+    checks.push({
+      code: "data.preparation_warning",
+      stage: "preparation",
+      status: "warn",
+      message: "Client-specific warning fixture",
+    });
+  });
   let pdfWorkers = 0;
   page.on("worker", (worker) => {
     if (worker.url().includes("pdf.worker")) pdfWorkers++;
@@ -161,11 +182,12 @@ test("authored project survives editing, warning/error recovery, drafts and expo
     buffer: Buffer.from(archive),
   });
   await currentPreview(page);
+  await expect(page.locator("#diagnostics")).not.toContainText("Client-specific warning fixture");
   await expect(page.locator(".preview-page")).toHaveCount(2);
   await page.locator("#next").click();
   await currentPreview(page);
   await page.locator("#next").click();
-  await expect(page.locator("#diagnostics")).toContainText("source.age_unknown");
+  await expect(page.locator("#diagnostics")).toContainText("Client-specific warning fixture");
   await currentPreview(page);
 
   await expect(page.locator(".preview-page")).toHaveCount(2);

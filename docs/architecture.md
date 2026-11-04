@@ -5,7 +5,7 @@
 | Project | Responsibility |
 | --- | --- |
 | ImmuKnow core | Python pipeline, input validation, prepared notice facts, schemas, reference configuration, shared Typst components and native generation/review results |
-| ImmuKnow Studio | Browser editor, Theme controls, draft storage, project import/download, browser compiler and renderer, fonts, fictional examples and Studio tests |
+| ImmuKnow Studio | Browser editor, Theme controls, draft storage, project import/download, browser compiler and renderer, fonts, example previews and Studio tests |
 | ImmuKnow Template | Starter letters, Settings, translations, example branding, project configuration, runnable setup, dependency lock, helpers and starter tests |
 | PHIZ documentation hub | Shared manual presentation, version selection, search and documentation publication |
 
@@ -65,10 +65,10 @@ has one source record and a stable example ID. Names, addresses, history and
 overdue facts stay the same when switching templates or languages. Clients with
 English and French names are available in either language.
 
-`examples/scenarios.json` owns the client records, the maintained template
-filenames and the fixed dates used by the examples. Asset preparation writes one
-CSV per client and uses the locked Core package to prepare a view and assignment
-for each notice. Dev startup and production builds generate these assets; the
+Template owns the fictional client CSV. `examples/previews.json` identifies the
+clients, maintained notice filenames and fixed dates used by Studio. Asset
+preparation reads the pinned Template CSV, writes one CSV per client and prepares a
+view and assignment for each notice. Dev startup and production builds generate these assets; the
 prepared payloads are not committed. The browser reads these prepared facts; it
 does not assess clients or change their records to fit a notice.
 
@@ -77,7 +77,7 @@ Core's source and applicability findings stay attached to the selected view.
 A custom entry point without prepared facts remains exportable.
 
 The selected example ID survives template changes and draft reloads. Downloads
-can include its source CSV and the chosen notice's assignment through the
+include the complete six-client CSV and its notice assignments through the
 **Include fictional client data** checkbox. Clearing it also removes unchanged
 Studio sample copies from imported ZIPs; custom imported samples are preserved. The native preparation checks
 confirm that the exported inputs reproduce each view; browser checks cover
@@ -112,7 +112,7 @@ package source, while `immuknow-project.json` hashes the actual downloaded bytes
 ## Core versions
 
 Studio v0.1.0 has its own release number. Its Core dependency currently selects
-reviewed Core commit `499dd2a2a04e6d621e3720a4f0fe618727cf1bd5`
+reviewed Core commit `1476fba70662e2145187e31c0f9c897d3e5eaada`
 in `pyproject.toml`, with the same commit recorded
 in `uv.lock`. Ordinary locked builds use that commit. A manual build can
 explicitly refresh the configured reference; its effective lockfile and Core

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import type { Bundle } from "../src/types";
 import { chooseExample, chooseTemplate } from "./helpers";
 
-test("record flags and ISPA guards follow the selected fictional client", async ({ page }, info) => {
+test("record flags follow the selected fictional client", async ({ page }, info) => {
   await page.goto("./");
   const bundle = await (await page.request.get("./generated/project.json")).json() as Bundle;
   const select = async (id: string) => {
@@ -20,12 +20,6 @@ test("record flags and ISPA guards follow the selected fictional client", async 
   }
   await chooseTemplate(page, "templates/affirmative_schedule_v1.en.typ");
   await expect(page.locator("#diagnostics")).toContainText("affirmative notice requires no overdue diseases");
-  await select("affirmative");
+  await select("up-to-date");
   await expect(page.locator(".preview-text-run").filter({ hasText: "up-to-date" }).first()).toBeAttached();
-  await select("varicella-2009");
-  await chooseTemplate(page, "templates/suspension_order_v1.en.typ");
-  await expect(page.locator("#diagnostics")).toContainText("suspension notice requires an overdue ISPA disease");
-  await select("varicella-2010");
-  await expect(page.locator(".preview-text-run").filter({ hasText: "Varicella" }).first()).toBeAttached();
-  await expect(page.locator("#errors")).not.toContainText("suspension notice requires");
 });

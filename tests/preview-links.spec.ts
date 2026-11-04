@@ -104,7 +104,7 @@ print(json.dumps(links))
     (page.links ?? []).filter((link) => "url" in link).map((link) => ({ ...link, page: index })),
   );
   expect(links).toHaveLength(annotations.length);
-  expect(links.some((link) => "url" in link && link.url.endsWith("&initials=EE"))).toBe(true);
+  expect(links.some((link) => "url" in link && link.url.endsWith("&initials=GH"))).toBe(true);
   for (const annotation of annotations) {
     expect(
       links.some(

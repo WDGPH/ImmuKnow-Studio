@@ -67,10 +67,10 @@ try {
           scenario === "one-page"
             ? ["suspension_order_v1.en.typ", "suspension"]
             : scenario === "two-page-fr"
-              ? ["overdue_diseases_v1.fr.typ", "short"]
+              ? ["overdue_diseases_v1.fr.typ", "missing-meningococcal"]
               : scenario === "five-page"
                 ? ["overdue_diseases_v1.en.typ", "long-history"]
-                : ["overdue_diseases_v1.en.typ", "short"];
+                : ["overdue_diseases_v1.en.typ", "missing-meningococcal"];
         const [filename, exampleId] = entry;
         const template = "templates/" + filename;
         const example = proof.examples.find((item) => item.id === exampleId);

@@ -26,6 +26,7 @@ from immuknow.load_config import load_config
 from immuknow.preprocess import prepare_clients, read_input
 from immuknow.resources import typst_library_root
 from immuknow.version_notices import load_catalog, template_identity
+from immuknow_template.resources import example_assignments_path, example_clients_path
 
 from .build_info import project_build
 from .project_template import PROJECT_TEMPLATE, scaffold_files
@@ -47,7 +48,22 @@ def write_csv(path: Path, source: dict[str, str]) -> None:
 def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
     """Prepare each shared client for every maintained notice and return export files."""
     resources = scaffold_files()
-    authored = json.loads((EXAMPLES / "scenarios.json").read_text(encoding="utf-8"))
+    resources["examples/sample/clients.csv"] = example_clients_path().read_bytes()
+    resources["examples/sample/assignments.json"] = (
+        example_assignments_path().read_bytes()
+    )
+    authored = json.loads((EXAMPLES / "previews.json").read_text(encoding="utf-8"))
+    with example_clients_path().open(encoding="utf-8-sig", newline="") as stream:
+        sources = list(csv.DictReader(stream))
+    by_id = {source["client_id"]: source for source in sources}
+    if (
+        len(by_id) != len(sources)
+        or len(by_id) != len(authored["clients"])
+        or set(by_id) != {c["client_id"] for c in authored["clients"]}
+    ):
+        raise ValueError(
+            "Studio's example list must match the clients supplied by Template"
+        )
     config = load_config(CONFIG / "parameters.yaml")
     config.update(authored["dates"])
     catalog = load_catalog(CONFIG)
@@ -71,7 +87,7 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
         shutil.copytree(library, workspace / "resources/templates/lib/immuknow")
         for scenario in authored["clients"]:
             payloads, preparation_checks, inputs = {}, {}, {}
-            source = scenario["source"]
+            source = by_id[scenario["client_id"]]
             csv_path = workspace / "client.csv"
             write_csv(csv_path, source)
             csv_key = f"examples/clients/{scenario['id']}.csv"
@@ -137,7 +153,11 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                 )
                 inputs[filename] = {"csv": csv_key, "assignments": assignment_key}
             examples.append(
-                {key: scenario[key] for key in ("id", "label", "description")}
+                {
+                    "id": scenario["id"],
+                    "label": f"{source['first_name']} {source['last_name']}",
+                    "description": scenario["description"],
+                }
                 | {
                     "payloads": payloads,
                     "preparationChecks": preparation_checks,
