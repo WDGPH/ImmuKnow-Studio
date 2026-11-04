@@ -24,7 +24,7 @@ Clear **Include fictional client data** to omit the sample and use your own inpu
 The `--sample` commands above require an included or custom sample.
 The project includes [ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template)'s
 Python setup and helper scripts, your authored notice/configuration, and the
-selected fictional sample when requested. See [Use projects on your workstation](docs/local-production.md).
+six fictional clients and their notice assignments when requested. See [Use projects on your workstation](docs/local-production.md).
 
 ## Local browser work
 
@@ -42,5 +42,5 @@ browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/
 - [Documentation and releases](docs/documentation.md): strict manual builds,
   the PHIZ documentation hub and v0.1.0 preparation.
 
-Studio pins Core to commit **`83045ed`**. The exact revision is
+Studio pins Core to commit **`1476fba`**. The exact revision is
 recorded in `uv.lock`. Studio and Core have separate version numbers.

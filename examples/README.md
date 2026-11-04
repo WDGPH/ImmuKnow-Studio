@@ -1,14 +1,16 @@
 # Example notices
 
-These fictional clients help you develop notice wording and layout. They include
-short and long histories, English/French notices, an up-to-date notice and a
-suspension order. An older student has an explicit `intended_reader=guardian` choice,
-which keeps their age facts and directs ordinary and suspension wording to a
-guardian. They contain no real client information and do not describe a
+These six fictional clients help you develop notice wording and layout. They
+include short and long histories, English/French notices, an up-to-date notice
+and a suspension order. An older student has an explicit
+`intended_reader=guardian` choice, which keeps their age facts and directs
+ordinary and suspension wording to a guardian. They contain no real client information and do not describe a
 vaccination schedule.
 
-`scenarios.json` owns one source record per client, the maintained notice
-filenames and fixed dates. Every client is available in every supplied notice,
+[Template owns the fictional client CSV](https://github.com/WDGPH/ImmuKnow-Template/blob/main/input/sample/sample_students.csv).
+`previews.json` selects its clients and records the Studio preview descriptions,
+notice filenames and fixed dates. Its stable IDs keep the same person selected
+when switching notices or reopening a draft. Every client is available in every supplied notice,
 with the same name and facts in either language. The collection includes clients
 with English and French names. History dates use Core's `YYYY-MM-DD` input format.
 
@@ -24,44 +26,30 @@ npm run prepare:assets
 ```
 
 The generated bundle is `public/generated/project.json`. It is not committed;
-`scenarios.json` and the locked Core package are its inputs. The project JSON
-contains unchanged native Typst/project files and verified SHA-256 hashes. All supported native
-preview fonts are web assets copied separately to `generated/fonts/`; the JSON embeds
-only their catalogs and license metadata. The generated `build.json` identifies
+`previews.json` and the locked Core and Template packages are its inputs. The project JSON
+contains unchanged native Typst/project files and verified SHA-256 hashes. All
+supported native preview fonts are web assets copied separately to
+`generated/fonts/`; the JSON embeds only their catalogs and license metadata. The generated `build.json` identifies
 the shared native resources and Studio compiler; native package build details
 remain separate.
 
-Each example's `inputs` maps an entry basename to the exact source CSV and
-assignment file included in the project. Each client has one CSV shared by
-all notices, with a separate assignment file for each notice. Those files
-reproduce the selected preview through either native selector. With ImmuKnow installed, run
-from the generated/exported project root:
+When you download a project with **Include fictional client data** checked,
+Studio includes all six fictional clients, their notice assignments and the
+notices needed for a local sample run. An imported project with its own sample
+selection keeps that selection. After installing the project, run:
 
 ```bash
-immuknow examples/clients/short.csv --config config \
-  --template templates/overdue_diseases_v1.en.typ --output runs
-immuknow examples/clients/short.csv --config config \
-  --notice-assignments examples/assignments/short.overdue_agents_v1.fr.json \
-  --templates templates --output runs
-immuknow examples/clients/source-warnings.csv --config config \
-  --notice-assignments examples/assignments/source-warnings.overdue_diseases_v1.en.json \
-  --templates templates --output runs
+uv run python scripts/check.py --sample
+uv run python scripts/run.py --sample
 ```
 
-The no-records client previews the bilingual request for records. The 2009/2010
-varicella clients demonstrate the ISPA birth-year boundary. Some clients include
-a fictional OIID with leading zeros; enable `show-oiid` in Settings to show it.
-Each downloaded client CSV is a one-client cohort, so enabling OIID display for
-a client without an OIID raises the all-absent error. In a production mixed
-cohort, `missing-oiid` controls omitted, blank or unavailable text.
+The no-records client previews the bilingual request for records or a suspension
+notice. One client includes a fictional OIID with leading zeros; enable
+`show-oiid` in Settings to show it. The longer history supports layout review;
+the suspension notice places no history component.
 
-Warning clients retain source findings such as an absent birth date. Their
-history entries all have validity flags, so the default validity display remains
-usable. Combining examples creates a different input cohort. The long-history example intentionally permits reviewers to
-see content continuation and findings. The suspension example has valid source
-history but places no history component or display checks.
-
-Preview facts are fixed for each generated build. Edit `scenarios.json` and
-restart the dev server or rebuild to change them. Edit the native Settings file
+Preview facts are fixed for each generated build. Update the example CSV in Template
+and the pinned Template revision here to change client facts, then restart the dev
+server or rebuild. Edit the native Settings file
 to change presentation. Production source preparation, assessment responsibilities
 and delivery behavior are explained in the package guides.

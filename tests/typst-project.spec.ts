@@ -16,10 +16,10 @@ const fontCount = Object.keys(
 // The customized English project covers both selectors; French cases cover
 // long output and saved-run review. Core tests the full native notice catalog.
 const cases = [
-  ["short", "overdue_diseases_v1.en.typ"],
+  ["missing-meningococcal", "overdue_diseases_v1.en.typ"],
   ["long-history", "overdue_diseases_v1.fr.typ"],
-  ["source-warnings", "overdue_agents_v1.fr.typ"],
-  ["guardian-intended-reader", "suspension_order_v1.en.typ"],
+  ["missing-mmr", "overdue_agents_v1.fr.typ"],
+  ["no-records", "suspension_order_v1.en.typ"],
 ];
 
 for (const [scenario, filename] of cases) {
@@ -36,7 +36,7 @@ for (const [scenario, filename] of cases) {
     await page.locator("#theme-tab").click();
     await chooseTemplate(page, `templates/${filename}`);
     await chooseExample(page, index);
-    if (scenario === "short" && filename.startsWith("overdue_diseases_v1.")) {
+    if (scenario === "missing-meningococcal" && filename.startsWith("overdue_diseases_v1.")) {
       // Check local history/page options, ID labels, QR destinations and fonts after download.
       const imported: Files = Object.fromEntries(
         Object.entries(bundle.files).map(([path, bytes]) => [
@@ -84,6 +84,18 @@ for (const [scenario, filename] of cases) {
         authored.replace('#let body-font = "FreeSans"', '#let body-font = "FreeSerif"'),
       ).toString("base64");
     }
+    if (scenario === "long-history") {
+      // Continuation pressure belongs to this layout handoff test.
+      const path = `templates/${filename}`;
+      const authored = Buffer.from(bundle.files[path], "base64").toString("utf8").replace(
+        "#immuknow.immunization-history()",
+        "#immuknow.immunization-history(font-size: 28pt)",
+      );
+      await page.locator("#template-tab").click();
+      await page.locator(".cm-content").press("Control+a");
+      await page.keyboard.insertText(authored);
+      expectedFiles[path] = Buffer.from(authored).toString("base64");
+    }
     await expect(page.locator("#example")).toHaveText(
       `Example client ${String(index + 1).padStart(2, "0")}`,
     );
@@ -122,9 +134,9 @@ for (const [scenario, filename] of cases) {
       }),
     );
     expect(preview.length).toBeGreaterThan(0);
-    if (scenario === "guardian-intended-reader") {
+    if (filename === "suspension_order_v1.en.typ") {
       const notice = examples[index].payloads[filename];
-      expect(notice.client_data.age).toBeGreaterThan(16);
+      expect(notice.client_data.age).toBeGreaterThanOrEqual(16);
       expect(notice.intended_reader).toBe("guardian");
       const text = preview
         .map((page) => page.plainText)
@@ -151,7 +163,7 @@ for (const [scenario, filename] of cases) {
     await page.screenshot({ path: info.outputPath("preview.png"), fullPage: true });
     await page.locator(".project-actions summary").click();
     const projectDownload = page.waitForEvent("download", { timeout: 30_000 });
-    await downloadProject(page, scenario !== "short");
+    await downloadProject(page, scenario !== "missing-meningococcal");
     await (await projectDownload).saveAs(info.outputPath("typst-project.zip"));
     const files = unzipSync(readFileSync(info.outputPath("typst-project.zip")));
     delete files["immuknow-project.json"];
@@ -164,14 +176,10 @@ for (const [scenario, filename] of cases) {
         continue;
       expect(Buffer.from(bytes).toString("base64"), path).toBe(expectedFiles[path]);
     }
-    expect(Object.keys(files).filter((path) => /^templates\/.+\.(en|fr)\.typ$/.test(path))).toEqual(
-      [`templates/${filename}`],
-    );
-    expect(
-      Object.keys(files)
-        .filter((path) => path.startsWith("examples/") && !path.endsWith("README.md"))
-        .sort(),
-    ).toEqual(Object.values(examples[index].inputs[filename]).sort());
+    const assignments = JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]));
+    for (const assignment of assignments) expect(files[`templates/${assignment.template}`]).toBeDefined();
+    expect(assignments).toHaveLength(6);
+    expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
     expect(files["scripts/run.py"]).toBeDefined();
     expect(Object.keys(files).some((path) => path.startsWith("tests/"))).toBe(false);
     expect(files["uv.lock"]).toBeDefined();
@@ -180,25 +188,22 @@ for (const [scenario, filename] of cases) {
       csv: "input/sample/sample_students.csv",
       assignments: "input/sample/sample_assignments.json",
     });
-    expect(files["input/sample/sample_students.csv"]).toEqual(
-      files[examples[index].inputs[filename].csv],
-    );
-    expect(files["input/sample/sample_assignments.json"]).toEqual(
-      files[examples[index].inputs[filename].assignments],
-    );
+    expect(Buffer.from(files["input/sample/sample_students.csv"]).toString("base64")).toBe(bundle.files["examples/sample/clients.csv"]);
+    expect(Buffer.from(files["input/sample/sample_assignments.json"]).toString("base64")).toBe(bundle.files["examples/sample/assignments.json"]);
     const source = JSON.parse(new TextDecoder().decode(files["template-source.json"]));
     expect(source.repository).toBe("https://github.com/WDGPH/ImmuKnow-Template");
     expect(source.revision).toMatch(/^[0-9a-f]{40}$/);
     expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toHaveLength(
-      scenario === "short" ? 0 : fontCount,
+      scenario === "missing-meningococcal" ? 0 : fontCount,
     );
-    if (scenario !== "short") expect(files["templates/fonts/LICENSE"]).toBeDefined();
+    if (scenario !== "missing-meningococcal") expect(files["templates/fonts/LICENSE"]).toBeDefined();
     writeFileSync(
       info.outputPath("selected-example.json"),
       JSON.stringify({
         template: `templates/${filename}`,
         example: scenario,
         input: examples[index].inputs[filename],
+        inputBytes: Object.fromEntries(Object.values(examples[index].inputs[filename]).map((path) => [path, bundle.files[path]])),
       }),
     );
 
@@ -261,13 +266,13 @@ for (const [scenario, filename] of cases) {
       expect(result.qrUrls).toEqual(native.browser.qrUrls);
       expect(result.findings).toEqual([...new Set(findings)].sort());
     }
-    expect(native.selectors).toHaveLength(scenario === "short" ? 2 : 1);
-    if (scenario === "short") {
+    expect(native.selectors).toHaveLength(scenario === "missing-meningococcal" ? 2 : 1);
+    if (scenario === "missing-meningococcal") {
       expect(native.selectors[0].summary).toEqual(native.selectors[1].summary);
       expect(native.browser.text.join(" ")).toContain(String(examples[index].payloads[filename].oiid));
       expect(native.browser.text.join(" ")).toContain("Record key:");
     }
     if (scenario === "long-history") expect(native.browser.text.length).toBeGreaterThan(2);
-    if (scenario === "source-warnings") expect(native.rebundled).toBe(true);
+    if (scenario === "missing-mmr") expect(native.rebundled).toBe(true);
   });
 }

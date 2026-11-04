@@ -14,6 +14,7 @@ from immuknow.load_config import load_config
 from immuknow.preprocess import prepare_clients, read_input
 from immuknow.resources import typst_library_root
 from immuknow.version_notices import load_catalog, template_identity
+from immuknow_template.resources import example_clients_path
 
 from scripts.examples import EXAMPLES, generate
 
@@ -22,7 +23,9 @@ class SharedClientsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.prepared, cls.resources = generate()
-        cls.authored = json.loads((EXAMPLES / "scenarios.json").read_text())
+        cls.authored = json.loads((EXAMPLES / "previews.json").read_text())
+        with example_clients_path().open(encoding="utf-8-sig", newline="") as stream:
+            cls.sources = {row["client_id"]: row for row in csv.DictReader(stream)}
 
     def test_library_identity_uses_project_paths_and_actual_library_bytes(self) -> None:
         build = json.loads(self.resources["build.json"])
@@ -47,7 +50,10 @@ class SharedClientsTest(unittest.TestCase):
             self.assertEqual(sha256(self.resources[name]).hexdigest(), expected)
 
     def test_every_notice_uses_the_same_client_source_and_facts(self) -> None:
-        expected = {client["id"]: client for client in self.authored["clients"]}
+        expected = {
+            client["id"]: self.sources[client["client_id"]]
+            for client in self.authored["clients"]
+        }
         for example in self.prepared["examples"]:
             with self.subTest(client=example["id"]):
                 self.assertEqual(
@@ -57,7 +63,7 @@ class SharedClientsTest(unittest.TestCase):
                 self.assertEqual(len(csv_paths), 1)
                 (path,) = csv_paths
                 rows = list(csv.DictReader(io.StringIO(self.resources[path].decode())))
-                self.assertEqual(rows, [expected[example["id"]]["source"]])
+                self.assertEqual(rows, [expected[example["id"]]])
                 facts = [
                     {
                         key: value
@@ -67,7 +73,7 @@ class SharedClientsTest(unittest.TestCase):
                     for payload in example["payloads"].values()
                 ]
                 self.assertTrue(all(fact == facts[0] for fact in facts))
-                source = expected[example["id"]]["source"]
+                source = expected[example["id"]]
                 for part in ("first", "last"):
                     self.assertEqual(
                         facts[0]["client_data"][f"{part}_initial"],

@@ -3,9 +3,10 @@
 Read README.md and docs/studio.md before changing build or editor behavior.
 Manual content stays in docs/ with navigation in mkdocs.yml. Follow
 docs/documentation.md for source checks and the separate PHIZ hub publication.
-This repository owns Studio's UI, browser compiler, fonts, fictional scenarios
-and browser/unit tests. Core owns the native engine, reference configuration, schemas and shared Typst
-components. Template owns starter letters, Settings, display translations,
+This repository owns Studio's UI, browser compiler, fonts, example descriptions
+and preview settings, and browser/unit tests. Core owns the native engine,
+reference configuration, schemas and shared Typst components. Template owns
+the fictional example clients, starter letters, Settings, display translations,
 example branding and project configuration. Studio consumes its pinned
 resource package. Core supplies no starter project. Follow the
 [shared language and project responsibilities](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#shared-language-and-project-responsibilities).
@@ -39,9 +40,10 @@ For code changes, run npm run typecheck, npm run lint, npm run test:unit and
 Python type/lint checks, then the relevant browser checks against a fresh build.
 Preserve the downloaded project journey through the separately installed native
 engine. Build compiler
-patches only with their matching pins and retain licenses. Commit authored
-example records in examples/scenarios.json; browser payloads and other generated
-assets stay ignored and are rebuilt during dev setup and production builds.
+patches only with their matching pins and retain licenses. Maintain fictional
+example records in Template. Studio keeps only example descriptions and preview
+settings; browser payloads and other generated assets stay ignored and
+are rebuilt during dev setup and production builds.
 Documentation-only changes need the strict documentation build, not a compiler
 rebuild or browser suite.
 

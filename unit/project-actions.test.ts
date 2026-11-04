@@ -3,7 +3,7 @@ import { currentProject, resetProject } from "../src/project-actions";
 import { encoder } from "../src/project";
 import type { Example, Files } from "../src/types";
 
-test("a new preview client after scoped import fills only missing selected inputs", () => {
+test("a scoped import retains authored example inputs without adding preview copies", () => {
   const example: Example = {
     id: "selected",
     label: "",
@@ -24,7 +24,7 @@ test("a new preview client after scoped import fills only missing selected input
   };
   const result = currentProject(authored, "templates/notice.en.typ", [example], example, starters);
   expect(result["examples/selected.csv"]).toBe(authored["examples/selected.csv"]);
-  expect(result["examples/selected.json"]).toBe(starters["examples/selected.json"]);
+  expect(result["examples/selected.json"]).toBeUndefined();
 });
 
 const template = "templates/notice.en.typ";
@@ -58,6 +58,8 @@ test("fictional inputs are optional, including after importing a Studio sample",
   };
   const starters = {
     ...baseline,
+    "examples/sample/clients.csv": encoder.encode("Full cohort"),
+    "examples/sample/assignments.json": encoder.encode('[ {"client_id":"123","template":"notice.en.typ"} ]'),
     [inputs.csv]: encoder.encode("Fictional client"),
     [inputs.assignments]: encoder.encode('[{"client_id":"123","template":"notice.en.typ"}]'),
   };
@@ -130,7 +132,7 @@ test("current download keeps selected example and referenced entries but exclude
     "examples/other.csv": new Uint8Array([3]),
     "examples/other.json": new Uint8Array([4]),
   };
-  const selected = currentProject(files, template, [example, other], example);
+  const selected = currentProject(files, template, [example, other], example, files);
   expect(Object.keys(selected)).not.toContain("templates/unrelated.en.typ");
   expect(Object.keys(selected)).not.toContain("examples/other.csv");
   expect(Object.keys(selected)).not.toContain("examples/other.json");
@@ -139,8 +141,6 @@ test("current download keeps selected example and referenced entries but exclude
     "templates/nested/helper.typ",
     "templates/notice.fr.typ",
     "templates/extra.en.typ",
-    "examples/selected.csv",
-    "examples/selected.json",
     "templates/assets/companion.bin",
   ])
     expect(selected[path]).toBe(files[path]);
@@ -206,16 +206,22 @@ test("new downloads include conventional sample copies without replacing authore
     [inputs.assignments]: encoder.encode("Selected assignments"),
     "input/sample/sample_students.csv": encoder.encode("Authored sample"),
   };
-  const result = currentProject(files, template, [example], example);
+  const starters = {
+    ...baseline,
+    "examples/sample/clients.csv": encoder.encode("Full cohort"),
+    "examples/sample/assignments.json": encoder.encode('[{"client_id":"123","template":"notice.en.typ"}]'),
+  };
+  const result = currentProject(files, template, [example], example, starters);
   expect(result["input/sample/sample_students.csv"]).toBe(
     files["input/sample/sample_students.csv"],
   );
-  expect(result["input/sample/sample_assignments.json"]).toBe(files[inputs.assignments]);
+  expect(result["input/sample/sample_assignments.json"]).toBe(starters["examples/sample/assignments.json"]);
   expect(result[inputs.csv]).toBe(files[inputs.csv]);
   expect(JSON.parse(new TextDecoder().decode(result["sample.json"]))).toEqual({
-    csv: "input/sample/sample_students.csv",
+    csv: "input/sample/sample_students-fictional-1.csv",
     assignments: "input/sample/sample_assignments.json",
   });
+  expect(result["input/sample/sample_students-fictional-1.csv"]).toBe(starters["examples/sample/clients.csv"]);
 });
 
 test("preserved sample assignments retain their notice and transitive companions", () => {

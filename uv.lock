@@ -524,7 +524,7 @@ wheels = [
 [[package]]
 name = "immuknow"
 version = "2.0.0"
-source = { git = "https://github.com/WDGPH/ImmuKnow?rev=83045ed36eb01ce25fb5b15fd2506d5abd1c074c#83045ed36eb01ce25fb5b15fd2506d5abd1c074c" }
+source = { git = "https://github.com/WDGPH/ImmuKnow?rev=1476fba70662e2145187e31c0f9c897d3e5eaada#1476fba70662e2145187e31c0f9c897d3e5eaada" }
 dependencies = [
     { name = "filelock" },
     { name = "frictionless" },
@@ -564,8 +564,8 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "immuknow", git = "https://github.com/WDGPH/ImmuKnow.git?rev=83045ed36eb01ce25fb5b15fd2506d5abd1c074c" },
-    { name = "immuknow-template-resources", git = "https://github.com/WDGPH/ImmuKnow-Template.git?rev=a1e31f04661785f4b34cef468cb1f13d6d079db7" },
+    { name = "immuknow", git = "https://github.com/WDGPH/ImmuKnow.git?rev=1476fba70662e2145187e31c0f9c897d3e5eaada" },
+    { name = "immuknow-template-resources", git = "https://github.com/WDGPH/ImmuKnow-Template.git?rev=a2f7e8fb78975c8b15c5c478d6de59022e154243" },
     { name = "pyyaml" },
 ]
 
@@ -590,7 +590,7 @@ docs = [
 [[package]]
 name = "immuknow-template-resources"
 version = "0.1.0"
-source = { git = "https://github.com/WDGPH/ImmuKnow-Template.git?rev=a1e31f04661785f4b34cef468cb1f13d6d079db7#a1e31f04661785f4b34cef468cb1f13d6d079db7" }
+source = { git = "https://github.com/WDGPH/ImmuKnow-Template.git?rev=a2f7e8fb78975c8b15c5c478d6de59022e154243#a2f7e8fb78975c8b15c5c478d6de59022e154243" }
 dependencies = [
     { name = "immuknow" },
 ]

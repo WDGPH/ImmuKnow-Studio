@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import math
 import os
@@ -195,8 +196,12 @@ def main(evidence: Path) -> None:
             "import importlib.util; assert importlib.util.find_spec('pytest') is None",
         )
         selected = json.loads((evidence / "selected-example.json").read_text())
-        if selected["example"] == "short":
+        if selected["example"] == "missing-meningococcal":
             run("scripts/check.py", "--sample")
+        for name, encoded in selected["inputBytes"].items():
+            path = project / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(base64.b64decode(encoded))
         browser = inspect_pdf(evidence / "browser.pdf")
         preview = inspect_preview(evidence, browser)
         comparison = {
@@ -217,7 +222,7 @@ def main(evidence: Path) -> None:
                 ],
             ),
         ]
-        if selected["example"] == "short":
+        if selected["example"] == "missing-meningococcal":
             selectors.insert(0, ("template", ["--template", selected["template"]]))
         for selector, arguments in selectors:
             run(
@@ -296,7 +301,7 @@ def main(evidence: Path) -> None:
                 }
             )
 
-        if selected["example"] == "source-warnings":
+        if selected["example"] == "missing-mmr":
             assert record["status"] == "completed_with_warnings"
             assert entry["routing"]["destination"] == "review"
             original_record = entry["original"].copy()
@@ -304,7 +309,7 @@ def main(evidence: Path) -> None:
             membership = entry["bundle"]
             review = PdfReader(run_dir / membership["path"])
             review_text = " ".join(page.extract_text() for page in review.pages)
-            assert "source.age_unknown" in review_text and "REVIEW" in review_text
+            assert "content.multiple_links" in review_text and "REVIEW" in review_text
             # Saved originals must suffice after removing authored inputs.
             for directory in ("templates", "config", "examples"):
                 shutil.rmtree(project / directory)

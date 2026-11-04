@@ -153,17 +153,10 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   await expect(page.locator("#project-change-dialog")).not.toBeVisible();
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");
   const files = await download(page);
-  expect(Object.keys(files).filter((path) => /^templates\/.+\.(en|fr)\.typ$/.test(path))).toEqual([
-    "templates/overdue_diseases_v1.en.typ",
-  ]);
-  expect(
-    Object.keys(files)
-      .filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))
-      .sort(),
-  ).toEqual([
-    "examples/assignments/long-history.overdue_diseases_v1.en.json",
-    "examples/clients/long-history.csv",
-  ]);
+  const assignments = JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]));
+  expect(assignments).toHaveLength(6);
+  for (const entry of assignments) expect(files[`templates/${entry.template}`]).toBeDefined();
+  expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   // The scoped download remains a valid project that can be imported.
   await page.locator("#previous").click();
   await current(page);
@@ -174,18 +167,13 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   });
   await expect(page.locator("#archive")).toHaveValue("");
   await current(page);
-  await expect(page.locator("#template option")).toHaveCount(1);
-  await expect(page.locator("#example")).toHaveText("Example client 02");
+  await expect(page.locator("#template option")).toHaveCount(4);
+  await expect(page.locator("#example")).toHaveText("Example client 01");
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");
   await page.locator("#next").click();
   await current(page);
   const alternate = await download(page);
-  expect(
-    Object.keys(alternate)
-      .filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))
-      .sort(),
-  ).toEqual([
-    "examples/assignments/source-warnings.overdue_diseases_v1.en.json",
-    "examples/clients/source-warnings.csv",
-  ]);
+  expect(Object.keys(alternate).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
+  expect(alternate["input/sample/sample_students.csv"]).toEqual(files["input/sample/sample_students.csv"]);
+
 });
