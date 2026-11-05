@@ -8,9 +8,9 @@ dependencies = ["ImmuKnow", "PyYAML", "immuknow-template-resources"]
 package = false
 
 [tool.uv.sources]
-immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", rev = "014a1a33e3385cebd0d4a8ae123d05ec9541a923" }
+immuknow = { git = "https://github.com/WDGPH/ImmuKnow.git", rev = "60c23c6cafdbbce8b299b55f3fd2d170d1c6141d" }
 
-immuknow-template-resources = { git = "https://github.com/WDGPH/ImmuKnow-Template.git", rev = "ab3b2884555cf6fa099cbe5a75a3c71fab9b78cd" }
+immuknow-template-resources = { git = "https://github.com/WDGPH/ImmuKnow-Template.git", rev = "21fb808907a86153801bde7b1c0af751faccc8c3" }
 
 [dependency-groups]
 dev = [
