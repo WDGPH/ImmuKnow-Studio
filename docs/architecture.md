@@ -112,15 +112,14 @@ package source, while `immuknow-project.json` hashes the actual downloaded bytes
 ## Core versions
 
 Studio v0.1.0 has its own release number. Its Core dependency currently selects
-reviewed Core commit `1476fba70662e2145187e31c0f9c897d3e5eaada`
+reviewed Core commit `014a1a33e3385cebd0d4a8ae123d05ec9541a923`
 in `pyproject.toml`, with the same commit recorded
 in `uv.lock`. Ordinary locked builds use that commit. A manual build can
 explicitly refresh the configured reference; its effective lockfile and Core
 identity are retained in the workflow artifacts.
 
-The current development pin follows **ImmuKnow v2.0.0-rc2** on `main`;
-it does not create a new release candidate. Do not infer Core compatibility
-from Studio's version number.
+The development pin selects reviewed Core source; it does not create a new Core
+release candidate. Do not infer Core compatibility from Studio's version number.
 
 When adopting a tagged Core release, update both dependency files, prepare and
 review examples, and run the browser/native export checks described in

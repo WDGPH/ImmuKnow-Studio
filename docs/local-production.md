@@ -55,7 +55,7 @@ uv run python scripts/run.py --sample
 ```
 
 The first command needs network access to install the locked dependencies,
-including Core from reviewed commit `1476fba`. The ZIP includes setup
+including Core from reviewed commit `014a1a3`. The ZIP includes setup
 files, not an installed environment, engine wheel or native Typst compiler.
 The check validates configuration, compiler and shared resources, then runs the
 sample in a temporary folder. The last command keeps a run and prints its report

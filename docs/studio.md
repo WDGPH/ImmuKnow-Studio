@@ -190,6 +190,12 @@ These cover shared components, fonts, the data format and the compiler build.
 Projects can move between application releases when those requirements still
 match. The selected file must be an English or French notice under `templates/`.
 
+An update to shared components, including the bundled QR encoder, requires a
+matching project. Studio does not replace an older project's shared files or
+migrate its authored files automatically. Download your work before adopting
+such an update; keep the existing project for its pinned native engine, or move
+your authored changes into a current starter project.
+
 **Reset workspace…** offers these scopes, regardless of the open editor tab:
 
 - **Saved draft only** removes the browser copy, including pending saves, while

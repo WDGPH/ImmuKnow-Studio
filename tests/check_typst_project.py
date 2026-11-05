@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import csv
 import json
 import math
 import os
@@ -23,15 +24,26 @@ from PIL import Image, ImageChops, ImageStat
 from pypdf import PdfReader
 
 
+def qr_destinations(image: Image.Image) -> set[str]:
+    decoded = zxingcpp.read_barcodes(image)
+    for code in decoded:
+        assert code.bytes == code.text.encode("utf-8"), "QR payload bytes changed"
+    unicode_urls = {code.text for code in decoded if not code.text.isascii()}
+    if unicode_urls:
+        declared = zxingcpp.read_barcodes(image, text_mode=zxingcpp.TextMode.ECI)
+        expected = {"]Q2\\000026" + url for url in unicode_urls}
+        assert expected <= {code.text for code in declared}, (
+            "Unicode QR lacks explicit UTF-8 ECI"
+        )
+    return {code.text for code in decoded}
+
+
 def inspect_pdf(path: Path) -> dict:
     reader = PdfReader(path)
     urls = set()
     with pymupdf.open(path) as rendered:
         for page in rendered:
-            urls.update(
-                code.text
-                for code in zxingcpp.read_barcodes(page.get_pixmap(dpi=150).pil_image())
-            )
+            urls.update(qr_destinations(page.get_pixmap(dpi=150).pil_image()))
     return {
         "text": [" ".join(page.extract_text().split()) for page in reader.pages],
         "pageSizes": [
@@ -103,7 +115,7 @@ def inspect_preview(evidence: Path, pdf: dict) -> dict:
                     f"Preview/PDF page {index} ink differs: {difference['inkRatio']:.2f}"
                 )
                 pixel_difference.append(difference)
-                urls.update(code.text for code in zxingcpp.read_barcodes(image))
+                urls.update(qr_destinations(image))
                 coverage.append(text_coverage(page["plainText"], pdf_text))
     assert min(coverage) >= 0.9, f"Preview text coverage too low: {coverage}"
     assert sorted(urls) == pdf["qrUrls"], "Preview/PDF QR destinations differ"
@@ -307,17 +319,31 @@ def main(evidence: Path) -> None:
             original_record = entry["original"].copy()
             original_checks = entry["checks"].copy()
             membership = entry["bundle"]
-            review = PdfReader(run_dir / membership["path"])
-            review_text = " ".join(page.extract_text() for page in review.pages)
-            assert "content.multiple_links" in review_text and "REVIEW" in review_text
-            # Saved originals must suffice after removing authored inputs.
-            for directory in ("templates", "config", "examples"):
-                shutil.rmtree(project / directory)
+            review = inspect_pdf(run_dir / membership["path"])
+            assert review["text"] == native["text"]
+            assert review["pageSizes"] == native["pageSizes"]
+            assert review["qrUrls"] == native["qrUrls"]
             tokens = list(
                 record["delivery_attempts"][-1]["evaluations"][entry["row_key"]][
                     "warning_tokens"
                 ].values()
             )
+            with (
+                (run_dir / membership["path"])
+                .with_suffix(".csv")
+                .open(newline="", encoding="utf-8") as stream
+            ):
+                findings = list(csv.DictReader(stream))
+            assert any(
+                row["code"] == "content.multiple_links"
+                and row["eligibility"] == "review"
+                and row["warning_token"] in tokens
+                and row["warning_accepted"] == "false"
+                for row in findings
+            )
+            # Saved originals must suffice after removing authored inputs.
+            for directory in ("templates", "config", "examples"):
+                shutil.rmtree(project / directory)
             run(
                 "immuknow.rebundle",
                 str(run_dir),

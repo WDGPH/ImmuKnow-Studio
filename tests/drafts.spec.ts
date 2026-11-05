@@ -97,10 +97,19 @@ test("browsing untouched examples reopens without a project dialog", async ({ pa
   await ready(page);
   await page.getByRole("button", { name: "Next example" }).click();
   await saved(page);
+  const before = await stored(page);
+  const pluginPath = "templates/lib/immuknow/vendor/qr/qr.wasm";
+  const plugin = Object.values(before?.files[pluginPath] ?? {});
+  expect(plugin.length).toBeGreaterThan(8);
+  expect(plugin.slice(0, 8)).toEqual([0, 97, 115, 109, 1, 0, 0, 0]);
+  expect(before?.baseline[pluginPath]).toEqual(before?.files[pluginPath]);
   await page.reload();
   await ready(page);
   await expect(page.locator("#recovery-dialog")).not.toBeVisible();
   await expect(page.locator("#example")).toHaveText("Example client 02");
+  const after = await stored(page);
+  expect(after?.files[pluginPath]).toEqual(before?.files[pluginPath]);
+  expect(after?.baseline[pluginPath]).toEqual(before?.baseline[pluginPath]);
 });
 
 test("a UI-only release resumes authored bytes and their reset baseline without prompting", async ({ page }) => {

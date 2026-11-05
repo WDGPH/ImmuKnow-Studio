@@ -22,20 +22,27 @@ small changes, and include the checks and any remaining limits in your PR.
 
 ## Core dependency
 
-Studio installs Core from reviewed commit `1476fba70662e2145187e31c0f9c897d3e5eaada`
+Studio installs Core from reviewed commit `014a1a33e3385cebd0d4a8ae123d05ec9541a923`
 of <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` and `uv.lock` pin that
 revision. It supplies the shared components and native behavior used by
 previews and downloaded projects. Starter content comes from the separate
 Template resource package.
 A local Core checkout is not required.
 
-To adopt a different Core revision, update `rev` in `pyproject.toml`, then:
+To adopt a different Core revision, first update Template to the same Core
+revision. Update both dependency references in `pyproject.toml`, then:
 
 ```bash
-uv lock --upgrade-package immuknow
+uv lock --upgrade-package immuknow --upgrade-package immuknow-template-resources
 uv sync --locked
 npm run prepare:assets
 ```
+
+Shared components include Core's bundled QR WebAssembly encoder. Preparation,
+browser drafts and downloaded projects preserve its binary bytes. Updating
+these resources changes project compatibility; test both browser rendering and
+the downloaded native project. The browser compiler itself keeps its separate
+pin and does not need rebuilding for a shared-component update.
 
 Template owns the fictional client CSV. Studio keeps preview IDs and descriptions in
 `examples/previews.json`. Dev startup and builds prepare preview facts with the
@@ -65,7 +72,7 @@ To rebuild against the configured Core reference, open **Actions → Studio Page
 → Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
 The workflow runs `uv lock --upgrade-package immuknow` before installing and
 building. This resolves the Git reference configured in `pyproject.toml`;
-currently it is Core commit `1476fba70662e2145187e31c0f9c897d3e5eaada`. A configured tag or revision stays
+currently it is Core commit `014a1a33e3385cebd0d4a8ae123d05ec9541a923`. A configured tag or revision stays
 at that reference. The workflow regenerates example facts and checks resource
 compatibility; a failed required check prevents deployment. Enable
 **full_tests** when validating a Core upgrade or a change to rendering or exports.

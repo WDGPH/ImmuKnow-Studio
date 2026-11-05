@@ -269,6 +269,7 @@ for (const [scenario, filename] of cases) {
     expect(native.selectors).toHaveLength(scenario === "missing-meningococcal" ? 2 : 1);
     if (scenario === "missing-meningococcal") {
       expect(native.selectors[0].summary).toEqual(native.selectors[1].summary);
+      expect(native.browser.qrUrls.some((url: string) => url.startsWith("https://exämple.org/élève"))).toBe(true);
       expect(native.browser.text.join(" ")).toContain(String(examples[index].payloads[filename].oiid));
       expect(native.browser.text.join(" ")).toContain("Record key:");
     }
