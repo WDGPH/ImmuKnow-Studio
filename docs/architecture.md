@@ -111,9 +111,8 @@ package source, while `immuknow-project.json` hashes the actual downloaded bytes
 
 ## Core versions
 
-Studio v0.1.0 has its own release number. `core-revision.txt` selects reviewed
-Core commit `7e873ef87157c5222c1d4afe1f9cf7f1fce856e8`. Template records the same
-revision. `pyproject.toml` and `uv.lock` separately pin the Template resource
+Studio v0.1.0 has its own release number. `core-revision.txt` selects the exact
+reviewed Core commit. Template records the same revision. `pyproject.toml` and `uv.lock` separately pin the Template resource
 package. Workflow artifacts retain those pins, the executable fingerprint and
 resource identity. A manual rebuild uses the same recorded Core commit.
 

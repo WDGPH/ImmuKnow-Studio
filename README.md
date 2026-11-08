@@ -43,5 +43,5 @@ browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/
 - [Documentation and releases](docs/documentation.md): strict manual builds,
   the PHIZ documentation hub and v0.1.0 preparation.
 
-Studio pins native Core to commit **`7e873ef`**. The exact revision is
-recorded in `core-revision.txt`. Studio and Core have separate version numbers.
+Studio pins native Core to the exact reviewed commit recorded in
+`core-revision.txt`. Studio and Core have separate version numbers.
