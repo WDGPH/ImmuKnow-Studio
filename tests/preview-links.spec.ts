@@ -104,7 +104,11 @@ print(json.dumps(links))
     (page.links ?? []).filter((link) => "url" in link).map((link) => ({ ...link, page: index })),
   );
   expect(links).toHaveLength(annotations.length);
-  expect(links.some((link) => "url" in link && link.url.endsWith("&initials=GH"))).toBe(true);
+  const initials = await page.evaluate(() => {
+    const client = window.proof.job.notice.client_data;
+    return `${client.first_initial}${client.last_initial}`;
+  });
+  expect(links.some((link) => "url" in link && new URL(link.url).searchParams.get("initials") === initials)).toBe(true);
   for (const annotation of annotations) {
     expect(
       links.some(
