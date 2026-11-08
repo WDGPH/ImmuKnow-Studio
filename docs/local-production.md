@@ -34,7 +34,7 @@ Extract `immuknow-project.zip` into a folder you control.
 
 Keep the complete directory structure and relative paths. Leave
 `templates/lib/immuknow/` unchanged. The ZIP includes the selected notice and its dependencies. When fictional data
-is included, it also includes the notices assigned to the six clients. When combining projects, review
+is included, it also includes the notices assigned to the ten clients. When combining projects, review
 shared Settings and assets before replacing files.
 
 ## Install and check the project
@@ -69,7 +69,7 @@ immuknow run input/sample/sample_students.csv --project . \
 ```
 
 When **Include fictional client data** is selected, Studio supplies copies of
-the six fictional clients and their notice assignments in `input/sample/` and
+the ten fictional clients and their notice assignments in `input/sample/` and
 points `sample.json` to them. An imported
 project's existing sample selection and authored sample bytes are preserved,
 even when you change the preview client. Without fictional data or a prepared example, a project can

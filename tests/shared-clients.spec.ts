@@ -74,7 +74,7 @@ test("one client stays selected across notices, languages, a reload and download
   expect(Buffer.from(files["input/sample/sample_students.csv"])).toEqual(
     Buffer.from(bundle.files["examples/sample/clients.csv"], "base64"),
   );
-  expect(JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]))).toHaveLength(6);
+  expect(JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]))).toHaveLength(bundle.examples.length);
   expect(files[client.inputs[filename].csv]).toBeUndefined();
   expect(new TextDecoder().decode(files["templates/settings.typ"])).toContain("Keep these settings");
 });

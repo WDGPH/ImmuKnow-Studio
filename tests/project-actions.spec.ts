@@ -154,7 +154,7 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");
   const files = await download(page);
   const assignments = JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]));
-  expect(assignments).toHaveLength(6);
+  expect(assignments).toHaveLength(10);
   for (const entry of assignments) expect(files[`templates/${entry.template}`]).toBeDefined();
   expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   // The scoped download remains a valid project that can be imported.
@@ -167,7 +167,9 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   });
   await expect(page.locator("#archive")).toHaveValue("");
   await current(page);
-  await expect(page.locator("#template option")).toHaveCount(4);
+  await expect(page.locator("#template option")).toHaveCount(
+    new Set(assignments.map((entry: { template: string }) => entry.template)).size,
+  );
   await expect(page.locator("#example")).toHaveText("Example client 01");
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");
   await page.locator("#next").click();

@@ -174,7 +174,7 @@ locked by the project. Change and check Template-owned Python helpers in Templat
 
 Install native Typst 0.15.1 for native/browser comparisons. The Playwright
 configuration makes native test subprocesses use the same verified fonts in
-`assets/fonts` as the browser, ignoring system fonts. This keeps comparisons
+`assets/fonts` as the browser, ignoring both system and embedded fallback fonts. This keeps comparisons
 independent of the runner's font package; production Core uses system
 fonts. Set `TYPST_BIN` if Typst is outside PATH. Install Playwright's full
 Chromium browser and its system dependencies for the encrypted PDF reader tests.

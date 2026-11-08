@@ -77,7 +77,7 @@ Core's source and applicability findings stay attached to the selected view.
 A custom entry point without prepared facts remains exportable.
 
 The selected example ID survives template changes and draft reloads. Downloads
-include the complete six-client CSV and its notice assignments through the
+include the complete ten-client CSV and its notice assignments through the
 **Include fictional client data** checkbox. Clearing it also removes unchanged
 Studio sample copies from imported ZIPs; custom imported samples are preserved. The native preparation checks
 confirm that the exported inputs reproduce each view; browser checks cover

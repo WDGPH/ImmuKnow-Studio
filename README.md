@@ -25,7 +25,7 @@ Clear **Include fictional client data** to omit the sample and use your own inpu
 The `--sample` commands above require an included or custom sample.
 The project includes [ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template)'s
 Python setup and helper scripts, your authored notice/configuration, and the
-six fictional clients and their notice assignments when requested. See [Use projects on your workstation](docs/local-production.md).
+ten fictional clients and their notice assignments when requested. See [Use projects on your workstation](docs/local-production.md).
 
 ## Local browser work
 

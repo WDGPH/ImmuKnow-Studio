@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 process.env.IMMUKNOW_BIN ??= resolve(".native-core/bin/immuknow");
 process.env.TYPST_FONT_PATHS ??= resolve("assets/fonts");
 process.env.TYPST_IGNORE_SYSTEM_FONTS ??= "true";
+process.env.TYPST_IGNORE_EMBEDDED_FONTS ??= "true";
 
 const external = process.env.IMMUKNOW_BASE_URL;
 const baseURL = external ?? "http://127.0.0.1:4173/";

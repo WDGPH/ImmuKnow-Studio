@@ -88,6 +88,7 @@ test("browser snapshots retain native findings, frozen dates and recover from er
   mkdirSync(resolve(staged, "data"), { recursive: true });
   writeFileSync(resolve(staged, "data/notice.json"), JSON.stringify(job.notice));
   const nativeOptions = [
+    ...(process.env.TYPST_IGNORE_EMBEDDED_FONTS === "true" ? ["--ignore-embedded-fonts"] : []),
     "--root",
     staged,
     "--creation-timestamp",

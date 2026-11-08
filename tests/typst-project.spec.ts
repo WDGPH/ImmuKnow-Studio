@@ -19,7 +19,7 @@ const cases = [
   ["missing-meningococcal", "overdue_diseases_v1.en.typ"],
   ["long-history", "overdue_diseases_v1.fr.typ"],
   ["missing-mmr", "overdue_agents_v1.fr.typ"],
-  ["no-records", "suspension_order_v1.en.typ"],
+  ["guardian-directed", "suspension_order_v1.en.typ"],
 ];
 
 for (const [scenario, filename] of cases) {
@@ -85,11 +85,11 @@ for (const [scenario, filename] of cases) {
       ).toString("base64");
     }
     if (scenario === "long-history") {
-      // Continuation pressure belongs to this layout handoff test.
+      // Continuation pressure belongs to this layout handoff test. Blank minimum rows preserve the supplied client facts.
       const path = `templates/${filename}`;
       const authored = Buffer.from(bundle.files[path], "base64").toString("utf8").replace(
         "#immuknow.immunization-history()",
-        "#immuknow.immunization-history(font-size: 28pt)",
+        "#immuknow.immunization-history(font-size: 28pt, min-rows: 30)",
       );
       await page.locator("#template-tab").click();
       await page.locator(".cm-content").press("Control+a");
@@ -178,7 +178,7 @@ for (const [scenario, filename] of cases) {
     }
     const assignments = JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]));
     for (const assignment of assignments) expect(files[`templates/${assignment.template}`]).toBeDefined();
-    expect(assignments).toHaveLength(6);
+    expect(assignments).toHaveLength(bundle.examples.length);
     expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
     expect(files["scripts/run.py"]).toBeDefined();
     expect(Object.keys(files).some((path) => path.startsWith("tests/"))).toBe(false);

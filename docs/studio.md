@@ -66,7 +66,7 @@ block’s `addressee` option overrides its label without changing the intended
 reader. Try the older student with a guardian choice in Example clients.
 Setup also supplies `no_records` and disease-based `up_to_date`. The affirmative
 and suspension starters enforce their wording with rendering assertions; choose
-a matching example client to preview them. Try the no-records and up-to-date examples to compare these paths. Settings expose independent Client ID
+a matching example client to preview them. Try the supplied overdue and up-to-date examples to compare those paths. The current client collection contains recorded histories. Settings expose independent Client ID
 and OIID display, missing-OIID text and applicable history legend wording.
 See the [Typst Reference](coding-cheatsheet.md) for the options.
 Omit QR calls when a letter has no QR code. Settings can use a fixed destination
@@ -231,7 +231,7 @@ or **Authored .typ files only**. With **Complete project**, choose **Download ZI
 to save the selected notice with current Settings,
 Theme, translations, components, images and configuration.
 The **Include fictional client data** checkbox is selected by default. Keep it
-to include the six fictional clients, their notice assignments and the needed
+to include the ten fictional clients, their notice assignments and the needed
 notices for a local test run. Clear it to download without Studio’s fictional inputs,
 including unchanged sample copies from a previously imported Studio ZIP. Custom
 imported sample data is preserved. Other unrelated starter notices and example inputs are omitted. Explicitly referenced notices and authored
