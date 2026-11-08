@@ -22,38 +22,36 @@ small changes, and include the checks and any remaining limits in your PR.
 
 ## Core dependency
 
-Studio installs Core from reviewed commit `60c23c6cafdbbce8b299b55f3fd2d170d1c6141d`
-of <https://github.com/WDGPH/ImmuKnow>. `pyproject.toml` and `uv.lock` pin that
-revision. It supplies the shared components and native behavior used by
-previews and downloaded projects. Starter content comes from the separate
-Template resource package.
-A local Core checkout is not required.
+`core-revision.txt` pins standalone Rust Core. Template's packaged
+`core-revision.txt` must match. `pyproject.toml` and `uv.lock` pin Template's
+resource package and Python build tools, with no Python Core dependency.
 
-To adopt a different Core revision, first update Template to the same Core
-revision. Update both dependency references in `pyproject.toml`, then:
+Install the exact clean source build with:
 
 ```bash
-uv lock --upgrade-package immuknow --upgrade-package immuknow-template-resources
 uv sync --locked
-npm run prepare:assets
+uv run --locked python -m scripts.native_core install
 ```
 
-Shared components include Core's bundled QR WebAssembly encoder. Preparation,
-browser drafts and downloaded projects preserve its binary bytes. Updating
-these resources changes project compatibility; test both browser rendering and
-the downloaded native project. The browser compiler itself keeps its separate
-pin and does not need rebuilding for a shared-component update.
+The installer builds the recorded commit and stores the executable, source
+revision, Typst version and binary fingerprint under ignored `.native-core/`.
+Build commands verify those bytes; `immuknow --version` alone is not source
+provenance. For a matching clean local checkout, add `--source /path/to/Core`.
+Only installation fetches/builds Core; ordinary preparation uses the verified
+local executable and public `prepare` and `resources` commands.
 
-Template owns the fictional client CSV. Studio keeps preview IDs and descriptions in
-`examples/previews.json`. Dev startup and builds prepare preview facts with the
-locked Core package. After changing Core, Template or example inputs, review the
-regenerated previews and downloaded samples.
+To upgrade, first update and test Template against the intended Core commit.
+Update Studio's `core-revision.txt` and Template Git pin together, run
+`uv lock --upgrade-package immuknow-template-resources`, reinstall native Core,
+and regenerate examples. Verify browser rendering, drafts, project downloads
+and the downloaded project's native run before adopting the pins. Shared library
+bytes include the QR WebAssembly plugin and change project compatibility.
+Browser compiler pins are separate; shared-resource updates do not require
+rebuilding an unchanged browser compiler.
 
-To select a published Core tag instead, use
-`uv add git+https://github.com/WDGPH/ImmuKnow.git --tag <core-tag>`.
-Commit both dependency files and run the checks before releasing. Core and
-Studio provenance are recorded separately; compatibility continues to compare
-resource bytes and formats with the pinned compiler identity.
+Template owns the fictional client CSV. Studio's `examples/previews.json` supplies
+IDs, descriptions and dates. Builds generate facts without changing clients to
+fit a notice.
 
 ## GitHub Pages and dependency updates
 
@@ -68,24 +66,16 @@ After pushing this workflow, select
 Studio repository. GitHub documents the required Pages configuration and
 deployment permissions in its [custom workflow guide](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
-To rebuild against the configured Core reference, open **Actions → Studio Pages
-→ Run workflow**, select `main`, and leave **refresh_core** enabled (the default).
-The workflow runs `uv lock --upgrade-package immuknow` before installing and
-building. This resolves the Git reference configured in `pyproject.toml`;
-currently it is Core commit `60c23c6cafdbbce8b299b55f3fd2d170d1c6141d`. A configured tag or revision stays
-at that reference. The workflow regenerates example facts and checks resource
-compatibility; a failed required check prevents deployment. Enable
-**full_tests** when validating a Core upgrade or a change to rendering or exports.
-If selected, those tests must also pass before deployment.
+The manual **refresh_core** option rebuilds the exact recorded native Core
+commit instead of reusing its verified cache. It does not change pins or the
+lockfile. **full_tests** enables the browser/native suite; those checks must pass
+before a selected main build deploys. Other branches perform checks without
+deploying. Ordinary pull requests retain the existing cheaper check policy.
 
-The run summary records the exact Core and Studio commits. The **build-inputs**
-artifact retains the effective `uv.lock`, package declarations, compiler pins
-and generated build identity for 30 days. A manual refresh applies to that run;
-it does not commit the updated lockfile. Ordinary pushes and pull requests use
-the committed pin. To make a new pin the default for subsequent builds, update
-and commit `uv.lock` using the commands above. Disable **refresh_core** to run
-the manual workflow with the committed pin. Manually running another Studio
-branch performs checks without deploying Pages.
+The run summary records Core and Studio revisions. The **build-inputs** artifact
+retains the effective lock, pins, native executable fingerprint and generated
+build identity for 30 days. Core and browser binaries use separate caches;
+source revision and binary hashes are checked before reuse.
 
 Compiler and renderer binaries, build metadata and Rust licence notices are
 cached together and verified against their input fingerprints and file hashes.
@@ -114,12 +104,13 @@ compiler/linker, pkg-config and OpenSSL development headers. Pins are in
 rustup toolchain install 1.92.0 --profile minimal
 cargo +1.92.0 install --locked wasm-bindgen-cli --version 0.2.118
 uv sync --locked
+uv run --locked python -m scripts.native_core install
 npm ci
 npm run build:site
 ```
 
 The build verifies or builds the pinned compiler and renderer, retains license
-notices, prepares examples and fonts, generates validators from installed Core
+notices, prepares examples and fonts, generates validators from exported Core
 schemas, and writes `dist/`. It does not build the manual or publish. Documentation has its own
 [build instructions](documentation.md#check-a-documentation-change).
 The first compiler build takes longer. Subsequent `build:site` runs verify and
@@ -136,7 +127,7 @@ regenerate the examples, fonts, notices and browser validators automatically.
 The Studio SHA and latest reachable version tag are embedded during that build.
 The footer displays only **ImmuKnow Studio** and its tag or short SHA. Actions supplies `IMMUKNOW_STUDIO_BUILD_SHA` and
 `IMMUKNOW_STUDIO_BUILD_TAG`; local builds read Git directly. The targeted
-ImmuKnow revision comes from the prepared Core resources.
+ImmuKnow revision comes from the verified Core build and exported resources.
 For example, an exact v0.1.0 release shows `v0.1.0`; later commits show
 `v0.1.0+`. Before the first
 version tag, only the Studio SHA is shown.
@@ -226,7 +217,7 @@ Core maintains its separate native test fixtures. Studio's contract cases under
 Follow the [shared testing strategy](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/testing.md#testing-across-the-projects).
 Core tests native input rules, validation, notice families and delivery. Studio
 tests the browser and the handoff from an authored project to native output.
-The same contract cases run against the Python and browser validators because
+The same contract cases run against the Core and browser validators because
 each implementation needs to accept and reject the right data.
 
 Pull requests and main builds run the site build, type checks, lint and unit
@@ -249,19 +240,17 @@ customized English case, while the other cases compare their own native output.
 Template helper unit tests are not repeated in Studio. Add another expensive
 case only when it protects a boundary these checks do not cover.
 
-## Python interface boundary
+## Native interface boundary
 
-Studio uses Core's supported `immuknow.resources.resource_root()` and
-`rendering_build_info()` for packaged resources and their identity, and
-`immuknow.orchestrator.run_pipeline()` for complete native runs.
-`scripts/examples.py` calls internal preparation functions against the
-locked Core commit. Those calls intentionally stay internal; dependency updates
-must pass example preparation and native/browser checks.
+`scripts/native_core.py` owns executable installation, fingerprint verification
+and public command calls. `prepare` returns row identity, facts and checks;
+`resources` supplies unversioned `rendering.json`, `report.json`, the shared
+library and its manifest. Build identity combines the verified source-build
+record with those exported hashes and independent browser compiler pins.
 
-Core resources are copied into disposable `generated/core/` for browser builds.
-Edit engine components in Core, starter content in Template, or the open
-authored project. Never edit the installed package or generated copy. Builds and
-imports check shared library file integrity.
+Installed Template resources stay read-only. Copies belong in disposable
+`generated/core/`, browser output or downloaded projects. Core owns validation;
+Studio owns its browser validator and native handoff regressions.
 
 ## Update the project template
 
@@ -283,11 +272,12 @@ uv run --locked python -m scripts.project_template
 npm run prepare:assets
 ```
 
-A Core upgrade also requires a Template revision whose project lock selects
+A Core upgrade also requires a Template revision whose core-revision.txt selects
 that Core commit. `scripts.project_template` checks Core compatibility and
 Git source provenance; it no longer refreshes files from a separate checkout.
 Never edit installed resources. Template uses `tool.uv.package = false`, so downloaded
-projects install Core without building or installing the resource package.
+projects install only their helper tools. Their standalone executable is supplied
+separately.
 
 Core and Template are public repositories, so dependency installation needs no
 GitHub credentials. Dependencies stay locked and installed; ordinary builds

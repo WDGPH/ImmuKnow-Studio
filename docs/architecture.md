@@ -4,26 +4,26 @@
 
 | Project | Responsibility |
 | --- | --- |
-| ImmuKnow core | Python pipeline, input validation, prepared notice facts, schemas, reference configuration, shared Typst components and native generation/review results |
+| ImmuKnow core | Standalone Rust pipeline, input validation, prepared notice facts, schemas, shared Typst components and native generation/review results |
 | ImmuKnow Studio | Browser editor, Theme controls, draft storage, project import/download, browser compiler and renderer, fonts, example previews and Studio tests |
 | ImmuKnow Template | Starter letters, Settings, translations, example branding, project configuration, runnable setup, dependency lock, helpers and starter tests |
 | PHIZ documentation hub | Shared manual presentation, version selection, search and documentation publication |
 
 Core contains no starter project. Studio obtains authored starters from the
-pinned Template resource package and the shared library from installed Core. Fictional
-client scenarios remain in Studio.
+pinned Template resource package and the shared library from installed Core. Template owns the fictional client records; Studio owns their descriptions and preview selections.
 
-Studio installs Core as a Python build dependency. Build preparation uses
-`immuknow.resources` to locate engine files and obtain their rendering identity.
-It copies the shared library and schemas into disposable `generated/core/`,
-prepares examples and generates browser validators. The deployed Studio is a
-static application: it runs no Python service and requires no application backend.
+Studio builds the exact clean Core source recorded in `core-revision.txt` and
+verifies its executable fingerprint before use. Public `resources` exports
+supply the shared library, schemas and resource hashes; `prepare` supplies a
+versioned JSON envelope with row identities, notice facts and checks. Studio
+copies exports into disposable `generated/core/` and generates browser validators.
+There are no Python Core imports. The deployed application remains static and
+runs no native executable or Python service in the browser.
 
-The browser compiles Typst and renders previews locally using the prepared
-facts. Native production runs use the separately installed ImmuKnow core.
-`immuknow.orchestrator.run_pipeline()` is Core's complete native-run interface.
-Studio's example preparation uses internal Core functions, so adopting
-a new Core revision requires preparation and browser/native export checks.
+The browser compiles Typst and renders previews locally using prepared facts.
+Downloaded projects use the separately installed native executable and the
+same shared resources. Any Core upgrade requires preparation, browser and
+native downloaded-project checks.
 
 ## Typst and project files
 
@@ -42,7 +42,7 @@ The project follows ImmuKnow's notice contract and local file boundaries:
 - Keep notice entry filenames in `<version>.<language>.typ` form, with supported
   `en` or `fr` language codes.
 
-See [Core's native template contract](https://docs.phiz.ca/immuknow/latest/user_guide/phu_templates/)
+See [Core's native template contract](https://docs.phiz.ca/immuknow/latest/developer_guide/templates/)
 for supplied components and facts. Browser previews use fixed prepared examples;
 new source records or factual configuration require native preparation. A custom
 entry point without a prepared example remains exportable.
@@ -88,7 +88,7 @@ selection, edits, reloads and downloads.
 Studio installs `immuknow-template-resources` from an exact Git revision of
 ImmuKnow-Template, alongside its separately pinned Core dependency. Asset
 preparation reads the installed resource API and checks that the included
-project lock selects the same Core commit as Studio. Installed files are
+project core-revision.txt selects the same Core commit as Studio. Installed files are
 read-only. No scaffold copies are committed in Studio; copies are created only for build output and downloaded projects.
 The default theme logo and signature are generated from those same installed
 Template assets, rather than separate committed image copies.
@@ -98,7 +98,7 @@ After installation, asset preparation does not fetch Template files. Browser
 previews and downloads continue to use the built local resources. See
 [Build and contribute](development.md#update-the-project-template).
 
-Studio maps Core’s installed library paths to authored project paths when
+Studio maps Core’s exported library paths to authored project paths when
 recording compatibility. Relocating installed files alone does not invalidate
 projects whose shared bytes and formats still match.
 
@@ -111,21 +111,15 @@ package source, while `immuknow-project.json` hashes the actual downloaded bytes
 
 ## Core versions
 
-Studio v0.1.0 has its own release number. Its Core dependency currently selects
-reviewed Core commit `60c23c6cafdbbce8b299b55f3fd2d170d1c6141d`
-in `pyproject.toml`, with the same commit recorded
-in `uv.lock`. Ordinary locked builds use that commit. A manual build can
-explicitly refresh the configured reference; its effective lockfile and Core
-identity are retained in the workflow artifacts.
+Studio v0.1.0 has its own release number. `core-revision.txt` selects reviewed
+Core commit `7e873ef87157c5222c1d4afe1f9cf7f1fce856e8`. Template records the same
+revision. `pyproject.toml` and `uv.lock` separately pin the Template resource
+package. Workflow artifacts retain those pins, the executable fingerprint and
+resource identity. A manual rebuild uses the same recorded Core commit.
 
-The development pin selects reviewed Core source; it does not create a new Core
-release candidate. Do not infer Core compatibility from Studio's version number.
-
-When adopting a tagged Core release, update both dependency files, prepare and
-review examples, and run the browser/native export checks described in
-[Build and contribute](development.md). Resource bytes, formats and compiler
-identity determine whether an existing draft or project is compatible; matching
-a version label alone is insufficient.
+Do not infer compatibility from a version label. Update Core and Template pins
+together, regenerate examples and validate browser/native handoffs. Resource
+bytes, formats and browser compiler identity determine draft compatibility.
 
 The application footer shows **ImmuKnow Studio** with its exact release tag,
 that tag plus `+` for later commits, or a short commit before the first version

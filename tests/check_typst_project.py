@@ -144,6 +144,9 @@ def main(evidence: Path) -> None:
         project = workspace / "Relocated projet Élodie"
         extracted.rename(project)
         assert not project.is_relative_to(Path(__file__).resolve().parents[1])
+        assert (project / "core-revision.txt").read_text().strip() == (
+            Path(__file__).resolve().parents[1] / "core-revision.txt"
+        ).read_text().strip()
 
         installed = subprocess.run(
             ["uv", "sync", "--locked"],
@@ -294,8 +297,8 @@ def main(evidence: Path) -> None:
                         )
                         native_raster.append(difference)
                 comparison["preview"]["nativeRasterDifference"] = native_raster
-            assert sorted(entry["render_summary"]["qr_urls"]) == native["qrUrls"]
-            assert entry["render_summary"]["page_count"] == len(native["text"])
+            assert sorted(entry["render_report"]["qr_urls"]) == native["qrUrls"]
+            assert entry["render_report"]["page_count"] == len(native["text"])
             findings = sorted(
                 {
                     f"{check['code']}:{check['status']}"
@@ -307,27 +310,18 @@ def main(evidence: Path) -> None:
                 {
                     "pdf": native,
                     "textCoverage": coverage,
-                    "qrUrls": sorted(entry["render_summary"]["qr_urls"]),
+                    "qrUrls": sorted(entry["render_report"]["qr_urls"]),
                     "findings": findings,
-                    "summary": entry["render_summary"],
+                    "summary": entry["render_report"],
                 }
             )
 
         if selected["example"] == "missing-mmr":
             assert record["status"] == "completed_with_warnings"
-            assert entry["routing"]["destination"] == "review"
+            assert entry["routing"] == "deliverable"
             original_record = entry["original"].copy()
             original_checks = entry["checks"].copy()
             membership = entry["bundle"]
-            review = inspect_pdf(run_dir / membership["path"])
-            assert review["text"] == native["text"]
-            assert review["pageSizes"] == native["pageSizes"]
-            assert review["qrUrls"] == native["qrUrls"]
-            tokens = list(
-                record["delivery_attempts"][-1]["evaluations"][entry["row_key"]][
-                    "warning_tokens"
-                ].values()
-            )
             with (
                 (run_dir / membership["path"])
                 .with_suffix(".csv")
@@ -335,32 +329,48 @@ def main(evidence: Path) -> None:
             ):
                 findings = list(csv.DictReader(stream))
             assert any(
-                row["code"] == "content.multiple_links"
-                and row["eligibility"] == "review"
-                and row["warning_token"] in tokens
-                and row["warning_accepted"] == "false"
+                row["check_code"] == "content.multiple_links"
+                and row["route"] == "deliverable"
+                and row["status"] == "warn"
                 for row in findings
             )
-            # Saved originals must suffice after removing authored inputs.
+            # Saved originals suffice after removing authored inputs. A hold excludes
+            # a notice; releasing the hold leaves its warnings and policy in force.
             for directory in ("templates", "config", "examples"):
                 shutil.rmtree(project / directory)
-            run(
-                "immuknow.rebundle",
-                str(run_dir),
-                *[arg for token in tokens for arg in ("--accept-warning", token)],
-                "--reason",
-                "Reviewed original PDF",
-            )
-            rebundled = json.loads(record_path.read_text())
-            (after,) = rebundled["entries"]
-            assert after["original"] == original_record
-            assert after["checks"] == original_checks
-            assert after["routing"]["destination"] == "delivery"
+            attempts = len(record["delivery_attempts"])
+            for decision in ("withhold", "release"):
+                arguments = [
+                    env["IMMUKNOW_BIN"],
+                    "rebundle",
+                    str(run_dir),
+                    f"--{decision}",
+                    entry["row_key"],
+                ]
+                if decision == "withhold":
+                    arguments += ["--reason", "Fictional saved-run review"]
+                result = subprocess.run(
+                    arguments,
+                    cwd=project,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                with (evidence / "native-commands.log").open("a") as log:
+                    log.write(f"{arguments!r}\n{result.stdout}\n{result.stderr}\n")
+                rebundled = json.loads(record_path.read_text())
+                (after,) = rebundled["entries"]
+                assert after["original"] == original_record
+                assert after["checks"] == original_checks
+                assert after["routing"] == (
+                    "withheld" if decision == "withhold" else "deliverable"
+                )
+                if decision == "withhold":
+                    assert after["bundle"] is None
+                attempts += 1
+                assert len(rebundled["delivery_attempts"]) == attempts
             assert rebundled["status"] == "completed_with_warnings"
-            assert (
-                len(rebundled["delivery_attempts"])
-                == len(record["delivery_attempts"]) + 1
-            )
             assert inspect_pdf(run_dir / after["original"]["path"]) == native
             delivery = inspect_pdf(run_dir / after["bundle"]["path"])
             assert delivery["text"] == native["text"]

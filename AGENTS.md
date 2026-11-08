@@ -11,10 +11,11 @@ example branding and project configuration. Studio consumes its pinned
 resource package. Core supplies no starter project. Follow the
 [shared language and project responsibilities](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#shared-language-and-project-responsibilities).
 
-Use the installed Core package through immuknow.resources for resources and
-rendering identity. Example preparation currently calls internal Core functions;
-keep that dependency locked to an exact commit and test updates. Do not add Core
-source or its test package here. Changes belong on the separate Core branch.
+Use the verified standalone executable through scripts/native_core.py and the
+public prepare/resources/run/rebundle commands. core-revision.txt and Template's
+recorded revision must agree. Build the exact clean source and verify the stored
+executable fingerprint; do not import Python Core or infer source from a version
+label. Do not add Core source or tests here. Changes belong in Core.
 
 Preserve complete authored project bytes and relative paths. Shared components
 remain read-only and must match Core. Preserve draft recovery, archive limits,

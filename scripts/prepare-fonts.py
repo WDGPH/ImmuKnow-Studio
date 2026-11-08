@@ -12,15 +12,18 @@ import shutil
 from hashlib import sha256
 from pathlib import Path
 
-from immuknow.generate_notices import reject_overlap
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def prepare_fonts(source: Path, destination: Path) -> dict[str, str]:
     """Verify the complete supported set before replacing disposable generated files."""
     source, destination = source.resolve(), destination.resolve()
-    reject_overlap(source, destination)
+    if (
+        source == destination
+        or source.is_relative_to(destination)
+        or destination.is_relative_to(source)
+    ):
+        raise ValueError("Font source and destination must not overlap")
     manifest = json.loads((source / "manifest.json").read_text(encoding="utf-8"))
     for name, expected in manifest.items():
         if sha256((source / name).read_bytes()).hexdigest() != expected:

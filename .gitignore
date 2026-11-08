@@ -17,3 +17,5 @@ site/
 
 # Example facts are generated from scenarios.json during dev setup and builds.
 examples/prepared.json
+
+.native-core/

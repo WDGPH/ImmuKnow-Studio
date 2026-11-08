@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 // Browser/native parity uses the same verified font bytes on every runner.
 // This affects test subprocesses only; production Core still uses system fonts.
+process.env.IMMUKNOW_BIN ??= resolve(".native-core/bin/immuknow");
 process.env.TYPST_FONT_PATHS ??= resolve("assets/fonts");
 process.env.TYPST_IGNORE_SYSTEM_FONTS ??= "true";
 

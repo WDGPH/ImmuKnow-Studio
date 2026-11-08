@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       refresh_core:
-        description: Resolve the latest commit of the configured Core Git reference
+        description: Rebuild the pinned native Core executable instead of reusing its cache
         type: boolean
-        default: true
+        default: false
       full_tests:
         description: Run the optional Playwright browser and native export suite
         type: boolean
@@ -44,12 +44,32 @@ jobs:
           version: '0.12.23'
           enable-cache: true
 
-      - name: Refresh Core for this manual build
-        if: github.event_name == 'workflow_dispatch' && inputs.refresh_core
-        run: uv lock --upgrade-package immuknow
-
       - name: Install locked Python dependencies
         run: uv sync --locked
+
+      - name: Restore reviewed native Core
+        id: native_cache
+        if: github.event_name != 'workflow_dispatch' || !inputs.refresh_core
+        uses: actions/cache/restore@v6
+        with:
+          path: .native-core
+          key: studio-native-${{ runner.os }}-${{ hashFiles('core-revision.txt', 'scripts/native_core.py') }}
+
+      - name: Build reviewed native Core
+        if: steps.native_cache.outputs.cache-hit != 'true'
+        run: |
+          rustup toolchain install 1.92.0 --profile minimal
+          uv run --locked python -m scripts.native_core install
+
+      - name: Verify native executable identity
+        run: uv run --locked python -c "from scripts.native_core import identity; print(identity())"
+
+      - name: Save reviewed native Core
+        if: steps.native_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .native-core
+          key: studio-native-${{ runner.os }}-${{ hashFiles('core-revision.txt', 'scripts/native_core.py') }}
 
       - name: Read compiler pins and record Core identity
         id: core
@@ -59,14 +79,11 @@ jobs:
           uv run --locked python - <<'PY'
           import json
           import os
-          import tomllib
           from pathlib import Path
-          from immuknow.resources import rendering_build_info
+          from scripts.native_core import identity
 
           pins = json.loads(Path("compiler-pins.json").read_text())
-          core = rendering_build_info()
-          source = tomllib.loads(Path("pyproject.toml").read_text())["tool"]["uv"]["sources"]["immuknow"]
-          reference = source.get("branch") or source.get("tag") or source.get("rev") or "default branch"
+          core = identity()
           with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
               output.write(f"native={core['native_typst_version']}\n")
               output.write(f"rust={pins['browser_compiler']['rust_version']}\n")
@@ -74,7 +91,7 @@ jobs:
           with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as summary:
               summary.write("## Build identity\n\n")
               summary.write(f"Studio commit: `{os.environ['GITHUB_SHA']}`\n\n")
-              summary.write(f"Core source: `{source['git']}` (`{reference}`)\n\n")
+              summary.write("Core source: `https://github.com/WDGPH/ImmuKnow`\n\n")
               summary.write(f"Core commit: `{core['core_source_revision']}`\n\n")
               summary.write(f"Core refreshed for this run: `{os.environ['REFRESH_CORE']}`\n\n")
               summary.write("The effective lockfile is retained in the build-inputs artifact.\n")
@@ -202,6 +219,8 @@ jobs:
             pyproject.toml
             uv.lock
             compiler-pins.json
+            core-revision.txt
+            .native-core/identity.json
             public/generated/build.json
           retention-days: 30
 

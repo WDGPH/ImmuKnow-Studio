@@ -2,7 +2,7 @@
 
 Studio lets you edit a Typst notice and preview it with prepared, fictional
 clients. It uses the same facts contract, authored project and native findings
-as the Python pipeline. Upstream systems assess immunization status; Studio
+as standalone Core. Upstream systems assess immunization status; Studio
 does not assess a client or choose their notice.
 
 This is the detailed editor reference. For a first visit, follow
@@ -71,7 +71,7 @@ and OIID display, missing-OIID text and applicable history legend wording.
 See the [Typst Reference](coding-cheatsheet.md) for the options.
 Omit QR calls when a letter has no QR code. Settings can use a fixed destination
 or a function of client facts. Initials are available as optional query values;
-they do not change the destination automatically. See the [Core template guide](https://docs.phiz.ca/immuknow/latest/user_guide/phu_templates/#component-choices-and-findings)
+they do not change the destination automatically. See the [Core template guide](https://docs.phiz.ca/immuknow/latest/developer_guide/templates/#component-choices-and-findings)
 for a QR example and how to include initials. Client blocks use `details: "right"`
 and `font-size: 10pt` by default; set a different value directly on the block.
 
@@ -240,11 +240,11 @@ in the browser draft are not backed up by this download; download each notice
 you want to keep.
 Authored files keep their bytes and relative paths. Import the ZIP to resume
 editing, or run it locally using the included ImmuKnow-Template Python setup,
-locked Core dependency and helper scripts. The ZIP includes a README
+reviewed standalone Core revision and helper scripts. The ZIP includes a README
 and sample copies under `input/sample/` when fictional client data is included
 and a prepared example is available.
 An imported project's existing sample selection and authored files are preserved.
-The installed environment, engine wheel and native Typst compiler are not bundled.
+The installed environment, standalone executable are not bundled.
 If the project changes while the ZIP is being prepared, download it again.
 A project with unfinished edits or no prepared example can still be saved.
 

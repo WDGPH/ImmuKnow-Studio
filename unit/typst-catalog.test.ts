@@ -12,7 +12,7 @@ const library = execFileSync(
     "--locked",
     "python",
     "-c",
-    "from immuknow.resources import typst_library_root; print(typst_library_root())",
+    "from scripts.native_core import typst_library_root; print(typst_library_root())",
   ],
   { encoding: "utf8" },
 ).trim();

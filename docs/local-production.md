@@ -2,8 +2,9 @@
 
 Studio downloads a runnable project based on
 [ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template), with your selected
-notice, settings and assets. The included Python setup installs the pinned
-ImmuKnow core release locally. You do not need a separate Core or Template checkout.
+notice, settings and assets. Use a standalone ImmuKnow executable matching
+`core-revision.txt`. Python helpers are optional conveniences; they do not install
+Core. You do not need a Template checkout.
 
 ## Download and extract your project
 
@@ -20,7 +21,8 @@ Extract `immuknow-project.zip` into a folder you control.
 
 | Item | Purpose |
 | --- | --- |
-| `pyproject.toml`, `uv.lock`, `.python-version` | Python setup and the exact Core dependency |
+| `pyproject.toml`, `uv.lock`, `.python-version` | Optional Python helpers and their locked dependencies |
+| `core-revision.txt` | Reviewed standalone Core source revision |
 | `scripts/`, `README.md` | Template's run/check helpers and instructions |
 | `templates/` | Your selected notice, Settings, supporting files, images and shared components |
 | `config/` | Configuration for native ImmuKnow runs |
@@ -37,14 +39,15 @@ shared Settings and assets before replacing files.
 
 ## Install and check the project
 
-Install [uv](https://docs.astral.sh/uv/), Git, and
-[Typst 0.15.1](https://typst.app/docs/changelog/0.15.1/), exactly.
-Put `typst` on `PATH` or set `TYPST_BIN`. Core requires Python 3.11 or later;
-uv installs the interpreter selected by `.python-version`.
+Obtain the standalone `immuknow` executable matching `core-revision.txt` from
+your project maintainer. Developers can build it with the included
+`CONTRIBUTING.md` instructions. Put it on PATH or set `IMMUKNOW_BIN` to its path.
+There is no separate Typst installation. Install [uv](https://docs.astral.sh/uv/)
+if using the optional Python helpers; uv selects Python from `.python-version`.
 Install the supplied fonts on your workstation for matching typography. If you
 cleared **Include fonts for installation** when downloading, use the same fonts
 already installed on the workstation or download them from Studio separately.
-Extracting them does not install them; native Typst uses system fonts.
+Extracting them does not install them; Core uses system fonts.
 
 Open a terminal in the extracted folder:
 
@@ -54,12 +57,16 @@ uv run python scripts/check.py --sample
 uv run python scripts/run.py --sample
 ```
 
-The first command needs network access to install the locked dependencies,
-including Core from reviewed commit `60c23c6`. The ZIP includes setup
-files, not an installed environment, engine wheel or native Typst compiler.
-The check validates configuration, compiler and shared resources, then runs the
-sample in a temporary folder. The last command keeps a run and prints its report
-location. Warnings can be expected; review them in the report.
+The first command installs the helpers' locked dependencies. The ZIP includes
+neither an executable nor an installed environment. The check verifies source
+preparation and shared resources, then runs the sample in a temporary folder.
+The last command keeps a run and prints its report location. Warnings can be
+expected; review them in the report. You can also run the executable directly:
+
+```bash
+immuknow run input/sample/sample_students.csv --project . \
+  --notice-assignments input/sample/sample_assignments.json
+```
 
 When **Include fictional client data** is selected, Studio supplies copies of
 the six fictional clients and their notice assignments in `input/sample/` and
@@ -69,7 +76,7 @@ even when you change the preview client. Without fictional data or a prepared ex
 still be downloaded: provide inputs and a `sample.json` selection before running
 `--sample`. Changing source CSVs does not change Studio's fixed browser facts.
 
-To use Git, run `git init` before `uv run pre-commit install`. The included ignore
+To use Git, run `git init` before `uv run prek install`. The included ignore
 rules and hook keep client inputs and run output out of commits; only the
 conventional synthetic sample paths are exempt. Original CSVs under `examples/`
 are ignored, while the sample copies can travel with the project.

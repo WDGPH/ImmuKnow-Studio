@@ -17,8 +17,9 @@ shared components and data format, with packaged starter projects maintained in
 Production notice generation runs with ImmuKnow on your local workstation.
 
 In Studio, open **Project** at the top-right of the webpage and choose
-**Download project**. Extract the ZIP, install uv, Git, Typst and the supplied
-fonts, then run `uv sync --locked` and `uv run python scripts/check.py --sample`.
+**Download project**. Extract the ZIP, obtain the standalone `immuknow` executable matching
+`core-revision.txt`, and install uv and the supplied fonts. Put `immuknow` on
+PATH or set `IMMUKNOW_BIN`, then run `uv sync --locked` and `uv run python scripts/check.py --sample`.
 You can omit the fonts from the ZIP if the matching fonts are already installed.
 Clear **Include fictional client data** to omit the sample and use your own inputs.
 The `--sample` commands above require an included or custom sample.
@@ -42,5 +43,5 @@ browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/
 - [Documentation and releases](docs/documentation.md): strict manual builds,
   the PHIZ documentation hub and v0.1.0 preparation.
 
-Studio pins Core to commit **`60c23c6`**. The exact revision is
-recorded in `uv.lock`. Studio and Core have separate version numbers.
+Studio pins native Core to commit **`7e873ef`**. The exact revision is
+recorded in `core-revision.txt`. Studio and Core have separate version numbers.

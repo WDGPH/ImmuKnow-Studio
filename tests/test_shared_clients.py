@@ -8,15 +8,10 @@ import unittest
 from hashlib import sha256
 from pathlib import Path
 
-from immuknow.assignment_manifest import load_manifest
-from immuknow.generate_notices import build_notice_data
-from immuknow.load_config import load_config
-from immuknow.preprocess import prepare_clients, read_input
-from immuknow.resources import typst_library_root
-from immuknow.version_notices import load_catalog, template_identity
 from immuknow_template.resources import example_clients_path
 
 from scripts.examples import EXAMPLES, generate
+from scripts.native_core import prepare, typst_library_root
 
 
 class SharedClientsTest(unittest.TestCase):
@@ -87,36 +82,29 @@ class SharedClientsTest(unittest.TestCase):
                 path = project / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(data)
-            config_dir = project / "config"
-            config = load_config(config_dir / "parameters.yaml")
-            config["creation_timestamp"] = self.prepared["creationTimestamp"]
-            catalog = load_catalog(config_dir)
             for example in self.prepared["examples"]:
                 for filename, payload in example["payloads"].items():
                     inputs = example["inputs"][filename]
-                    manifest = load_manifest(
-                        project / inputs["assignments"], project / "templates"
-                    )
-                    for selected in (
-                        None,
-                        template_identity(project / "templates" / filename),
+                    for selector in (
+                        [
+                            "--notice-assignments",
+                            str(project / inputs["assignments"]),
+                            "--templates",
+                            str(project / "templates"),
+                        ],
+                        ["--template", str(project / "templates" / filename)],
                     ):
                         with self.subTest(
-                            client=example["id"], notice=filename, selector=selected
+                            client=example["id"], notice=filename, selector=selector[0]
                         ):
-                            result, _ = prepare_clients(
-                                read_input(project / inputs["csv"]),
-                                project / "work",
-                                config,
-                                config_dir,
-                                catalog,
-                                manifest if selected is None else {},
-                                selected,
+                            result = prepare(
+                                str(project / inputs["csv"]),
+                                "--config",
+                                str(project / "config"),
+                                *selector,
                             )
-                            self.assertEqual(len(result.clients), 1)
-                            self.assertEqual(
-                                build_notice_data(result.clients[0], config), payload
-                            )
+                            self.assertEqual(len(result["entries"]), 1)
+                            self.assertEqual(result["entries"][0]["notice"], payload)
 
 
 if __name__ == "__main__":
