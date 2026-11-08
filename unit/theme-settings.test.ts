@@ -10,7 +10,11 @@ import {
 } from "../src/theme-settings";
 
 const bytes = (source: string) => encoder.encode(source);
-const maintainedSettings = execFileSync("uv", ["run", "--locked", "python", "-c",
+const maintainedSettings = execFileSync("uv", [
+  "run",
+  "--locked",
+  "python",
+  "-c",
   'from scripts.project_template import scaffold_files; import sys; sys.stdout.buffer.write(scaffold_files()["templates/settings.typ"])',
 ]);
 
@@ -155,13 +159,17 @@ test("Settings reset preserves branding and QR style while restoring layout and 
       .replace('paper-size = "us-letter"', 'paper-size = "a4"')
       .replace('records-email = "records@example.org"', 'records-email = "changed@example.org"')
       .replace('body-font = "FreeSans"', 'body-font = "FreeSerif"')
-      .replace('module-shape: "square"', 'module-shape: "dots"')
+      .replace('module-shape: "square"', 'module-shape: "separated"')
+      .replace("corner-foreground: auto", 'corner-foreground: rgb("176b78")')
+      .replace("alignment-foreground: auto", 'alignment-foreground: rgb("7a2048")')
       .replace('signature-name = "Dr. Annie Body"', 'signature-name = "Dr. Changed"')
       .replace('image("assets/logo.png"', 'image("assets/studio-logo.svg"'),
   );
   const expected = source
     .replace('body-font = "FreeSans"', 'body-font = "FreeSerif"')
-    .replace('module-shape: "square"', 'module-shape: "dots"')
+    .replace('module-shape: "square"', 'module-shape: "separated"')
+    .replace("corner-foreground: auto", 'corner-foreground: rgb("176b78")')
+    .replace("alignment-foreground: auto", 'alignment-foreground: rgb("7a2048")')
     .replace('signature-name = "Dr. Annie Body"', 'signature-name = "Dr. Changed"')
     .replace('image("assets/logo.png"', 'image("assets/studio-logo.svg"');
   expect(resetSettingsKeepingTheme(baseline, current)).toEqual(bytes(expected));
@@ -205,4 +213,12 @@ test("theme starters work when organization and signature wording live in Templa
   expect(settingValue(result, "body-font")).toBe('"FreeSans"');
   expect(settingValue(result, "heading-color")).toBe('rgb("#034770")');
   expect(settingValue(result, "health-unit-name")).toBeUndefined();
+});
+
+test("Settings reset supports projects without explicit marker colours", () => {
+  const baseline = decoder
+    .decode(maintainedSettings)
+    .replace(/^  (corner|alignment)-foreground:.*\n/gm, "");
+  const current = baseline.replace('module-shape: "square"', 'module-shape: "separated"');
+  expect(resetSettingsKeepingTheme(bytes(baseline), bytes(current))).toEqual(bytes(current));
 });

@@ -75,6 +75,14 @@ they do not change the destination automatically. See the [Core template guide](
 for a QR example and how to include initials. Client blocks use `details: "right"`
 and `font-size: 10pt` by default; set a different value directly on the block.
 
+The default connected-square QR style uses Core's compact vector path in both
+browser previews and downloaded projects. In Settings, `module-shape` also accepts
+`"dots"`, `"rounded"` and `"separated"`. `corner-foreground` colours the three large
+finder targets; `alignment-foreground` colours smaller internal targets. Both
+inherit `foreground` when set to `auto`. The Core template guide describes centre
+images and their size and error-correction requirements. Review actual printed
+codes after changing their appearance.
+
 A refused theme change leaves the project unchanged.
 
 The editor keeps native imports such as `#import "setup.typ": *` visible.

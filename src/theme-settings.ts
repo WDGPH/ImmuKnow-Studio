@@ -278,6 +278,12 @@ export function resetSettingsKeepingTheme(baseline: Uint8Array, current: Uint8Ar
   if (binding(starting, "qr") || binding(active, "qr")) {
     for (const name of ["module-shape", "corner-style"])
       preserve(qrField(active, name), qrField(starting, name));
+    for (const name of ["corner-foreground", "alignment-foreground"]) {
+      const from = qrField(active, name),
+        to = qrField(starting, name);
+      if (!from && !to) continue;
+      preserve(from, to);
+    }
   }
   return replaceValues(source, changes);
 }
