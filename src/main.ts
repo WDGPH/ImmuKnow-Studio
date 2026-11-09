@@ -809,7 +809,7 @@ button("reset").onclick = () => requestProjectChange();
 function resetWorkspace() {
   files = { ...starters };
   originals = starters;
-  template = "templates/overdue_diseases_v1.en.typ";
+  template = "templates/overdue_diseases.en.typ";
   example = availableExamples()[0];
   themeUndo = undefined;
   button("health-unit-undo").hidden = true;
@@ -881,7 +881,7 @@ async function start() {
   starters = await decodeFiles(bundle);
   originals = starters;
   files = { ...originals };
-  template = "templates/overdue_diseases_v1.en.typ";
+  template = "templates/overdue_diseases.en.typ";
   example = bundle.examples.find((item) => item.payloads[basename(template)]);
   try {
     draftStore = await DraftStore.open(bundle.build, saveState);

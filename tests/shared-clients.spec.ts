@@ -72,9 +72,11 @@ test("one client stays selected across notices, languages, a reload and download
   await downloadProject(page);
   const files = unzipSync(readFileSync((await (await pending).path()) as string));
   expect(Buffer.from(files["input/sample/sample_students.csv"])).toEqual(
-    Buffer.from(bundle.files["examples/sample/clients.csv"], "base64"),
+    Buffer.from(bundle.files[client.inputs[filename].csv], "base64"),
   );
-  expect(JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]))).toHaveLength(bundle.examples.length);
+  expect(Buffer.from(files["input/sample/sample_assignments.json"])).toEqual(
+    Buffer.from(bundle.files[client.inputs[filename].assignments], "base64"),
+  );
   expect(files[client.inputs[filename].csv]).toBeUndefined();
   expect(new TextDecoder().decode(files["templates/settings.typ"])).toContain("Keep these settings");
 });

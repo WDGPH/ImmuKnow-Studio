@@ -36,7 +36,7 @@ const bundle: Bundle = await fetch(new URL("../generated/project.json", import.m
   (response) => response.json(),
 );
 const files = await decodeFiles(bundle);
-const template = "templates/overdue_diseases_v1.en.typ";
+const template = "templates/overdue_diseases.en.typ";
 const filename = template.slice(template.lastIndexOf("/") + 1);
 const example = bundle.examples.find((item) => item.payloads[filename]);
 if (!example) throw new Error("Compiler proof needs an English disease example");

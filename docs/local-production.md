@@ -92,7 +92,7 @@ your own validated cohort and assignments, kept under `input/`:
 ```bash
 # One notice for every client
 immuknow run input/clients.csv --project . \
-  --template overdue_diseases_v1.en.typ
+  --template overdue_diseases.en.typ
 
 # An explicit notice for each client
 immuknow run input/clients.csv --project . \

@@ -274,8 +274,8 @@ test(`edits and template switches refuse delayed ${kind} downloads`, async ({ pa
   await page.locator("#download-confirm").click();
   await expect.poll(async () => (await probeState(page)).held).toBe(2);
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
-  await expect(page.locator("#template")).toHaveValue("templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.fr.typ");
+  await expect(page.locator("#template")).toHaveValue("templates/overdue_diseases.fr.typ");
   await releaseExport(page);
   await expect(page.locator("#diagnostics")).toContainText("project changed");
   await currentPreview(page);

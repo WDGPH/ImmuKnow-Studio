@@ -44,6 +44,7 @@ describe("Typst coding suggestions", () => {
     expect(labels("#immuknow.qr-code(\nwi|)")).toContain("width");
     expect(labels("#show: immuknow.letter.with(pa|)")).toContain("paper");
     expect(labels("#immuknow.immunization-history(sh|)")).toContain("show-validity");
+    expect(labels("#immuknow.overdue-agents(ignore-|)")).toContain("ignore-agents");
   });
 
   it("inserts named option punctuation and omits options already supplied", () => {

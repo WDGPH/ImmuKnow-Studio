@@ -5,12 +5,12 @@
   },
   "creationTimestamp": 1794700800,
   "templates": [
-    "overdue_diseases_v1.en.typ",
-    "overdue_diseases_v1.fr.typ",
-    "overdue_agents_v1.en.typ",
-    "overdue_agents_v1.fr.typ",
-    "affirmative_schedule_v1.en.typ",
-    "suspension_order_v1.en.typ"
+    "overdue_diseases.en.typ",
+    "overdue_diseases.fr.typ",
+    "overdue_agents.en.typ",
+    "overdue_agents.fr.typ",
+    "affirmative_schedule.en.typ",
+    "suspension_order.en.typ"
   ],
   "clients": [
     {

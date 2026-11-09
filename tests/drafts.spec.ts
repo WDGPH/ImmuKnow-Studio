@@ -7,7 +7,7 @@ import type { Draft } from "../src/drafts";
 import type { Bundle, Files } from "../src/types";
 
 const database = "immuknow-studio-drafts-v2";
-const template = "templates/overdue_diseases_v1.en.typ";
+const template = "templates/overdue_diseases.en.typ";
 
 declare global {
   interface Window {

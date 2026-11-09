@@ -53,12 +53,12 @@ print(json.dumps({name: base64.b64encode(data).decode("ascii") for name, data in
       path, new Uint8Array(Buffer.from(value, "base64")),
     ]),
   );
-  const template = "templates/overdue_diseases_v1.en.typ";
+  const template = "templates/overdue_diseases.en.typ";
   const edited = { ...files, [template]: encoder.encode(`${new TextDecoder().decode(files[template])}\n// Authored edit\n`) };
   const result = currentProject(edited, template, [], undefined, files);
   for (const name of ["en_diseases_chart", "en_diseases_overdue", "fr_diseases_chart", "fr_diseases_overdue"]) {
     const path = `templates/translations/${name}.json`;
     expect(result[path], path).toBe(files[path]);
   }
-  expect(result["templates/affirmative_schedule_v1.en.typ"]).toBeUndefined();
+  expect(result["templates/affirmative_schedule.en.typ"]).toBeUndefined();
 });

@@ -16,10 +16,10 @@ const fontCount = Object.keys(
 // The customized English project covers both selectors; French cases cover
 // long output and saved-run review. Core tests the full native notice catalog.
 const cases = [
-  ["missing-meningococcal", "overdue_diseases_v1.en.typ"],
-  ["long-history", "overdue_diseases_v1.fr.typ"],
-  ["missing-mmr", "overdue_agents_v1.fr.typ"],
-  ["guardian-directed", "suspension_order_v1.en.typ"],
+  ["missing-meningococcal", "overdue_diseases.en.typ"],
+  ["long-history", "overdue_diseases.fr.typ"],
+  ["missing-mmr", "overdue_agents.fr.typ"],
+  ["guardian-directed", "suspension_order.en.typ"],
 ];
 
 for (const [scenario, filename] of cases) {
@@ -36,7 +36,7 @@ for (const [scenario, filename] of cases) {
     await page.locator("#theme-tab").click();
     await chooseTemplate(page, `templates/${filename}`);
     await chooseExample(page, index);
-    if (scenario === "missing-meningococcal" && filename.startsWith("overdue_diseases_v1.")) {
+    if (scenario === "missing-meningococcal" && filename.startsWith("overdue_diseases.")) {
       // Check local history/page options, ID labels, QR destinations and fonts after download.
       const imported: Files = Object.fromEntries(
         Object.entries(bundle.files).map(([path, bytes]) => [
@@ -134,7 +134,7 @@ for (const [scenario, filename] of cases) {
       }),
     );
     expect(preview.length).toBeGreaterThan(0);
-    if (filename === "suspension_order_v1.en.typ") {
+    if (filename === "suspension_order.en.typ") {
       const notice = examples[index].payloads[filename];
       expect(notice.client_data.age).toBeGreaterThanOrEqual(16);
       expect(notice.intended_reader).toBe("guardian");

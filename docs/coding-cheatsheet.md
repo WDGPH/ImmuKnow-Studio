@@ -98,8 +98,12 @@ These choices leave other calls unchanged.</p>
 <h2>Address, overdue list and QR code</h2>
 <pre><code>#immuknow.client-block(window: envelope-window)
 #immuknow.overdue-diseases(columns: 1)
+#immuknow.overdue-agents(ignore-agents: ("COVID-19 mRNA", "Inf (TIV)"))
 #immuknow.qr-code(..qr)</code></pre>
-<p>Use <code>overdue-agents</code> for the vaccine agent list.
+<p>Use <code>overdue-agents</code> for the vaccine agent list. Its
+<code>ignore-agents</code> option excludes exact agent-name matches from that
+list only. Set the history table's <code>ignore-agents</code> separately; neither
+option changes the source facts.
 Bullet indentation defaults to 0.8cm; set <code>indent: 1cm</code> on the helper
 to change just that list.
 These functions display the client's information; their options control how

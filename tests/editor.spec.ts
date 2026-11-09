@@ -116,7 +116,7 @@ test("history errors follow edited suspension content and recover after errors",
   });
   await page.goto("./");
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/suspension_order_v1.en.typ");
+  await chooseTemplate(page, "templates/suspension_order.en.typ");
   await currentPreview(page);
   await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
   await page.locator("#template-tab").click();
@@ -143,7 +143,7 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   page,
 }, testInfo) => {
   await editExampleData(page, (bundle) => {
-    const checks = bundle.examples[2].preparationChecks["overdue_diseases_v1.en.typ"];
+    const checks = bundle.examples[2].preparationChecks["overdue_diseases.en.typ"];
     checks.push({
       code: "data.preparation_warning",
       stage: "preparation",
@@ -169,13 +169,13 @@ test("authored project survives editing, warning/error recovery, drafts and expo
     .replace("  enabled: true,", "  enabled: false,")
     .replaceAll("\n", "\r\n");
   files["templates/settings.typ"] = new TextEncoder().encode(`\ufeff${settings}`);
-  const entry = "templates/overdue_diseases_v1.en.typ";
+  const entry = "templates/overdue_diseases.en.typ";
   files[entry] = new TextEncoder().encode(
     new TextDecoder().decode(files[entry]).replace('name: "Dr. Annie Body"', 'name: ""'),
   );
   const untouched = new Uint8Array([0, 1, 127, 128, 255]);
   files["templates/assets/preserved.bin"] = untouched;
-  const archive = await exportProject(files, "templates/overdue_diseases_v1.en.typ", bundle.build);
+  const archive = await exportProject(files, "templates/overdue_diseases.en.typ", bundle.build);
   await page.locator("#archive").setInputFiles({
     name: "authored.zip",
     mimeType: "application/zip",
@@ -282,8 +282,8 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   expect(saved["templates/settings.typ"]).toEqual(new TextEncoder().encode(expectedSettings));
   expect(saved["templates/assets/preserved.bin"]).toEqual(untouched);
   expect(Buffer.from(saved["templates/assets/studio-extra.svg"])).toEqual(image);
-  expect(saved["templates/overdue_diseases_v1.en.typ"]).toEqual(
-    files["templates/overdue_diseases_v1.en.typ"],
+  expect(saved["templates/overdue_diseases.en.typ"]).toEqual(
+    files["templates/overdue_diseases.en.typ"],
   );
 
   await page.locator("#theme-toggle").click();
@@ -439,9 +439,9 @@ test("continuous typing advances stale previews and context switches isolate old
   expect(pdfWorkers).toBe(0);
   expect(fontRequests).toBe(initialRequests);
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.fr.typ");
   await expect(page.locator("#preview-state")).toHaveAttribute("data-displayed-revision", "0");
-  await chooseTemplate(page, "templates/overdue_diseases_v1.en.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.en.typ");
   await page.locator("#next").click();
   await currentPreview(page);
   const state = await page
@@ -535,7 +535,7 @@ test("delayed compiler replies cannot cross an import or language boundary", asy
     () => (window as unknown as { delays: { heldCompiler: number } }).delays.heldCompiler > 0,
   );
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.fr.typ");
   await expect(page.locator(".preview-page")).toHaveCount(0);
   await currentPreview(page);
   await page.locator("#template-tab").click();
@@ -555,7 +555,7 @@ test("delayed compiler replies cannot cross an import or language boundary", asy
       new Uint8Array(Buffer.from(bytes, "base64")),
     ]),
   );
-  const archive = await exportProject(files, "templates/suspension_order_v1.en.typ", bundle.build);
+  const archive = await exportProject(files, "templates/suspension_order.en.typ", bundle.build);
   await page.locator("#archive").setInputFiles({
     name: "replacement.zip",
     mimeType: "application/zip",
@@ -563,7 +563,7 @@ test("delayed compiler replies cannot cross an import or language boundary", asy
   });
   await expect(page.locator("#archive")).toHaveValue("");
   await currentPreview(page);
-  await expect(page.locator("#template")).toHaveValue("templates/suspension_order_v1.en.typ");
+  await expect(page.locator("#template")).toHaveValue("templates/suspension_order.en.typ");
   const state = await page
     .locator("#preview-state")
     .evaluate((el) => ({ ...(el as HTMLElement).dataset }));

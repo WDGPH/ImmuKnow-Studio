@@ -38,7 +38,7 @@ config["encryption"] = {"enabled": True, "password": {"template": sys.argv[3]}}
 parameters.write_text(yaml.safe_dump(config))
 run("run", str(directory / "examples/clients/missing-meningococcal.csv"),
     "--output", str(directory / "runs"),
-    "--template", str(directory / f"templates/overdue_diseases_v1.{sys.argv[2]}.typ"),
+    "--template", str(directory / f"templates/overdue_diseases.{sys.argv[2]}.typ"),
     "--config", str(directory / "config"))
 (record_path,) = (directory / "runs").glob("*/run.json")
 record = json.loads(record_path.read_text())

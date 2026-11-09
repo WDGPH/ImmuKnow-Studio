@@ -38,10 +38,10 @@ async function importSettings(
   const source = change(new TextDecoder().decode(files["templates/settings.typ"]));
   files["templates/settings.typ"] = new TextEncoder().encode(source);
   if (changeTemplate) {
-    const path = "templates/overdue_diseases_v1.en.typ";
+    const path = "templates/overdue_diseases.en.typ";
     files[path] = new TextEncoder().encode(changeTemplate(new TextDecoder().decode(files[path])));
   }
-  const archive = await exportProject(files, "templates/overdue_diseases_v1.en.typ", bundle.build);
+  const archive = await exportProject(files, "templates/overdue_diseases.en.typ", bundle.build);
   await page.locator("#archive").setInputFiles({
     name: "settings.zip",
     mimeType: "application/zip",

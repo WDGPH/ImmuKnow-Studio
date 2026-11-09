@@ -44,7 +44,7 @@ test("fictional data can be omitted without affecting editing or reopening the p
   expect(Object.keys(omitted).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   expect(Object.keys(omitted).filter((path) => path.startsWith("input/sample/"))).toEqual([]);
   expect(omitted["sample.json"]).toBeUndefined();
-  for (const path of ["templates/overdue_diseases_v1.en.typ", "templates/settings.typ", "scripts/run.py", "pyproject.toml"])
+  for (const path of ["templates/overdue_diseases.en.typ", "templates/settings.typ", "scripts/run.py", "pyproject.toml"])
     expect(omitted[path]).toEqual(included[path]);
   await page.locator("#archive").setInputFiles({
     name: "without-sample.zip", mimeType: "application/zip", buffer: Buffer.from(zipSync(omitted)),
@@ -100,7 +100,7 @@ for (const scope of ["template", "settings", "theme"]) {
     const files = await download(page);
     const settings = new TextDecoder().decode(files["templates/settings.typ"]);
     expect(settings).toContain(`#let paper-size = "${scope === "template" ? "a4" : "us-letter"}"`);
-    expect(new TextDecoder().decode(files["templates/overdue_diseases_v1.en.typ"])).not.toContain(
+    expect(new TextDecoder().decode(files["templates/overdue_diseases.en.typ"])).not.toContain(
       "Remove this template edit",
     );
     if (scope === "theme") {
@@ -126,21 +126,21 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   await current(page);
   const before = await page.locator("#preview-state").getAttribute("data-requested-revision");
   await page.locator("#theme-tab").click();
-  await page.locator("#template").selectOption("templates/overdue_diseases_v1.fr.typ");
+  await page.locator("#template").selectOption("templates/overdue_diseases.fr.typ");
   await expect(page.locator("#project-change-dialog")).toBeVisible();
   await expect(page.locator('input[value="workspace"]')).not.toBeVisible();
   await expect(page.locator('input[value="clear"]')).not.toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.locator("#template")).toHaveValue("templates/overdue_diseases_v1.en.typ");
+  await expect(page.locator("#template")).toHaveValue("templates/overdue_diseases.en.typ");
   expect(await page.locator("#preview-state").getAttribute("data-requested-revision")).toBe(before);
-  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.fr.typ");
   await current(page);
   await saved(page);
   await page.reload();
   await restoredProject(page);
   await current(page);
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/overdue_diseases_v1.en.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.en.typ");
   await current(page);
   await page.locator("#template-tab").click();
   await expect(page.locator(".cm-content")).not.toContainText(
@@ -155,7 +155,7 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   const files = await download(page);
   const assignments = JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]));
   expect(assignments).toHaveLength(1);
-  expect(assignments[0].template).toBe("overdue_diseases_v1.en.typ");
+  expect(assignments[0].template).toBe("overdue_diseases.en.typ");
   for (const entry of assignments) expect(files[`templates/${entry.template}`]).toBeDefined();
   expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   // The scoped download remains a valid project that can be imported.

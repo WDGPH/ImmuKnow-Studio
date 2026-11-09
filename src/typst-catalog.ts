@@ -648,6 +648,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
   "immuknow.overdue-agents": {
     description: "Displays the overdue vaccine agents.",
     parameters: [
+      ["ignore-agents", "Exclude exact agent-name matches from this list; history exclusions are separate."],
       ["style", "Optional style setting."],
       ["columns", "Number of columns, such as 1 or 2."],
       ["indent", "Bullet indentation; defaults to 0.8cm. Overrides only this list."],
@@ -666,6 +667,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     ],
     example: "#immuknow.overdue-agents()",
     namedParameters: [
+      "ignore-agents",
       "style",
       "columns",
       "indent",

@@ -13,12 +13,12 @@ test("reader and overdue flags follow the selected fictional client", async ({ p
   await page.locator("#theme-tab").click();
   await select("guardian-directed");
   for (const language of ["en", "fr"]) {
-    await chooseTemplate(page, `templates/overdue_diseases_v1.${language}.typ`);
+    await chooseTemplate(page, `templates/overdue_diseases.${language}.typ`);
     await expect(page.locator(".preview-text-run").filter({ hasText: language === "en"
       ? "your child has" : "votre enfant" }).first()).toBeAttached();
     await page.screenshot({ path: info.outputPath(`guardian-directed-${language}.png`) });
   }
-  await chooseTemplate(page, "templates/affirmative_schedule_v1.en.typ");
+  await chooseTemplate(page, "templates/affirmative_schedule.en.typ");
   await expect(page.locator("#diagnostics")).toContainText("affirmative notice requires no overdue diseases");
   await select("up-to-date");
   await expect(page.locator(".preview-text-run").filter({ hasText: "up-to-date" }).first()).toBeAttached();
