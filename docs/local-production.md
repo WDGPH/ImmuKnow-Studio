@@ -132,3 +132,16 @@ Obtain the reviewed executable recorded in `core-revision.txt`. Refresh the
 complete shared library with `immuknow project sync --replace`, then run
 `immuknow project check --sample` and inspect a retained sample run. Sync changes
 only `templates/lib/immuknow/`; keep your authored notices and configuration.
+
+## Output filenames
+
+Downloaded projects preserve filename patterns in `config/parameters.yaml`.
+Use `{field}` placeholders as with password templates; the native engine applies
+them to individual original/protected PDFs and normal/review batch PDFs with
+matching findings CSVs. Configure these settings in the downloaded project.
+
+See Core's [filename settings and supported fields](https://github.com/WDGPH/ImmuKnow/blob/main/docs/user_guide/configuration.md#filename-templates)
+for examples, safe normalization and collision handling. Existing imported
+projects without patterns retain legacy names. Core's `rebundle --filenames`
+changes a new batch attempt's names while keeping saved originals and earlier
+attempts intact.
