@@ -10,7 +10,7 @@ for (const shape of ["square", "dots", "rounded", "separated"]) {
       const revision = await page.evaluate(
         ({ shape, corner }) => {
           const job = window.proof.job;
-          const source = `#import "setup.typ": *
+          const source = `#import "settings.typ" as immuknow
 #show: immuknow.letter
 #immuknow.qr-code(url: "https://example.org/update", width: 113.7pt,
   foreground: rgb("176b78"), module-shape: "${shape}", corner-style: "${corner}")`;
@@ -64,7 +64,7 @@ test("QR finder and alignment targets use their independent colours", async ({ p
   await page.waitForFunction(() => Boolean(window.proof?.compiler.compilerVersion));
   const revision = await page.evaluate(() => {
     const job = window.proof.job;
-    const source = `#import "setup.typ": *
+    const source = `#import "settings.typ" as immuknow
 #show: immuknow.letter
 #immuknow.qr-code(url: "https://example.org/update", width: 113.7pt,
   module-shape: "separated", corner-style: "rounded",

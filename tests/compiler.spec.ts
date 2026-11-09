@@ -649,7 +649,7 @@ test("seven-page preview is fully painted and scrolling does not repaint", async
   const revision = await page.evaluate(() => {
     const job = window.proof.job;
     const pages = Array.from({ length: 7 }, (_, index) => `Page ${index + 1} of seven`);
-    const source = `#import "setup.typ": *\n#show: immuknow.letter\n${pages.join("\n#pagebreak()\n")}`;
+    const source = `#import "settings.typ" as immuknow\n#show: immuknow.letter\n${pages.join("\n#pagebreak()\n")}`;
     return window.proof.submit([
       {
         ...job,

@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
 
-const source = `#import "setup.typ": *
+const source = `#import "settings.typ" as immuknow
 #show: immuknow.letter
 #immuknow.qr-code(url: n => "https://example.test/record?id=" + n.client_id + "&initials=" + n.client_data.first_initial + n.client_data.last_initial)
 

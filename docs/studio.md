@@ -57,14 +57,14 @@ Change one table or page directly in Template, for example
 `#immuknow.notice-page("Immunization Record", title-size: 18pt)[...]`.
 Other tables and pages keep the Settings defaults. Shared setup connects the
 client data once, so ImmuKnow helper calls do not need a `notice` argument.
-Keep the opening Settings marker, setup import and `#show: immuknow.letter`
-line in place; they are essential setup. Use `to_student` and
-`to_guardian` directly in `if`/`else` wording, including a neutral final branch.
+Keep the opening Settings marker, Settings import and `#show: immuknow.letter`
+line in place; they are essential setup. Use `immuknow.to_student` and
+`immuknow.to_guardian` directly in `if`/`else` wording, including a neutral final branch.
 The optional CSV `intended_reader` choice takes priority over the age default and controls
 the default address addressee too, including in suspension orders. An address
 block’s `addressee` option overrides its label without changing the intended
 reader. Try the older student with a guardian choice in Example clients.
-Setup also supplies `no_records` and disease-based `up_to_date`. The affirmative
+Settings also supplies `immuknow.no_records` and disease-based `immuknow.up_to_date`. The affirmative
 and suspension starters enforce their wording with rendering assertions; choose
 a matching example client to preview them. Try the supplied overdue and up-to-date examples to compare those paths. The current client collection contains recorded histories. Settings expose independent Client ID
 and OIID display, missing-OIID text and applicable history legend wording.
@@ -85,7 +85,7 @@ codes after changing their appearance.
 
 A refused theme change leaves the project unchanged.
 
-The editor keeps native imports such as `#import "setup.typ": *` visible.
+The editor keeps native imports such as `#import "settings.typ" as immuknow` visible.
 Open **Typst Reference** using the book icon in the top header, beside the
 walkthrough button, for
 examples of letter wording, client information, page layout and ImmuKnow functions.

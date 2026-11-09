@@ -216,11 +216,9 @@ test("Typst-only download contains edited source without fetching fonts or chang
   const result = await pending;
   expect(result.suggestedFilename()).toBe("immuknow-typst.zip");
   const exported = unzipSync(readFileSync((await result.path()) as string));
-  expect(Object.keys(exported).sort()).toEqual([template, "templates/settings.typ", "templates/presentation.typ", "templates/setup.typ"].sort());
+  expect(Object.keys(exported).sort()).toEqual([template, "templates/settings.typ"].sort());
   expect(new TextDecoder().decode(exported[template])).toContain("// Source-only handoff");
   expect(Buffer.from(exported["templates/settings.typ"])).toEqual(Buffer.from(bundle.files["templates/settings.typ"], "base64"));
-  expect(Buffer.from(exported["templates/presentation.typ"])).toEqual(Buffer.from(bundle.files["templates/presentation.typ"], "base64"));
-  expect(Buffer.from(exported["templates/setup.typ"])).toEqual(Buffer.from(bundle.files["templates/setup.typ"], "base64"));
   expect(fontRequests).toBe(0);
   await expect(page.locator("#template")).toHaveValue(template);
   await expect(page.locator(".cm-content")).toContainText("Source-only handoff");

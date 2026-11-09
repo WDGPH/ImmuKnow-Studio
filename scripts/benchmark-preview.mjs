@@ -158,8 +158,8 @@ try {
             scenario === "one-page"
               ? "Order for Suspension from Attendance at School"
               : scenario === "two-page-fr"
-                ? "En date du *#date_as_of*"
-                : "As of *#date_as_of*";
+                ? "En date du *#immuknow.date_as_of*"
+                : "As of *#immuknow.date_as_of*";
           if (!setup.source.includes(visibleText)) {
             throw Error("Visible benchmark text was not found");
           }
@@ -167,10 +167,10 @@ try {
             scenario === "one-page"
               ? `Order ${index} for Suspension from Attendance at School`
               : scenario === "two-page-fr"
-                ? `En date du *#date_as_of* (révision ${index})`
+                ? `En date du *#immuknow.date_as_of* (révision ${index})`
                 : scenario === "wrap-layout" && index % 2 === 0
-                  ? `As of *#date_as_of* (revision ${index}, with a deliberately longer sentence that wraps within the first visible paragraph of this example notice)`
-                : `As of *#date_as_of* (revision ${index})`;
+                  ? `As of *#immuknow.date_as_of* (revision ${index}, with a deliberately longer sentence that wraps within the first visible paragraph of this example notice)`
+                : `As of *#immuknow.date_as_of* (revision ${index})`;
           const source = setup.source.replace(visibleText, replacement);
           const files = {
             ...setup.job.files,

@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { expect, test } from "vitest";
-import { currentProject } from "../src/project-actions";
+import { authoredTypstFiles, currentProject } from "../src/project-actions";
 import { encoder } from "../src/project";
 import type { Files } from "../src/types";
 
@@ -13,7 +13,9 @@ files = scaffold_files()
 assert not any(name.startswith("scripts/") for name in files)
 assert not {"pyproject.toml", "uv.lock", ".python-version", ".pre-commit-config.yaml"}.intersection(files)
 assert "core-revision.txt" in files
-assert "templates/setup.typ" in files
+assert "templates/settings.typ" in files
+assert "templates/setup.typ" not in files
+assert "templates/presentation.typ" not in files
 assert "config/notice_versions.yaml" in files
 assert not any(name.startswith("templates/lib/") for name in files)
 wrong = dict(files)
@@ -56,6 +58,9 @@ print(json.dumps({name: base64.b64encode(data).decode("ascii") for name, data in
   const template = "templates/overdue_diseases.en.typ";
   const edited = { ...files, [template]: encoder.encode(`${new TextDecoder().decode(files[template])}\n// Authored edit\n`) };
   const result = currentProject(edited, template, [], undefined, files);
+  expect(Object.keys(authoredTypstFiles(edited, template)).sort()).toEqual(
+    [template, "templates/settings.typ"].sort(),
+  );
   for (const name of ["en_diseases_chart", "en_diseases_overdue", "fr_diseases_chart", "fr_diseases_overdue"]) {
     const path = `templates/translations/${name}.json`;
     expect(result[path], path).toBe(files[path]);
