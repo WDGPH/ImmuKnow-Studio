@@ -16,7 +16,7 @@ assert "core-revision.txt" in files
 assert "templates/settings.typ" in files
 assert "templates/setup.typ" not in files
 assert "templates/presentation.typ" not in files
-assert "config/notice_versions.yaml" in files
+assert "config/notice_versions.yaml" not in files
 assert not any(name.startswith("templates/lib/") for name in files)
 wrong = dict(files)
 wrong["core-revision.txt"] = b"0" * 40

@@ -104,8 +104,7 @@ immuknow run input/clients.csv --project . \
 ```
 
 Use the actual filename of your downloaded notice. Each assignment must name a
-notice present in `templates/`; the catalog may describe notices not included in
-this project. `--project .` selects this project's configuration and templates. Results go
+notice present in `templates/`. `--project .` selects this project's configuration and templates. Results go
 to `runs/`; use `--output` to choose another output folder.
 See [notice selection and input requirements](https://docs.phiz.ca/immuknow/latest/user_guide/getting_started/#select-notices).
 

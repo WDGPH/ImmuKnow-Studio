@@ -104,7 +104,16 @@ class SharedClientsTest(unittest.TestCase):
                                 *selector,
                             )
                             self.assertEqual(len(result["entries"]), 1)
-                            self.assertEqual(result["entries"][0]["notice"], payload)
+                            entry = result["entries"][0]
+                            self.assertEqual(entry["notice"], payload)
+                            self.assertEqual(
+                                entry["deferred_checks"],
+                                example["deferredChecks"][filename],
+                            )
+                            self.assertEqual(
+                                entry["blocked_checks"],
+                                example["blockedChecks"][filename],
+                            )
 
 
 if __name__ == "__main__":

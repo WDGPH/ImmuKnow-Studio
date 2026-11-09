@@ -37,9 +37,7 @@ test("a component error opens the supplied library for reading without changing 
   const source = page.locator(".cm-content");
   await source.click();
   await source.press("Control+End");
-  await page.keyboard.insertText(
-    '\n#immuknow.check-notice(version: "wrong", language: "en")',
-  );
+  await page.keyboard.insertText('\n#immuknow.check-notice(version: "wrong", language: "en")');
   const finding = page
     .locator("#diagnostics button")
     .filter({ hasText: "lib/immuknow/src/validation.typ" })
@@ -118,7 +116,9 @@ test("history errors follow edited suspension content and recover after errors",
   await page.locator("#theme-tab").click();
   await chooseTemplate(page, "templates/suspension_order.en.typ");
   await currentPreview(page);
-  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
+  await expect(page.locator("#diagnostics")).not.toContainText(
+    "Validity display requires Valid or Invalid",
+  );
   await page.locator("#template-tab").click();
   const source = page.locator(".cm-content");
   await source.click();
@@ -126,17 +126,26 @@ test("history errors follow edited suspension content and recover after errors",
   await page.keyboard.insertText(
     "\n#pagebreak()\n#immuknow.immunization-history(show-validity: true)\n",
   );
-  await expect(page.locator("#diagnostics")).toContainText("Validity display requires Valid or Invalid", { timeout: 30_000 });
+  await expect(page.locator("#diagnostics")).toContainText(
+    "Validity display requires Valid or Invalid",
+    { timeout: 30_000 },
+  );
   await source.press("Control+z");
   await currentPreview(page);
-  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
+  await expect(page.locator("#diagnostics")).not.toContainText(
+    "Validity display requires Valid or Invalid",
+  );
   await source.press("Control+End");
   await page.keyboard.insertText('\n#panic("failed preview")');
   await expect(page.locator("#diagnostics")).toContainText("failed preview", { timeout: 30_000 });
-  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
+  await expect(page.locator("#diagnostics")).not.toContainText(
+    "Validity display requires Valid or Invalid",
+  );
   await source.press("Control+z");
   await currentPreview(page);
-  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
+  await expect(page.locator("#diagnostics")).not.toContainText(
+    "Validity display requires Valid or Invalid",
+  );
 });
 
 test("authored project survives editing, warning/error recovery, drafts and export", async ({
@@ -568,7 +577,9 @@ test("delayed compiler replies cannot cross an import or language boundary", asy
     .locator("#preview-state")
     .evaluate((el) => ({ ...(el as HTMLElement).dataset }));
   expect(state.displayedRevision).toBe(state.requestedRevision);
-  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
+  await expect(page.locator("#diagnostics")).not.toContainText(
+    "Validity display requires Valid or Invalid",
+  );
   expect(errors).toEqual([]);
 });
 
@@ -676,4 +687,57 @@ test("a failed local renderer load can recover after refreshing", async ({ page 
     "Keep my work while recovering the preview",
   );
   await expect(page.locator(".preview-page canvas")).toHaveCount(2);
+});
+
+test("deferred checks remain neutral when the current source cannot compile", async ({ page }) => {
+  await page.goto("./");
+  await currentPreview(page);
+  const advisory = page.locator("#deferred-checks");
+  await expect(advisory).toBeHidden();
+  const warningCount = await page.locator("#warnings-list > li").count();
+  const source = page.locator(".cm-content");
+  await source.click();
+  await source.press("Control+End");
+  await page.keyboard.insertText('\n#panic("deferred-check-test")');
+  await expect(page.locator("#diagnostics")).toContainText("deferred-check-test");
+  await expect(advisory).toHaveText("Checked when the notice compiles");
+  await expect(advisory).toBeVisible();
+  expect(await page.locator("#warnings-list > li").count()).toBe(warningCount);
+  await source.press("Control+z");
+  await currentPreview(page);
+  await expect(advisory).toBeHidden();
+});
+
+test("current preview distinguishes failed and unverified notice checks", async ({ page }) => {
+  await page.goto("./");
+  await currentPreview(page);
+  const source = page.locator(".cm-content");
+  const state = page.locator("#preview-state");
+  await source.click();
+  await source.press("Control+End");
+  await page.keyboard.insertText(
+    '\n#immuknow.requirements(eligibility: "any", coverage: "neutral")',
+  );
+  await currentPreview(page);
+  await expect(state).toHaveAttribute("data-state", "failed");
+  await expect(state).toHaveAttribute(
+    "aria-label",
+    "Preview is current; notice checks failed and need review.",
+  );
+  await expect(state).toBeVisible();
+  await expect(page.locator("#errors")).toContainText("notice.requirements");
+  await expect(page.locator(".preview-page").first()).toBeVisible();
+  await source.press("Control+z");
+  await currentPreview(page);
+  await source.press("Control+End");
+  await page.keyboard.insertText("\n#metadata(none) <immuknow-report>");
+  await currentPreview(page);
+  await expect(state).toHaveAttribute("data-state", "unverified");
+  await expect(state).toHaveAttribute(
+    "aria-label",
+    "Preview is current, but its checks could not be verified.",
+  );
+  await expect(state).toBeVisible();
+  await expect(page.locator("#errors")).toContainText("render.evidence_failed");
+  await expect(page.locator(".preview-page").first()).toBeVisible();
 });

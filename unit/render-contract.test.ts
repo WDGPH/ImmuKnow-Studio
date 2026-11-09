@@ -42,3 +42,34 @@ test("preview facts accept client initials", () => {
   Object.assign(payload.client_data, { first_initial: "É", last_initial: "L" });
   expect(() => validateNotice(payload)).not.toThrow();
 });
+
+// The same complete evidence cases run against Core's native validator.
+import requirementCases from "./fixtures/requirements-contract.json";
+for (const sample of requirementCases.cases) {
+  test(`notice requirements evidence: ${sample.name}`, () => {
+    const validate = () => {
+      validateNotice(sample.payload);
+      validateSummary(sample.report, sample.payload);
+    };
+    if (sample.expect.evidence_valid) expect(validate).not.toThrow();
+    else expect(validate).toThrow();
+  });
+}
+
+test("agent exclusions use Unicode scalar ordering", () => {
+  const sample = requirementCases.cases.find((item) => item.name === "all_excluded_duplicate");
+  if (!sample) throw new Error("Missing agent fixture");
+  const { payload, report } = structuredClone(sample);
+  const agents = ["\uE000", "😀"];
+  payload.overdue_agents = agents;
+  report.notice.overdue_agents = agents;
+  const measurement = report.measurements.overdue_agents[0];
+  measurement.source_agents = agents;
+  measurement.excluded_agents = agents;
+  expect(() => {
+    validateNotice(payload);
+    validateSummary(report, payload);
+  }).not.toThrow();
+  measurement.excluded_agents = [...agents].reverse();
+  expect(() => validateSummary(report, payload)).toThrow();
+});

@@ -609,6 +609,28 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       '#immuknow.signature-block(signature: image("assets/signature.png", width: 4.5cm), name: "Dr. Annie Body, MD")',
     namedParameters: ["signature", "name", "title", "spacing", "allow-overflow"],
   },
+  "immuknow.requirements": {
+    description:
+      "Declares when this notice applies and which recommendations it covers. Place exactly one call in each notice.",
+    parameters: [
+      [
+        "eligibility",
+        'Use "any", "has_overdue", "has_overdue_agents", "no_overdue", or "has_ispa_overdue".',
+      ],
+      ["coverage", 'Use "agents", "diseases", or "neutral".'],
+    ],
+    namedParameters: ["eligibility", "coverage"],
+    example: '#immuknow.requirements(eligibility: "has_overdue", coverage: "diseases")',
+  },
+  "immuknow.agent-alternative": {
+    description: "Places intentional alternative wording in place of the overdue agent list.",
+    parameters: [
+      ["[content]", "Visible wording explaining the alternative."],
+      ["ignore-agents", "Optional exact source agent names excluded from display."],
+    ],
+    namedParameters: ["ignore-agents"],
+    example: "#immuknow.agent-alternative[Please contact us about your records.]",
+  },
   "immuknow.overdue-diseases": {
     description: "Displays the overdue diseases as bullets or inline text.",
     parameters: [
@@ -648,7 +670,10 @@ export const functionCatalog: Record<string, FunctionHelp> = {
   "immuknow.overdue-agents": {
     description: "Displays the overdue vaccine agents.",
     parameters: [
-      ["ignore-agents", "Exclude exact agent-name matches from this list; history exclusions are separate."],
+      [
+        "ignore-agents",
+        "Exclude exact agent-name matches from this list; history exclusions are separate.",
+      ],
       ["style", "Optional style setting."],
       ["columns", "Number of columns, such as 1 or 2."],
       ["indent", "Bullet indentation; defaults to 0.8cm. Overrides only this list."],
@@ -761,7 +786,8 @@ export const functionCatalog: Record<string, FunctionHelp> = {
         "Names and values to add, such as (client: immuknow.notice.client_id). Pass the original text.",
       ],
     ],
-    example: '#immuknow.query-url("https://example.org/update", (client: immuknow.notice.client_id))',
+    example:
+      '#immuknow.query-url("https://example.org/update", (client: immuknow.notice.client_id))',
     namedParameters: [],
   },
   "immuknow.url-encode": {

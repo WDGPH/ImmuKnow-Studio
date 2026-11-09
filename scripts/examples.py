@@ -82,7 +82,13 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
             resources["config/parameters.yaml"]
         )
         for scenario in authored["clients"]:
-            payloads, preparation_checks, inputs = {}, {}, {}
+            payloads, preparation_checks, deferred_checks, blocked_checks, inputs = (
+                {},
+                {},
+                {},
+                {},
+                {},
+            )
             source = by_id[scenario["client_id"]]
             csv_path = workspace / "client.csv"
             write_csv(csv_path, source)
@@ -117,6 +123,8 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                     )
                 payloads[filename] = entry["notice"]
                 preparation_checks[filename] = entry["checks"]
+                deferred_checks[filename] = entry["deferred_checks"]
+                blocked_checks[filename] = entry["blocked_checks"]
                 inputs[filename] = {"csv": csv_key, "assignments": assignment_key}
             examples.append(
                 {
@@ -127,6 +135,8 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                 | {
                     "payloads": payloads,
                     "preparationChecks": preparation_checks,
+                    "deferredChecks": deferred_checks,
+                    "blockedChecks": blocked_checks,
                     "inputs": inputs,
                 }
             )

@@ -82,7 +82,7 @@ def typst_library_root() -> Path:
 
 def prepare(*arguments: str) -> dict:
     result = json.loads(run("prepare", *arguments).stdout)
-    if result.get("schema_version") != 1:
+    if result.get("schema_version") != 2:
         raise ValueError("Unsupported Core preparation envelope")
     return result
 

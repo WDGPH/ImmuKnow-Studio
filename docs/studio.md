@@ -65,8 +65,8 @@ the default address addressee too, including in suspension orders. An address
 block’s `addressee` option overrides its label without changing the intended
 reader. Try the older student with a guardian choice in Example clients.
 Settings also supplies `immuknow.no_records` and disease-based `immuknow.up_to_date`. The affirmative
-and suspension starters enforce their wording with rendering assertions; choose
-a matching example client to preview them. Try the supplied overdue and up-to-date examples to compare those paths. The current client collection contains recorded histories. Settings expose independent Client ID
+and suspension starters declare when their wording applies. A mismatched client
+still produces a readable preview with a finding for review. Try the supplied overdue and up-to-date examples to compare those paths. The current client collection contains recorded histories. Settings expose independent Client ID
 and OIID display, missing-OIID text and applicable history legend wording.
 See the [Typst Reference](coding-cheatsheet.md) for the options.
 Omit QR calls when a letter has no QR code. Settings can use a fixed destination
@@ -132,7 +132,9 @@ not fit a particular notice; the resulting warnings remain
 available for review; Studio does not rewrite the facts to make a notice fit.
 
 Findings combine source-preparation warnings, compiler diagnostics and placed
-Typst checks. Extra diseases covered by a forecasted agent are a warning;
+Typst checks. Notice requirements and display checks are marked **Checked when
+the notice compiles** until a current preview supplies validated evidence.
+If the evidence is invalid, the readable preview remains visible with an error. Extra diseases covered by a forecasted agent are a warning;
 they do not stop the preview. For example, MMR also covers Mumps and Rubella
 when only Measles is overdue. Examples contain valid source history. Invalid history rejects a
 native input file before rendering, even if a template omits the history table.
@@ -150,7 +152,9 @@ evidence retains a finding; it is not treated as checked success.
 
 During ordinary edits, the last successful preview remains visible while the
 refresh icon spins. Temporary errors retain those pages and leave the icon visible.
-The icon's tooltip and accessible label describe the preview state. Findings and envelope
+The icon's tooltip and accessible label describe the preview state. It also stays
+visible when the current preview has failed notice checks or its checking evidence
+could not be verified. Findings and envelope
 measurements describe the displayed pages; new errors describe the current
 source. Old diagnostics are removed as soon as you edit, so their locations
 cannot underline different source text.
