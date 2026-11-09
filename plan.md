@@ -24,11 +24,11 @@ Studio work from the [shared investigation plan](../plan.md). Filename settings 
 
 ## P1: adopt Core's notice-dependent row findings
 
-- [ ] After Core implements coverage-basis metadata and empty-agent display evidence, and Template adopts them, update `core-revision.txt` and the Template pin together.
+- [ ] After Core implements the shared notice-local requirements/report contract and empty-agent display evidence, and Template migrates its notices, update `core-revision.txt` and the Template pin together. New starters no longer depend on `notice_versions.yaml`.
 - [ ] Build the exact clean Core source through `scripts/native_core.py` and verify the stored executable fingerprint through that workflow. Regenerate Core-exported schemas, browser validators and prepared examples; never edit generated validators or installed resource files.
-- [ ] Ensure preview presents preparation coverage failures/warnings and placed-content empty-list failures consistently with the native contract. Eligibility, source coverage and display exclusions must remain distinguishable.
-- [ ] Preserve source bytes, relative paths, drafts and imported older projects. Do not silently rewrite authored catalogs or references to fit new defaults. Show compatibility guidance when an actual migration is needed.
-- [ ] Verify a downloaded project outside both repos with native sync/check/run/rebundle, using the matching engine and no Python requirement in the exported project.
+- [ ] Display structured eligibility/coverage findings from the compiled notice and placed-content empty-list findings consistently with native runs. Explain preparation checks deferred until rendering. Keep assertion/compilation failures distinct from readable notices with failed checks.
+- [ ] Preserve source bytes, paths, drafts and imported older projects, including legacy notice catalogs. Do not silently migrate authored files. Verify new projects with notice-local requirements and no YAML, legacy YAML-only imports, local-declaration precedence and clear migration guidance.
+- [ ] Verify a downloaded project outside both repos with native sync/check/run/rebundle, using the matching engine and no Python requirement in the exported project. Confirm structured failures retain review PDFs and rebundling uses saved requirements/results without re-evaluating an edited notice.
 
 ## Warning acknowledgment: consume the contract, keep scope clear
 
