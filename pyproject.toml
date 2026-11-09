@@ -14,18 +14,18 @@ immuknow-template-resources = { git = "https://github.com/WDGPH/ImmuKnow-Templat
 
 [dependency-groups]
 dev = [
-    "ruff==0.17.2",
+    "ruff==0.17.3",
     "prek",
-    "ty>=0.0.89",
+    "ty>=0.0.95",
 ]
 browser = [
     "pillow>=13.0.0",
-    "pymupdf==1.28.2",
+    "pymupdf==2.0",
     "pypdf",
     "zxing-cpp==3.1.1",
 ]
 docs = [
     "mkdocs==1.6.1",
-    "mkdocs-material==9.7.7",
+    "mkdocs-material==9.8.0",
     "pymdown-extensions==12.3",
 ]
