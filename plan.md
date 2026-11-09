@@ -24,10 +24,10 @@ Studio work from the [shared investigation plan](../plan.md). Filename settings 
 
 ## P1: adopt Core's notice-dependent row findings
 
-- [ ] After Core implements the shared notice-local requirements/report contract and empty-agent display evidence, and Template migrates its notices, update `core-revision.txt` and the Template pin together. New starters no longer depend on `notice_versions.yaml`.
+- [ ] Adopt the prerelease v2.0 breaking notice-local requirements/report contract and empty-agent display evidence with coordinated Core/Template pins. Refreshed starters and exported resources no longer contain or depend on `notice_versions.yaml`; no legacy catalog compatibility is required.
 - [ ] Build the exact clean Core source through `scripts/native_core.py` and verify the stored executable fingerprint through that workflow. Regenerate Core-exported schemas, browser validators and prepared examples; never edit generated validators or installed resource files.
 - [ ] Display structured eligibility/coverage findings from the compiled notice and placed-content empty-list findings consistently with native runs. Explain preparation checks deferred until rendering. Keep assertion/compilation failures distinct from readable notices with failed checks.
-- [ ] Preserve source bytes, paths, drafts and imported older projects, including legacy notice catalogs. Do not silently migrate authored files. Verify new projects with notice-local requirements and no YAML, legacy YAML-only imports, local-declaration precedence and clear migration guidance.
+- [ ] Preserve ordinary authored bytes, paths and drafts, without adding catalog-specific import handling or silently rewriting notices. Verify v2 projects use notice-local requirements with no YAML; missing/malformed declarations fail visibly and an obsolete imported YAML file has no effect. Remove old catalog assumptions from project generation and tests.
 - [ ] Verify a downloaded project outside both repos with native sync/check/run/rebundle, using the matching engine and no Python requirement in the exported project. Confirm structured failures retain review PDFs and rebundling uses saved requirements/results without re-evaluating an edited notice.
 
 ## Warning acknowledgment: consume the contract, keep scope clear
