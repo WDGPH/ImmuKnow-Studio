@@ -28,8 +28,8 @@ The usual workflow is:
    **Download project**.
 3. Extract the downloaded project on your workstation. Keep its templates,
    settings, images and other supporting files together.
-4. Install the project with `uv sync --locked`, check its fictional sample,
-   then use its helper scripts to generate production notices locally.
+4. Set up the project with `immuknow project sync`, check its fictional sample,
+   then use `immuknow run` to generate production notices locally.
 
 See [Use projects on your workstation](local-production.md) for the handoff.
 Studio does not assess immunization status or select a client's notice.

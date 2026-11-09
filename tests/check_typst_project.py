@@ -148,28 +148,15 @@ def main(evidence: Path) -> None:
             Path(__file__).resolve().parents[1] / "core-revision.txt"
         ).read_text().strip()
 
-        installed = subprocess.run(
-            ["uv", "sync", "--locked"],
-            cwd=project,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=120,
-            check=False,
-        )
-        (evidence / "project-install.log").write_text(
-            installed.stdout + installed.stderr
-        )
-        assert installed.returncode == 0, installed.stdout + installed.stderr
+        binary = shutil.which(env.get("IMMUKNOW_BIN", "immuknow"))
+        assert binary, "Install the reviewed standalone Core executable"
+        # The test harness uses Python to inspect PDFs, but the extracted project
+        # must run with no Python, uv, shell or other tools on its command path.
+        env["PATH"] = ""
 
         def run(*arguments: str) -> str:
-            invocation = (
-                list(arguments)
-                if arguments[0].endswith(".py") or arguments[0] == "-c"
-                else ["-m", *arguments]
-            )
             result = subprocess.run(
-                ["uv", "run", "--locked", "python", *invocation],
+                [binary, *arguments],
                 cwd=project,
                 env=env,
                 capture_output=True,
@@ -205,14 +192,15 @@ def main(evidence: Path) -> None:
             )
             return result.stdout
 
-        # The project user's setup command must not install maintainer test tools.
-        run(
-            "-c",
-            "import importlib.util; assert importlib.util.find_spec('pytest') is None",
-        )
+        assert not (project / ".venv").exists()
+        assert not (project / "pyproject.toml").exists()
+        assert not (project / "uv.lock").exists()
+        assert not (project / "scripts").exists()
+        run("project", "sync")
+        run("project", "check")
         selected = json.loads((evidence / "selected-example.json").read_text())
         if selected["example"] == "missing-meningococcal":
-            run("scripts/check.py", "--sample")
+            run("project", "check", "--sample")
         for name, encoded in selected["inputBytes"].items():
             path = project / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -241,7 +229,7 @@ def main(evidence: Path) -> None:
             selectors.insert(0, ("template", ["--template", selected["template"]]))
         for selector, arguments in selectors:
             run(
-                "scripts/run.py",
+                "run",
                 selected["input"]["csv"],
                 "--config",
                 "config",
@@ -341,7 +329,7 @@ def main(evidence: Path) -> None:
             attempts = len(record["delivery_attempts"])
             for decision in ("withhold", "release"):
                 arguments = [
-                    env["IMMUKNOW_BIN"],
+                    binary,
                     "rebundle",
                     str(run_dir),
                     f"--{decision}",

@@ -12,7 +12,7 @@ resource package. Core supplies no starter project. Follow the
 [shared language and project responsibilities](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#shared-language-and-project-responsibilities).
 
 Use the verified standalone executable through scripts/native_core.py and the
-public prepare/resources/run/rebundle commands. core-revision.txt and Template's
+public prepare/resources/run/rebundle and project commands. core-revision.txt and Template's
 recorded revision must agree. Build the exact clean source and verify the stored
 executable fingerprint; do not import Python Core or infer source from a version
 label. Do not add Core source or tests here. Changes belong in Core.
@@ -40,7 +40,7 @@ to conserve Actions minutes. Preserve that policy unless a change is requested.
 For code changes, run npm run typecheck, npm run lint, npm run test:unit and
 Python type/lint checks, then the relevant browser checks against a fresh build.
 Preserve the downloaded project journey through the separately installed native
-engine. Build compiler
+engine with no Python setup in the extracted project. Build compiler
 patches only with their matching pins and retain licenses. Maintain fictional
 example records in Template. Studio keeps only example descriptions and preview
 settings; browser payloads and other generated assets stay ignored and

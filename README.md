@@ -18,14 +18,21 @@ Production notice generation runs with ImmuKnow on your local workstation.
 
 In Studio, open **Project** at the top-right of the webpage and choose
 **Download project**. Extract the ZIP, obtain the standalone `immuknow` executable matching
-`core-revision.txt`, and install uv and the supplied fonts. Put `immuknow` on
-PATH or set `IMMUKNOW_BIN`, then run `uv sync --locked` and `uv run python scripts/check.py --sample`.
-You can omit the fonts from the ZIP if the matching fonts are already installed.
-Clear **Include fictional client data** to omit the sample and use your own inputs.
-The `--sample` commands above require an included or custom sample.
-The project includes [ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template)'s
-Python setup and helper scripts, your authored notice/configuration, and the
-ten fictional clients and their notice assignments when requested. See [Use projects on your workstation](docs/local-production.md).
+`core-revision.txt`, and install the supplied fonts. Put `immuknow` on PATH,
+then run:
+
+```sh
+immuknow project sync
+immuknow project check --sample
+immuknow run --sample
+```
+
+Setup, checks and production runs require no Python or uv. Clear **Include
+fictional client data** to omit the sample and use your own CSV and assignments.
+The `--sample` commands require included or custom sample inputs. The project
+contains your authored notices/configuration, shared components, native setup
+instructions and fictional clients when requested. See
+[Use projects on your workstation](docs/local-production.md).
 
 ## Local browser work
 

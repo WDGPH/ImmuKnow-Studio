@@ -3,8 +3,8 @@
 Studio downloads a runnable project based on
 [ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template), with your selected
 notice, settings and assets. Use a standalone ImmuKnow executable matching
-`core-revision.txt`. Python helpers are optional conveniences; they do not install
-Core. You do not need a Template checkout.
+`core-revision.txt`. Setup, checks and runs use the executable directly; no
+Python, uv or Template checkout is needed.
 
 ## Download and extract your project
 
@@ -21,12 +21,11 @@ Extract `immuknow-project.zip` into a folder you control.
 
 | Item | Purpose |
 | --- | --- |
-| `pyproject.toml`, `uv.lock`, `.python-version` | Optional Python helpers and their locked dependencies |
 | `core-revision.txt` | Reviewed standalone Core source revision |
-| `scripts/`, `README.md` | Template's run/check helpers and instructions |
+| `README.md` | Native setup, sample checks and notice instructions |
 | `templates/` | Your selected notice, Settings, supporting files, images and shared components |
 | `config/` | Configuration for native ImmuKnow runs |
-| `input/sample/`, `sample.json` | Six fictional clients and their notice assignments, when included |
+| `input/sample/`, `sample.json` | Ten fictional clients and their notice assignments, when included |
 | `examples/` | Explanation of the fictional examples |
 | `templates/fonts/` | Fonts and licences for manual installation, when included in the download |
 | `template-source.json` | Template package source commit and original scaffold file hashes |
@@ -40,10 +39,9 @@ shared Settings and assets before replacing files.
 ## Install and check the project
 
 Obtain the standalone `immuknow` executable matching `core-revision.txt` from
-your project maintainer. Developers can build it with the included
-`CONTRIBUTING.md` instructions. Put it on PATH or set `IMMUKNOW_BIN` to its path.
-There is no separate Typst installation. Install [uv](https://docs.astral.sh/uv/)
-if using the optional Python helpers; uv selects Python from `.python-version`.
+your project maintainer. Developers can follow Template's
+[build instructions](https://github.com/WDGPH/ImmuKnow-Template/blob/feat/rust-core-project/CONTRIBUTING.md#build-the-reviewed-core). Put it on PATH, or use its full path in place of `immuknow` in commands.
+There is no separate Typst or Python installation.
 Install the supplied fonts on your workstation for matching typography. If you
 cleared **Include fonts for installation** when downloading, use the same fonts
 already installed on the workstation or download them from Studio separately.
@@ -52,13 +50,13 @@ Extracting them does not install them; Core uses system fonts.
 Open a terminal in the extracted folder:
 
 ```bash
-uv sync --locked
-uv run python scripts/check.py --sample
-uv run python scripts/run.py --sample
+immuknow project sync
+immuknow project check --sample
+immuknow run --sample
 ```
 
-The first command installs the helpers' locked dependencies. The ZIP includes
-neither an executable nor an installed environment. The check verifies source
+The first command installs or verifies the complete shared library. The ZIP
+includes no executable or Python environment. The check verifies source
 preparation and shared resources, then runs the sample in a temporary folder.
 The last command keeps a run and prints its report location. Warnings can be
 expected; review them in the report. You can also run the executable directly:
@@ -76,10 +74,11 @@ even when you change the preview client. Without fictional data or a prepared ex
 still be downloaded: provide inputs and a `sample.json` selection before running
 `--sample`. Changing source CSVs does not change Studio's fixed browser facts.
 
-To use Git, run `git init` before `uv run prek install`. The included ignore
-rules and hook keep client inputs and run output out of commits; only the
-conventional synthetic sample paths are exempt. Original CSVs under `examples/`
-are ignored, while the sample copies can travel with the project.
+Fresh downloads omit Python scripts, environment files and maintainer tools.
+Imported projects keep their existing authored files, including legacy helpers.
+The supplied ignore rules keep conventional client inputs and run outputs out
+of Git. Maintainers can install additional commit checks from Template's source
+repository; those checks are separate from project setup and production runs.
 
 You can also use the complete `config/` and `templates/` trees with an existing
 compatible ImmuKnow installation. See [Core versions](architecture.md#core-versions).
@@ -92,18 +91,18 @@ your own validated cohort and assignments, kept under `input/`:
 
 ```bash
 # One notice for every client
-uv run python scripts/run.py input/clients.csv \
+immuknow run input/clients.csv --project . \
   --template overdue_diseases_v1.en.typ
 
 # An explicit notice for each client
-uv run python scripts/run.py input/clients.csv \
+immuknow run input/clients.csv --project . \
   --notice-assignments input/assignments.json
 ```
 
 Use the actual filename of your downloaded notice. Each assignment must name a
 notice present in `templates/`; the catalog may describe notices not included in
-this project. The helpers default to this project's configuration, templates and
-`runs/` output folder. Other Core options are passed through unchanged.
+this project. `--project .` selects this project's configuration and templates. Results go
+to `runs/`; use `--output` to choose another output folder.
 See [notice selection and input requirements](https://docs.phiz.ca/immuknow/latest/user_guide/getting_started/#select-notices).
 
 ## Review the generated notices
@@ -115,3 +114,10 @@ fictional examples; production review uses actual generated notices and findings
 Follow [PDF validation and delivery](https://docs.phiz.ca/immuknow/latest/user_guide/pdf_validation/)
 before releasing notices. Run files and PDFs contain client information and stay
 on your workstation under your organization's handling procedures.
+
+## Update the executable
+
+Obtain the reviewed executable recorded in `core-revision.txt`. Refresh the
+complete shared library with `immuknow project sync --replace`, then run
+`immuknow project check --sample` and inspect a retained sample run. Sync changes
+only `templates/lib/immuknow/`; keep your authored notices and configuration.

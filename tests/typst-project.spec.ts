@@ -180,10 +180,12 @@ for (const [scenario, filename] of cases) {
     for (const assignment of assignments) expect(files[`templates/${assignment.template}`]).toBeDefined();
     expect(assignments).toHaveLength(bundle.examples.length);
     expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
-    expect(files["scripts/run.py"]).toBeDefined();
+    expect(Object.keys(files).some((path) => path.startsWith("scripts/"))).toBe(false);
     expect(Object.keys(files).some((path) => path.startsWith("tests/"))).toBe(false);
-    expect(files["uv.lock"]).toBeDefined();
-    expect(files["pyproject.toml"]).toBeDefined();
+    expect(files["uv.lock"]).toBeUndefined();
+    expect(files["pyproject.toml"]).toBeUndefined();
+    expect(files[".python-version"]).toBeUndefined();
+    expect(files["core-revision.txt"]).toBeDefined();
     expect(JSON.parse(new TextDecoder().decode(files["sample.json"]))).toEqual({
       csv: "input/sample/sample_students.csv",
       assignments: "input/sample/sample_assignments.json",

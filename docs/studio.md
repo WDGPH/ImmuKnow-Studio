@@ -247,12 +247,13 @@ companion files remain available, preserving project dependencies. Other notices
 in the browser draft are not backed up by this download; download each notice
 you want to keep.
 Authored files keep their bytes and relative paths. Import the ZIP to resume
-editing, or run it locally using the included ImmuKnow-Template Python setup,
-reviewed standalone Core revision and helper scripts. The ZIP includes a README
+editing, or run it locally using the reviewed standalone ImmuKnow executable
+and its native project commands. The ZIP includes a README
 and sample copies under `input/sample/` when fictional client data is included
 and a prepared example is available.
 An imported project's existing sample selection and authored files are preserved.
-The installed environment, standalone executable are not bundled.
+The standalone executable is supplied separately. Fresh downloads include no
+Python environment or setup files; imported legacy files remain intact.
 If the project changes while the ZIP is being prepared, download it again.
 A project with unfinished edits or no prepared example can still be saved.
 
@@ -271,7 +272,7 @@ symlinks and corrupt archives are rejected.
 ImmuKnow-Template repository. It includes the active template, its Settings file
 and referenced authored `.typ` companions, preserving their bytes and relative
 paths. Unrelated notices, shared ImmuKnow components, fonts, images, CSV/JSON data
-and Python setup are omitted. Extract the selected source files into the matching
+and native setup instructions are omitted. Extract the selected source files into the matching
 paths in your existing repository, which supplies those dependencies.
 Companions are collected from literal local file paths; include any files reached
 only through calculated paths yourself. This source-only ZIP is not a complete
@@ -283,8 +284,9 @@ for a portable Studio backup or a runnable project.
 Production notice generation happens with ImmuKnow core on your local
 workstation. Follow [Use projects on your workstation](local-production.md)
 for the complete handoff, native command examples, fonts and output review.
-Keep the extracted project and its assets together. `uv sync --locked` installs
-the pinned engine; install native Typst and the supplied fonts separately.
+Keep the extracted project and its assets together. `immuknow project sync`
+installs the shared library from your separately supplied executable. Install
+the supplied fonts on your workstation; no separate Typst installation is needed.
 For native delivery grouping and optional PDF encryption, edit the project
 configuration on your workstation and follow the [Core configuration guide](https://docs.phiz.ca/immuknow/latest/user_guide/configuration/).
 That guide also explains optional password placeholders, including initials.

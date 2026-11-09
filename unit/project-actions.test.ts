@@ -147,19 +147,20 @@ test("current download keeps selected example and referenced entries but exclude
 });
 
 test("legacy downloads gain the pinned scaffold without overwriting authored setup", () => {
-  const files = { ...baseline, "README.md": encoder.encode("Authored instructions") };
+  const files = { ...baseline, "README.md": encoder.encode("Authored instructions"), "scripts/run.py": encoder.encode("Imported legacy helper") };
   const starters = {
     "template-source.json": encoder.encode(
-      JSON.stringify({ files: { "README.md": "hash", "scripts/run.py": "hash", "templates/other.fr.typ": "hash", "config/new.json": "hash" } }),
+      JSON.stringify({ files: { "README.md": "hash", "core-revision.txt": "hash", "templates/other.fr.typ": "hash", "config/new.json": "hash" } }),
     ),
     "README.md": encoder.encode("Upstream instructions"),
-    "scripts/run.py": encoder.encode("Upstream runner"),
+    "core-revision.txt": encoder.encode("a".repeat(40)),
     "templates/other.fr.typ": encoder.encode("Unselected starter"),
     "config/new.json": encoder.encode("{}"),
   };
   const result = currentProject(files, template, [], undefined, starters);
   expect(result["README.md"]).toBe(files["README.md"]);
-  expect(result["scripts/run.py"]).toBe(starters["scripts/run.py"]);
+  expect(result["scripts/run.py"]).toBe(files["scripts/run.py"]);
+  expect(result["core-revision.txt"]).toBe(starters["core-revision.txt"]);
   expect(result["template-source.json"]).toBe(starters["template-source.json"]);
   expect(result["templates/other.fr.typ"]).toBeUndefined();
   expect(result["config/new.json"]).toBeUndefined();

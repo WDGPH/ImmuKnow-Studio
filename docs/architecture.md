@@ -6,7 +6,7 @@
 | --- | --- |
 | ImmuKnow core | Standalone Rust pipeline, input validation, prepared notice facts, schemas, shared Typst components and native generation/review results |
 | ImmuKnow Studio | Browser editor, Theme controls, draft storage, project import/download, browser compiler and renderer, fonts, example previews and Studio tests |
-| ImmuKnow Template | Starter letters, Settings, translations, example branding, project configuration, runnable setup, dependency lock, helpers and starter tests |
+| ImmuKnow Template | Starter letters, Settings, translations, example branding, project configuration, native setup instructions, fictional samples and starter tests |
 | PHIZ documentation hub | Shared manual presentation, version selection, search and documentation publication |
 
 Core contains no starter project. Studio obtains authored starters from the
@@ -104,7 +104,7 @@ projects whose shared bytes and formats still match.
 
 Build preparation combines Template’s authored starter files with Core’s shared
 library. Downloads include the selected authored project and, when requested,
-Studio’s fictional inputs. Downloads supply any missing setup files and preserve files already
+Studio’s fictional inputs. Downloads supply native instructions without Python setup files and preserve files already
 present in imported projects. `template-source.json` identifies the upstream
 package source, while `immuknow-project.json` hashes the actual downloaded bytes.
 

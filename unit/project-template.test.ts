@@ -7,7 +7,9 @@ import json
 from unittest.mock import patch
 from scripts.project_template import scaffold_files
 files = scaffold_files()
-assert "scripts/run.py" in files
+assert not any(name.startswith("scripts/") for name in files)
+assert not {"pyproject.toml", "uv.lock", ".python-version", ".pre-commit-config.yaml"}.intersection(files)
+assert "core-revision.txt" in files
 assert "templates/setup.typ" in files
 assert "config/notice_versions.yaml" in files
 assert not any(name.startswith("templates/lib/") for name in files)

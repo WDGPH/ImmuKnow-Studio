@@ -11,7 +11,7 @@ Change the editor, browser previews, drafts, imports, exports, example presentat
 and this manual here. Change the native pipeline, schemas, reference
 configuration and shared Typst components in [ImmuKnow](https://github.com/WDGPH/ImmuKnow).
 Change starter letters, Settings, translations, example branding, project
-configuration and native helper scripts in
+configuration and native project instructions in
 [ImmuKnow Template](https://github.com/WDGPH/ImmuKnow-Template), then refresh
 its pinned resource dependency here. Core ships no starter letters.
 Change the shared documentation presentation and catalogue in
@@ -195,12 +195,14 @@ npm run test:browser
 Browser checks serve `dist/` at the root. Set `IMMUKNOW_BASE_URL` to test an
 already served artifact, including any proxy prefix and trailing slash. Do not
 rebuild an artifact while it is being tested. Evidence stays in `test-results/`.
-Downloaded-project checks install the ZIP's locked environment outside either checkout
-and run its Template helpers and Core engine. Four cases cover a customized
+Downloaded-project checks extract the ZIP outside either checkout and run the
+Core executable directly with an empty command search path. They install no
+Python environment or tools into the project. Python stays in the test harness
+for PDF and QR inspection. Four cases cover a customized
 English notice through both selectors, long French output, saved-run review
 for a French notice with warnings, and a guardian-directed suspension order for
 an older student. Template's maintainer tests run in its own
-repository; fresh downloads contain the user-facing setup and sample check.
+repository; fresh downloads contain native setup instructions and sample selections.
 PDF reader checks use Studio's own example inputs.
 
 Add or update example clients in Template. Aim for plausible records that help
@@ -275,15 +277,17 @@ npm run prepare:assets
 A Core upgrade also requires a Template revision whose core-revision.txt selects
 that Core commit. `scripts.project_template` checks Core compatibility and
 Git source provenance; it no longer refreshes files from a separate checkout.
-Never edit installed resources. Template uses `tool.uv.package = false`, so downloaded
-projects install only their helper tools. Their standalone executable is supplied
-separately.
+Never edit installed resources. The resource package excludes Python helpers,
+Python environment files and maintainer tests from the exported scaffold.
+Downloaded projects use native project commands; their standalone executable
+is supplied separately. Python remains a Studio build/test/documentation
+dependency, and is not required for production notice generation.
 
 Core and Template are public repositories, so dependency installation needs no
 GitHub credentials. Dependencies stay locked and installed; ordinary builds
 perform no ad hoc upstream fetches.
 
 Run the browser/native downloaded-project checks after either dependency changes
-to verify clean installation, setup, the sample, both native selectors and
+to verify native setup, the sample, both notice selectors and
 saved-run rebundling. Template maintains its resource-wheel/source-archive and
 helper tests in its own repository.
