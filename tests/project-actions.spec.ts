@@ -154,7 +154,8 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");
   const files = await download(page);
   const assignments = JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]));
-  expect(assignments).toHaveLength(10);
+  expect(assignments).toHaveLength(1);
+  expect(assignments[0].template).toBe("overdue_diseases_v1.en.typ");
   for (const entry of assignments) expect(files[`templates/${entry.template}`]).toBeDefined();
   expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   // The scoped download remains a valid project that can be imported.

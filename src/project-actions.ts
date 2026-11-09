@@ -42,6 +42,36 @@ export function referencedFiles(files: Files, entry: string): Set<string> {
   return found;
 }
 
+// Dynamic local imports and asset paths cannot be resolved by the literal scan.
+// Retain the existing project when an authored source uses one.
+function hasComputedPath(source: string): boolean {
+  const aliases = new Set<string>();
+  for (const match of source.matchAll(
+    /(?:#|(?:^|[;{}\n])\s*)(import|include)\s+([^\r\n]+)/g,
+  )) {
+    const [, operation, operand] = match;
+    const literal = operand.match(/^"[^"\r\n]*"\s*(?::|as\s+([\w-]+)\b|$|;|\/\/)/);
+    if (literal) {
+      if (operation === "import" && literal[1]) aliases.add(literal[1]);
+      continue;
+    }
+    const module = operation === "import" && operand.match(/^([\w-]+)\s*:/);
+    if (!module || !aliases.has(module[1]) ||
+        new RegExp(`\\blet\\s+${module[1]}\\b`).test(source)) return true;
+  }
+  for (const match of source.matchAll(
+    /\b(image|read|json|csv|yaml|xml|toml|cbor)\s*\(\s*([^\r\n]+)/g,
+  )) {
+    const [, loader, operand] = match;
+    if (/^"[^"\r\n]*"\s*[,)]/.test(operand)) continue;
+    // This special native input contains prepared client data, not a project path.
+    if (loader === "json" && /^sys\.inputs\.(?:at\(\s*"data"\s*\)|data)\s*[,)]/.test(operand))
+      continue;
+    return true;
+  }
+  return false;
+}
+
 // A source-only handoff for an existing repository, retaining authored paths and
 // bytes while leaving its supplied library, fonts and assets in place.
 export function authoredTypstFiles(files: Files, template: string): Files {
@@ -67,18 +97,48 @@ export function currentProject(
   files: Files,
   template: string,
   examples: Bundle["examples"],
-  _example?: Example,
+  example?: Example,
   starters: Files = {},
   includeFictionalData = true,
 ): Files {
   const required = referencedFiles(files, template);
+  const settings = settingsPath(files, template);
+  if (settings) for (const path of referencedFiles(files, settings)) required.add(path);
+  // Retained authored sources can bring their own unchanged starter helpers and
+  // assets. Follow those sources as well as the active entry point.
+  const authored = Object.entries(files).filter(
+    ([path, bytes]) =>
+      path.endsWith(".typ") &&
+      !path.startsWith("templates/lib/immuknow/") &&
+      !path.startsWith("templates/fonts/") &&
+      (!starters[path] || !sameBytes(bytes, starters[path])),
+  );
+  for (const [path] of authored) {
+    const dependencies = referencedFiles(files, path);
+    for (const dependency of dependencies) required.add(dependency);
+    if ([...dependencies].some((dependency) =>
+      dependency.endsWith(".typ") &&
+      !dependency.startsWith("templates/lib/immuknow/") &&
+      hasComputedPath(decoder.decode(files[dependency])),
+    )) {
+      for (const candidate of Object.keys(files)) required.add(candidate);
+    }
+  }
   const sharedCsv = "examples/sample/clients.csv";
   const sharedAssignments = "examples/sample/assignments.json";
+  // The selected preview's prepared input keeps its authored facts and the
+  // active notice assignment, including when that combination has findings.
+  const input = example?.inputs[template.slice("templates/".length)];
+  const fictionalCsv = input && starters[input.csv];
+  const fictionalAssignments = input && starters[input.assignments];
+  const inputs = examples.flatMap((item) => Object.values(item.inputs));
+  const matches = (path: string, original: string) =>
+    !!starters[original] && !!files[path] && sameBytes(files[path], starters[original]);
+  const isFictionalSample = (csv: string, assignments: string) =>
+    (matches(csv, sharedCsv) && matches(assignments, sharedAssignments)) ||
+    inputs.some((item) => matches(csv, item.csv) && matches(assignments, item.assignments));
   if (!includeFictionalData) {
     files = { ...files };
-    const inputs = examples.flatMap((item) => Object.values(item.inputs));
-    const matches = (path: string, original: string) =>
-      !!starters[original] && !!files[path] && sameBytes(files[path], starters[original]);
     // Remove an unchanged Studio sample on re-export too. Custom or unfinished
     // imported samples keep their files and dependencies.
     if (files["sample.json"]) {
@@ -91,10 +151,7 @@ export function currentProject(
           !required.has("sample.json") &&
           !required.has(csv) &&
           !required.has(assignments) &&
-          ((matches(csv, sharedCsv) && matches(assignments, sharedAssignments)) ||
-            inputs.some(
-              (input) => matches(csv, input.csv) && matches(assignments, input.assignments),
-            ))
+          isFictionalSample(csv, assignments)
         ) {
           delete files["sample.json"];
           delete files[csv];
@@ -115,6 +172,10 @@ export function currentProject(
         if (typeof path !== "string") throw new Error("Incomplete sample selection");
         required.add(safePath(path));
       }
+      // A custom sample can depend on calculated paths that the literal scan
+      // cannot discover. Keep its candidates until the author resolves them.
+      if (!isFictionalSample(sample.csv as string, sample.assignments as string))
+        for (const path of Object.keys(files)) required.add(path);
       const assignments = files[sample.assignments as string];
       if (!assignments) throw new Error("Missing sample assignments");
       const rows: unknown = JSON.parse(decoder.decode(assignments));
@@ -131,24 +192,6 @@ export function currentProject(
       for (const path of Object.keys(files)) required.add(path);
     }
   }
-  // A fresh project uses Template's complete fictional cohort and its notice
-  // choices. Retain the assigned starters and their dependencies for the run.
-  if (includeFictionalData && !files["sample.json"] && starters[sharedAssignments]) {
-    const rows: unknown = JSON.parse(decoder.decode(starters[sharedAssignments]));
-    if (!Array.isArray(rows)) throw new Error("Invalid fictional sample assignments");
-    files = { ...files };
-    const available = { ...starters, ...files };
-    for (const row of rows) {
-      if (!row || typeof row.template !== "string")
-        throw new Error("Invalid fictional sample assignment");
-      const path = safePath(`templates/${row.template}`);
-      if (!available[path]) throw new Error(`Missing fictional sample notice: ${path}`);
-      for (const dependency of referencedFiles(available, path)) {
-        required.add(dependency);
-        if (!files[dependency]) files[dependency] = available[dependency];
-      }
-    }
-  }
   const otherInputs = new Set(
     examples.flatMap((item) => Object.values(item.inputs).flatMap(Object.values)),
   );
@@ -157,7 +200,9 @@ export function currentProject(
       if (path === sharedCsv || path === sharedAssignments)
         return required.has(path) || !starters[path] || !sameBytes(files[path], starters[path]);
       if (required.has(path)) return true;
-      if (/^templates\/.+\.(en|fr)\.typ$/.test(path)) return false;
+      if (path.startsWith("templates/") && !path.startsWith("templates/lib/immuknow/") &&
+          !path.startsWith("templates/fonts/") && starters[path] && sameBytes(files[path], starters[path]))
+        return false;
       if (otherInputs.has(path)) return !starters[path] || !sameBytes(files[path], starters[path]);
       return true;
     }),
@@ -165,8 +210,8 @@ export function currentProject(
   if (
     !result["sample.json"] &&
     includeFictionalData &&
-    starters[sharedCsv] &&
-    starters[sharedAssignments]
+    fictionalCsv &&
+    fictionalAssignments
   ) {
     const availablePath = (preferred: string, bytes: Uint8Array): string => {
       if (!result[preferred] || sameBytes(result[preferred], bytes)) return preferred;
@@ -177,14 +222,14 @@ export function currentProject(
       }
     };
     const sample = {
-      csv: availablePath("input/sample/sample_students.csv", starters[sharedCsv]),
+      csv: availablePath("input/sample/sample_students.csv", fictionalCsv),
       assignments: availablePath(
         "input/sample/sample_assignments.json",
-        starters[sharedAssignments],
+        fictionalAssignments,
       ),
     };
-    result[sample.csv] = starters[sharedCsv];
-    result[sample.assignments] = starters[sharedAssignments];
+    result[sample.csv] = fictionalCsv;
+    result[sample.assignments] = fictionalAssignments;
     result["sample.json"] = encoder.encode(`${JSON.stringify(sample, null, 2)}\n`);
   }
   // Fill missing Template setup files from this build's pinned snapshot.

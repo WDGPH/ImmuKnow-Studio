@@ -54,12 +54,22 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     reference: "visualize/image/",
   },
   "immuknow.notice-header": {
-    namedParameters: ["logo", "title", "logo-width", "title-size", "fill", "placement", "spacing"],
+    namedParameters: [
+      "logo",
+      "title",
+      "logo-width",
+      "title-size",
+      "title-align",
+      "fill",
+      "placement",
+      "spacing",
+    ],
     description: "Places the logo and letter heading together.",
     parameters: [
       ["logo", "The logo image."],
       ["title", "The heading text."],
       ["title-size / fill", "Heading size and colour."],
+      ["title-align", "Use left, center, or right to align the title within its column."],
     ],
     example: '#immuknow.notice-header(title: "Immunization Record")',
   },
@@ -502,7 +512,14 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     reference: "data-loading/read/",
   },
   "immuknow.notice-page": {
-    namedParameters: ["allow-overflow", "title-size", "fill", "heading-above", "heading-below"],
+    namedParameters: [
+      "allow-overflow",
+      "title-size",
+      "title-align",
+      "fill",
+      "heading-above",
+      "heading-below",
+    ],
     description:
       "Starts a named page using Settings defaults. Named options change only this page; unexpected continuation produces a finding.",
     parameters: [
@@ -510,6 +527,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["body", "The page content inside square brackets."],
       ["allow-overflow", "Set true to allow this content to continue onto more pages."],
       ["title-size / fill", "Heading size and colour for this page."],
+      ["title-align", "Use left, center, or right to align this page’s title."],
       ["heading-above / heading-below", "Space above and below this page’s heading."],
     ],
     example: '#immuknow.notice-page("Request for Immunization Record")[Your letter here.]',
@@ -547,6 +565,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["logo", "Logo image, or none to leave it out."],
       ["logo-width", "Displayed logo width, such as 6cm."],
       ["title-size", "Heading text size, such as 20pt."],
+      ["title-align", "Use left, center, or right to align the title within its column."],
       ["fill", "Fill colour, such as heading-color."],
       ["heading-above", "Space above the heading."],
       ["heading-below", "Space below the heading."],
@@ -557,6 +576,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       "logo",
       "logo-width",
       "title-size",
+      "title-align",
       "fill",
       "heading-above",
       "heading-below",
@@ -760,7 +780,8 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     example: "#let ispa_up_to_date = immuknow.notice-flags(include-ispa: true).ispa_up_to_date",
   },
   "immuknow.notice-dates": {
-    description: "Provides delivery, as-of and birth dates in the notice’s language.",
+    description:
+      "Provides delivery, as-of, due, suspension and birth dates in the notice’s language.",
     parameters: [],
     example: "#immuknow.notice-dates()",
     namedParameters: [],

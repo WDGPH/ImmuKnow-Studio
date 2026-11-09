@@ -25,15 +25,14 @@ Extract `immuknow-project.zip` into a folder you control.
 | `README.md` | Native setup, sample checks and notice instructions |
 | `templates/` | Your selected notice, Settings, supporting files, images and shared components |
 | `config/` | Configuration for native ImmuKnow runs |
-| `input/sample/`, `sample.json` | Ten fictional clients and their notice assignments, when included |
+| `input/sample/`, `sample.json` | Selected fictional client and notice assignment, when included |
 | `examples/` | Explanation of the fictional examples |
 | `templates/fonts/` | Fonts and licences for manual installation, when included in the download |
 | `template-source.json` | Template package source commit and original scaffold file hashes |
 | `immuknow-project.json` | Studio import format, selected notice, build identity and current file hashes |
 
 Keep the complete directory structure and relative paths. Leave
-`templates/lib/immuknow/` unchanged. The ZIP includes the selected notice and its dependencies. When fictional data
-is included, it also includes the notices assigned to the ten clients. When combining projects, review
+`templates/lib/immuknow/` unchanged. The ZIP includes the selected notice and its dependencies. When combining projects, review
 shared Settings and assets before replacing files.
 
 ## Install and check the project
@@ -67,8 +66,9 @@ immuknow run input/sample/sample_students.csv --project . \
 ```
 
 When **Include fictional client data** is selected, Studio supplies copies of
-the ten fictional clients and their notice assignments in `input/sample/` and
-points `sample.json` to them. An imported
+the selected preview client's data and its active notice assignment in `input/sample/`
+and points `sample.json` to them. The sample retains the client's facts, so an
+incompatible notice can produce findings or a failed notice. An imported
 project's existing sample selection and authored sample bytes are preserved,
 even when you change the preview client. Without fictional data or a prepared example, a project can
 still be downloaded: provide inputs and a `sample.json` selection before running

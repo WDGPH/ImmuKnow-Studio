@@ -239,13 +239,14 @@ or **Authored .typ files only**. With **Complete project**, choose **Download ZI
 to save the selected notice with current Settings,
 Theme, translations, components, images and configuration.
 The **Include fictional client data** checkbox is selected by default. Keep it
-to include the ten fictional clients, their notice assignments and the needed
-notices for a local test run. Clear it to download without Studio’s fictional inputs,
+to include the selected fictional client and its assignment to the active notice
+for a local test run. The sample keeps the preview client's facts even if they
+produce findings for that notice. Clear it to download without Studio’s fictional inputs,
 including unchanged sample copies from a previously imported Studio ZIP. Custom
-imported sample data is preserved. Other unrelated starter notices and example inputs are omitted. Explicitly referenced notices and authored
-companion files remain available, preserving project dependencies. Other notices
-in the browser draft are not backed up by this download; download each notice
-you want to keep.
+imported sample data is preserved. Other unrelated starter notices, unused starter assets and example inputs are omitted. Explicitly referenced notices and authored
+companion files and modified or custom notices remain available, preserving
+project dependencies and authored work. Download another notice when you need its
+unchanged starter in the project.
 Authored files keep their bytes and relative paths. Import the ZIP to resume
 editing, or run it locally using the reviewed standalone ImmuKnow executable
 and its native project commands. The ZIP includes a README

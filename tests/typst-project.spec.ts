@@ -178,7 +178,8 @@ for (const [scenario, filename] of cases) {
     }
     const assignments = JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]));
     for (const assignment of assignments) expect(files[`templates/${assignment.template}`]).toBeDefined();
-    expect(assignments).toHaveLength(bundle.examples.length);
+    expect(assignments).toHaveLength(1);
+    expect(assignments[0].template).toBe(filename);
     expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
     expect(Object.keys(files).some((path) => path.startsWith("scripts/"))).toBe(false);
     expect(Object.keys(files).some((path) => path.startsWith("tests/"))).toBe(false);
@@ -190,8 +191,8 @@ for (const [scenario, filename] of cases) {
       csv: "input/sample/sample_students.csv",
       assignments: "input/sample/sample_assignments.json",
     });
-    expect(Buffer.from(files["input/sample/sample_students.csv"]).toString("base64")).toBe(bundle.files["examples/sample/clients.csv"]);
-    expect(Buffer.from(files["input/sample/sample_assignments.json"]).toString("base64")).toBe(bundle.files["examples/sample/assignments.json"]);
+    expect(Buffer.from(files["input/sample/sample_students.csv"]).toString("base64")).toBe(bundle.files[examples[index].inputs[filename].csv]);
+    expect(Buffer.from(files["input/sample/sample_assignments.json"]).toString("base64")).toBe(bundle.files[examples[index].inputs[filename].assignments]);
     const source = JSON.parse(new TextDecoder().decode(files["template-source.json"]));
     expect(source.repository).toBe("https://github.com/WDGPH/ImmuKnow-Template");
     expect(source.revision).toMatch(/^[0-9a-f]{40}$/);

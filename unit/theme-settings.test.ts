@@ -151,6 +151,23 @@ test("calculated colours are not rewritten by a theme change", () => {
   );
 });
 
+test("title alignment can be edited and survives Settings-only reset", () => {
+  const baseline = bytes('#let title-align = center // Keep\n#let paper-size = "a4"\n');
+  const current = updateThemeSettings(baseline, { "title-align": "right" });
+  expect(settingValue(current, "title-align")).toBe("right");
+  const changed = bytes(
+    decoder.decode(current).replace('paper-size = "a4"', 'paper-size = "us-letter"'),
+  );
+  expect(decoder.decode(resetSettingsKeepingTheme(baseline, changed))).toBe(
+    '#let title-align = right // Keep\n#let paper-size = "a4"\n',
+  );
+  const computed = bytes("#let title-align = if true { left } else { right }\n");
+  expect(settingValue(computed, "title-align")).toBeUndefined();
+  expect(() => updateThemeSettings(computed, { "title-align": "center" })).toThrow(
+    "Edit title-align in Settings",
+  );
+});
+
 test("Settings reset preserves branding and QR style while restoring layout and contacts", () => {
   const baseline = maintainedSettings;
   const source = decoder.decode(baseline);

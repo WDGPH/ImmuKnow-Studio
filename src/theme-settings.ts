@@ -93,7 +93,7 @@ function supportedValue(input: SettingsSource, range: Range): string | undefined
       return;
     }
   }
-  if (["black", "white"].includes(value)) return value;
+  if (["black", "white", "left", "center", "right"].includes(value)) return value;
   const call = value.match(/^(image|rgb)\(/);
   if (call?.[1] === "image" && !/^image\("[^"\\\r\n]+"[ \t]*(?:,|\))/.test(value)) return;
   if (call?.[1] === "rgb" && !/^rgb\("#[\da-f]{6}"\)$/i.test(value)) return;
@@ -188,6 +188,7 @@ const themeBindings = [
   "link-color",
   "accent-color",
   "title-size",
+  "title-align",
   "logo",
   "logo-width",
   "signature",
@@ -251,9 +252,21 @@ export function resetSettingsKeepingTheme(baseline: Uint8Array, current: Uint8Ar
       const name = match[1];
       if (
         /^\s*:/.test(code.slice(match.index + name.length)) ||
-        ["image", "rgb", "black", "white", "auto", "none", "true", "false", "if", "else"].includes(
-          name,
-        ) ||
+        [
+          "image",
+          "rgb",
+          "black",
+          "white",
+          "left",
+          "center",
+          "right",
+          "auto",
+          "none",
+          "true",
+          "false",
+          "if",
+          "else",
+        ].includes(name) ||
         themeBindings.includes(name)
       )
         continue;

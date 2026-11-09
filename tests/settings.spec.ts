@@ -129,3 +129,27 @@ test("calculated values stay in source editing and a refused theme leaves all Se
   await page.locator("#settings-tab").click();
   await expect(page.locator(".cm-content")).toHaveAttribute("contenteditable", "true");
 });
+
+test("title alignment changes Settings", async ({ page }) => {
+  const source = await importSettings(page, (source) =>
+    source.replace(/^#let title-align = .*$/m, "#let title-align = center"),
+  );
+  const picker = page.locator("#title-align-picker");
+  await expect(picker).toHaveValue("center");
+  await picker.selectOption("right");
+  await current(page);
+  expect(await downloadSettings(page)).toEqual(
+    new TextEncoder().encode(
+      source.replace("#let title-align = center", "#let title-align = right"),
+    ),
+  );
+});
+
+test("calculated title alignment requires source editing", async ({ page }) => {
+  await importSettings(page, (source) =>
+    source.replace(/^#let title-align = .*$/m, "#let title-align = if true { left } else { right }"),
+  );
+  const picker = page.locator("#title-align-picker");
+  await expect(picker).toBeDisabled();
+  await expect(picker.locator("option:checked")).toHaveText("Edit in Settings");
+});
