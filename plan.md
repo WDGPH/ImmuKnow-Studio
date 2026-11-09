@@ -13,11 +13,11 @@ Studio work from the [tracked shared execution plan](../ImmuKnow/plan.md). Filen
 
 Matching runtime pins, editable filename settings in downloads, unit/browser checks and downloaded native original/protected/bundle/review/rebundle handoffs are complete. Do not rebuild or reimplement filename support for the work below. The shared plan distinguishes shipped defaults from custom examples.
 
-## R1: consume the independent reference fixes
+## R1: reference fixes adopted
 
-- [ ] After Template carries Meningococcal disease normalization and TIg reference/display exclusions upstream, update Studio's Template package pin and lock.
-- [ ] Regenerate native-prepared examples/resources and confirm the authored files appear in downloads. Reference-only changes need no new native schema; keep the current Core pin if unchanged.
-- [ ] Verify existing fictional previews and export preservation. Do not add private production records or separate copies of the reference configuration here.
+- [x] Adopt Template's committed Meningococcal disease normalization and TIg reference/display exclusions (`b129c7a286483261332d3403e51d064b476f4711`) through Studio's package pin and lock.
+- [x] Regenerate native-prepared examples/resources and confirm the authored files appear in downloads. The existing Core pin remains unchanged.
+- [x] Verify existing fictional previews and export preservation without adding private records or separate reference configuration copies.
 
 ## R2a/R2b: adopt the shared requirements contract
 
@@ -25,6 +25,7 @@ Matching runtime pins, editable filename settings in downloads, unit/browser che
 - [ ] Build the exact clean Core source through `scripts/native_core.py` and verify the stored executable fingerprint through that workflow. Regenerate Core-exported schemas, browser validators and prepared examples; never edit generated validators or installed resource files.
 - [ ] Preserve R2a's per-entry deferred-check list outside observed checks in generated examples. Deferred requirements must not make example generation fail or imply a passed check. Display a neutral “Checked when the notice compiles” advisory until a current validated result exists; do not include it in warning counts. Preserve existing stale/last-successful-preview labels and distinguish assertion/compilation failures from readable notices with failed checks.
 - [ ] Keep a rendered preview visible with an explicit mandatory failure for missing/duplicate/malformed requirements; do not conflate successful rendering plus failed validation with compilation failure. For genuinely corrupt/wrong-row evidence, reject claimed findings and mark the artifact unverified while retaining the rendered preview. Use the R2a fixtures for parity.
+- [ ] Distinguish pending checks from completed but blocked checks: invalid requirements produce a mandatory `notice.requirements` failure and an explicit `blocked_checks` list outside observations. Clear the deferred advisory for a current validated failed-declaration report; do not present dependent checks as passed or not applicable.
 - [ ] Preserve ordinary authored bytes, paths and drafts, without adding catalog-specific import handling or silently rewriting notices. Verify v2 projects use notice-local requirements with no YAML; missing/malformed declarations fail visibly and an obsolete imported YAML file has no effect. Remove old catalog assumptions from project generation and tests.
 - [ ] Verify a downloaded project outside both repos with native sync/check/run/rebundle, using the matching engine and no Python requirement in the exported project. Confirm structured failures retain review PDFs and rebundling uses saved requirements/results without re-evaluating an edited notice.
 

@@ -260,7 +260,7 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "immuknow-template-resources", git = "https://github.com/WDGPH/ImmuKnow-Template.git?rev=dbe9ed2f0233395970f63cc357c36fe271525c28" },
+    { name = "immuknow-template-resources", git = "https://github.com/WDGPH/ImmuKnow-Template.git?rev=b129c7a286483261332d3403e51d064b476f4711" },
     { name = "pyyaml" },
 ]
 
@@ -285,7 +285,7 @@ docs = [
 [[package]]
 name = "immuknow-template-resources"
 version = "0.1.0"
-source = { git = "https://github.com/WDGPH/ImmuKnow-Template.git?rev=dbe9ed2f0233395970f63cc357c36fe271525c28#dbe9ed2f0233395970f63cc357c36fe271525c28" }
+source = { git = "https://github.com/WDGPH/ImmuKnow-Template.git?rev=b129c7a286483261332d3403e51d064b476f4711#b129c7a286483261332d3403e51d064b476f4711" }
 
 [[package]]
 name = "jinja2"
