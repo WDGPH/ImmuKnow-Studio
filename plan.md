@@ -29,22 +29,22 @@ Matching runtime pins, editable filename settings in downloads, unit/browser che
 - [x] Preserve ordinary authored bytes, paths and drafts, without adding catalog-specific import handling or silently rewriting notices. Verify v2 projects use notice-local requirements with no YAML; missing/malformed declarations fail visibly and an obsolete imported YAML file has no effect. Remove old catalog assumptions from project generation and tests.
 - [x] Verify downloaded projects outside both repos with native sync/check/run/rebundle, using the matching engine and no Python requirement in the exported project. Confirm readable structured failures in the browser and saved checks survive rebundling without authored inputs.
 
-## W1/W2: consume warning evidence; native acknowledgment remains Core-owned
+## W1/W2 and S1: adopted Core behavior
 
-- [ ] If Core adds structured URL subjects, update generated contracts and preview rendering so issue details/counts are available without parsing human messages. Keep raw compiler diagnostics separate.
-- [ ] Keep observed findings visible even if a future effective/acknowledged state is displayed. An acknowledgment is not a passed check or an implicit delivery approval. Do not add a generic hide-all-errors button.
-- [ ] Core's saved-run acknowledgment belongs in its run/report/rebundle workflow. Add a Studio authoring acknowledgment control only if separately scoped and supported by an exported policy contract; there is no production run UI here to extend today.
-- [ ] Avoid exposing personalized query values in aggregate labels. New links and changed destination sets need distinct review.
+- [x] Consume the shared report schema including structured link subjects; preview findings retain observed checks and compiler diagnostics remain separate. Native saved-run acknowledgment and rebundling remain Core workflows; Studio has no production acknowledgment UI.
+- [x] Retain Template's editable bundle settings in downloads, including optional `last_name_dob` ordering. Grouping, ordering, naming and production reporting remain Core responsibilities.
 
-## D1/S1/H1/PR1: later work and documentation
+## R3: isolated source-row failures
 
-- [ ] If the disease catalog/language layout changes, preserve imported legacy files and paths, package all required authored resources, and test explicit migration/export compatibility. File renaming alone does not add language support.
-- [ ] Verify downloaded project settings for optional last-name/DOB ordering separately from completed F0 filename support. Keep grouping, naming, sorting and production report-size implementation in Core.
-- [ ] Update native-production guidance when behavior actually changes. Link to Core's finding/review/performance guides instead of duplicating their contracts.
-- [ ] Keep browser benchmark results separate from the 384.5-second native run. Use the existing preview benchmark only to detect editor/compiler/viewer changes from new resources; native profiling is a separate workflow.
+- [x] Adopt the verified Core and Template pins, regenerate schemas and examples, and confirm the browser accepts incomplete cohort validity coverage. Example generation reports a failed preparation before reading absent notice facts; validated assignments remain intact.
+- [x] Verify native and browser handoffs with the matching engine and run the focused failed-example test.
+
+## Deferred exploration
+
+Disease catalog/language migration and production report-size work remain upstream. Preserve imported authored files and paths. Real-run profiling is deferred at the user's request; browser benchmarks do not substitute for it.
 
 ## Verification
 
-Execute R1 independently; do not implement R2b before R2a fixtures/schema/deferred semantics are fixed. G1 and W1 engine changes may be adopted separately; W2 needs its operator/persistence contract first. Follow [development checks](docs/development.md) and [documentation checks](docs/documentation.md). For code/pin changes run frontend typecheck, lint and unit tests plus Python type/lint checks, then focused browser checks against a fresh build. Verify preview findings, draft/import preservation, downloads and the intended standalone native engine together. Use the manual `full_tests` workflow for full browser/native acceptance; retain the existing routine-CI policy.
+Follow [development checks](docs/development.md) and [documentation checks](docs/documentation.md). For code/pin changes run frontend typecheck, lint and unit tests plus Python type/lint checks, then focused browser checks against a fresh build. Verify preview findings, draft/import preservation, downloads and the intended standalone native engine together. Use the manual `full_tests` workflow for full browser/native acceptance; retain the existing routine-CI policy.
 
 Documentation-only changes use the strict documentation build, without rebuilding the compiler or running the full browser suite. An unchanged browser compiler does not need rebuilding merely because Core resources or Template data changed.

@@ -9,7 +9,7 @@ package = false
 
 [tool.uv.sources]
 
-immuknow-template-resources = { git = "https://github.com/WDGPH/ImmuKnow-Template.git", rev = "bd776612d978e349f62159c1309c63bc728405ed" }
+immuknow-template-resources = { git = "https://github.com/WDGPH/ImmuKnow-Template.git", rev = "91c5b1cf5e573d8c8f234d71252ea65bfbe6d9fb" }
 
 [dependency-groups]
 dev = [

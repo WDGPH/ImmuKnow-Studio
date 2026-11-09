@@ -14,6 +14,7 @@ export interface BlockedCheck {
   blocked_by: string;
   reason: string;
 }
+export type HistoryValidityCoverage = "all_present" | "all_absent" | "mixed";
 export interface Notice {
   schema_version: 2;
   row_key: string;
@@ -23,6 +24,8 @@ export interface Notice {
   language: "en" | "fr";
   intended_reader?: "student" | "guardian" | null;
   client_data: { name: string; [key: string]: unknown };
+  validity_coverage: HistoryValidityCoverage | "incomplete";
+  history_validity_coverage: HistoryValidityCoverage;
   [key: string]: unknown;
 }
 export interface RenderSummary {

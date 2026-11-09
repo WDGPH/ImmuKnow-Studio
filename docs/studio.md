@@ -136,8 +136,9 @@ Typst checks. Notice requirements and display checks are marked **Checked when
 the notice compiles** until a current preview supplies validated evidence.
 If the evidence is invalid, the readable preview remains visible with an error. Extra diseases covered by a forecasted agent are a warning;
 they do not stop the preview. For example, MMR also covers Mumps and Rubella
-when only Measles is overdue. Examples contain valid source history. Invalid history rejects a
-native input file before rendering, even if a template omits the history table.
+when only Measles is overdue. Examples contain valid source history. In a native run, an invalid history or
+reader choice fails that source row; other valid rows can still produce notices.
+If any history cannot be parsed, cohort validity coverage is incomplete.
 Display checks follow the components actually placed. A partially flagged history
 errors when validity display is enabled; a suspension without a history table
 does not evaluate history display choices.

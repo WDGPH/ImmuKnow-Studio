@@ -117,9 +117,15 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                 if len(result["entries"]) != 1:
                     raise ValueError(f"Expected one prepared example: {filename}")
                 entry = result["entries"][0]
-                if any(check["status"] == "fail" for check in entry["checks"]):
+                failures = [
+                    check["code"]
+                    for check in entry["checks"]
+                    if check["status"] == "fail"
+                ]
+                if failures:
                     raise ValueError(
-                        f"Example variant is unrenderable: {scenario['id']} / {filename}"
+                        f"Example variant is unrenderable: {scenario['id']} / {filename} "
+                        f"({', '.join(failures)})"
                     )
                 payloads[filename] = entry["notice"]
                 preparation_checks[filename] = entry["checks"]

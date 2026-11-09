@@ -73,3 +73,14 @@ test("agent exclusions use Unicode scalar ordering", () => {
   measurement.excluded_agents = [...agents].reverse();
   expect(() => validateSummary(report, payload)).toThrow();
 });
+
+test("preview facts accept incomplete cohort coverage", () => {
+  const payload = structuredClone(cases.payload);
+  const report = structuredClone(cases.report);
+  payload.validity_coverage = "incomplete";
+  report.notice.validity_coverage = "incomplete";
+  expect(() => {
+    validateNotice(payload);
+    validateSummary(report, payload);
+  }).not.toThrow();
+});

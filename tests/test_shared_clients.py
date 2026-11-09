@@ -116,5 +116,29 @@ class SharedClientsTest(unittest.TestCase):
                             )
 
 
+class FailedExampleTest(unittest.TestCase):
+    def test_failed_preparation_without_notice_reports_the_source_failure(self) -> None:
+        from unittest.mock import patch
+
+        failed = {
+            "entries": [
+                {
+                    "row_key": "row-000001",
+                    "assignment": {"template": "overdue_diseases.en.typ"},
+                    "checks": [{"code": "source.history_unusable", "status": "fail"}],
+                    "deferred_checks": ["notice.requirements"],
+                }
+            ]
+        }
+        with (
+            patch("scripts.examples.prepare", return_value=failed),
+            self.assertRaisesRegex(
+                ValueError,
+                r"Example variant is unrenderable: .*source\.history_unusable",
+            ),
+        ):
+            generate()
+
+
 if __name__ == "__main__":
     unittest.main()

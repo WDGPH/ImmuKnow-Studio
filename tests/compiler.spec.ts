@@ -728,3 +728,18 @@ test("missing notice declaration keeps a readable preview with blocked checks", 
   ]);
   expect(result.checks.some((check) => check.code === "render.evidence_failed")).toBe(false);
 });
+
+test("preview accepts incomplete cohort coverage from prepared facts", async ({ page }) => {
+  await page.goto("proof.html");
+  await page.waitForFunction(() => Boolean(window.proof?.compiler.compilerVersion));
+  const revision = await page.evaluate(() => {
+    const job = window.proof.job;
+    return window.proof.submit([
+      { ...job, notice: { ...job.notice, validity_coverage: "incomplete" } },
+    ]);
+  });
+  const result = await evidence(page, revision);
+  expect(result.preview?.artifact.length).toBeGreaterThan(1000);
+  expect(result.summary?.notice.validity_coverage).toBe("incomplete");
+  expect(result.checks.some((check) => check.code === "render.evidence_failed")).toBe(false);
+});
