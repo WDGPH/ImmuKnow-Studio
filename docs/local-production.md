@@ -105,6 +105,13 @@ this project. `--project .` selects this project's configuration and templates. 
 to `runs/`; use `--output` to choose another output folder.
 See [notice selection and input requirements](https://docs.phiz.ca/immuknow/latest/user_guide/getting_started/#select-notices).
 
+Duplicate nonblank client IDs normally reject the input. To accept specified
+clients, set `allowed_duplicate_client_ids: ["0123456789"]` in
+`config/parameters.yaml`, with quoted IDs. Every repeated source row is rendered
+separately and receives a warning; all rows for an ID share its notice assignment.
+Unlisted duplicates still reject the input. Use each report row's key to hold or
+release one notice independently.
+
 ## Review the generated notices
 
 Open the printed `report.html` and inspect the notices and findings. Core retains
