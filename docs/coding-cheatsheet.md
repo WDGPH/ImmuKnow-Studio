@@ -103,7 +103,10 @@ These choices leave other calls unchanged.</p>
 <p>Use <code>overdue-agents</code> for the vaccine agent list. Its
 <code>ignore-agents</code> option excludes exact agent-name matches from that
 list only. Set the history table's <code>ignore-agents</code> separately; neither
-option changes the source facts.
+option changes the source facts. Overdue lists display repeated items once;
+disease entries with different doses stay distinct when <code>include-dose</code>
+is enabled. Duplicate source entries produce warnings in <strong>Findings</strong>
+and remain unchanged in the source facts.
 Bullet indentation defaults to 0.8cm; set <code>indent: 1cm</code> on the helper
 to change just that list.
 These functions display the client's information; their options control how

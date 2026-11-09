@@ -89,6 +89,10 @@ Review configuration, wording, dates, contacts, branding, signatures and QR
 destinations before using your own records. Replace the fictional input with
 your own validated cohort and assignments, kept under `input/`:
 
+Use `immunizations_given` for the required history column. Each entry contains a
+date, agent and optional validity result, with entries separated by semicolons.
+Rename an older `imms_given` header before running; it is no longer accepted.
+
 ```bash
 # One notice for every client
 immuknow run input/clients.csv --project . \
