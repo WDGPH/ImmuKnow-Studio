@@ -20,6 +20,13 @@ copies exports into disposable `generated/core/` and generates browser validator
 There are no Python Core imports. The deployed application remains static and
 runs no native executable or Python service in the browser.
 
+The browser consumes render-report v4, including top-level address and client
+geometry used for guides and source navigation. Passing checks can omit duplicate
+measurements; guide placement uses the validated component geometry. Core's
+saved-run v2 is a separate native persistence contract: compact saved evidence and
+keyed effective results support the run-wide CSV pair. It is not the compiled
+report consumed by Studio.
+
 The browser compiles Typst and renders previews locally using prepared facts.
 Downloaded projects use the separately installed native executable and the
 same shared resources. Any Core upgrade requires preparation, browser and

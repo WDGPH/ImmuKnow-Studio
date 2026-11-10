@@ -30,7 +30,7 @@ export interface Notice {
 }
 export interface RenderSummary {
   notice: Notice;
-  schema_version: 3;
+  schema_version: 4;
   requirements:
     | { state: "valid"; declaration: Record<string, string> }
     | { state: "invalid"; errors: { code: string; count: number }[] };

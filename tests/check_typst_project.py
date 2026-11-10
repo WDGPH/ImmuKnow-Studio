@@ -19,6 +19,7 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import pymupdf
+import yaml
 import zxingcpp
 from PIL import Image, ImageChops, ImageStat
 from pypdf import PdfReader
@@ -127,6 +128,62 @@ def inspect_preview(evidence: Path, pdf: dict) -> dict:
     }
 
 
+def selected_csvs(directory: Path, record: dict) -> tuple[list[dict], list[dict]]:
+    """Read the selected native CSV pair and verify its source-row joins."""
+    assert record["run_schema_version"] == 2
+    exports = record["exports"]
+    assert exports["schema_version"] == 1
+    assert exports["record_revision"] == record["record_revision"]
+    tables = []
+    for name in ("records", "findings"):
+        descriptor = exports[name]
+        path = directory / descriptor["path"]
+        assert sha256(path.read_bytes()).hexdigest() == descriptor["sha256"]
+        with path.open(newline="", encoding="utf-8") as source:
+            rows = list(csv.DictReader(source))
+        assert all(
+            row["run_id"] == record["run_id"]
+            and row["record_revision"] == str(record["record_revision"])
+            for row in rows
+        )
+        tables.append(rows)
+    records, findings = tables
+    assert len(records) == len(record["entries"])
+    by_key = {row["row_key"]: row for row in records}
+    assert len(by_key) == len(records)
+    for index, entry in enumerate(record["entries"], start=1):
+        row = by_key[entry["row_key"]]
+        assert row["source_record"] == str(index)
+        assert row["client_id"] == entry["client_id"]
+        observed = {check["finding_key"]: check for check in entry["checks"]}
+        assert len(observed) == len(entry["checks"])
+        effective = entry.get("effective_checks", [])
+        assert len({check["finding_key"] for check in effective}) == len(effective)
+        for result in effective:
+            assert result["finding_key"] in observed
+        for finding in findings:
+            if (
+                finding["scope"] == "row"
+                and finding["row_key"] == entry["row_key"]
+                and finding["origin"] == "check"
+            ):
+                observation = observed[finding["finding_key"]]
+                result = next(
+                    result
+                    for result in effective
+                    if result["finding_key"] == finding["finding_key"]
+                )
+                assert finding["code"] == observation["code"]
+                assert finding["observed_status"] == observation["status"]
+                assert finding["effective_status"] == result["status"]
+    for finding in findings:
+        if finding["scope"] == "row":
+            assert finding["client_id"] == by_key[finding["row_key"]]["client_id"]
+    assert not (directory / "report.html").exists()
+    assert not list(directory.glob("bundles-*/*.csv"))
+    return records, findings
+
+
 def main(evidence: Path) -> None:
     evidence = evidence.resolve()
     env = {
@@ -154,7 +211,7 @@ def main(evidence: Path) -> None:
         # must run with no Python, uv, shell or other tools on its command path.
         env["PATH"] = ""
 
-        def run(*arguments: str) -> str:
+        def run(*arguments: str, expected_success: bool = True) -> str:
             result = subprocess.run(
                 [binary, *arguments],
                 cwd=project,
@@ -187,10 +244,10 @@ def main(evidence: Path) -> None:
                     failures.extend(
                         check for check in checks if check.get("status") == "fail"
                     )
-            assert result.returncode == 0, (
+            assert (result.returncode == 0) == expected_success, (
                 result.stdout + result.stderr + json.dumps(failures, indent=2)
             )
-            return result.stdout
+            return result.stdout + result.stderr
 
         assert not (project / ".venv").exists()
         assert not (project / "pyproject.toml").exists()
@@ -228,7 +285,7 @@ def main(evidence: Path) -> None:
         if selected["example"] == "missing-meningococcal":
             selectors.insert(0, ("template", ["--template", selected["template"]]))
         for selector, arguments in selectors:
-            run(
+            receipt = run(
                 "run",
                 selected["input"]["csv"],
                 "--config",
@@ -244,6 +301,25 @@ def main(evidence: Path) -> None:
             record = json.loads(record_path.read_text())
             assert record["status"] in {"completed", "completed_with_warnings"}
             (entry,) = record["entries"]
+            (csv_row,), csv_findings = selected_csvs(run_dir, record)
+            assert "Severity (1 source records):" in receipt
+            assert all(
+                f"{bucket}:" in receipt
+                for bucket in ("error", "warning", "clear", "pending")
+            )
+            assert "100.0%" in receipt
+            for descriptor in record["exports"].values():
+                if isinstance(descriptor, dict) and "path" in descriptor:
+                    assert descriptor["path"] in receipt
+            assert csv_row["original_status"] == "completed"
+            assert csv_row["original_path"] == entry["original"]["path"]
+            assert csv_row["original_pages"] == str(entry["original"]["pages"])
+            assert csv_row["bundle_status"] == "completed"
+            assert csv_row["bundle_path"] == entry["bundle"]["path"]
+            assert csv_row["bundle_start_page"] == str(
+                entry["bundle"]["notice_start_page"]
+            )
+            assert csv_row["bundle_end_page"] == str(entry["bundle"]["notice_end_page"])
             assert entry["original"]["status"] == "completed"
             original = run_dir / entry["original"]["path"]
             assert (
@@ -285,8 +361,12 @@ def main(evidence: Path) -> None:
                         )
                         native_raster.append(difference)
                 comparison["preview"]["nativeRasterDifference"] = native_raster
-            assert sorted(entry["render_report"]["qr_urls"]) == native["qrUrls"]
-            assert entry["render_report"]["page_count"] == len(native["text"])
+            assert entry["saved_evidence"]["identity"]["row_key"] == entry["row_key"]
+            assert (
+                entry["saved_evidence"]["identity"]["client_id"] == entry["client_id"]
+            )
+            assert sorted(entry["saved_evidence"]["qr_urls"]) == native["qrUrls"]
+            assert entry["saved_evidence"]["page_count"] == len(native["text"])
             findings = sorted(
                 {
                     f"{check['code']}:{check['status']}"
@@ -298,34 +378,153 @@ def main(evidence: Path) -> None:
                 {
                     "pdf": native,
                     "textCoverage": coverage,
-                    "qrUrls": sorted(entry["render_report"]["qr_urls"]),
+                    "qrUrls": sorted(entry["saved_evidence"]["qr_urls"]),
                     "findings": findings,
-                    "summary": entry["render_report"],
+                    "summary": entry["saved_evidence"],
                 }
             )
+
+        if selected["example"] == "missing-meningococcal":
+            parameters_path = project / "config/parameters.yaml"
+            parameters = yaml.safe_load(parameters_path.read_text())
+            parameters["encryption"]["enabled"] = True
+            parameters_path.write_text(yaml.safe_dump(parameters, allow_unicode=True))
+            run(
+                "run",
+                selected["input"]["csv"],
+                "--config",
+                "config",
+                "--output",
+                "protected",
+                *selectors[0][1],
+            )
+            (protected_record_path,) = (project / "protected").glob("*/run.json")
+            protected_record = json.loads(protected_record_path.read_text())
+            (protected_entry,) = protected_record["entries"]
+            (protected_row,), _ = selected_csvs(
+                protected_record_path.parent, protected_record
+            )
+            assert protected_row["protected_status"] == "completed"
+            assert (
+                protected_row["protected_path"] == protected_entry["encryption"]["path"]
+            )
+            protected_pdf = (
+                protected_record_path.parent / protected_row["protected_path"]
+            )
+            assert (
+                sha256(protected_pdf.read_bytes()).hexdigest()
+                == protected_entry["encryption"]["sha256"]
+            )
+            with pymupdf.open(protected_pdf) as encrypted:
+                assert encrypted.needs_pass
+            assert protected_entry["encryption"]["revision"] == 6
+            protected_bytes = protected_pdf.read_bytes()
+            assert re.search(rb"/R\s+6\b", protected_bytes)
+            assert re.search(rb"/CFM\s*/AESV3\b", protected_bytes)
+            shutil.copytree(protected_record_path.parent, evidence / "protected")
+            input_path = project / selected["input"]["csv"]
+            with input_path.open(newline="", encoding="utf-8-sig") as source:
+                reader = csv.DictReader(source)
+                fieldnames = reader.fieldnames
+                rows = list(reader)
+            assert fieldnames is not None and len(rows) == 1
+            rows[0]["immunizations_given"] = "not a history"
+            rows[0]["intended_reader"] = "invalid"
+            with input_path.open("w", newline="", encoding="utf-8") as output:
+                writer = csv.DictWriter(output, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(rows)
+            receipt = run(
+                "run",
+                selected["input"]["csv"],
+                "--config",
+                "config",
+                "--output",
+                "no-pdf",
+                *selectors[0][1],
+                expected_success=False,
+            )
+            (failed_path,) = (project / "no-pdf").glob("*/run.json")
+            failed_record = json.loads(failed_path.read_text())
+            (failed_row,), failed_findings = selected_csvs(
+                failed_path.parent, failed_record
+            )
+            assert (
+                failed_row["severity"] == "error"
+                and failed_row["route"] == "report_only"
+            )
+            assert (
+                failed_row["protected_status"]
+                == failed_row["bundle_status"]
+                == "excluded"
+            )
+            assert not any(
+                failed_row[key]
+                for key in (
+                    "original_path",
+                    "protected_path",
+                    "bundle_path",
+                    "bundle_start_page",
+                    "bundle_end_page",
+                )
+            )
+            assert any(
+                row["code"] == "source.history_unusable" for row in failed_findings
+            )
+            assert "error: 1 (100.0%)" in receipt
+            shutil.copytree(failed_path.parent, evidence / "no-pdf")
+            comparison["protectedAndNoPdf"] = True
 
         if selected["example"] == "missing-mmr":
             assert record["status"] == "completed_with_warnings"
             assert entry["routing"] == "deliverable"
             original_record = entry["original"].copy()
-            original_checks = entry["checks"].copy()
-            membership = entry["bundle"]
-            with (
-                (run_dir / membership["path"])
-                .with_suffix(".csv")
-                .open(newline="", encoding="utf-8") as stream
-            ):
-                findings = list(csv.DictReader(stream))
+            original_checks = [
+                check for check in entry["checks"] if check.get("stage") != "delivery"
+            ]
+            preserved = {
+                path: sha256(path.read_bytes()).hexdigest()
+                for path in run_dir.rglob("*")
+                if path.is_file() and (path.suffix == ".csv" or "bundles-" in str(path))
+            }
             assert any(
-                row["check_code"] == "content.multiple_links"
-                and row["route"] == "deliverable"
-                and row["status"] == "warn"
-                for row in findings
+                row["code"] == "content.multiple_links"
+                and row["observed_status"] == row["effective_status"] == "warn"
+                and row["row_key"] == entry["row_key"]
+                for row in csv_findings
+            )
+            issue = next(
+                issue
+                for row in csv_findings
+                if row["code"] == "content.multiple_links"
+                for issue in json.loads(row["issue_ids"])
             )
             # Saved originals suffice after removing authored inputs. A hold excludes
             # a notice; releasing the hold leaves its warnings and policy in force.
             for directory in ("templates", "config", "examples"):
                 shutil.rmtree(project / directory)
+            for revoke in (False, True):
+                flags = ["--revoke"] if revoke else []
+                run(
+                    "acknowledge",
+                    str(run_dir),
+                    issue,
+                    *flags,
+                    "--reason",
+                    "Fictional downloaded-project review",
+                )
+                reviewed = json.loads(record_path.read_text())
+                _, reviewed_findings = selected_csvs(run_dir, reviewed)
+                acknowledged = {
+                    value
+                    for row in reviewed_findings
+                    for value in json.loads(row["acknowledged_issue_ids"])
+                }
+                assert (issue in acknowledged) != revoke
+                before_refresh = reviewed.copy()
+                run("warnings", str(run_dir), "--refresh")
+                assert json.loads(record_path.read_text()) == before_refresh
+                assert reviewed["entries"] == record["entries"]
             attempts = len(record["delivery_attempts"])
             for decision in ("withhold", "release"):
                 arguments = [
@@ -350,7 +549,37 @@ def main(evidence: Path) -> None:
                 rebundled = json.loads(record_path.read_text())
                 (after,) = rebundled["entries"]
                 assert after["original"] == original_record
-                assert after["checks"] == original_checks
+                assert [
+                    check
+                    for check in after["checks"]
+                    if check.get("stage") != "delivery"
+                ] == original_checks
+                (after_csv,), _ = selected_csvs(run_dir, rebundled)
+                assert after_csv["route"] == (
+                    "withheld" if decision == "withhold" else "ready"
+                )
+                assert after_csv["bundle_status"] == (
+                    "excluded" if decision == "withhold" else "completed"
+                )
+                if decision == "withhold":
+                    assert not any(
+                        after_csv[key]
+                        for key in (
+                            "bundle_path",
+                            "bundle_start_page",
+                            "bundle_end_page",
+                        )
+                    )
+                assert all(
+                    sha256(path.read_bytes()).hexdigest() == digest
+                    for path, digest in preserved.items()
+                )
+                preserved.update(
+                    {
+                        path: sha256(path.read_bytes()).hexdigest()
+                        for path in run_dir.rglob("*.csv")
+                    }
+                )
                 assert after["routing"] == (
                     "withheld" if decision == "withhold" else "deliverable"
                 )

@@ -117,9 +117,21 @@ release one notice independently.
 
 ## Review the generated notices
 
-Open the printed `report.html` and inspect the notices and findings. Core retains
-source and output evidence in `run.json`. A Studio preview checks layout with
-fictional examples; production review uses actual generated notices and findings.
+Review the terminal severity counts and open the printed `records.csv` and
+`findings.csv` paths. These two run-wide tables join on `row_key`; the selected
+pair is recorded in `run.json`. Import client IDs as text to preserve leading
+zeros. PDF paths are relative to the run directory, and bundle page ranges
+identify each notice within its batch.
+
+Severity and delivery route answer separate questions: a ready notice can still
+have warnings to review. Inspect the actual PDFs and findings before releasing
+notices. Core retains source and output evidence in `run.json`; a Studio preview
+checks layout with fictional examples.
+
+Use Core's [saved-run review commands](https://docs.phiz.ca/immuknow/latest/user_guide/pdf_validation/)
+for warning acknowledgment/revocation, CSV refresh and holds or rebundling.
+Acknowledging a warning records review without changing its severity or delivery
+route. These commands run locally outside Studio.
 
 Follow [PDF validation and delivery](https://docs.phiz.ca/immuknow/latest/user_guide/pdf_validation/)
 before releasing notices. Run files and PDFs contain client information and stay
@@ -136,8 +148,9 @@ only `templates/lib/immuknow/`; keep your authored notices and configuration.
 
 Downloaded projects preserve filename patterns in `config/parameters.yaml`.
 Use `{field}` placeholders as with password templates; the native engine applies
-them to individual original/protected PDFs and normal/review batch PDFs with
-matching findings CSVs. Configure these settings in the downloaded project.
+them to individual original/protected PDFs and normal/review batch PDFs.
+The two run-wide CSVs cover every source row and finding independently of batch
+filenames. Configure filename settings in the downloaded project.
 
 See Core's [filename settings and supported fields](https://github.com/WDGPH/ImmuKnow/blob/main/docs/user_guide/configuration.md#filename-templates)
 for examples, safe normalization and collision handling. Existing imported

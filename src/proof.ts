@@ -24,11 +24,7 @@ const compiler = new Compiler(
   (reply) => {
     results.push(reply);
     if (reply.preview) {
-      void viewer.open(
-        reply.preview,
-        [...(reply.summary?.checks ?? []), ...reply.checks],
-        reply.timing,
-      );
+      void viewer.open(reply.preview, reply.summary, reply.timing);
     }
   },
 );

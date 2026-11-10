@@ -711,6 +711,11 @@ test("deferred checks remain neutral when the current source cannot compile", as
 test("current preview distinguishes failed and unverified notice checks", async ({ page }) => {
   await page.goto("./");
   await currentPreview(page);
+  await page.locator("#settings-tab").click();
+  await page.locator("#guide").check();
+  await expect(page.locator(".envelope-window")).toBeVisible();
+  await page.locator("#template-tab").click();
+  await currentPreview(page);
   const source = page.locator(".cm-content");
   const state = page.locator("#preview-state");
   await source.click();
@@ -740,4 +745,5 @@ test("current preview distinguishes failed and unverified notice checks", async 
   await expect(state).toBeVisible();
   await expect(page.locator("#errors")).toContainText("render.evidence_failed");
   await expect(page.locator(".preview-page").first()).toBeVisible();
+  await expect(page.locator(".envelope-window")).toHaveCount(0);
 });

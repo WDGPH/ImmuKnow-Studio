@@ -223,7 +223,7 @@ function findings() {
   }
   const deferred = example?.deferredChecks?.[basename(template)] ?? [];
   const currentEvidence =
-    displayedContext === compiler.context && displayedRevision === revision && resultVerified;
+    displayedContext === compiler?.context && displayedRevision === revision && resultVerified;
   const advisory = byId("deferred-checks");
   advisory.hidden = !deferred.length || currentEvidence;
   advisory.textContent = advisory.hidden ? "" : "Checked when the notice compiles";
@@ -350,7 +350,7 @@ async function compiled(result: CompileResult) {
   try {
     const committed = await viewer.open(
       previewSources(result.preview, files, template, result.summary),
-      checks,
+      result.summary,
       result.timing,
     );
     if (!committed || result.context !== compiler.context || result.revision <= displayedRevision)

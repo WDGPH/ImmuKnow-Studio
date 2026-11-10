@@ -7,8 +7,11 @@ for (const sample of cases.cases) {
     const values = structuredClone({ payload: cases.payload, report: cases.report });
     for (const change of sample.changes) {
       let target: unknown = values[change.target as keyof typeof values];
-      for (const key of change.path.slice(0, -1))
-        target = (target as Record<string | number, unknown>)[key];
+      for (const key of change.path.slice(0, -1)) {
+        const object = target as Record<string | number, unknown>;
+        object[key] ??= {};
+        target = object[key];
+      }
       const key = change.path.at(-1) as string | number;
       if ("remove" in change && change.remove) {
         if (Array.isArray(target)) target.splice(Number(key), 1);
@@ -28,7 +31,7 @@ for (const sample of cases.cases) {
 test("nonfinite measurements are refused", () => {
   for (const value of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
     const report = structuredClone(cases.report);
-    report.measurements.header[0].title_height_pt = value;
+    report.measurements.address[0].x_pt = value;
     validateNotice(cases.payload);
     expect(() => validateSummary(report, cases.payload)).toThrow();
     const changedSource = structuredClone(cases.report);

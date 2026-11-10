@@ -239,6 +239,12 @@ selectors; long French output; saved-run review with warning findings; and a
 guardian-directed suspension notice for an older student. Core covers other
 notice families. The project sample command runs once in the
 customized English case, while the other cases compare their own native output.
+The customized download also checks a requested protected PDF and a source row
+that produces no PDF. The warning case checks acknowledgment/revocation, a valid
+CSV refresh, holds/releases and immutable earlier exports after deleting authored
+inputs. Every native run verifies the selected CSV hashes, source-row joins and
+artifact paths/page ranges. Core owns the full persistence fault matrix and PDF
+encryption roundtrip; Studio tests the actual downloaded-project handoff.
 Template helper unit tests are not repeated in Studio. Add another expensive
 case only when it protects a boundary these checks do not cover.
 
@@ -252,7 +258,11 @@ record with those exported hashes and independent browser compiler pins.
 
 Installed Template resources stay read-only. Copies belong in disposable
 `generated/core/`, browser output or downloaded projects. Core owns validation;
-Studio owns its browser validator and native handoff regressions.
+Studio owns its browser validator and native handoff regressions. Browser reports
+use render-report v4 with top-level component geometry. Native test readers use
+saved-run v2's `saved_evidence`, join `effective_checks` to observed `checks` by
+`finding_key`, and read the pair selected by `exports`; they do not reconstruct a
+compiled report from compact native evidence. Prepared-facts schema remains v2.
 
 ## Update the project template
 

@@ -9,7 +9,7 @@ reference configuration, schemas and shared Typst components. Template owns
 the fictional example clients, starter letters, Settings, display translations,
 example branding and project configuration. Studio consumes its pinned
 resource package. Core supplies no starter project. Follow the
-[shared language and project responsibilities](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#shared-language-and-project-responsibilities).
+[shared language and project responsibilities](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/ecosystem.md).
 
 Use the verified standalone executable through scripts/native_core.py and the
 public prepare/resources/run/rebundle and project commands. core-revision.txt and Template's
@@ -22,7 +22,7 @@ remain read-only and must match Core. Preserve draft recovery, archive limits,
 comment-aware editing and compatibility checks.
 
 Prefer clear, direct authoring and abstractions that earn their complexity. Follow
-Core's [authoring principles](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#template-authoring-principles).
+Core's [authoring principles](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/templates.md).
 
 Follow docs/documentation.md for plain language and current-behavior guidance.
 Use short, plain pull request descriptions focused on the reason for the change
