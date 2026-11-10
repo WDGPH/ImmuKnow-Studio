@@ -1,50 +1,44 @@
-# Plan: consume revised findings and project resources
+# v2 plan: adopt revised evidence, QR resources and native reports
 
-Studio work from the [tracked shared execution plan](../ImmuKnow/plan.md). Filename settings, reference fixes and notice-local requirements are implemented with coordinated pins. Studio is the browser editor and fictional preview environment; production preparation, HTML run reports, acknowledgment persistence and bundle operations belong in Core. Do not add a native batch service or patch Core here.
+**Status: planned; implementation pending.** This checklist implements Phase 3 and records the Studio migration notes arising during Phase 1 in the [shared Core plan](../ImmuKnow/plan.md). The shared plan owns CSV, saved-state, severity, measurement and QR decisions. This planning change does not modify runtime code, pins, generated assets or hosted output.
 
-## Evidence and boundaries
+Start at `4c4c98d2f57e0042c9fc8349c274eb64a663c9fc`, pinning Core `16792decc1e4fb405f63d2780ed87d5f46dba37c` and Template `91c5b1cf5e573d8c8f234d71252ea65bfbe6d9fb`. Studio remains a browser authoring/preview application. Production CSV export, saved runs, acknowledgment, holds and rebundling belong in Core; add no native batch service or production review UI here.
 
-- [Architecture](docs/architecture.md) describes a static browser app consuming Core's public `prepare`/`resources` contracts and Template's pinned authored package.
-- [main.ts](src/main.ts), around 164–207, combines preparation, compiler and rendered findings in preview. [types.ts](src/types.ts) has finding status/code/message; there is no warning-acceptance control today.
-- [Development](docs/development.md) requires exact clean Core source/executable verification and coordinated Core/Template pins. Generated schemas, shared resources and browser payloads stay generated.
-- [benchmark-preview.mjs](scripts/benchmark-preview.mjs) measures browser previews, including cold/warm timings and environment. It does not profile a real production native batch.
+Sol coordinates this repository phase, with most implementation delegated to Terra subagents and occasional Astra review of consequential integration decisions. Parallelize independent work where useful; do not split a small migration into artificial release gates. Keep this checklist current while Core iterates, then perform the consumer changes together.
 
-## F0: filename adoption complete
+## 1. Prepare consumers of the new contract
 
-Matching runtime pins, editable filename settings in downloads, unit/browser checks and downloaded native original/protected/bundle/review/rebundle handoffs are complete. Do not rebuild or reimplement filename support for the work below. The shared plan distinguishes shipped defaults from custom examples.
+- [ ] Review render-report v4 and saved-run v2 fixtures with Core. Inventory `src/types.ts`, `src/render-contract.ts`, `src/main.ts`, `src/viewer.ts`, `src/preview-sources.ts`, generated validators, relevant `unit/` cases and `tests/check_typst_project.py`. Prepared facts/deferred-check schema remains v2; do not bump unrelated contracts merely because resources change.
+- [ ] Move the envelope guide in `viewer.ts` from a passing check's duplicate `measurements` to validated top-level address component geometry. Preserve address/window padding and actual page selection. Keep source-target navigation from address/client/history/section evidence in `preview-sources.ts`. Missing/invalid evidence must not produce a fabricated overlay or stale verified indication.
+- [ ] Retain full-notice/source identity checks, finite-number/page bounds, requirements/coverage/source-display assertions and structured link subjects through the shared exported contract. Update measurement expectations deliberately; do not blanket-remove passing evidence used to verify or edit the notice. No JavaScript reimplementation of clinical/notice eligibility rules.
+- [ ] Keep pending and blocked checks distinct, preserve readable failed previews and last-successful/stale labeling, and keep compiler diagnostics separate from structured findings. The native CSV severity summary is not a new browser batch-report feature.
 
-## R1: reference fixes adopted
+## 2. Adopt the verified Core → Template pair
 
-- [x] Adopt Template's committed Meningococcal disease normalization and TIg reference/display exclusions (`b129c7a286483261332d3403e51d064b476f4711`) through Studio's package pin and lock.
-- [x] Regenerate native-prepared examples/resources and confirm the authored files appear in downloads. The existing Core pin remains unchanged.
-- [x] Verify existing fictional previews and export preservation without adding private records or separate reference configuration copies.
+After Core and then Template have completed their migrations:
 
-## R2a/R2b: adopt the shared requirements contract
+- [ ] Update `core-revision.txt`, the Template Git revision in `pyproject.toml`, and `uv.lock` together. Template's packaged Core revision must equal Studio's Core revision exactly. Never pin uncommitted source, a branch or the older profiling revision.
+- [ ] Install the exact clean Core source through `uv run --locked python -m scripts.native_core install` (with a matching local `--source` if appropriate); verify the stored source/binary fingerprint. Regenerate Core-exported schemas, browser validators, preview facts and assets through the existing preparation/build commands. Never patch installed package files or generated validators.
+- [ ] Consume the complete shared library, including the integer-grid helper and finder bounds, without a boolean adapter. Verify the downloaded project's shared bytes against the executable's manifest.
+- [ ] Preserve existing browser compiler/renderer pins and licenses. These shared Typst resource changes do not require rebuilding an unchanged browser compiler; use the existing verified cache workflow.
 
-- [x] Participate in R2a's schema/fixture review, then adopt R2b's prerelease v2.0 notice-local requirements/report contract and empty-agent display evidence with coordinated Core/Template pins. The shared Typst helper evaluates eligibility/coverage; Studio validates/displays its report without a second JavaScript evaluator. Refreshed starters and exported resources no longer contain or depend on `notice_versions.yaml`; no legacy catalog compatibility is required.
-- [x] Build the exact clean Core source through `scripts/native_core.py` and verify the stored executable fingerprint through that workflow. Regenerate Core-exported schemas, browser validators and prepared examples; never edit generated validators or installed resource files.
-- [x] Preserve R2a's per-entry deferred-check list outside observed checks in generated examples. Deferred requirements must not make example generation fail or imply a passed check. Display a neutral “Checked when the notice compiles” advisory until a current validated result exists; do not include it in warning counts. Preserve existing stale/last-successful-preview labels and distinguish assertion/compilation failures from readable notices with failed checks.
-- [x] Keep a rendered preview visible with an explicit mandatory failure for missing/duplicate/malformed requirements; do not conflate successful rendering plus failed validation with compilation failure. For genuinely corrupt/wrong-row evidence, reject claimed findings and mark the artifact unverified while retaining the rendered preview. Use the R2a fixtures for parity.
-- [x] Distinguish pending checks from completed but blocked checks: invalid requirements produce a mandatory `notice.requirements` failure and an explicit `blocked_checks` list outside observations. Clear the deferred advisory for a current validated failed-declaration report; do not present dependent checks as passed or not applicable.
-- [x] Preserve ordinary authored bytes, paths and drafts, without adding catalog-specific import handling or silently rewriting notices. Verify v2 projects use notice-local requirements with no YAML; missing/malformed declarations fail visibly and an obsolete imported YAML file has no effect. Remove old catalog assumptions from project generation and tests.
-- [x] Verify downloaded projects outside both repos with native sync/check/run/rebundle, using the matching engine and no Python requirement in the exported project. Confirm readable structured failures in the browser and saved checks survive rebundling without authored inputs.
+## 3. Verify preview and downloaded-project workflows
 
-## W1/W2 and S1: adopted Core behavior
+- [ ] Update TypeScript types and native/browser contract fixtures for render-report v4. Add focused regressions for envelope guide/source navigation after duplicate measurement removal, wrong-fact provenance, nonfinite geometry, blocked requirements and diagnostic separation. Reuse Core's shared fixture expectations rather than copying the complete native suite.
+- [ ] Exercise styled QR previews with colored finders/alignment, module/corner alternatives, Unicode destinations and valid/rejected logo masks, plus existing default RGB SVG and non-RGB run paths. Check representative English/French previews and decoded destinations. Default Template examples alone do not exercise every optimized grid path.
+- [ ] Update `tests/check_typst_project.py` and other native readers to the new saved-evidence/effective-result shape and selected export-generation paths. Remove assumptions about `render_report.notice`, duplicate check measurements, `report.html` and a CSV next to each bundle PDF. Preserve semantic native/browser finding, page, QR and source-identity comparisons.
+- [ ] From a fresh built site, download a fictional project and extract it outside both repositories. Use only the separately installed native executable and fonts for `project sync`, `project check --sample`, `run` and `rebundle`. Verify terminal counts/percentages, both run-wide CSVs, no-PDF and held membership, original/protected/bundle paths and page ranges, and the new active versus prior attempt exports. Keep acknowledgment/revoke/refresh native, with one handoff smoke check where the fictional project supplies a reviewable warning.
+- [ ] Verify import/export and draft recovery retain complete authored bytes and relative paths, editable filename/grouping/sorting/QR settings and the packaged project README. Keep imported arbitrary files intact; do not create special legacy-report/YAML migration behavior. A downloaded project needs no Python setup.
 
-- [x] Consume the shared report schema including structured link subjects; preview findings retain observed checks and compiler diagnostics remain separate. Native saved-run acknowledgment and rebundling remain Core workflows; Studio has no production acknowledgment UI.
-- [x] Retain Template's editable bundle settings in downloads, including optional `last_name_dob` ordering. Grouping, ordering, naming and production reporting remain Core responsibilities.
+## 4. Documentation, checks and handoff
 
-## R3: isolated source-row failures
+- [ ] Update Studio's project-download/native instructions and relevant architecture/development pages to link to the CSV-first Core workflow. Remove claims that native review opens HTML or generates a per-bundle CSV. Explain that native output review/acknowledgment remains outside Studio without exposing build internals in the editor UI.
+- [ ] Follow `docs/development.md`: frontend typecheck, lint, unit/format checks, Python type/lint/tests, strict documentation build and a fresh site build. Run focused browser/native checks for findings, overlays/source navigation, styled QR, draft/import preservation and downloaded projects against that fresh build and exact native fingerprint.
+- [ ] Select the existing manual `full_tests` workflow for full browser/native acceptance when publishing is separately authorized; retain the current cheaper routine-CI policy. Local checks must state their scope and cannot be described as that workflow having run. Do not rebuild compiler binaries for a plan-only or documentation-only change.
+- [ ] Record exact Core/Template/Studio revisions, actual checks and limitations. Adopting a different upstream revision requires a refreshed matching pair and repeated affected handoff checks. This plan includes no push, merge or deployment.
 
-- [x] Adopt the verified Core and Template pins, regenerate schemas and examples, and confirm the browser accepts incomplete cohort validity coverage. Example generation reports a failed preparation before reading absent notice facts; validated assignments remain intact.
-- [x] Verify native and browser handoffs with the matching engine and run the focused failed-example test.
+## Preserve completed work and boundaries
 
-## Deferred exploration
+Retain filename settings/downloads, reference fixes, notice-local requirements with no obsolete catalog fallback, row-isolation preparation, structured warning subjects, grouping/sorting and native fingerprint verification. Core's reporting change deliberately supersedes its old HTML layout; it does not reopen these features.
 
-Disease catalog/language migration and production report-size work remain upstream. Preserve imported authored files and paths. Real-run profiling is deferred at the user's request; browser benchmarks do not substitute for it.
-
-## Verification
-
-Follow [development checks](docs/development.md) and [documentation checks](docs/documentation.md). For code/pin changes run frontend typecheck, lint and unit tests plus Python type/lint checks, then focused browser checks against a fresh build. Verify preview findings, draft/import preservation, downloads and the intended standalone native engine together. Use the manual `full_tests` workflow for full browser/native acceptance; retain the existing routine-CI policy.
-
-Documentation-only changes use the strict documentation build, without rebuilding the compiler or running the full browser suite. An unchanged browser compiler does not need rebuilding merely because Core resources or Template data changed.
+The supplied native profiling is completed evidence, distinct from Studio's preview benchmark. Any browser benchmark here checks preview regressions and must not claim a native batch speedup. Disease catalog migration, scheduling/cache/engine experiments and upstream school exports remain outside scope. There are no unresolved Studio product choices blocking implementation.
