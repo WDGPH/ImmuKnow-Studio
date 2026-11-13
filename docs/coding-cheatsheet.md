@@ -41,7 +41,7 @@ default. Only one flag can be true; both are false when the reader is unknown,
 so the final <code>else</code> uses neutral wording. The address block uses the
 same reader by default, including in suspension orders. Its <code>addressee</code>
 option overrides the label without changing the intended reader. Use the Example client arrows to
-try different readers, including the older student with a guardian choice.</p>
+try different readers, including Sarah Cook with an explicit guardian choice.</p>
 </section>
 
 <section>

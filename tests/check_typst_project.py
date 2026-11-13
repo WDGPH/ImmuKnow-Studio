@@ -475,7 +475,7 @@ def main(evidence: Path) -> None:
             shutil.copytree(failed_path.parent, evidence / "no-pdf")
             comparison["protectedAndNoPdf"] = True
 
-        if selected["example"] == "missing-mmr":
+        if selected["example"] == "invalid-history":
             assert record["status"] == "completed_with_warnings"
             assert entry["routing"] == "deliverable"
             original_record = entry["original"].copy()

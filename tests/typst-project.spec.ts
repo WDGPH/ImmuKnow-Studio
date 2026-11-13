@@ -18,8 +18,8 @@ const fontCount = Object.keys(
 const cases = [
   ["missing-meningococcal", "overdue_diseases.en.typ"],
   ["long-history", "overdue_diseases.fr.typ"],
-  ["missing-mmr", "overdue_agents.fr.typ"],
-  ["guardian-directed", "suspension_order.en.typ"],
+  ["invalid-history", "overdue_agents.fr.typ"],
+  ["multiple-overdue", "suspension_order.en.typ"],
 ];
 
 for (const [scenario, filename] of cases) {
@@ -136,8 +136,8 @@ for (const [scenario, filename] of cases) {
     expect(preview.length).toBeGreaterThan(0);
     if (filename === "suspension_order.en.typ") {
       const notice = examples[index].payloads[filename];
-      expect(notice.client_data.age).toBeGreaterThanOrEqual(16);
-      expect(notice.intended_reader).toBe("guardian");
+      expect(notice.client_data.age).toBeLessThan(16);
+      expect(notice.intended_reader).toBeNull();
       const text = preview
         .map((page) => page.plainText)
         .join(" ")
@@ -277,6 +277,6 @@ for (const [scenario, filename] of cases) {
       expect(native.browser.text.join(" ")).toContain("Record key:");
     }
     if (scenario === "long-history") expect(native.browser.text.length).toBeGreaterThan(2);
-    if (scenario === "missing-mmr") expect(native.rebundled).toBe(true);
+    if (scenario === "invalid-history") expect(native.rebundled).toBe(true);
   });
 }

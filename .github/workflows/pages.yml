@@ -58,7 +58,7 @@ jobs:
       - name: Build reviewed native Core
         if: steps.native_cache.outputs.cache-hit != 'true'
         run: |
-          rustup toolchain install 1.92.0 --profile minimal
+          rustup toolchain install 1.100.0 --profile minimal
           uv run --locked python -m scripts.native_core install
 
       - name: Verify native executable identity

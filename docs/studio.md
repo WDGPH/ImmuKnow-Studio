@@ -63,10 +63,10 @@ line in place; they are essential setup. Use `immuknow.to_student` and
 The optional CSV `intended_reader` choice takes priority over the age default and controls
 the default address addressee too, including in suspension orders. An address
 block’s `addressee` option overrides its label without changing the intended
-reader. Try the older student with a guardian choice in Example clients.
+reader. Try Sarah Cook with an explicit guardian choice in Example clients.
 Settings also supplies `immuknow.no_records` and disease-based `immuknow.up_to_date`. The affirmative
 and suspension starters declare when their wording applies. A mismatched client
-still produces a readable preview with a finding for review. Try the supplied overdue and up-to-date examples to compare those paths. The current client collection contains recorded histories. Settings expose independent Client ID
+still produces a readable preview with a finding for review. Try the supplied overdue and up-to-date examples to compare those paths. The current client collection includes recorded histories and clients with no recorded immunizations. Settings expose independent Client ID
 and OIID display, missing-OIID text and applicable history legend wording.
 See the [Typst Reference](coding-cheatsheet.md) for the options.
 Omit QR calls when a letter has no QR code. Settings can use a fixed destination
@@ -258,7 +258,11 @@ and its native project commands. The ZIP includes a README
 and sample copies under `input/sample/` when fictional client data is included
 and a prepared example is available.
 An imported project's existing sample selection and authored files are preserved.
-The standalone executable is supplied separately. Fresh downloads include no
+Get the standalone executable separately from
+[Core releases](https://github.com/WDGPH/ImmuKnow/releases) when a release
+matches the project's `core-revision.txt`, or ask your maintainer for a prepared
+executable. Choose the archive for your operating system and processor and
+put the extracted executable on your terminal's PATH. Fresh downloads include no
 Python environment or setup files; imported legacy files remain intact.
 If the project changes while the ZIP is being prepared, download it again.
 A project with unfinished edits or no prepared example can still be saved.

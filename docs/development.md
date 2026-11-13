@@ -201,7 +201,7 @@ Python environment or tools into the project. Python stays in the test harness
 for PDF and QR inspection. Four cases cover a customized
 English notice through both selectors, long French output, saved-run review
 for a French notice with warnings, and a guardian-directed suspension order for
-an older student. Template's maintainer tests run in its own
+a younger student. Template's maintainer tests run in its own
 repository; fresh downloads contain native setup instructions and sample selections.
 PDF reader checks use Studio's own example inputs.
 
@@ -236,7 +236,7 @@ checks when local tools are unavailable.
 
 The download cases cover four handoff risks: custom source and both notice
 selectors; long French output; saved-run review with warning findings; and a
-guardian-directed suspension notice for an older student. Core covers other
+guardian-directed suspension notice for a younger student. Core covers other
 notice families. The project sample command runs once in the
 customized English case, while the other cases compare their own native output.
 The customized download also checks a requested protected PDF and a source row

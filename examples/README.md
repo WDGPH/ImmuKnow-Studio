@@ -7,10 +7,10 @@ while Template owns the source CSV and default notice assignments.
 
 Each client is available for every maintained template and language. Their names,
 addresses, history and supplied overdue facts do not change to fit a notice.
-Some combinations intentionally produce applicability findings. All ten clients
-have recorded histories; Regina Bertin has an explicit guardian choice despite
-being old enough for the usual student-directed wording. Antony Copeland has
-the longest recorded history in this collection.
+Some combinations intentionally produce applicability findings. Eight clients have recorded histories, including valid and invalid doses;
+Marie Nicolas and Jennifer Sims have no recorded immunizations. Sarah Cook has
+an explicit guardian choice. Angela Odom has the longest recorded history in
+this collection.
 
 Builds prepare facts through the reviewed native Core executable. Preview dates
 are fixed in `previews.json`, after the latest supplied vaccination date. Editing
