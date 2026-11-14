@@ -30,7 +30,7 @@ test("complete a shared component and its arguments, then undo the insertion", a
   await expect(source).toContainText("show-validity:");
 });
 
-test("complete local history and page options", async ({ page }) => {
+test("complete local history and page options and Settings values", async ({ page }) => {
   await page.goto("./");
   await page.locator("#template-tab").click();
   for (const [text, name] of [
@@ -39,11 +39,19 @@ test("complete local history and page options", async ({ page }) => {
   ]) {
     const source = await replaceSource(page, text);
     await source.press("Control+Space");
-    await expect(page.getByRole("option").filter({ hasText: name })).toBeVisible();
+    await expect(page.getByRole("option").filter({ has: page.getByText(name, { exact: true }) })).toBeVisible();
     await page.waitForTimeout(100);
     await source.press("Enter");
     await expect(source).toContainText(`${name}:`);
   }
+  const source = await replaceSource(page, "#if immuknow.to_st");
+  await source.press("Control+Space");
+  await expect(page.getByRole("option").filter({
+    has: page.getByText("immuknow.to_student", { exact: true }),
+  })).toBeVisible();
+  await page.waitForTimeout(100);
+  await source.press("Enter");
+  await expect(source).toHaveText("#if immuknow.to_student");
 });
 
 test("completion stays out of prose, comments, strings and raw examples", async ({ page }) => {

@@ -447,6 +447,12 @@ function refreshTheme() {
   }
   picker.disabled = !bytes || !family;
   picker.title = family ? "" : "Edit the typeface in Settings.";
+  const titleAlign = bytes ? settingValue(bytes, "title-align") : undefined;
+  const alignPicker = select("title-align-picker");
+  const supportedAlignment = titleAlign && ["left", "center", "right"].includes(titleAlign);
+  alignPicker.value = supportedAlignment ? titleAlign : "";
+  alignPicker.disabled = !supportedAlignment;
+  alignPicker.title = supportedAlignment ? "" : "Edit the title alignment in Settings.";
   for (const name of ["heading", "link", "accent"]) {
     const input = byId<HTMLInputElement>(`${name}-color-picker`);
     const value = bytes ? settingValue(bytes, `${name}-color`) : undefined;
@@ -626,6 +632,8 @@ select("body-font-picker").onchange = () =>
   void action(() =>
     changeSettings({ "body-font": JSON.stringify(select("body-font-picker").value) }),
   );
+select("title-align-picker").onchange = () =>
+  void action(() => changeSettings({ "title-align": select("title-align-picker").value }));
 for (const name of ["heading", "link", "accent"])
   byId<HTMLInputElement>(`${name}-color-picker`).onchange = () =>
     void action(() =>

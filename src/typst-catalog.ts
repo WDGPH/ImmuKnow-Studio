@@ -25,8 +25,8 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     description: "Changes the appearance of the enclosed text.",
     parameters: [
       ["size", "Text size, such as 12pt."],
-      ["fill", "Text colour, such as link-color."],
-      ["font", "Typeface name, such as body-font."],
+      ["fill", "Text colour, such as immuknow.link-color."],
+      ["font", "Typeface name, such as immuknow.body-font."],
       ["[content]", "The words to format."],
     ],
     example: "#text(size: 12pt)[Please update your record.]",
@@ -54,12 +54,22 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     reference: "visualize/image/",
   },
   "immuknow.notice-header": {
-    namedParameters: ["logo", "title", "logo-width", "title-size", "fill", "placement", "spacing"],
+    namedParameters: [
+      "logo",
+      "title",
+      "logo-width",
+      "title-size",
+      "title-align",
+      "fill",
+      "placement",
+      "spacing",
+    ],
     description: "Places the logo and letter heading together.",
     parameters: [
       ["logo", "The logo image."],
       ["title", "The heading text."],
       ["title-size / fill", "Heading size and colour."],
+      ["title-align", "Use left, center, or right to align the title within its column."],
     ],
     example: '#immuknow.notice-header(title: "Immunization Record")',
   },
@@ -107,6 +117,8 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       "error-correction",
       "foreground",
       "background",
+      "corner-foreground",
+      "alignment-foreground",
       "module-shape",
       "corner-style",
       "logo",
@@ -117,6 +129,9 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     parameters: [
       ["url", "A fixed URL, or a function that builds a link from this notice."],
       ["width", "Displayed width, such as 3cm."],
+      ["module-shape", "square (connected), separated, dots, or rounded."],
+      ["corner-foreground", "Colour of the three large finder targets; auto inherits foreground."],
+      ["alignment-foreground", "Colour of smaller alignment targets; auto inherits foreground."],
       ["enabled", "Set false to hide the code."],
     ],
     example: '#immuknow.qr-code(url: "https://example.org/update", width: 3cm)',
@@ -148,7 +163,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["width", "Displayed width, such as 3cm."],
       ["height", "Displayed height, such as 2cm."],
       ["breakable", "Optional breakable setting."],
-      ["fill", "Fill colour, such as heading-color."],
+      ["fill", "Fill colour, such as immuknow.heading-color."],
       ["stroke", "Border colour and thickness, or none."],
       ["inset", "Space inside the container, such as 6pt."],
       ["above", "Optional above setting."],
@@ -164,7 +179,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["body", "Content in square brackets."],
       ["width", "Displayed width, such as 3cm."],
       ["height", "Displayed height, such as 2cm."],
-      ["fill", "Fill colour, such as heading-color."],
+      ["fill", "Fill colour, such as immuknow.heading-color."],
       ["stroke", "Border colour and thickness, or none."],
       ["inset", "Space inside the container, such as 6pt."],
     ],
@@ -208,7 +223,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["column-gutter", "Optional column gutter setting."],
       ["row-gutter", "Optional row gutter setting."],
       ["align", "Optional align setting."],
-      ["fill", "Fill colour, such as heading-color."],
+      ["fill", "Fill colour, such as immuknow.heading-color."],
       ["stroke", "Border colour and thickness, or none."],
       ["inset", "Space inside the container, such as 6pt."],
     ],
@@ -378,7 +393,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["rows", "Optional rows setting."],
       ["gutter", "Optional gutter setting."],
       ["align", "Optional align setting."],
-      ["fill", "Fill colour, such as heading-color."],
+      ["fill", "Fill colour, such as immuknow.heading-color."],
       ["stroke", "Border colour and thickness, or none."],
       ["inset", "Space inside the container, such as 6pt."],
     ],
@@ -403,7 +418,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["colspan", "Optional colspan setting."],
       ["rowspan", "Optional rowspan setting."],
       ["align", "Optional align setting."],
-      ["fill", "Fill colour, such as heading-color."],
+      ["fill", "Fill colour, such as immuknow.heading-color."],
       ["stroke", "Border colour and thickness, or none."],
       ["inset", "Space inside the container, such as 6pt."],
     ],
@@ -430,7 +445,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["body", "Optional content in square brackets."],
       ["width", "Displayed width, such as 3cm."],
       ["height", "Displayed height, such as 2cm."],
-      ["fill", "Fill colour, such as heading-color."],
+      ["fill", "Fill colour, such as immuknow.heading-color."],
       ["stroke", "Border colour and thickness, or none."],
       ["radius", "Optional radius setting."],
       ["inset", "Space inside the container, such as 6pt."],
@@ -485,7 +500,14 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     reference: "data-loading/read/",
   },
   "immuknow.notice-page": {
-    namedParameters: ["allow-overflow", "title-size", "fill", "heading-above", "heading-below"],
+    namedParameters: [
+      "allow-overflow",
+      "title-size",
+      "title-align",
+      "fill",
+      "heading-above",
+      "heading-below",
+    ],
     description:
       "Starts a named page using Settings defaults. Named options change only this page; unexpected continuation produces a finding.",
     parameters: [
@@ -493,6 +515,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["body", "The page content inside square brackets."],
       ["allow-overflow", "Set true to allow this content to continue onto more pages."],
       ["title-size / fill", "Heading size and colour for this page."],
+      ["title-align", "Use left, center, or right to align this page’s title."],
       ["heading-above / heading-below", "Space above and below this page’s heading."],
     ],
     example: '#immuknow.notice-page("Request for Immunization Record")[Your letter here.]',
@@ -504,9 +527,9 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["language", 'Use "en", "fr", or auto where supported.'],
       ["paper", 'Paper size, such as "us-letter" or "a4".'],
       ["margins", "Space around the page edges, with top, bottom, left and right values."],
-      ["font", "Typeface name, such as body-font."],
+      ["font", "Typeface name, such as immuknow.body-font."],
       ["font-size", "Text size, such as 10pt."],
-      ["link-color", "Colour used for links, such as link-color."],
+      ["link-color", "Colour used for links, such as immuknow.link-color."],
       ["paragraph-spacing", "Gap between paragraphs, such as 0.55em."],
       ["page-numbers", "Set true to show page numbers."],
     ],
@@ -530,7 +553,8 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["logo", "Logo image, or none to leave it out."],
       ["logo-width", "Displayed logo width, such as 6cm."],
       ["title-size", "Heading text size, such as 20pt."],
-      ["fill", "Fill colour, such as heading-color."],
+      ["title-align", "Use left, center, or right to align the title within its column."],
+      ["fill", "Fill colour, such as immuknow.heading-color."],
       ["heading-above", "Space above the heading."],
       ["heading-below", "Space below the heading."],
       ["allow-overflow", "Set true to allow the content to run onto another page."],
@@ -540,6 +564,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       "logo",
       "logo-width",
       "title-size",
+      "title-align",
       "fill",
       "heading-above",
       "heading-below",
@@ -571,6 +596,28 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     example:
       '#immuknow.signature-block(signature: image("assets/signature.png", width: 4.5cm), name: "Dr. Annie Body, MD")',
     namedParameters: ["signature", "name", "title", "spacing", "allow-overflow"],
+  },
+  "immuknow.requirements": {
+    description:
+      "Declares when this notice applies and which recommendations it covers. Place exactly one call in each notice.",
+    parameters: [
+      [
+        "eligibility",
+        'Use "any", "has_overdue", "has_overdue_agents", "no_overdue", or "has_ispa_overdue".',
+      ],
+      ["coverage", 'Use "agents", "diseases", or "neutral".'],
+    ],
+    namedParameters: ["eligibility", "coverage"],
+    example: '#immuknow.requirements(eligibility: "has_overdue", coverage: "diseases")',
+  },
+  "immuknow.agent-alternative": {
+    description: "Places intentional alternative wording in place of the overdue agent list.",
+    parameters: [
+      ["[content]", "Visible wording explaining the alternative."],
+      ["ignore-agents", "Optional exact source agent names excluded from display."],
+    ],
+    namedParameters: ["ignore-agents"],
+    example: "#immuknow.agent-alternative[Please contact us about your records.]",
   },
   "immuknow.overdue-diseases": {
     description: "Displays the overdue diseases as bullets or inline text.",
@@ -611,6 +658,10 @@ export const functionCatalog: Record<string, FunctionHelp> = {
   "immuknow.overdue-agents": {
     description: "Displays the overdue vaccine agents.",
     parameters: [
+      [
+        "ignore-agents",
+        "Exclude exact agent-name matches from this list; history exclusions are separate.",
+      ],
       ["style", "Optional style setting."],
       ["columns", "Number of columns, such as 1 or 2."],
       ["indent", "Bullet indentation; defaults to 0.8cm. Overrides only this list."],
@@ -629,6 +680,7 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     ],
     example: "#immuknow.overdue-agents()",
     namedParameters: [
+      "ignore-agents",
       "style",
       "columns",
       "indent",
@@ -719,10 +771,11 @@ export const functionCatalog: Record<string, FunctionHelp> = {
       ["base", "Website address to add the values to."],
       [
         "values",
-        "Names and values to add, such as (client: notice.client_id). Pass the original text.",
+        "Names and values to add, such as (client: immuknow.notice.client_id). Pass the original text.",
       ],
     ],
-    example: '#immuknow.query-url("https://example.org/update", (client: notice.client_id))',
+    example:
+      '#immuknow.query-url("https://example.org/update", (client: immuknow.notice.client_id))',
     namedParameters: [],
   },
   "immuknow.url-encode": {
@@ -730,12 +783,12 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     parameters: [
       ["value", "Original text, before converting special characters for a web address."],
     ],
-    example: "#immuknow.url-encode(notice.client_id)",
+    example: "#immuknow.url-encode(immuknow.notice.client_id)",
     namedParameters: [],
   },
   "immuknow.notice-flags": {
     description:
-      "Returns to_student, to_guardian, no_records and disease-based up_to_date booleans. Setup exports these for #if wording.",
+      "Returns to_student, to_guardian, no_records and disease-based up_to_date booleans. Settings exposes these as immuknow.to_student and related names for #if wording.",
     parameters: [
       ["include-ispa", "Set true to also return the birth-cohort-aware ispa_up_to_date flag."],
     ],
@@ -743,7 +796,8 @@ export const functionCatalog: Record<string, FunctionHelp> = {
     example: "#let ispa_up_to_date = immuknow.notice-flags(include-ispa: true).ispa_up_to_date",
   },
   "immuknow.notice-dates": {
-    description: "Provides delivery, as-of and birth dates in the notice’s language.",
+    description:
+      "Provides delivery, as-of, due, suspension and birth dates in the notice’s language.",
     parameters: [],
     example: "#immuknow.notice-dates()",
     namedParameters: [],
