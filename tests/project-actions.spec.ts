@@ -153,10 +153,9 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   await expect(page.locator("#project-change-dialog")).not.toBeVisible();
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");
   const files = await download(page);
-  const assignments = JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]));
-  expect(assignments).toHaveLength(1);
-  expect(assignments[0].template).toBe("overdue_diseases.en.typ");
-  for (const entry of assignments) expect(files[`templates/${entry.template}`]).toBeDefined();
+  const sample = JSON.parse(new TextDecoder().decode(files["sample.json"]));
+  expect(sample.template).toBe("templates/overdue_diseases.en.typ");
+  expect(files[sample.template]).toBeDefined();
   expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   // The scoped download remains a valid project that can be imported.
   await page.locator("#previous").click();
@@ -169,7 +168,7 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   await expect(page.locator("#archive")).toHaveValue("");
   await current(page);
   await expect(page.locator("#template option")).toHaveCount(
-    new Set(assignments.map((entry: { template: string }) => entry.template)).size,
+    1,
   );
   await expect(page.locator("#example")).toHaveText("Example client 01");
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");

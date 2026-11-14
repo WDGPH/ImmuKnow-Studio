@@ -24,10 +24,10 @@ Explain technical terms where readers first need them. Describe current behavior
 directly, without recounting development history. Use fictional records and
 public assets in examples. Follow the [shared language and project responsibilities](https://docs.phiz.ca/immuknow/latest/ecosystem/).
 
-Keep the relationship to Core explicit: Studio develops templates; local
-ImmuKnow runs generate production notices. Link to Core's manual for input
+Keep the relationship to ImmuKnow explicit: Studio develops templates; local
+ImmuKnow runs generate production notices. Link to ImmuKnow's manual for input
 validation, the facts contract and delivery review instead of duplicating it.
-Keep Core’s configured Git reference and exact locked commit distinct from its
+Keep ImmuKnow’s configured Git reference and exact locked commit distinct from its
 release tags.
 
 ## Check a documentation change
@@ -67,5 +67,5 @@ tag changes; it sends no generated HTML.
 
 For a Studio release, review the journey from editing through the downloaded
 project and native run. Run the checks in [Build and contribute](development.md)
-and the strict documentation build. Verify the Core pin and compiler identity,
+and the strict documentation build. Verify the ImmuKnow pin and compiler identity,
 keep package versions and the release tag consistent, and record the checks.

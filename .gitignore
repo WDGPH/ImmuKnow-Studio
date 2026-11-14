@@ -15,4 +15,4 @@ playwright-report/
 .ruff_cache/
 site/
 
-.native-core/
+.immuknow/

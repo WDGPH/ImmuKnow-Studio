@@ -2,7 +2,7 @@
 
 Studio lets you edit a Typst notice and preview it with prepared, fictional
 clients. It uses the same facts contract, authored project and native findings
-as standalone Core. Upstream systems assess immunization status; Studio
+as standalone ImmuKnow. Upstream systems assess immunization status; Studio
 does not assess a client or choose their notice.
 
 This is the detailed editor reference. For a first visit, follow
@@ -56,7 +56,7 @@ option for one table or page directly in Template. Keep the opening Settings
 marker, import and `#show: immuknow.letter` line in place. See the
 [Template customization guide](https://github.com/WDGPH/ImmuKnow-Template/blob/main/README.md)
 for starter settings and the [Typst Reference](coding-cheatsheet.md) for
-examples. Core's [authoring guide](https://docs.phiz.ca/immuknow/latest/developer_guide/templates/)
+examples. ImmuKnow's [authoring guide](https://docs.phiz.ca/immuknow/latest/developer_guide/templates/)
 describes its components and checks. Review printed QR codes after changing
 their appearance.
 
@@ -112,7 +112,7 @@ Findings combine source-preparation warnings, compiler diagnostics and placed
 Typst checks. Notice requirements and display checks are marked **Checked when
 the notice compiles** until a current preview supplies validated evidence.
 If the evidence is invalid, the readable preview remains visible with an error.
-Review the findings for the selected notice and example. Core's
+Review the findings for the selected notice and example. ImmuKnow's
 [findings guide](https://docs.phiz.ca/immuknow/latest/user_guide/findings/)
 explains native checks and their meanings.
 
@@ -217,7 +217,7 @@ or **Authored .typ files only**. With **Complete project**, choose **Download ZI
 to save the selected notice with current Settings,
 Theme, translations, components, images and configuration.
 The **Include fictional client data** checkbox is selected by default. Keep it
-to include the selected fictional client and its assignment to the active notice
+to include the selected fictional client and the active notice
 for a local test run. The sample keeps the preview client's facts even if they
 produce findings for that notice. Clear it to download without Studio’s fictional inputs,
 including unchanged sample copies from a previously imported Studio ZIP. Custom
@@ -234,8 +234,8 @@ and sample copies under `input/sample/` when fictional client data is included
 and a prepared example is available.
 An imported project's existing sample selection and authored files are preserved.
 Get the standalone executable separately from
-[Core releases](https://github.com/WDGPH/ImmuKnow/releases) when a release
-matches the project's `core-revision.txt`, or ask your maintainer for a prepared
+[ImmuKnow releases](https://github.com/WDGPH/ImmuKnow/releases) when a release
+matches the project's `immuknow-revision.txt`, or ask your maintainer for a prepared
 executable. Choose the archive for your operating system and processor and
 put the extracted executable on your terminal's PATH. Fresh downloads include no
 Python environment or setup files; imported legacy files remain intact.
@@ -268,14 +268,14 @@ for a portable Studio backup or a runnable project.
 
 ## Use the project with the native engine
 
-Production notice generation happens with ImmuKnow core on your local
+Production notice generation happens with ImmuKnow on your local
 workstation. Follow [Use projects on your workstation](local-production.md)
 for the complete handoff, native command examples, fonts and output review.
 Keep the extracted project and its assets together. `immuknow project sync`
 installs the shared library from your separately supplied executable. Install
 the supplied fonts on your workstation; no separate Typst installation is needed.
 For native delivery grouping and optional PDF encryption, edit the project
-configuration on your workstation and follow the [Core configuration guide](https://docs.phiz.ca/immuknow/latest/user_guide/configuration/).
+configuration on your workstation and follow the [ImmuKnow configuration guide](https://docs.phiz.ca/immuknow/latest/user_guide/configuration/).
 That guide also explains optional password placeholders, including initials.
 
 The footer shows **ImmuKnow Studio** followed by the exact release tag (such as

@@ -1,8 +1,4 @@
 {
-  "dates": {
-    "date_of_delivery": "2026-11-15",
-    "date_as_of": "2026-11-01"
-  },
   "creationTimestamp": 1794700800,
   "templates": [
     "overdue_diseases.en.typ",

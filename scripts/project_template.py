@@ -7,16 +7,16 @@ import re
 
 from immuknow_template.resources import project_files, resource_root
 
-from .native_core import revision as core_revision
+from .immuknow import revision as immuknow_revision
 
 PROJECT_TEMPLATE = resource_root()
 
 
 def scaffold_files() -> dict[str, bytes]:
-    """Read Template resources and require the same locked Core revision."""
+    """Read Template resources and require the same locked ImmuKnow revision."""
     files = project_files()
-    if files["core-revision.txt"].decode().strip() != core_revision():
-        raise ValueError("Template and Studio must lock the same Core commit")
+    if files["immuknow-revision.txt"].decode().strip() != immuknow_revision():
+        raise ValueError("Template and Studio must lock the same ImmuKnow commit")
     revision = json.loads(files["template-source.json"])["revision"]
     if not isinstance(revision, str) or not re.fullmatch(r"[0-9a-f]{40}", revision):
         raise ValueError(

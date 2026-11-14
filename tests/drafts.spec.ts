@@ -2,7 +2,7 @@ import { confirmProjectChange, restoredProject, saved } from "./helpers";
 import { readFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
 import { unzipSync } from "fflate";
-import { exportProject } from "../src/archive-core";
+import { exportProject } from "../src/project-archive";
 import type { Draft } from "../src/drafts";
 import type { Bundle, Files } from "../src/types";
 

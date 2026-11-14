@@ -25,7 +25,7 @@ for (const [language, password] of [
 import base64, json, shutil, sys
 from pathlib import Path
 import yaml
-from scripts.native_core import run
+from scripts.immuknow import run
 bundle = json.loads(Path("public/generated/project.json").read_text())
 directory = Path(sys.argv[1])
 for name, value in bundle["files"].items():

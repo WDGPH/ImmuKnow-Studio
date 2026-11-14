@@ -50,8 +50,8 @@ export interface RenderSummary {
 }
 export interface BuildInfo {
   studio_version?: string;
-  core_source_revision?: string | null;
-  core_source_modified?: boolean | null;
+  immuknow_source_revision?: string | null;
+  immuknow_source_modified?: boolean | null;
   application_version: string;
   rendering_schema_version: number;
   native_typst_version: string;
@@ -85,7 +85,7 @@ export interface Example {
   preparationChecks: Record<string, CheckResult[]>;
   deferredChecks?: Record<string, string[]>;
   blockedChecks?: Record<string, BlockedCheck[]>;
-  inputs: Record<string, { csv: string; assignments: string }>;
+  csv: string;
 }
 export interface Bundle {
   schemaVersion: 1;

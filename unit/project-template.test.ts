@@ -4,7 +4,7 @@ import { authoredTypstFiles, currentProject } from "../src/project-actions";
 import { encoder } from "../src/project";
 import type { Files } from "../src/types";
 
-test("installed Template resources must select the same Core revision as Studio", () => {
+test("installed Template resources must select the same ImmuKnow revision as Studio", () => {
   const output = execFileSync("uv", ["run", "--locked", "python", "-c", `
 import json
 from unittest.mock import patch
@@ -12,21 +12,21 @@ from scripts.project_template import scaffold_files
 files = scaffold_files()
 assert not any(name.startswith("scripts/") for name in files)
 assert not {"pyproject.toml", "uv.lock", ".python-version", ".pre-commit-config.yaml"}.intersection(files)
-assert "core-revision.txt" in files
+assert "immuknow-revision.txt" in files
 assert "templates/settings.typ" in files
 assert "templates/setup.typ" not in files
 assert "templates/presentation.typ" not in files
 assert "config/notice_versions.yaml" not in files
 assert not any(name.startswith("templates/lib/") for name in files)
 wrong = dict(files)
-wrong["core-revision.txt"] = b"0" * 40
+wrong["immuknow-revision.txt"] = b"0" * 40
 with patch("scripts.project_template.project_files", return_value=wrong):
     try:
         scaffold_files()
     except ValueError as error:
-        assert "same Core commit" in str(error)
+        assert "same ImmuKnow commit" in str(error)
     else:
-        raise AssertionError("Mismatched Core pin accepted")
+        raise AssertionError("Mismatched ImmuKnow pin accepted")
 wrong = dict(files)
 origin = json.loads(files["template-source.json"])
 origin["revision"] = None
@@ -55,6 +55,8 @@ print(json.dumps({name: base64.b64encode(data).decode("ascii") for name, data in
       path, new Uint8Array(Buffer.from(value, "base64")),
     ]),
   );
+  delete files["sample.json"];
+  delete files["input/sample/sample_students.csv"];
   const template = "templates/overdue_diseases.en.typ";
   const edited = { ...files, [template]: encoder.encode(`${new TextDecoder().decode(files[template])}\n// Authored edit\n`) };
   const result = currentProject(edited, template, [], undefined, files);

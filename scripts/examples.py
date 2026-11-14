@@ -18,11 +18,10 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-import yaml
-from immuknow_template.resources import example_assignments_path, example_clients_path
+from immuknow_template.resources import example_clients_path
 
 from .build_info import project_build
-from .native_core import prepare, typst_library_root
+from .immuknow import prepare, typst_library_root
 from .project_template import PROJECT_TEMPLATE, scaffold_files
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,10 +41,9 @@ def write_csv(path: Path, source: dict[str, str]) -> None:
 def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
     """Prepare each shared client for every maintained notice and return export files."""
     resources = scaffold_files()
+    resources.pop("sample.json", None)
+    resources.pop("input/sample/sample_students.csv", None)
     resources["examples/sample/clients.csv"] = example_clients_path().read_bytes()
-    resources["examples/sample/assignments.json"] = (
-        example_assignments_path().read_bytes()
-    )
     authored = json.loads((EXAMPLES / "previews.json").read_text(encoding="utf-8"))
     with example_clients_path().open(encoding="utf-8-sig", newline="") as stream:
         sources = list(csv.DictReader(stream))
@@ -58,8 +56,6 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
         raise ValueError(
             "Studio's example list must match the clients supplied by Template"
         )
-    config = yaml.safe_load((CONFIG / "parameters.yaml").read_text())
-    config.update(authored["dates"])
     examples = []
     library = typst_library_root()
     resources.update(
@@ -70,9 +66,6 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
             if path.is_file()
         }
     )
-    resources["config/parameters.yaml"] = yaml.safe_dump(
-        config, sort_keys=True, allow_unicode=True
-    ).encode("utf-8")
     with tempfile.TemporaryDirectory(prefix="immuknow-studio-examples-") as scratch:
         workspace = Path(scratch)
         shutil.copytree(TEMPLATES, workspace / "resources/templates")
@@ -82,8 +75,7 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
             resources["config/parameters.yaml"]
         )
         for scenario in authored["clients"]:
-            payloads, preparation_checks, deferred_checks, blocked_checks, inputs = (
-                {},
+            payloads, preparation_checks, deferred_checks, blocked_checks = (
                 {},
                 {},
                 {},
@@ -95,22 +87,10 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
             csv_key = f"examples/clients/{scenario['id']}.csv"
             resources[csv_key] = csv_path.read_bytes()
             for filename in authored["templates"]:
-                version, language = filename.removesuffix(".typ").rsplit(".", 1)
-                assignments = [{"client_id": source["client_id"], "template": filename}]
-                assignment_path = workspace / "assignment.json"
-                assignment_path.write_text(
-                    json.dumps(assignments, indent=2) + "\n", encoding="utf-8"
-                )
-                assignment_key = (
-                    f"examples/assignments/{scenario['id']}.{version}.{language}.json"
-                )
-                resources[assignment_key] = assignment_path.read_bytes()
                 result = prepare(
                     str(csv_path),
-                    "--notice-assignments",
-                    str(assignment_path),
-                    "--templates",
-                    str(workspace / "resources/templates"),
+                    "--template",
+                    str(workspace / "resources/templates" / filename),
                     "--config",
                     str(workspace / "config"),
                 )
@@ -131,7 +111,6 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                 preparation_checks[filename] = entry["checks"]
                 deferred_checks[filename] = entry["deferred_checks"]
                 blocked_checks[filename] = entry["blocked_checks"]
-                inputs[filename] = {"csv": csv_key, "assignments": assignment_key}
             examples.append(
                 {
                     "id": scenario["id"],
@@ -143,7 +122,7 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                     "preparationChecks": preparation_checks,
                     "deferredChecks": deferred_checks,
                     "blockedChecks": blocked_checks,
-                    "inputs": inputs,
+                    "csv": csv_key,
                 }
             )
     resources["examples/README.md"] = (EXAMPLES / "README.md").read_bytes()

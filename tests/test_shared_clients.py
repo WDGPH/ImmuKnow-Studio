@@ -11,7 +11,8 @@ from pathlib import Path
 from immuknow_template.resources import example_clients_path
 
 from scripts.examples import EXAMPLES, generate
-from scripts.native_core import prepare, typst_library_root
+from scripts.immuknow import prepare, typst_library_root
+from scripts.project_template import PROJECT_TEMPLATE
 
 
 class SharedClientsTest(unittest.TestCase):
@@ -23,6 +24,10 @@ class SharedClientsTest(unittest.TestCase):
             cls.sources = {row["client_id"]: row for row in csv.DictReader(stream)}
 
     def test_library_identity_uses_project_paths_and_actual_library_bytes(self) -> None:
+        self.assertEqual(
+            self.resources["config/parameters.yaml"],
+            (PROJECT_TEMPLATE / "config/parameters.yaml").read_bytes(),
+        )
         build = json.loads(self.resources["build.json"])
         entries = build["shared_resources"]["files"]
         library = {
@@ -54,9 +59,7 @@ class SharedClientsTest(unittest.TestCase):
                 self.assertEqual(
                     set(example["payloads"]), set(self.authored["templates"])
                 )
-                csv_paths = {inputs["csv"] for inputs in example["inputs"].values()}
-                self.assertEqual(len(csv_paths), 1)
-                (path,) = csv_paths
+                path = example["csv"]
                 rows = list(csv.DictReader(io.StringIO(self.resources[path].decode())))
                 self.assertEqual(rows, [expected[example["id"]]])
                 facts = [
@@ -84,36 +87,24 @@ class SharedClientsTest(unittest.TestCase):
                 path.write_bytes(data)
             for example in self.prepared["examples"]:
                 for filename, payload in example["payloads"].items():
-                    inputs = example["inputs"][filename]
-                    for selector in (
-                        [
-                            "--notice-assignments",
-                            str(project / inputs["assignments"]),
-                            "--templates",
-                            str(project / "templates"),
-                        ],
-                        ["--template", str(project / "templates" / filename)],
-                    ):
-                        with self.subTest(
-                            client=example["id"], notice=filename, selector=selector[0]
-                        ):
-                            result = prepare(
-                                str(project / inputs["csv"]),
-                                "--config",
-                                str(project / "config"),
-                                *selector,
-                            )
-                            self.assertEqual(len(result["entries"]), 1)
-                            entry = result["entries"][0]
-                            self.assertEqual(entry["notice"], payload)
-                            self.assertEqual(
-                                entry["deferred_checks"],
-                                example["deferredChecks"][filename],
-                            )
-                            self.assertEqual(
-                                entry["blocked_checks"],
-                                example["blockedChecks"][filename],
-                            )
+                    with self.subTest(client=example["id"], notice=filename):
+                        result = prepare(
+                            str(project / example["csv"]),
+                            "--config",
+                            str(project / "config"),
+                            "--template",
+                            str(project / "templates" / filename),
+                        )
+                        self.assertEqual(len(result["entries"]), 1)
+                        entry = result["entries"][0]
+                        self.assertEqual(entry["notice"], payload)
+                        self.assertEqual(
+                            entry["deferred_checks"],
+                            example["deferredChecks"][filename],
+                        )
+                        self.assertEqual(
+                            entry["blocked_checks"], example["blockedChecks"][filename]
+                        )
 
 
 class FailedExampleTest(unittest.TestCase):

@@ -51,7 +51,7 @@ import json
 import shutil
 import tempfile
 from pathlib import Path
-from scripts.native_core import prepare, typst_library_root
+from scripts.immuknow import prepare, typst_library_root
 from scripts.project_template import PROJECT_TEMPLATE
 with tempfile.TemporaryDirectory(prefix="studio-duplicate-fixture-") as scratch:
     templates = Path(scratch) / "templates"
@@ -79,18 +79,9 @@ with tempfile.TemporaryDirectory(prefix="studio-duplicate-fixture-") as scratch:
   expect(index).toBeGreaterThanOrEqual(0);
   const agents = prepared.notice.overdue_agents as string[];
   expect(agents.filter((agent) => agent === "MMR")).toHaveLength(3);
-  const warning = prepared.checks.find(
+  expect(prepared.checks.some(
     (check: { code: string }) => check.code === "data.duplicate_overdue_agents",
-  );
-  expect(warning?.status).toBe("warn");
-  const source = warning?.measurements?.source_value;
-  expect(typeof source).toBe("string");
-  expect(
-    (source as string)
-      .split(";")
-      .map((value) => value.trim())
-      .filter((value) => value === "MMR"),
-  ).toHaveLength(3);
+  )).toBe(false);
 
   await page.locator("#theme-tab").click();
   await chooseExample(page, index);
@@ -109,8 +100,6 @@ with tempfile.TemporaryDirectory(prefix="studio-duplicate-fixture-") as scratch:
       { timeout: 60_000 },
     )
     .toBe(true);
-  await page.locator("#notice-warnings summary").click();
-  await expect(page.locator("#warnings-list")).toContainText("data.duplicate_overdue_agents");
   const firstPage = page.locator(".preview-page").first();
   await expect
     .poll(

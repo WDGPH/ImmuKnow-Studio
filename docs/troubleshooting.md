@@ -53,7 +53,7 @@ other one. If saving fails, download your open work before closing the tab.
 ## The native PDF looks different
 
 Check the selected template, input facts, dates, configuration, installed fonts
-and Core/Typst versions. Studio's examples have fixed facts and dates. Native
+and ImmuKnow/Typst versions. Studio's examples have fixed facts and dates. Native
 ImmuKnow uses system fonts and prepares facts from your actual input. Review
 the native report as well as the page appearance. See
 [Use projects on your workstation](local-production.md).

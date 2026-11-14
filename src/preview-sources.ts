@@ -27,7 +27,7 @@ function callOrigin(files: Files, path: string, names: string[]): PreviewText["o
   };
 }
 
-// Compiler spans remain authoritative for authored text. Core's measured client
+// Compiler spans remain authoritative for authored text. ImmuKnow's measured client
 // boxes and prepared facts supply conservative targets for generated content.
 export function previewSources(
   preview: Preview,

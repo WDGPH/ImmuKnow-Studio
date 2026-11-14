@@ -201,12 +201,12 @@ def main(evidence: Path) -> None:
         project = workspace / "Relocated projet Élodie"
         extracted.rename(project)
         assert not project.is_relative_to(Path(__file__).resolve().parents[1])
-        assert (project / "core-revision.txt").read_text().strip() == (
-            Path(__file__).resolve().parents[1] / "core-revision.txt"
+        assert (project / "immuknow-revision.txt").read_text().strip() == (
+            Path(__file__).resolve().parents[1] / "immuknow-revision.txt"
         ).read_text().strip()
 
         binary = shutil.which(env.get("IMMUKNOW_BIN", "immuknow"))
-        assert binary, "Install the reviewed standalone Core executable"
+        assert binary, "Install the reviewed standalone ImmuKnow executable"
         # The test harness uses Python to inspect PDFs, but the extracted project
         # must run with no Python, uv, shell or other tools on its command path.
         env["PATH"] = ""
@@ -271,19 +271,7 @@ def main(evidence: Path) -> None:
             "selectors": [],
             "rebundled": False,
         }
-        selectors = [
-            (
-                "assignments",
-                [
-                    "--notice-assignments",
-                    selected["input"]["assignments"],
-                    "--templates",
-                    str(Path(selected["template"]).parent),
-                ],
-            ),
-        ]
-        if selected["example"] == "missing-meningococcal":
-            selectors.insert(0, ("template", ["--template", selected["template"]]))
+        selectors = [("template", ["--template", selected["template"]])]
         for selector, arguments in selectors:
             receipt = run(
                 "run",
@@ -493,38 +481,19 @@ def main(evidence: Path) -> None:
                 and row["row_key"] == entry["row_key"]
                 for row in csv_findings
             )
-            issue = next(
-                issue
-                for row in csv_findings
-                if row["code"] == "content.multiple_links"
-                for issue in json.loads(row["issue_ids"])
-            )
-            # Saved originals suffice after removing authored inputs. A hold excludes
-            # a notice; releasing the hold leaves its warnings and policy in force.
+            # Saved originals suffice after removing authored inputs. Refresh
+            # derived exports before exercising hold and release.
             for directory in ("templates", "config", "examples"):
                 shutil.rmtree(project / directory)
-            for revoke in (False, True):
-                flags = ["--revoke"] if revoke else []
-                run(
-                    "acknowledge",
-                    str(run_dir),
-                    issue,
-                    *flags,
-                    "--reason",
-                    "Fictional downloaded-project review",
-                )
-                reviewed = json.loads(record_path.read_text())
-                _, reviewed_findings = selected_csvs(run_dir, reviewed)
-                acknowledged = {
-                    value
-                    for row in reviewed_findings
-                    for value in json.loads(row["acknowledged_issue_ids"])
-                }
-                assert (issue in acknowledged) != revoke
-                before_refresh = reviewed.copy()
-                run("warnings", str(run_dir), "--refresh")
-                assert json.loads(record_path.read_text()) == before_refresh
-                assert reviewed["entries"] == record["entries"]
+            before_refresh = json.loads(record_path.read_text())
+            receipt = run("refresh-exports", str(run_dir))
+            refreshed = json.loads(record_path.read_text())
+            assert refreshed["record_revision"] == before_refresh["record_revision"]
+            assert refreshed["entries"] == before_refresh["entries"]
+            assert refreshed["status"] == before_refresh["status"]
+            refreshed_records, refreshed_findings = selected_csvs(run_dir, refreshed)
+            assert refreshed_records and refreshed_findings
+            assert "records.csv" in receipt and "findings.csv" in receipt
             attempts = len(record["delivery_attempts"])
             for decision in ("withhold", "release"):
                 arguments = [

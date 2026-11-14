@@ -16,7 +16,7 @@ function labels(source: string, explicit = false) {
 }
 
 describe("Typst coding suggestions", () => {
-  it("offers useful Typst, Core and Settings functions after a hash", () => {
+  it("offers useful Typst, ImmuKnow and Settings functions after a hash", () => {
     const options = labels("#|");
     expect(options).toEqual(
       expect.arrayContaining([
