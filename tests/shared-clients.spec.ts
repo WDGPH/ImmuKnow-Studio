@@ -5,15 +5,25 @@ import type { Bundle } from "../src/types";
 import { downloadProject, chooseExample, chooseTemplate, restoredProject, saved } from "./helpers";
 
 async function current(page: Page) {
-  await expect.poll(() => page.locator("#preview-state").evaluate((element) => {
-    const state = (element as HTMLElement).dataset;
-    return Number(state.displayedRevision) > 0 &&
-      state.displayedRevision === state.requestedRevision &&
-      state.displayedContext === state.context;
-  }), { timeout: 60_000 }).toBe(true);
+  await expect
+    .poll(
+      () =>
+        page.locator("#preview-state").evaluate((element) => {
+          const state = (element as HTMLElement).dataset;
+          return (
+            Number(state.displayedRevision) > 0 &&
+            state.displayedRevision === state.requestedRevision &&
+            state.displayedContext === state.context
+          );
+        }),
+      { timeout: 60_000 },
+    )
+    .toBe(true);
 }
 
-test("one client stays selected across notices, languages, a reload and download", async ({ page }, info) => {
+test("one client stays selected across notices, languages, a reload and download", async ({
+  page,
+}, info) => {
   await page.goto("./");
   await current(page);
   const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
@@ -29,7 +39,9 @@ test("one client stays selected across notices, languages, a reload and download
   await chooseExample(page, bundle.examples.indexOf(client));
   await expect(page.getByRole("button", { name: "Previous example" })).toBeDisabled();
   await page.getByRole("button", { name: "Next example" }).click();
-  await expect(name).toHaveText(`Example client ${String(bundle.examples.indexOf(client) + 2).padStart(2, "0")}`);
+  await expect(name).toHaveText(
+    `Example client ${String(bundle.examples.indexOf(client) + 2).padStart(2, "0")}`,
+  );
   await page.getByRole("button", { name: "Previous example" }).click();
   await current(page);
   await expect(page.locator("#project-change-dialog")).not.toBeVisible();
@@ -39,18 +51,19 @@ test("one client stays selected across notices, languages, a reload and download
   const filenames = Object.keys(client.payloads);
   for (const filename of filenames) {
     await chooseTemplate(page, `templates/${filename}`);
+    await current(page);
     if (filename.startsWith("affirmative")) {
-      await expect(page.locator("#diagnostics")).toContainText("affirmative notice requires no overdue diseases");
-    } else {
-      await current(page);
+      await expect(page.locator("#errors")).toContainText("notice.eligibility");
+      await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "failed");
     }
-    await expect(name).toHaveText(`Example client ${String(bundle.examples.indexOf(client) + 1).padStart(2, "0")}`);
+    await expect(name).toHaveText(
+      `Example client ${String(bundle.examples.indexOf(client) + 1).padStart(2, "0")}`,
+    );
     const firstName = String(client.payloads[filename].client_data.first_name).split(" ")[0];
     if (!filename.startsWith("affirmative")) {
-      await expect(page.locator(".preview-text-run").filter({ hasText: firstName }).first()).toBeAttached();
-    }
-    if (filename.startsWith("affirmative")) {
-      await expect(page.locator("#diagnostics")).toContainText("assignment.eligibility_conflict");
+      await expect(
+        page.locator(".preview-text-run").filter({ hasText: firstName }).first(),
+      ).toBeAttached();
     }
   }
   await page.locator("#settings-tab").click();
@@ -60,7 +73,9 @@ test("one client stays selected across notices, languages, a reload and download
   await page.reload();
   await restoredProject(page);
   await current(page);
-  await expect(name).toHaveText(`Example client ${String(bundle.examples.indexOf(client) + 1).padStart(2, "0")}`);
+  await expect(name).toHaveText(
+    `Example client ${String(bundle.examples.indexOf(client) + 1).padStart(2, "0")}`,
+  );
   await page.screenshot({ path: info.outputPath("shared-clients-desktop.png") });
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(name).toBeVisible();
@@ -72,9 +87,13 @@ test("one client stays selected across notices, languages, a reload and download
   await downloadProject(page);
   const files = unzipSync(readFileSync((await (await pending).path()) as string));
   expect(Buffer.from(files["input/sample/sample_students.csv"])).toEqual(
-    Buffer.from(bundle.files["examples/sample/clients.csv"], "base64"),
+    Buffer.from(bundle.files[client.inputs[filename].csv], "base64"),
   );
-  expect(JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]))).toHaveLength(6);
+  expect(Buffer.from(files["input/sample/sample_assignments.json"])).toEqual(
+    Buffer.from(bundle.files[client.inputs[filename].assignments], "base64"),
+  );
   expect(files[client.inputs[filename].csv]).toBeUndefined();
-  expect(new TextDecoder().decode(files["templates/settings.typ"])).toContain("Keep these settings");
+  expect(new TextDecoder().decode(files["templates/settings.typ"])).toContain(
+    "Keep these settings",
+  );
 });

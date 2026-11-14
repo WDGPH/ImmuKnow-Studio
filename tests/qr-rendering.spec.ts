@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-for (const shape of ["square", "dots", "rounded"]) {
+for (const shape of ["square", "dots", "rounded", "separated"]) {
   for (const corner of ["square", "rounded"]) {
     test(`QR ${shape} modules with ${corner} corners have solid marker centres`, async ({
       page,
@@ -10,7 +10,7 @@ for (const shape of ["square", "dots", "rounded"]) {
       const revision = await page.evaluate(
         ({ shape, corner }) => {
           const job = window.proof.job;
-          const source = `#import "setup.typ": *
+          const source = `#import "settings.typ" as immuknow
 #show: immuknow.letter
 #immuknow.qr-code(url: "https://example.org/update", width: 113.7pt,
   foreground: rgb("176b78"), module-shape: "${shape}", corner-style: "${corner}")`;
@@ -58,3 +58,52 @@ for (const shape of ["square", "dots", "rounded"]) {
     });
   }
 }
+
+test("QR finder and alignment targets use their independent colours", async ({ page }) => {
+  await page.goto("proof.html");
+  await page.waitForFunction(() => Boolean(window.proof?.compiler.compilerVersion));
+  const revision = await page.evaluate(() => {
+    const job = window.proof.job;
+    const source = `#import "settings.typ" as immuknow
+#show: immuknow.letter
+#immuknow.qr-code(url: "https://example.org/update", width: 113.7pt,
+  module-shape: "separated", corner-style: "rounded",
+  corner-foreground: rgb("176b78"), alignment-foreground: rgb("7a2048"))`;
+    return window.proof.submit([
+      { ...job, files: { ...job.files, [`/${job.template}`]: new TextEncoder().encode(source) } },
+    ]);
+  });
+  await page.waitForFunction(
+    (revision) =>
+      Boolean(
+        window.proof.results.find((result) => result.revision === revision)?.timing?.committed,
+      ),
+    revision,
+  );
+  const colours = await page.evaluate((revision) => {
+    const preview = window.proof.results.find((result) => result.revision === revision)?.preview;
+    const link = preview?.pages[0].links?.find(
+      (link) => "url" in link && link.url === "https://example.org/update",
+    );
+    const canvas = document.querySelector<HTMLCanvasElement>(".preview-page canvas");
+    if (!preview || !link || !canvas) throw new Error("Missing QR preview");
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Missing QR pixels");
+    const scale = canvas.width / preview.pages[0].width;
+    const unit = link.width / 33;
+    return [7.5, 22.5].map((centre) =>
+      Array.from(
+        context.getImageData(
+          Math.floor((link.x + centre * unit) * scale),
+          Math.floor((link.y + centre * unit) * scale),
+          1,
+          1,
+        ).data,
+      ),
+    );
+  }, revision);
+  expect(colours).toEqual([
+    [23, 107, 120, 255],
+    [122, 32, 72, 255],
+  ]);
+});

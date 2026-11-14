@@ -95,7 +95,7 @@ try {
       return [name, new Uint8Array(bytes)] as const;
     }),
   );
-  const wasm = await wrapper.default({ module_or_path: wasmUrl });
+  await wrapper.default({ module_or_path: wasmUrl });
   const builder = new wrapper.TypstCompilerBuilder();
   try {
     await builder.set_access_model(
@@ -145,10 +145,7 @@ try {
     const exporting = "type" in request && request.type === "export";
     let pdf: Uint8Array | undefined;
     missingPackages.clear();
-    const started = performance.now();
     const timing = {
-      ...request.timing,
-      received: performance.timeOrigin + started,
       mappedFiles: 0,
       mappedBytes: 0,
       fontRebuilds: 0,
@@ -181,18 +178,13 @@ try {
       // The pinned wrapper plus our recorded cache patch ages VFS, source
       // history and Typst memoization without clearing current shadows.
       compiler.reset();
-      const fontsStart = performance.now();
       fonts.validate(request.files);
-      timing.fonts = performance.now() - fontsStart;
-      const filesystemStart = performance.now();
       const desired = {
         ...request.files,
         ...bundledFonts,
         "/data/notice.json": encoder.encode(JSON.stringify(request.notice)),
       };
       Object.assign(timing, shadows.reconcile(request.context, desired));
-      timing.filesystem = performance.now() - filesystemStart;
-      timing.reconcile = performance.now() - started;
       // This pinned WASM's world clock reads Date.now(); no timestamp setter is exposed.
       const actualNow = Date.now;
       Date.now = () => request.creationTimestamp * 1000;
@@ -238,7 +230,6 @@ try {
             reply.preview = { artifact, pages: info.pages };
             timing.artifact = performance.now() - artifactStart;
           }
-          const evidenceStart = performance.now();
           try {
             const summary = summaryFromQuery(
               world.query(0, "<immuknow-report>", "value"),
@@ -257,7 +248,6 @@ try {
               message: String(error),
             });
           }
-          timing.evidence = performance.now() - evidenceStart;
         } finally {
           world.free();
         }
@@ -292,8 +282,6 @@ try {
         range: "",
         message: `${name}: runtime package downloads are disabled. Vendor the dependency and use a relative import.`,
       });
-    timing.wasmBytes = wasm.memory.buffer.byteLength;
-    timing.worker = performance.now() - started;
     if (exporting) {
       send({
         type: "export-result",

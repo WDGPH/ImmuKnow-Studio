@@ -5,7 +5,7 @@ import subprocess
 from hashlib import sha256
 from pathlib import Path
 
-from immuknow.resources import rendering_build_info
+from .native_core import identity, resource_root
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -21,7 +21,13 @@ def project_build() -> dict:
         ).strip()
     )
     package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
-    core = rendering_build_info()
+    root = resource_root()
+    core = dict(identity())
+    core.pop("executable_sha256")
+    core["rendering_schema_version"] = json.loads(
+        (root / "schemas/rendering.json").read_text()
+    )["properties"]["schema_version"]["const"]
+    core["shared_resources"] = json.loads((root / "resource-manifest.json").read_text())
     # Project compatibility follows authored paths and bytes, not package layout.
     shared = [
         {

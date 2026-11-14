@@ -9,8 +9,14 @@ export interface CheckResult {
   page?: number;
   measurements?: Record<string, unknown>;
 }
+export interface BlockedCheck {
+  code: string;
+  blocked_by: string;
+  reason: string;
+}
+export type HistoryValidityCoverage = "all_present" | "all_absent" | "mixed";
 export interface Notice {
-  schema_version: 1;
+  schema_version: 2;
   row_key: string;
   template: string;
   client_id: string;
@@ -18,11 +24,17 @@ export interface Notice {
   language: "en" | "fr";
   intended_reader?: "student" | "guardian" | null;
   client_data: { name: string; [key: string]: unknown };
+  validity_coverage: HistoryValidityCoverage | "incomplete";
+  history_validity_coverage: HistoryValidityCoverage;
   [key: string]: unknown;
 }
 export interface RenderSummary {
   notice: Notice;
-  schema_version: 2;
+  schema_version: 4;
+  requirements:
+    | { state: "valid"; declaration: Record<string, string> }
+    | { state: "invalid"; errors: { code: string; count: number }[] };
+  blocked_checks: BlockedCheck[];
   identity: {
     row_key: string;
     template: string;
@@ -71,6 +83,8 @@ export interface Example {
   description: string;
   payloads: Record<string, Notice>;
   preparationChecks: Record<string, CheckResult[]>;
+  deferredChecks?: Record<string, string[]>;
+  blockedChecks?: Record<string, BlockedCheck[]>;
   inputs: Record<string, { csv: string; assignments: string }>;
 }
 export interface Bundle {
@@ -92,7 +106,6 @@ export interface Diagnostic {
 export interface CompileRequest {
   context: number;
   revision: number;
-  timing?: Record<string, number>;
   template: string;
   example: string;
   files: Files;

@@ -70,3 +70,25 @@ test("multiple component calls refuse generated targets, and exact compiler orig
   const authored = { ...preview, pages: [{ ...preview.pages[0], text: [{ ...row, origin }] }] };
   expect(previewSources(authored, files, template, summary).pages[0].text[0].origin).toBe(origin);
 });
+
+test("placed address geometry navigates to the editable client component on its page", () => {
+  const source = "#immuknow.client-block()";
+  const files = { [template]: encoder.encode(source) };
+  const evidence = {
+    ...summary,
+    measurements: {
+      address: [{ page: 2, x_pt: 30, y_pt: 40, width_pt: 100, height_pt: 50 }],
+    },
+  } as unknown as RenderSummary;
+  const result = previewSources(preview, files, template, evidence);
+  expect(result.pages[0].targets).toEqual([]);
+  expect(result.pages[1].targets).toEqual([
+    {
+      x: 30,
+      y: 40,
+      width: 100,
+      height: 50,
+      origin: { path: template, from: 1, to: source.length },
+    },
+  ]);
+});
