@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { exportProject } from "../src/archive-core";
+import { exportProject } from "../src/project-archive";
 import type { Bundle, Files } from "../src/types";
 import { chooseTemplate } from "./helpers";
 
@@ -60,14 +60,10 @@ test("double-clicking a repeated French phrase highlights its exact CRLF source 
   const phrase = "Même phrase répétée.";
   const source = `// Émoji 😀 et caractères accentués\r\n${new TextDecoder().decode(files[template]).replaceAll("\n", "\r\n")}\r\n${phrase}\r\n\r\n${phrase}\r\n`;
   files[template] = new TextEncoder().encode(source);
-  const oldBuild = {
-    ...bundle.build,
-    compiler_build_sha256: "6aecf70c6e831c1d6b538064aec1620eb57c44e59c840323a51b1ebc690bbdca",
-  };
   await page.locator("#archive").setInputFiles({
     name: "main-project.zip",
     mimeType: "application/zip",
-    buffer: Buffer.from(await exportProject(files, template, oldBuild)),
+    buffer: Buffer.from(await exportProject(files, template, bundle.build)),
   });
   await expect(page.locator("#archive")).toHaveValue("");
   await current(page);

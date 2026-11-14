@@ -1,6 +1,6 @@
 import { unzipSync, zipSync } from "fflate";
 import { describe, expect, it } from "vitest";
-import { exportProject, exportTypstFiles, importProject } from "../src/archive-core";
+import { exportProject, exportTypstFiles, importProject } from "../src/project-archive";
 import { encoder, MAX_FILE, sha256 } from "../src/project";
 import type { BuildInfo, Files } from "../src/types";
 import pins from "../compiler-pins.json";
@@ -96,29 +96,10 @@ describe("current project archives", () => {
     ).resolves.toEqual({ files, template });
   });
 
-  it("accepts only the known preview-only compiler builds while preserving authored bytes", async () => {
-    const current = {
-      ...build,
-      compiler_build_sha256: "45bd168df85634794874dfc82783e841152f57896f7fd299999a6581ff34e37d",
-    };
-    for (const hash of [
-      "fd11e90e9704755503826450c4088ad14ff4a6321725e5719e2e27d47a1d7d31",
-      "6aecf70c6e831c1d6b538064aec1620eb57c44e59c840323a51b1ebc690bbdca",
-      "6ff9cfe83ce2d4bf533fe160b847141a877af037faccae1729bc12b8eeeeab12",
-    ]) {
-      const previous = { ...build, compiler_build_sha256: hash };
-      const archive = await exportProject(files, template, previous);
-      await expect(importProject(archive, current)).resolves.toEqual({ files, template });
-      await expect(
-        importProject(archive, {
-          ...current,
-          shared_resources: { ...current.shared_resources, sha256: "e".repeat(64) },
-        }),
-      ).rejects.toThrow("different ImmuKnow");
-      await expect(
-        importProject(archive, { ...current, compiler_build_sha256: "a".repeat(64) }),
-      ).rejects.toThrow("different ImmuKnow");
-    }
+  it("rejects a different compiler digest", async () => {
+    const archive = await exportProject(files, template, build);
+    await expect(importProject(archive, { ...build, compiler_build_sha256: "a".repeat(64) }))
+      .rejects.toThrow("different ImmuKnow");
   });
 
   it("requires the same English/French filename contract for selected entries", async () => {
