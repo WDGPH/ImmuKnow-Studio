@@ -34,7 +34,7 @@ test("reader and overdue flags follow the selected fictional client", async ({ p
   ).toBeAttached();
 });
 
-test("repeated overdue agents remain in source facts but appear once in the notice", async ({
+test("repeated overdue agents warn, remain in source facts and appear once in the notice", async ({
   page,
 }) => {
   // Deliberate duplicate data stays in a fixture; the shared clients remain unchanged.
@@ -51,7 +51,7 @@ import json
 import shutil
 import tempfile
 from pathlib import Path
-from scripts.native_core import prepare, typst_library_root
+from scripts.immuknow import prepare, typst_library_root
 from scripts.project_template import PROJECT_TEMPLATE
 with tempfile.TemporaryDirectory(prefix="studio-duplicate-fixture-") as scratch:
     templates = Path(scratch) / "templates"
@@ -83,14 +83,8 @@ with tempfile.TemporaryDirectory(prefix="studio-duplicate-fixture-") as scratch:
     (check: { code: string }) => check.code === "data.duplicate_overdue_agents",
   );
   expect(warning?.status).toBe("warn");
-  const source = warning?.measurements?.source_value;
-  expect(typeof source).toBe("string");
-  expect(
-    (source as string)
-      .split(";")
-      .map((value) => value.trim())
-      .filter((value) => value === "MMR"),
-  ).toHaveLength(3);
+  expect((warning.measurements.source_value as string).split(";").map((value) => value.trim())
+    .filter((value) => value === "MMR")).toHaveLength(3);
 
   await page.locator("#theme-tab").click();
   await chooseExample(page, index);

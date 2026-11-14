@@ -851,8 +851,7 @@ byId<HTMLInputElement>("archive").onchange = () =>
       select("health-unit-preset").value = "";
       const available = availableExamples();
       const included = available.filter((item) => {
-        const input = item.inputs[basename(template)];
-        return input && files[input.csv] && files[input.assignments];
+        return !!files[item.csv] && !!item.payloads[basename(template)];
       });
       example = included.find((item) => item.id === example?.id) ?? included[0] ?? available[0];
       refreshProject();

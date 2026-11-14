@@ -10,14 +10,14 @@ Start with the [user guide](docs/getting-started.md) or read the
 
 ## From template development to production
 
-[ImmuKnow Core](https://docs.phiz.ca/immuknow/latest/) is the native engine. Studio uses its
+[ImmuKnow](https://docs.phiz.ca/immuknow/latest/) is the native engine. Studio uses its
 shared components and data format, with packaged starter projects maintained in
 [ImmuKnow Template](https://github.com/WDGPH/ImmuKnow-Template/blob/main/README.md), to make template development faster.
 Production notice generation runs with ImmuKnow on your local workstation.
 
 In Studio, open **Project** at the top-right of the webpage and choose
 **Download project**. Extract the ZIP, obtain the standalone `immuknow` executable matching
-`core-revision.txt`, and install the supplied fonts. Put `immuknow` on PATH,
+`immuknow-revision.txt`, and install the supplied fonts. Put `immuknow` on PATH,
 then run:
 
 ```sh
@@ -27,7 +27,7 @@ immuknow run --sample
 ```
 
 Setup, checks and production runs require no Python or uv. Clear **Include
-fictional client data** to omit the sample and use your own CSV and assignments.
+fictional client data** to omit the sample and use your own CSV and template selection.
 The `--sample` commands require included or custom sample inputs. The project
 contains your authored notices/configuration, shared components, native setup
 instructions and fictional clients when requested. See
@@ -45,9 +45,9 @@ browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/
 
 - [Build and contribute](docs/development.md): setup, local serving and checks.
 - [Architecture and compatibility](docs/architecture.md): ownership, Typst
-  projects, Core dependency and supported resources.
+  projects, ImmuKnow dependency and supported resources.
 - [Documentation and releases](docs/documentation.md): strict manual builds,
   the PHIZ documentation hub and release checks.
 
-Studio pins native Core to the exact reviewed commit recorded in
-`core-revision.txt`. Studio and Core have separate version numbers.
+Studio pins native ImmuKnow to the exact reviewed commit recorded in
+`immuknow-revision.txt`. Studio and ImmuKnow have separate version numbers.

@@ -1,4 +1,4 @@
-"""Build a reviewed standalone Core and use its public commands and exports."""
+"""Build a reviewed standalone ImmuKnow and use its public commands and exports."""
 
 from __future__ import annotations
 
@@ -13,14 +13,14 @@ from hashlib import sha256
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-INSTALL = ROOT / ".native-core"
+INSTALL = ROOT / ".immuknow"
 BINARY = INSTALL / "bin/immuknow"
 
 
 def revision() -> str:
-    value = (ROOT / "core-revision.txt").read_text().strip()
+    value = (ROOT / "immuknow-revision.txt").read_text().strip()
     if len(value) != 40 or any(c not in "0123456789abcdef" for c in value):
-        raise ValueError("core-revision.txt must contain an exact Core commit")
+        raise ValueError("immuknow-revision.txt must contain an exact ImmuKnow commit")
     return value
 
 
@@ -30,15 +30,15 @@ def identity() -> dict:
     try:
         value = json.loads((INSTALL / "identity.json").read_text())
         matches = (
-            value["core_source_revision"] == revision()
+            value["immuknow_source_revision"] == revision()
             and value["executable_sha256"] == sha256(BINARY.read_bytes()).hexdigest()
         )
     except (OSError, KeyError, ValueError):
         matches = False
     if not matches:
         raise ValueError(
-            "Native Core is missing or differs from its recorded build. "
-            "Run uv run --locked python -m scripts.native_core install."
+            "Native ImmuKnow is missing or differs from its recorded build. "
+            "Run uv run --locked python -m scripts.immuknow install."
         )
     return value
 
@@ -58,7 +58,7 @@ def run(*arguments: str, cwd: Path | None = None) -> subprocess.CompletedProcess
 def resource_root() -> Path:
     """Export from the verified executable; installed project packages stay read-only."""
     identity()
-    destination = ROOT / "generated/core"
+    destination = ROOT / "generated/immuknow"
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=destination.parent) as scratch:
         exported = Path(scratch) / "resources"
@@ -69,7 +69,7 @@ def resource_root() -> Path:
                 sha256((exported / item["path"]).read_bytes()).hexdigest()
                 != item["sha256"]
             ):
-                raise ValueError(f"Exported Core resource differs: {item['path']}")
+                raise ValueError(f"Exported ImmuKnow resource differs: {item['path']}")
         if destination.exists():
             shutil.rmtree(destination)
         shutil.move(str(exported), destination)
@@ -83,15 +83,15 @@ def typst_library_root() -> Path:
 def prepare(*arguments: str) -> dict:
     result = json.loads(run("prepare", *arguments).stdout)
     if result.get("schema_version") != 2:
-        raise ValueError("Unsupported Core preparation envelope")
+        raise ValueError("Unsupported ImmuKnow preparation envelope")
     return result
 
 
 def install(source: Path | None = None) -> None:
     """Build the exact pinned, clean source and retain its executable fingerprint."""
-    with tempfile.TemporaryDirectory(prefix="studio-native-core-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="studio-immuknow-") as temporary:
         if source is None:
-            source = Path(temporary) / "core"
+            source = Path(temporary) / "immuknow"
             subprocess.run(
                 [
                     "git",
@@ -116,7 +116,9 @@ def install(source: Path | None = None) -> None:
             text=True,
         ).strip()
         if actual != revision() or dirty:
-            raise ValueError("Core source must be clean and match core-revision.txt")
+            raise ValueError(
+                "ImmuKnow source must be clean and match immuknow-revision.txt"
+            )
         subprocess.run(
             ["cargo", "build", "--release", "--locked"], cwd=source, check=True
         )
@@ -135,8 +137,8 @@ def install(source: Path | None = None) -> None:
         (INSTALL / "identity.json").write_text(
             json.dumps(
                 {
-                    "core_source_revision": actual,
-                    "core_source_modified": False,
+                    "immuknow_source_revision": actual,
+                    "immuknow_source_modified": False,
                     "executable_sha256": sha256(BINARY.read_bytes()).hexdigest(),
                     "application_version": package["version"],
                     "native_typst_version": typst,
@@ -147,7 +149,7 @@ def install(source: Path | None = None) -> None:
         )
     identity.cache_clear()
     resource_root.cache_clear()
-    print(f"Installed reviewed native Core {actual}")
+    print(f"Installed reviewed native ImmuKnow {actual}")
 
 
 def main() -> None:

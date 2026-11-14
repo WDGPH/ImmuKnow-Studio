@@ -1,5 +1,5 @@
 import type { ArchiveRequest } from "./archive";
-import { exportProject, exportTypstFiles, importProject } from "./archive-core";
+import { exportProject, exportTypstFiles, importProject } from "./project-archive";
 
 globalThis.onmessage = async (event: MessageEvent<ArchiveRequest>) => {
   try {

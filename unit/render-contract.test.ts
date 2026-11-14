@@ -46,7 +46,7 @@ test("preview facts accept client initials", () => {
   expect(() => validateNotice(payload)).not.toThrow();
 });
 
-// The same complete evidence cases run against Core's native validator.
+// The same complete evidence cases run against ImmuKnow's native validator.
 import requirementCases from "./fixtures/requirements-contract.json";
 for (const sample of requirementCases.cases) {
   test(`notice requirements evidence: ${sample.name}`, () => {

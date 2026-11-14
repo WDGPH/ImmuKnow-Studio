@@ -81,18 +81,14 @@ test("one client stays selected across notices, languages, a reload and download
   await expect(name).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath("shared-clients-mobile.png"), fullPage: true });
-  const filename = filenames.at(-1) as string;
   await page.locator(".project-actions summary").click();
   const pending = page.waitForEvent("download");
   await downloadProject(page);
   const files = unzipSync(readFileSync((await (await pending).path()) as string));
   expect(Buffer.from(files["input/sample/sample_students.csv"])).toEqual(
-    Buffer.from(bundle.files[client.inputs[filename].csv], "base64"),
+    Buffer.from(bundle.files[client.csv], "base64"),
   );
-  expect(Buffer.from(files["input/sample/sample_assignments.json"])).toEqual(
-    Buffer.from(bundle.files[client.inputs[filename].assignments], "base64"),
-  );
-  expect(files[client.inputs[filename].csv]).toBeUndefined();
+  expect(files[client.csv]).toBeUndefined();
   expect(new TextDecoder().decode(files["templates/settings.typ"])).toContain(
     "Keep these settings",
   );

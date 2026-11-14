@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { functionCatalog } from "../src/typst-catalog";
 
-// Keep authoring help aligned with the same installed Core used for Studio's assets.
+// Keep authoring help aligned with the same installed ImmuKnow used for Studio's assets.
 const library = execFileSync(
   "uv",
   [
@@ -12,7 +12,7 @@ const library = execFileSync(
     "--locked",
     "python",
     "-c",
-    "from scripts.native_core import typst_library_root; print(typst_library_root())",
+    "from scripts.immuknow import typst_library_root; print(typst_library_root())",
   ],
   { encoding: "utf8" },
 ).trim();
@@ -27,7 +27,7 @@ function namedOptions(source: string, name: string) {
   return [...(signature ?? "").matchAll(/(?:^|,)\s*([\w-]+)\s*:/g)].map((match) => match[1]);
 }
 
-describe("authoring help follows installed Core", () => {
+describe("authoring help follows installed ImmuKnow", () => {
   it("covers exported functions available through the starter setup", () => {
     const exports = readFileSync(join(library, "lib.typ"), "utf8");
     for (const match of exports.matchAll(/^#import "[^"]+": (.+)$/gm)) {

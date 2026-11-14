@@ -2,8 +2,8 @@ import { defineConfig } from "@playwright/test";
 import { resolve } from "node:path";
 
 // Browser/native parity uses the same verified font bytes on every runner.
-// This affects test subprocesses only; production Core still uses system fonts.
-process.env.IMMUKNOW_BIN ??= resolve(".native-core/bin/immuknow");
+// This affects test subprocesses only; production ImmuKnow still uses system fonts.
+process.env.IMMUKNOW_BIN ??= resolve(".immuknow/bin/immuknow");
 process.env.TYPST_FONT_PATHS ??= resolve("assets/fonts");
 process.env.TYPST_IGNORE_SYSTEM_FONTS ??= "true";
 process.env.TYPST_IGNORE_EMBEDDED_FONTS ??= "true";

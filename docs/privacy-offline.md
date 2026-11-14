@@ -60,7 +60,7 @@ storage behaviour, see [Keep your work](studio.md#keep-your-work).
 ## Where do production records go?
 
 Studio supplies fictional examples for template development. Production notice
-generation happens with ImmuKnow core on your local workstation, using your
+generation happens with ImmuKnow on your local workstation, using your
 own input files. Studio does not require you to send real client records to a
 website or service.
 

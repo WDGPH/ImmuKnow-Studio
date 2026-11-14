@@ -8,7 +8,7 @@ import {
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
-import { exportProject } from "../src/archive-core";
+import { exportProject } from "../src/project-archive";
 import type { Bundle, Files } from "../src/types";
 
 async function currentPreview(page: Page) {

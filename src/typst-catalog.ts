@@ -7,7 +7,7 @@ export type FunctionHelp = {
 };
 
 // Selected, frequently useful functions and options; this is not a complete Typst language server.
-// Core signatures are checked against the installed package in unit/typst-catalog.test.ts.
+// ImmuKnow signatures are checked against the installed package in unit/typst-catalog.test.ts.
 // Keep descriptions short; the linked Typst reference contains the complete parameter list.
 export const functionCatalog: Record<string, FunctionHelp> = {
   v: {

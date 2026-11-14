@@ -1,4 +1,4 @@
-import schema from "../generated/core/typst/report.json";
+import schema from "../generated/immuknow/typst/report.json";
 import validators from "../generated/render-contract.js";
 import type { Notice, RenderSummary } from "./types";
 

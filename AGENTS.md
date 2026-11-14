@@ -4,25 +4,25 @@ Read README.md and docs/studio.md before changing build or editor behavior.
 Manual content stays in docs/ with navigation in mkdocs.yml. Follow
 docs/documentation.md for source checks and the separate PHIZ hub publication.
 This repository owns Studio's UI, browser compiler, fonts, example descriptions
-and preview settings, and browser/unit tests. Core owns the native engine,
+and preview settings, and browser/unit tests. ImmuKnow owns the native engine,
 schemas and shared Typst components. Template owns the fictional example
 clients, starter letters, Settings, display translations, example branding,
 project configuration and reference lists. Studio consumes its pinned
-resource package. Core supplies no starter project. Follow the
+resource package. ImmuKnow supplies no starter project. Follow the
 [shared language and project responsibilities](https://docs.phiz.ca/immuknow/latest/ecosystem/).
 
-Use the verified standalone executable through scripts/native_core.py and the
-public prepare/resources/run/rebundle and project commands. core-revision.txt and Template's
+Use the verified standalone executable through scripts/immuknow.py and the
+public prepare/resources/run/rebundle and project commands. immuknow-revision.txt and Template's
 recorded revision must agree. Build the exact clean source and verify the stored
-executable fingerprint; do not import Python Core or infer source from a version
-label. Do not add Core source or tests here. Changes belong in Core.
+executable fingerprint; do not import Python ImmuKnow or infer source from a version
+label. Do not add ImmuKnow source or tests here. Changes belong in ImmuKnow.
 
 Preserve complete authored project bytes and relative paths. Shared components
-remain read-only and must match Core. Preserve draft recovery, archive limits,
+remain read-only and must match ImmuKnow. Preserve draft recovery, archive limits,
 comment-aware editing and compatibility checks.
 
 Prefer clear, direct authoring and abstractions that earn their complexity. Follow
-Core's [authoring principles](https://docs.phiz.ca/immuknow/latest/developer_guide/templates/).
+ImmuKnow's [authoring principles](https://docs.phiz.ca/immuknow/latest/developer_guide/templates/).
 
 Follow docs/documentation.md for plain language and current-behavior guidance.
 Use short, plain pull request descriptions focused on the reason for the change
@@ -31,7 +31,7 @@ and its effect. Omit agent attribution and detailed verification logs.
 Example clients help people develop notices. Use plausible fictional records
 with complete contact details and consistent dates. Share the client collection
 across templates and languages. Keep deliberately invalid or conflicting data
-in test fixtures; Core owns validation tests.
+in test fixtures; ImmuKnow owns validation tests.
 
 Follow docs/development.md for test scope and the shared testing strategy.
 The full browser/native suite runs only when selected in the manual workflow

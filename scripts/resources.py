@@ -1,9 +1,9 @@
-"""Generate browser tooling resources from locked Core and Template packages."""
+"""Generate browser tooling resources from locked ImmuKnow and Template packages."""
 
 import shutil
 from pathlib import Path
 
-from .native_core import resource_root
+from .immuknow import resource_root
 from .project_template import scaffold_files
 
 ROOT = Path(__file__).resolve().parents[1]

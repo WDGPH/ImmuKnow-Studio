@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, test } from "@playwright/test";
 import { unzipSync } from "fflate";
-import { exportProject } from "../src/archive-core";
+import { exportProject } from "../src/project-archive";
 import type { Bundle, Files } from "../src/types";
 
 test.use({ actionTimeout: 15_000 });
@@ -12,9 +12,9 @@ const fontCount = Object.keys(
   JSON.parse(readFileSync(resolve("assets/fonts/manifest.json"), "utf8")),
 ).length;
 
-// Exercise download-specific boundaries rather than every Core notice family.
-// The customized English project covers both selectors; French cases cover
-// long output and saved-run review. Core tests the full native notice catalog.
+// Exercise download-specific boundaries rather than every ImmuKnow notice family.
+// The customized English project covers native selection; French cases cover
+// long output and saved-run review. ImmuKnow tests the full native notice catalog.
 const cases = [
   ["missing-meningococcal", "overdue_diseases.en.typ"],
   ["long-history", "overdue_diseases.fr.typ"],
@@ -176,23 +176,18 @@ for (const [scenario, filename] of cases) {
         continue;
       expect(Buffer.from(bytes).toString("base64"), path).toBe(expectedFiles[path]);
     }
-    const assignments = JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]));
-    for (const assignment of assignments) expect(files[`templates/${assignment.template}`]).toBeDefined();
-    expect(assignments).toHaveLength(1);
-    expect(assignments[0].template).toBe(filename);
     expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
     expect(Object.keys(files).some((path) => path.startsWith("scripts/"))).toBe(false);
     expect(Object.keys(files).some((path) => path.startsWith("tests/"))).toBe(false);
     expect(files["uv.lock"]).toBeUndefined();
     expect(files["pyproject.toml"]).toBeUndefined();
     expect(files[".python-version"]).toBeUndefined();
-    expect(files["core-revision.txt"]).toBeDefined();
+    expect(files["immuknow-revision.txt"]).toBeDefined();
     expect(JSON.parse(new TextDecoder().decode(files["sample.json"]))).toEqual({
       csv: "input/sample/sample_students.csv",
-      assignments: "input/sample/sample_assignments.json",
+      template: `templates/${filename}`,
     });
-    expect(Buffer.from(files["input/sample/sample_students.csv"]).toString("base64")).toBe(bundle.files[examples[index].inputs[filename].csv]);
-    expect(Buffer.from(files["input/sample/sample_assignments.json"]).toString("base64")).toBe(bundle.files[examples[index].inputs[filename].assignments]);
+    expect(Buffer.from(files["input/sample/sample_students.csv"]).toString("base64")).toBe(bundle.files[examples[index].csv]);
     const source = JSON.parse(new TextDecoder().decode(files["template-source.json"]));
     expect(source.repository).toBe("https://github.com/WDGPH/ImmuKnow-Template");
     expect(source.revision).toMatch(/^[0-9a-f]{40}$/);
@@ -205,8 +200,8 @@ for (const [scenario, filename] of cases) {
       JSON.stringify({
         template: `templates/${filename}`,
         example: scenario,
-        input: examples[index].inputs[filename],
-        inputBytes: Object.fromEntries(Object.values(examples[index].inputs[filename]).map((path) => [path, bundle.files[path]])),
+        input: { csv: examples[index].csv },
+        inputBytes: { [examples[index].csv]: bundle.files[examples[index].csv] },
       }),
     );
 
@@ -269,9 +264,8 @@ for (const [scenario, filename] of cases) {
       expect(result.qrUrls).toEqual(native.browser.qrUrls);
       expect(result.findings).toEqual([...new Set(findings)].sort());
     }
-    expect(native.selectors).toHaveLength(scenario === "missing-meningococcal" ? 2 : 1);
+    expect(native.selectors).toHaveLength(1);
     if (scenario === "missing-meningococcal") {
-      expect(native.selectors[0].summary).toEqual(native.selectors[1].summary);
       expect(native.browser.qrUrls.some((url: string) => url.startsWith("https://exämple.org/élève"))).toBe(true);
       expect(native.browser.text.join(" ")).toContain(String(examples[index].payloads[filename].oiid));
       expect(native.browser.text.join(" ")).toContain("Record key:");

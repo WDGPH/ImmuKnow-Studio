@@ -133,79 +133,54 @@ export function currentProject(
     }
   }
   const sharedCsv = "examples/sample/clients.csv";
-  const sharedAssignments = "examples/sample/assignments.json";
-  // The selected preview's prepared input keeps its authored facts and the
-  // active notice assignment, including when that combination has findings.
-  const input = example?.inputs[template.slice("templates/".length)];
-  const fictionalCsv = input && starters[input.csv];
-  const fictionalAssignments = input && starters[input.assignments];
-  const inputs = examples.flatMap((item) => Object.values(item.inputs));
-  const matches = (path: string, original: string) =>
-    !!starters[original] && !!files[path] && sameBytes(files[path], starters[original]);
-  const isFictionalSample = (csv: string, assignments: string) =>
-    (matches(csv, sharedCsv) && matches(assignments, sharedAssignments)) ||
-    inputs.some((item) => matches(csv, item.csv) && matches(assignments, item.assignments));
-  if (!includeFictionalData) {
-    files = { ...files };
-    // Remove an unchanged Studio sample on re-export too. Custom or unfinished
-    // imported samples keep their files and dependencies.
-    if (files["sample.json"]) {
-      try {
-        const sample = JSON.parse(decoder.decode(files["sample.json"])) as Record<string, unknown>;
-        const { csv, assignments } = sample;
-        if (
-          typeof csv === "string" &&
-          typeof assignments === "string" &&
-          !required.has("sample.json") &&
-          !required.has(csv) &&
-          !required.has(assignments) &&
-          isFictionalSample(csv, assignments)
-        ) {
-          delete files["sample.json"];
-          delete files[csv];
-          delete files[assignments];
-        }
-      } catch {
-        // The existing sample-preservation path below retains unfinished work.
-      }
-    }
-  }
-  // An imported sample is authored project configuration. Keep both its bytes
-  // and dependencies even when the preview moves to another fictional client.
+  const fictionalCsv = example && starters[example.csv];
+  // Parse once. Malformed, incomplete and custom selections retain all candidates.
+  let sample: { csv: string; template: string } | undefined;
+  let invalidSample = false;
   if (files["sample.json"]) {
     try {
-      const sample = JSON.parse(decoder.decode(files["sample.json"])) as Record<string, unknown>;
-      for (const key of ["csv", "assignments"] as const) {
-        const path = sample[key];
-        if (typeof path !== "string") throw new Error("Incomplete sample selection");
-        required.add(safePath(path));
-      }
-      // A custom sample can depend on calculated paths that the literal scan
-      // cannot discover. Keep its candidates until the author resolves them.
-      if (!isFictionalSample(sample.csv as string, sample.assignments as string))
-        for (const path of Object.keys(files)) required.add(path);
-      const assignments = files[sample.assignments as string];
-      if (!assignments) throw new Error("Missing sample assignments");
-      const rows: unknown = JSON.parse(decoder.decode(assignments));
-      if (!Array.isArray(rows)) throw new Error("Incomplete sample assignments");
-      for (const row of rows) {
-        if (!row || typeof row.template !== "string")
-          throw new Error("Incomplete sample assignment");
-        const path = safePath(`templates/${row.template}`);
-        for (const dependency of referencedFiles(files, path)) required.add(dependency);
-      }
+      const value: unknown = JSON.parse(decoder.decode(files["sample.json"]));
+      if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Invalid sample");
+      const record = value as Record<string, unknown>;
+      if (Object.keys(record).length !== 2 || typeof record.csv !== "string" || typeof record.template !== "string") throw new Error("Incomplete sample");
+      const csv = safePath(record.csv);
+      const selected = safePath(record.template);
+      if (!files[csv]) throw new Error("Missing sample CSV");
+      validateTemplate(files, selected);
+      sample = { csv, template: selected };
     } catch {
-      // An unfinished project must remain downloadable. If its sample cannot
-      // describe dependencies yet, retain all candidates without rewriting it.
-      for (const path of Object.keys(files)) required.add(path);
+      invalidSample = true;
     }
   }
-  const otherInputs = new Set(
-    examples.flatMap((item) => Object.values(item.inputs).flatMap(Object.values)),
-  );
+  // Only Studio's exact generated descriptor and selected fictional CSV can be
+  // identified as unchanged. Other selections may contain authored work.
+  const generatedSample = !!sample && !!fictionalCsv && !!starters[template] &&
+    sample.template === template &&
+    /^input\/sample\/sample_students(?:-fictional-[1-9][0-9]*)?\.csv$/.test(sample.csv) &&
+    sameBytes(files[sample.csv], fictionalCsv) &&
+    decoder.decode(files["sample.json"]) === `${JSON.stringify(sample, null, 2)}\n`;
+  if (sample && generatedSample && !includeFictionalData && !required.has("sample.json") &&
+      !required.has(sample.csv)) {
+    files = { ...files };
+    delete files["sample.json"];
+    delete files[sample.csv];
+    sample = undefined;
+  }
+  if (invalidSample || (sample && !generatedSample)) {
+    for (const path of Object.keys(files)) required.add(path);
+  } else if (sample) {
+    required.add(sample.csv);
+    const dependencies = referencedFiles(files, sample.template);
+    for (const dependency of dependencies) required.add(dependency);
+    if ([...dependencies].some((path) =>
+      path.endsWith(".typ") && !path.startsWith("templates/lib/immuknow/") &&
+      hasComputedPath(decoder.decode(files[path])),
+    )) for (const path of Object.keys(files)) required.add(path);
+  }
+  const otherInputs = new Set(examples.map((item) => item.csv));
   const result = Object.fromEntries(
     Object.entries(files).filter(([path]) => {
-      if (path === sharedCsv || path === sharedAssignments)
+      if (path === sharedCsv)
         return required.has(path) || !starters[path] || !sameBytes(files[path], starters[path]);
       if (required.has(path)) return true;
       if (path.startsWith("templates/") && !path.startsWith("templates/lib/immuknow/") &&
@@ -215,12 +190,7 @@ export function currentProject(
       return true;
     }),
   );
-  if (
-    !result["sample.json"] &&
-    includeFictionalData &&
-    fictionalCsv &&
-    fictionalAssignments
-  ) {
+  if (!result["sample.json"] && includeFictionalData && fictionalCsv) {
     const availablePath = (preferred: string, bytes: Uint8Array): string => {
       if (!result[preferred] || sameBytes(result[preferred], bytes)) return preferred;
       const dot = preferred.lastIndexOf(".");
@@ -229,16 +199,9 @@ export function currentProject(
         if (!result[candidate] || sameBytes(result[candidate], bytes)) return candidate;
       }
     };
-    const sample = {
-      csv: availablePath("input/sample/sample_students.csv", fictionalCsv),
-      assignments: availablePath(
-        "input/sample/sample_assignments.json",
-        fictionalAssignments,
-      ),
-    };
-    result[sample.csv] = fictionalCsv;
-    result[sample.assignments] = fictionalAssignments;
-    result["sample.json"] = encoder.encode(`${JSON.stringify(sample, null, 2)}\n`);
+    const csv = availablePath("input/sample/sample_students.csv", fictionalCsv);
+    result[csv] = fictionalCsv;
+    result["sample.json"] = encoder.encode(`${JSON.stringify({ csv, template }, null, 2)}\n`);
   }
   // Fill missing Template setup files from this build's pinned snapshot.
   // Keep any files already present in the project.
@@ -249,7 +212,7 @@ export function currentProject(
     };
     for (const path of [...Object.keys(templateSource.files), "template-source.json"]) {
       safePath(path);
-      if (path.startsWith("templates/") || path.startsWith("config/")) continue;
+      if (path.startsWith("templates/") || path.startsWith("config/") || path === "sample.json" || path.startsWith("input/sample/")) continue;
       if (!result[path] && starters[path]) result[path] = starters[path];
     }
   }
