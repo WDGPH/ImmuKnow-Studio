@@ -191,7 +191,7 @@ Downloaded-project checks extract the ZIP outside either checkout and run the
 ImmuKnow executable directly with an empty command search path. They install no
 Python environment or tools into the project. Python stays in the test harness
 for PDF and QR inspection. Four cases cover a customized
-English notice through both selectors, long French output, saved-run review
+English notice through single-template selection, long French output, saved-run review
 for a French notice with warnings, and a guardian-directed suspension order for
 a younger student. Template's maintainer tests run in its own
 repository; fresh downloads contain native setup instructions and sample selections.
