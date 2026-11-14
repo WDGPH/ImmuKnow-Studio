@@ -16,10 +16,10 @@ const fontCount = Object.keys(
 // The customized English project covers both selectors; French cases cover
 // long output and saved-run review. Core tests the full native notice catalog.
 const cases = [
-  ["missing-meningococcal", "overdue_diseases_v1.en.typ"],
-  ["long-history", "overdue_diseases_v1.fr.typ"],
-  ["missing-mmr", "overdue_agents_v1.fr.typ"],
-  ["no-records", "suspension_order_v1.en.typ"],
+  ["missing-meningococcal", "overdue_diseases.en.typ"],
+  ["long-history", "overdue_diseases.fr.typ"],
+  ["invalid-history", "overdue_agents.fr.typ"],
+  ["multiple-overdue", "suspension_order.en.typ"],
 ];
 
 for (const [scenario, filename] of cases) {
@@ -36,7 +36,7 @@ for (const [scenario, filename] of cases) {
     await page.locator("#theme-tab").click();
     await chooseTemplate(page, `templates/${filename}`);
     await chooseExample(page, index);
-    if (scenario === "missing-meningococcal" && filename.startsWith("overdue_diseases_v1.")) {
+    if (scenario === "missing-meningococcal" && filename.startsWith("overdue_diseases.")) {
       // Check local history/page options, ID labels, QR destinations and fonts after download.
       const imported: Files = Object.fromEntries(
         Object.entries(bundle.files).map(([path, bytes]) => [
@@ -85,11 +85,11 @@ for (const [scenario, filename] of cases) {
       ).toString("base64");
     }
     if (scenario === "long-history") {
-      // Continuation pressure belongs to this layout handoff test.
+      // Continuation pressure belongs to this layout handoff test. Blank minimum rows preserve the supplied client facts.
       const path = `templates/${filename}`;
       const authored = Buffer.from(bundle.files[path], "base64").toString("utf8").replace(
         "#immuknow.immunization-history()",
-        "#immuknow.immunization-history(font-size: 28pt)",
+        "#immuknow.immunization-history(font-size: 28pt, min-rows: 30)",
       );
       await page.locator("#template-tab").click();
       await page.locator(".cm-content").press("Control+a");
@@ -134,10 +134,10 @@ for (const [scenario, filename] of cases) {
       }),
     );
     expect(preview.length).toBeGreaterThan(0);
-    if (filename === "suspension_order_v1.en.typ") {
+    if (filename === "suspension_order.en.typ") {
       const notice = examples[index].payloads[filename];
-      expect(notice.client_data.age).toBeGreaterThanOrEqual(16);
-      expect(notice.intended_reader).toBe("guardian");
+      expect(notice.client_data.age).toBeLessThan(16);
+      expect(notice.intended_reader).toBeNull();
       const text = preview
         .map((page) => page.plainText)
         .join(" ")
@@ -178,18 +178,21 @@ for (const [scenario, filename] of cases) {
     }
     const assignments = JSON.parse(new TextDecoder().decode(files["input/sample/sample_assignments.json"]));
     for (const assignment of assignments) expect(files[`templates/${assignment.template}`]).toBeDefined();
-    expect(assignments).toHaveLength(6);
+    expect(assignments).toHaveLength(1);
+    expect(assignments[0].template).toBe(filename);
     expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
-    expect(files["scripts/run.py"]).toBeDefined();
+    expect(Object.keys(files).some((path) => path.startsWith("scripts/"))).toBe(false);
     expect(Object.keys(files).some((path) => path.startsWith("tests/"))).toBe(false);
-    expect(files["uv.lock"]).toBeDefined();
-    expect(files["pyproject.toml"]).toBeDefined();
+    expect(files["uv.lock"]).toBeUndefined();
+    expect(files["pyproject.toml"]).toBeUndefined();
+    expect(files[".python-version"]).toBeUndefined();
+    expect(files["core-revision.txt"]).toBeDefined();
     expect(JSON.parse(new TextDecoder().decode(files["sample.json"]))).toEqual({
       csv: "input/sample/sample_students.csv",
       assignments: "input/sample/sample_assignments.json",
     });
-    expect(Buffer.from(files["input/sample/sample_students.csv"]).toString("base64")).toBe(bundle.files["examples/sample/clients.csv"]);
-    expect(Buffer.from(files["input/sample/sample_assignments.json"]).toString("base64")).toBe(bundle.files["examples/sample/assignments.json"]);
+    expect(Buffer.from(files["input/sample/sample_students.csv"]).toString("base64")).toBe(bundle.files[examples[index].inputs[filename].csv]);
+    expect(Buffer.from(files["input/sample/sample_assignments.json"]).toString("base64")).toBe(bundle.files[examples[index].inputs[filename].assignments]);
     const source = JSON.parse(new TextDecoder().decode(files["template-source.json"]));
     expect(source.repository).toBe("https://github.com/WDGPH/ImmuKnow-Template");
     expect(source.revision).toMatch(/^[0-9a-f]{40}$/);
@@ -269,10 +272,11 @@ for (const [scenario, filename] of cases) {
     expect(native.selectors).toHaveLength(scenario === "missing-meningococcal" ? 2 : 1);
     if (scenario === "missing-meningococcal") {
       expect(native.selectors[0].summary).toEqual(native.selectors[1].summary);
+      expect(native.browser.qrUrls.some((url: string) => url.startsWith("https://exämple.org/élève"))).toBe(true);
       expect(native.browser.text.join(" ")).toContain(String(examples[index].payloads[filename].oiid));
       expect(native.browser.text.join(" ")).toContain("Record key:");
     }
     if (scenario === "long-history") expect(native.browser.text.length).toBeGreaterThan(2);
-    if (scenario === "missing-mmr") expect(native.rebundled).toBe(true);
+    if (scenario === "invalid-history") expect(native.rebundled).toBe(true);
   });
 }

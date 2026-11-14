@@ -824,32 +824,35 @@ byId<HTMLInputElement>("archive").onchange = () =>
     const input = byId<HTMLInputElement>("archive");
     const archive = input.files?.[0];
     if (!archive) return;
-    if (archive.size > MAX_PROJECT) throw new Error("Compressed project exceeds 32 MB.");
-    const previous = files;
-    const project = await archiveJob({
-      action: "import",
-      bytes: new Uint8Array(await archive.arrayBuffer()),
-      build: bundle.build,
-    });
-    if (previous !== files)
-      throw new Error("The project changed during import. Import the archive again.");
-    originals = project.files;
-    files = { ...originals };
-    template = project.template;
-    canSave = Boolean(draftStore);
-    themeUndo = undefined;
-    button("health-unit-undo").hidden = true;
-    select("health-unit-preset").value = "";
-    const available = availableExamples();
-    const included = available.filter((item) => {
-      const input = item.inputs[basename(template)];
-      return input && files[input.csv] && files[input.assignments];
-    });
-    example = included.find((item) => item.id === example?.id) ?? included[0] ?? available[0];
-    refreshProject();
-    persist();
-    compile(true);
-    input.value = "";
+    try {
+      if (archive.size > MAX_PROJECT) throw new Error("Compressed project exceeds 32 MB.");
+      const previous = files;
+      const project = await archiveJob({
+        action: "import",
+        bytes: new Uint8Array(await archive.arrayBuffer()),
+        build: bundle.build,
+      });
+      if (previous !== files)
+        throw new Error("The project changed during import. Import the archive again.");
+      originals = project.files;
+      files = { ...originals };
+      template = project.template;
+      canSave = Boolean(draftStore);
+      themeUndo = undefined;
+      button("health-unit-undo").hidden = true;
+      select("health-unit-preset").value = "";
+      const available = availableExamples();
+      const included = available.filter((item) => {
+        const input = item.inputs[basename(template)];
+        return input && files[input.csv] && files[input.assignments];
+      });
+      example = included.find((item) => item.id === example?.id) ?? included[0] ?? available[0];
+      refreshProject();
+      persist();
+      compile(true);
+    } finally {
+      input.value = "";
+    }
   });
 button("reset").onclick = () => requestProjectChange();
 function resetWorkspace() {

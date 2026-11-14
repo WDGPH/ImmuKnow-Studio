@@ -216,11 +216,9 @@ test("Typst-only download contains edited source without fetching fonts or chang
   const result = await pending;
   expect(result.suggestedFilename()).toBe("immuknow-typst.zip");
   const exported = unzipSync(readFileSync((await result.path()) as string));
-  expect(Object.keys(exported).sort()).toEqual([template, "templates/settings.typ", "templates/presentation.typ", "templates/setup.typ"].sort());
+  expect(Object.keys(exported).sort()).toEqual([template, "templates/settings.typ"].sort());
   expect(new TextDecoder().decode(exported[template])).toContain("// Source-only handoff");
   expect(Buffer.from(exported["templates/settings.typ"])).toEqual(Buffer.from(bundle.files["templates/settings.typ"], "base64"));
-  expect(Buffer.from(exported["templates/presentation.typ"])).toEqual(Buffer.from(bundle.files["templates/presentation.typ"], "base64"));
-  expect(Buffer.from(exported["templates/setup.typ"])).toEqual(Buffer.from(bundle.files["templates/setup.typ"], "base64"));
   expect(fontRequests).toBe(0);
   await expect(page.locator("#template")).toHaveValue(template);
   await expect(page.locator(".cm-content")).toContainText("Source-only handoff");
@@ -274,8 +272,8 @@ test(`edits and template switches refuse delayed ${kind} downloads`, async ({ pa
   await page.locator("#download-confirm").click();
   await expect.poll(async () => (await probeState(page)).held).toBe(2);
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
-  await expect(page.locator("#template")).toHaveValue("templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.fr.typ");
+  await expect(page.locator("#template")).toHaveValue("templates/overdue_diseases.fr.typ");
   await releaseExport(page);
   await expect(page.locator("#diagnostics")).toContainText("project changed");
   await currentPreview(page);
@@ -333,4 +331,41 @@ test("oversized imports are refused before reading the file", async ({ page }) =
     "data-displayed-revision",
     before as string,
   );
+});
+
+test("a failed import can retry the same archive without losing the current project", async ({ page }) => {
+  await page.addInitScript(() => {
+    const read = File.prototype.arrayBuffer;
+    let fail = true;
+    File.prototype.arrayBuffer = function () {
+      if (this.name === "retry.zip" && fail) {
+        fail = false;
+        return Promise.reject(new Error("Injected archive read failure"));
+      }
+      return read.call(this);
+    };
+  });
+  await page.goto("./");
+  await currentPreview(page);
+  await openDownloadOptions(page);
+  const pending = page.waitForEvent("download");
+  await page.locator("#download-confirm").click();
+  const download = await pending;
+  const archive = {
+    name: "retry.zip",
+    mimeType: "application/zip",
+    buffer: readFileSync((await download.path()) as string),
+  };
+  await page.locator("#template-tab").click();
+  const source = page.locator(".cm-content");
+  await source.click();
+  await source.press("Control+End");
+  await page.keyboard.insertText("\n// Current project survives failed import");
+  await page.locator("#archive").setInputFiles(archive);
+  await expect(page.locator("#diagnostics")).toContainText("Injected archive read failure");
+  await expect(page.locator("#archive")).toHaveValue("");
+  await expect(source).toContainText("Current project survives failed import");
+  await page.locator("#archive").setInputFiles(archive);
+  await expect(source).not.toContainText("Current project survives failed import");
+  await expect(page.locator("#archive")).toHaveValue("");
 });
