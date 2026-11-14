@@ -6,25 +6,32 @@ The source editors support full Typst functionality alongside the Theme controls
 
 Open **[ImmuKnow Studio](https://immuknow.phiz.ca/)**.
 Start with the [user guide](docs/getting-started.md) or read the
-[manual overview](docs/index.md). This documentation is being prepared for
-**Studio v0.1.0**.
+[manual overview](docs/index.md).
 
 ## From template development to production
 
-[ImmuKnow](https://github.com/WDGPH/ImmuKnow) is the core engine. Studio uses its
+[ImmuKnow Core](https://docs.phiz.ca/immuknow/latest/) is the native engine. Studio uses its
 shared components and data format, with packaged starter projects maintained in
-[ImmuKnow Template](https://github.com/WDGPH/ImmuKnow-Template), to make template development faster.
+[ImmuKnow Template](https://github.com/WDGPH/ImmuKnow-Template/blob/main/README.md), to make template development faster.
 Production notice generation runs with ImmuKnow on your local workstation.
 
 In Studio, open **Project** at the top-right of the webpage and choose
-**Download project**. Extract the ZIP, install uv, Git, Typst and the supplied
-fonts, then run `uv sync --locked` and `uv run python scripts/check.py --sample`.
-You can omit the fonts from the ZIP if the matching fonts are already installed.
-Clear **Include fictional client data** to omit the sample and use your own inputs.
-The `--sample` commands above require an included or custom sample.
-The project includes [ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template)'s
-Python setup and helper scripts, your authored notice/configuration, and the
-six fictional clients and their notice assignments when requested. See [Use projects on your workstation](docs/local-production.md).
+**Download project**. Extract the ZIP, obtain the standalone `immuknow` executable matching
+`core-revision.txt`, and install the supplied fonts. Put `immuknow` on PATH,
+then run:
+
+```sh
+immuknow project sync
+immuknow project check --sample
+immuknow run --sample
+```
+
+Setup, checks and production runs require no Python or uv. Clear **Include
+fictional client data** to omit the sample and use your own CSV and assignments.
+The `--sample` commands require included or custom sample inputs. The project
+contains your authored notices/configuration, shared components, native setup
+instructions and fictional clients when requested. See
+[Use projects on your workstation](docs/local-production.md).
 
 ## Local browser work
 
@@ -40,7 +47,7 @@ browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/
 - [Architecture and compatibility](docs/architecture.md): ownership, Typst
   projects, Core dependency and supported resources.
 - [Documentation and releases](docs/documentation.md): strict manual builds,
-  the PHIZ documentation hub and v0.1.0 preparation.
+  the PHIZ documentation hub and release checks.
 
-Studio pins Core to commit **`1476fba`**. The exact revision is
-recorded in `uv.lock`. Studio and Core have separate version numbers.
+Studio pins native Core to the exact reviewed commit recorded in
+`core-revision.txt`. Studio and Core have separate version numbers.

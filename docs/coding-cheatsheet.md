@@ -2,10 +2,10 @@
      so the manual and the dialog use the same examples without a Markdown parser. -->
 <h1 id="coding-cheatsheet-title">Typst Reference</h1>
 <p>Examples for editing ImmuKnow letters. Keep the opening
-<code>#import "setup.typ": *</code> and <code>#show: immuknow.letter</code>
+<code>#import "settings.typ" as immuknow</code> and <code>#show: immuknow.letter</code>
 lines and the <code>@immuknow-settings</code> comment in <strong>Template</strong>
 in place; they are essential setup. They provide the client information,
-dates and page settings used below. Shared setup connects the selected client
+dates and page settings used below. Settings connects the selected client
 once; the helpers already know whose information to display.</p>
 
 <div class="coding-cheatsheet-grid">
@@ -14,7 +14,7 @@ once; the helpers already know whose information to display.</p>
 <pre><code>*Important* and _emphasized_ words.
 
 A blank line starts a new paragraph.
-#text(size: 12pt, fill: heading-color)[Please reply.]
+#text(size: 12pt, fill: immuknow.heading-color)[Please reply.]
 #v(0.3cm)
 #align(center)[Thank you.]</code></pre>
 <p><code>#</code> starts code in ordinary text; <code>[…]</code> contains text
@@ -25,35 +25,35 @@ at sign, and <code>\#</code> for a literal hash.</p>
 
 <section>
 <h2>Client information</h2>
-<pre><code>Record: #notice.client_id
-As of #date_as_of
+<pre><code>Record: #immuknow.notice.client_id
+As of #immuknow.date_as_of
 
-#if to_student [
+#if immuknow.to_student [
   Please update your record.
-] else if to_guardian [
+] else if immuknow.to_guardian [
   Please update your child's record.
 ] else [
   Please update the named client's record.
 ]</code></pre>
-<p><code>to_student</code> and <code>to_guardian</code> are boolean flags supplied
-by setup. An explicit CSV <code>intended_reader</code> choice takes priority over the age
+<p><code>immuknow.to_student</code> and <code>immuknow.to_guardian</code> are boolean flags supplied
+by Settings. An explicit CSV <code>intended_reader</code> choice takes priority over the age
 default. Only one flag can be true; both are false when the reader is unknown,
 so the final <code>else</code> uses neutral wording. The address block uses the
 same reader by default, including in suspension orders. Its <code>addressee</code>
 option overrides the label without changing the intended reader. Use the Example client arrows to
-try different readers, including the older student with a guardian choice.</p>
+try different readers, including Sarah Cook with an explicit guardian choice.</p>
 </section>
 
 <section>
 <h2>Records and notice eligibility</h2>
-<pre><code>#if no_records [Please send any available vaccination records.]
-#if up_to_date [No diseases are reported overdue.]
+<pre><code>#if immuknow.no_records [Please send any available vaccination records.]
+#if immuknow.up_to_date [No diseases are reported overdue.]
 #immuknow.overdue-diseases(no-records: auto)
 #immuknow.overdue-diseases(ispa-only: true)
 #let ispa_up_to_date = immuknow.notice-flags(include-ispa: true).ispa_up_to_date</code></pre>
-<p><code>no_records</code> describes the original history before exclusions.
-<code>up_to_date</code> reflects overdue diseases, independently of overdue
-immunizing agents. Wrap a whole section in <code>#if not no_records […]</code>
+<p><code>immuknow.no_records</code> describes the original history before exclusions.
+<code>immuknow.up_to_date</code> reflects overdue diseases, independently of overdue
+immunizing agents. Wrap a whole section in <code>#if not immuknow.no_records […]</code>
 to omit it when records are absent. The affirmative starter errors when diseases
 are overdue. The suspension starter requires an overdue ISPA disease and lists
 only diseases covered for the client's birth cohort, including varicella for
@@ -96,16 +96,23 @@ These choices leave other calls unchanged.</p>
 
 <section>
 <h2>Address, overdue list and QR code</h2>
-<pre><code>#immuknow.client-block(window: envelope-window)
+<pre><code>#immuknow.client-block(window: immuknow.envelope-window)
 #immuknow.overdue-diseases(columns: 1)
-#immuknow.qr-code(..qr)</code></pre>
-<p>Use <code>overdue-agents</code> for the vaccine agent list.
+#immuknow.overdue-agents(ignore-agents: ("COVID-19 mRNA", "Inf (TIV)"))
+#immuknow.qr-code(..immuknow.qr)</code></pre>
+<p>Use <code>overdue-agents</code> for the vaccine agent list. Its
+<code>ignore-agents</code> option excludes exact agent-name matches from that
+list only. Set the history table's <code>ignore-agents</code> separately; neither
+option changes the source facts. Overdue lists display repeated items once;
+disease entries with different doses stay distinct when <code>include-dose</code>
+is enabled. Duplicate source entries produce warnings in <strong>Findings</strong>
+and remain unchanged in the source facts.
 Bullet indentation defaults to 0.8cm; set <code>indent: 1cm</code> on the helper
 to change just that list.
 These functions display the client's information; their options control how
 it looks. Add <code>font-size: 11pt</code> or <code>details: "below"</code>
 to a client block when you want to change its defaults. Omit the QR call when
-the letter does not use a QR code. <code>..qr</code> uses the group of QR options defined in Settings.
+the letter does not use a QR code. <code>..immuknow.qr</code> uses the group of QR options defined in Settings.
 Review <strong>Findings</strong> for any warnings about the letter.</p>
 </section>
 
@@ -134,7 +141,7 @@ separately from credentials printed below the signature.</p>
 <p><code>#let</code> defines a value or a function you can use again.
 Use <code>immuknow.link</code> to include a link in ImmuKnow's checks.
 To put a client ID in a web address, use
-<code>immuknow.query-url(base, (client: notice.client_id))</code>, where
+<code>immuknow.query-url(base, (client: immuknow.notice.client_id))</code>, where
 <code>base</code> is your website address. It handles special characters in
 the ID for you.</p>
 </section>

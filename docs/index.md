@@ -5,18 +5,17 @@ the wording, change the layout and branding, and see the result with fictional
 example clients in your browser. Open [ImmuKnow Studio](https://immuknow.phiz.ca/)
 and follow [Get started](getting-started.md).
 
-This manual is being prepared for **Studio v0.1.0**. Studio and ImmuKnow have
-separate version numbers; Studio v0.1.0 does not mean ImmuKnow v0.1.0.
+Studio and ImmuKnow Core have separate version numbers.
 
 ## How Studio and ImmuKnow work together
 
-[ImmuKnow](https://docs.phiz.ca/immuknow/) is the core engine. It reads and
+[ImmuKnow Core](https://docs.phiz.ca/immuknow/latest/) is the core engine. It reads and
 validates client records, prepares the facts for a notice, and generates PDFs
 with Typst on your local workstation. It also records findings and produces
 reports for reviewing notices before delivery.
 
-Studio is the browser workspace for developing those templates. It uses
-ImmuKnow's templates, shared components and data format. Its ready-made controls
+Studio is the browser workspace for developing those templates. It uses starter notices from [ImmuKnow Template](https://github.com/WDGPH/ImmuKnow-Template/blob/main/README.md)
+and Core's shared components and data format. Its ready-made controls
 help you get started quickly, and its source editors support full Typst
 functionality for more detailed work. Your templates are ordinary Typst files
 with their supporting files and assets.
@@ -28,8 +27,8 @@ The usual workflow is:
    **Download project**.
 3. Extract the downloaded project on your workstation. Keep its templates,
    settings, images and other supporting files together.
-4. Install the project with `uv sync --locked`, check its fictional sample,
-   then use its helper scripts to generate production notices locally.
+4. Set up the project with `immuknow project sync`, check its fictional sample,
+   then use `immuknow run` to generate production notices locally.
 
 See [Use projects on your workstation](local-production.md) for the handoff.
 Studio does not assess immunization status or select a client's notice.
