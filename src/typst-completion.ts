@@ -10,6 +10,33 @@ const functions: Completion[] = Object.entries(functionCatalog).map(([label, hel
   info: `${help.description}\n\n${help.example}`,
 }));
 
+// Settings exports these values through the same namespace as its helpers.
+const settingsValues: Completion[] = [
+  ["to_student", "Whether the notice addresses the student."],
+  ["to_guardian", "Whether the notice addresses a parent or guardian."],
+  ["no_records", "Whether the original history has no records."],
+  ["up_to_date", "Whether no diseases are overdue."],
+  ["notice", "Prepared client facts for this notice."],
+  ["date_of_delivery", "Notice delivery date."],
+  ["date_as_of", "Date of the supplied facts."],
+  ["date_due", "Requested response date."],
+  ["date_of_suspension", "Suspension date."],
+  ["date_of_birth", "Client date of birth."],
+  ["envelope-window", "Settings for the envelope window."],
+  ["paper-size", "Page paper size."],
+  ["page-margins", "Page margin settings."],
+  ["logo-width", "Width of the letter logo."],
+  ["body-font", "Letter typeface."],
+  ["body-size", "Letter text size."],
+  ["heading-color", "Colour of headings."],
+  ["link-color", "Colour of links."],
+  ["accent-color", "Default QR code colour."],
+  ["title-size", "Size of page titles."],
+  ["title-align", "Alignment of page titles."],
+  ["qr", "Settings for the QR code."],
+].map(([name, info]) => ({ label: `immuknow.${name}`, type: "variable", detail: "Settings value", info }));
+const suggestions = [...functions, ...settingsValues];
+
 // Ignore punctuation inside strings and comments when finding the enclosing call.
 function callBefore(context: CompletionContext, position: number) {
   const source = context.state.doc.sliceString(0, position).split("");
@@ -70,8 +97,8 @@ export function typstCompletion(context: CompletionContext): CompletionResult | 
       }));
     // A new argument can also be a positional function call, such as text(str(42)).
     if (parameters.length)
-      return { from, options: [...parameters, ...functions], validFor: /^[\w.-]*$/ };
+      return { from, options: [...parameters, ...suggestions], validFor: /^[\w.-]*$/ };
   }
   if (!word && source[context.pos - 1] !== "#" && !context.explicit) return null;
-  return { from, options: functions, validFor: /^[\w.-]*$/ };
+  return { from, options: suggestions, validFor: /^[\w.-]*$/ };
 }

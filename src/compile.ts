@@ -1,7 +1,7 @@
 import type { CompileRequest, WorkerReply } from "./types";
 import type { ExportReply, ExportRequest, ExportResult } from "./export-types";
 
-export type CompileInput = Omit<CompileRequest, "revision" | "context" | "timing">;
+export type CompileInput = Omit<CompileRequest, "revision" | "context">;
 type ExportTask = {
   request: ExportRequest;
   resolve: (result: ExportResult) => void;
@@ -102,7 +102,6 @@ export class Compiler {
       ...job,
       context: this.context,
       revision: ++this.revision,
-      timing: { requested: performance.timeOrigin + now },
     };
     this.rejectStaleExport();
     this.due = immediate ? now : Math.min(now + 75, this.burstStart + 150);
@@ -121,7 +120,6 @@ export class Compiler {
       operationId: ++this.nextOperationId,
       context,
       revision,
-      timing: { requested: performance.timeOrigin + performance.now() },
     };
     return new Promise((resolve, reject) => {
       this.exportTask = { request, resolve, reject, settled: false };
@@ -148,8 +146,6 @@ export class Compiler {
         () => this.fail("PDF export exceeded 20 seconds. Refresh the page to retry."),
         20_000,
       );
-      if (task.request.timing)
-        task.request.timing.sent = performance.timeOrigin + performance.now();
       this.worker.postMessage(task.request);
       return;
     }
@@ -170,7 +166,6 @@ export class Compiler {
         ),
       20_000,
     );
-    if (job.timing) job.timing.sent = performance.timeOrigin + performance.now();
     this.worker.postMessage(job);
   }
   private fail(message: string) {

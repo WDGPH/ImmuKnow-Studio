@@ -4,7 +4,8 @@ import initialize, {
   type RenderSession,
 } from "../vendor/renderer/typst_ts_renderer.js";
 import wasmUrl from "../vendor/renderer/typst_ts_renderer_bg.wasm?url";
-import type { CheckResult, Preview, PreviewPage, PreviewText } from "./types";
+import type { Preview, PreviewPage, PreviewText, RenderSummary } from "./types";
+import { guideGeometry } from "./guide-geometry";
 
 // One local module initialization; sessions contain one complete document only.
 let initialized: ReturnType<typeof initialize> | undefined;
@@ -22,7 +23,7 @@ type Sheet = {
 type Position = { page: number; y: number; x: number };
 type Candidate = {
   preview: Preview;
-  checks: CheckResult[];
+  summary?: RenderSummary;
   timing: Record<string, number>;
   resolve: (committed: boolean) => void;
   reject: (error: unknown) => void;
@@ -113,13 +114,13 @@ export class Viewer {
   }
   open(
     preview: Preview,
-    checks: CheckResult[] = [],
+    summary?: RenderSummary,
     timing: Record<string, number> = {},
   ): Promise<boolean> {
     if (this.disposed) return Promise.resolve(false);
     this.pending?.resolve(false);
     const result = new Promise<boolean>((resolve, reject) => {
-      this.pending = { preview, checks, timing, resolve, reject };
+      this.pending = { preview, summary, timing, resolve, reject };
     });
     if (!this.running) void this.work();
     return result;
@@ -374,8 +375,6 @@ export class Viewer {
     const generation = this.generation;
     let sheets: Sheet[] = [];
     try {
-      const start = performance.now();
-      const painted = this.canvasesPainted;
       await this.prepare(candidate.preview, sheets, generation);
       if (generation !== this.generation || this.disposed) {
         candidate.resolve(false);
@@ -389,14 +388,11 @@ export class Viewer {
       sheets = [];
       this.document = candidate.preview;
       this.pages = this.sheets.length;
-      this.measurements(candidate.checks);
+      this.geometry = guideGeometry(candidate.summary, this.pages);
       this.drawGuide();
       this.container.replaceChildren(...this.sheets.map((s) => s.paper));
       this.restore(position);
       this.free(previous);
-      candidate.timing.render = performance.now() - start;
-      candidate.timing.canvasesPainted = this.canvasesPainted - painted;
-      candidate.timing.canvasBytes = this.resources.canvasBytes;
       candidate.timing.committed = performance.timeOrigin + performance.now();
       this.updated();
       candidate.resolve(true);
@@ -502,32 +498,9 @@ export class Viewer {
     this.guide = on;
     this.drawGuide();
   }
-  private measurements(checks: CheckResult[]) {
-    const measurement = checks.find(
-      (check) => check.component === "address" && check.measurements?.window_x_pt !== undefined,
-    )?.measurements;
-    this.geometry = {};
-    if (measurement) {
-      if (typeof measurement.page === "number") this.geometry.PAGE = measurement.page;
-      for (const [target, source] of Object.entries({
-        WINDOW_X: "window_x_pt",
-        WINDOW_Y: "window_y_pt",
-        WINDOW_WIDTH: "window_width_pt",
-        WINDOW_HEIGHT: "window_height_pt",
-        WINDOW_PADDING: "window_padding_pt",
-        ADDRESS_X: "x_pt",
-        ADDRESS_Y: "y_pt",
-        ADDRESS_WIDTH: "width_pt",
-        ADDRESS_HEIGHT: "height_pt",
-      })) {
-        const value = measurement[source];
-        if (typeof value === "number") this.geometry[target] = value;
-      }
-    }
-  }
   private drawGuide() {
     for (const page of this.sheets) page.overlay.replaceChildren();
-    const sheet = this.sheets[(this.geometry.PAGE ?? 1) - 1];
+    const sheet = this.sheets[this.geometry.PAGE - 1];
     if (!sheet) return;
     const g = this.geometry;
     if (

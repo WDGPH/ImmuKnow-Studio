@@ -33,6 +33,18 @@ describe("Typst coding suggestions", () => {
     expect(Object.keys(functionCatalog).length).toBeGreaterThan(45);
   });
 
+  it("suggests qualified Settings values in code without affecting named arguments", () => {
+    expect(labels("#if immuknow.to_|" )).toEqual(expect.arrayContaining([
+      "immuknow.to_student", "immuknow.to_guardian",
+    ]));
+    expect(labels("#if immuknow.no_|" )).toContain("immuknow.no_records");
+    expect(labels("#text(fill: immuknow.heading-|)" )).toContain("immuknow.heading-color");
+    expect(labels("#immuknow.client-block(window: immuknow.envelope-|)"))
+      .toContain("immuknow.envelope-window");
+    expect(complete("#if immuknow.to_|" )?.from).toBe(4);
+    expect(labels("#immuknow.overdue-agents(ignore-|)")).toContain("ignore-agents");
+  });
+
   it("replaces a qualified function name without removing its hash", () => {
     expect(complete("#immuknow.qr-|")?.from).toBe(1);
     expect(labels("#immuknow.qr-|")).toContain("immuknow.qr-code");
@@ -44,6 +56,7 @@ describe("Typst coding suggestions", () => {
     expect(labels("#immuknow.qr-code(\nwi|)")).toContain("width");
     expect(labels("#show: immuknow.letter.with(pa|)")).toContain("paper");
     expect(labels("#immuknow.immunization-history(sh|)")).toContain("show-validity");
+    expect(labels("#immuknow.overdue-agents(ignore-|)")).toContain("ignore-agents");
   });
 
   it("inserts named option punctuation and omits options already supplied", () => {

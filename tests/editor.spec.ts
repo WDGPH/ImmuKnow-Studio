@@ -37,9 +37,7 @@ test("a component error opens the supplied library for reading without changing 
   const source = page.locator(".cm-content");
   await source.click();
   await source.press("Control+End");
-  await page.keyboard.insertText(
-    '\n#immuknow.check-notice(version: "wrong", language: "en")',
-  );
+  await page.keyboard.insertText('\n#immuknow.check-notice(version: "wrong", language: "en")');
   const finding = page
     .locator("#diagnostics button")
     .filter({ hasText: "lib/immuknow/src/validation.typ" })
@@ -116,9 +114,11 @@ test("history errors follow edited suspension content and recover after errors",
   });
   await page.goto("./");
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/suspension_order_v1.en.typ");
+  await chooseTemplate(page, "templates/suspension_order.en.typ");
   await currentPreview(page);
-  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
+  await expect(page.locator("#diagnostics")).not.toContainText(
+    "Validity display requires Valid or Invalid",
+  );
   await page.locator("#template-tab").click();
   const source = page.locator(".cm-content");
   await source.click();
@@ -126,24 +126,33 @@ test("history errors follow edited suspension content and recover after errors",
   await page.keyboard.insertText(
     "\n#pagebreak()\n#immuknow.immunization-history(show-validity: true)\n",
   );
-  await expect(page.locator("#diagnostics")).toContainText("Validity display requires Valid or Invalid", { timeout: 30_000 });
+  await expect(page.locator("#diagnostics")).toContainText(
+    "Validity display requires Valid or Invalid",
+    { timeout: 30_000 },
+  );
   await source.press("Control+z");
   await currentPreview(page);
-  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
+  await expect(page.locator("#diagnostics")).not.toContainText(
+    "Validity display requires Valid or Invalid",
+  );
   await source.press("Control+End");
   await page.keyboard.insertText('\n#panic("failed preview")');
   await expect(page.locator("#diagnostics")).toContainText("failed preview", { timeout: 30_000 });
-  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
+  await expect(page.locator("#diagnostics")).not.toContainText(
+    "Validity display requires Valid or Invalid",
+  );
   await source.press("Control+z");
   await currentPreview(page);
-  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
+  await expect(page.locator("#diagnostics")).not.toContainText(
+    "Validity display requires Valid or Invalid",
+  );
 });
 
 test("authored project survives editing, warning/error recovery, drafts and export", async ({
   page,
 }, testInfo) => {
   await editExampleData(page, (bundle) => {
-    const checks = bundle.examples[2].preparationChecks["overdue_diseases_v1.en.typ"];
+    const checks = bundle.examples[2].preparationChecks["overdue_diseases.en.typ"];
     checks.push({
       code: "data.preparation_warning",
       stage: "preparation",
@@ -169,13 +178,13 @@ test("authored project survives editing, warning/error recovery, drafts and expo
     .replace("  enabled: true,", "  enabled: false,")
     .replaceAll("\n", "\r\n");
   files["templates/settings.typ"] = new TextEncoder().encode(`\ufeff${settings}`);
-  const entry = "templates/overdue_diseases_v1.en.typ";
+  const entry = "templates/overdue_diseases.en.typ";
   files[entry] = new TextEncoder().encode(
     new TextDecoder().decode(files[entry]).replace('name: "Dr. Annie Body"', 'name: ""'),
   );
   const untouched = new Uint8Array([0, 1, 127, 128, 255]);
   files["templates/assets/preserved.bin"] = untouched;
-  const archive = await exportProject(files, "templates/overdue_diseases_v1.en.typ", bundle.build);
+  const archive = await exportProject(files, "templates/overdue_diseases.en.typ", bundle.build);
   await page.locator("#archive").setInputFiles({
     name: "authored.zip",
     mimeType: "application/zip",
@@ -282,8 +291,8 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   expect(saved["templates/settings.typ"]).toEqual(new TextEncoder().encode(expectedSettings));
   expect(saved["templates/assets/preserved.bin"]).toEqual(untouched);
   expect(Buffer.from(saved["templates/assets/studio-extra.svg"])).toEqual(image);
-  expect(saved["templates/overdue_diseases_v1.en.typ"]).toEqual(
-    files["templates/overdue_diseases_v1.en.typ"],
+  expect(saved["templates/overdue_diseases.en.typ"]).toEqual(
+    files["templates/overdue_diseases.en.typ"],
   );
 
   await page.locator("#theme-toggle").click();
@@ -439,9 +448,9 @@ test("continuous typing advances stale previews and context switches isolate old
   expect(pdfWorkers).toBe(0);
   expect(fontRequests).toBe(initialRequests);
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.fr.typ");
   await expect(page.locator("#preview-state")).toHaveAttribute("data-displayed-revision", "0");
-  await chooseTemplate(page, "templates/overdue_diseases_v1.en.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.en.typ");
   await page.locator("#next").click();
   await currentPreview(page);
   const state = await page
@@ -535,7 +544,7 @@ test("delayed compiler replies cannot cross an import or language boundary", asy
     () => (window as unknown as { delays: { heldCompiler: number } }).delays.heldCompiler > 0,
   );
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.fr.typ");
   await expect(page.locator(".preview-page")).toHaveCount(0);
   await currentPreview(page);
   await page.locator("#template-tab").click();
@@ -555,7 +564,7 @@ test("delayed compiler replies cannot cross an import or language boundary", asy
       new Uint8Array(Buffer.from(bytes, "base64")),
     ]),
   );
-  const archive = await exportProject(files, "templates/suspension_order_v1.en.typ", bundle.build);
+  const archive = await exportProject(files, "templates/suspension_order.en.typ", bundle.build);
   await page.locator("#archive").setInputFiles({
     name: "replacement.zip",
     mimeType: "application/zip",
@@ -563,12 +572,14 @@ test("delayed compiler replies cannot cross an import or language boundary", asy
   });
   await expect(page.locator("#archive")).toHaveValue("");
   await currentPreview(page);
-  await expect(page.locator("#template")).toHaveValue("templates/suspension_order_v1.en.typ");
+  await expect(page.locator("#template")).toHaveValue("templates/suspension_order.en.typ");
   const state = await page
     .locator("#preview-state")
     .evaluate((el) => ({ ...(el as HTMLElement).dataset }));
   expect(state.displayedRevision).toBe(state.requestedRevision);
-  await expect(page.locator("#diagnostics")).not.toContainText("Validity display requires Valid or Invalid");
+  await expect(page.locator("#diagnostics")).not.toContainText(
+    "Validity display requires Valid or Invalid",
+  );
   expect(errors).toEqual([]);
 });
 
@@ -676,4 +687,63 @@ test("a failed local renderer load can recover after refreshing", async ({ page 
     "Keep my work while recovering the preview",
   );
   await expect(page.locator(".preview-page canvas")).toHaveCount(2);
+});
+
+test("deferred checks remain neutral when the current source cannot compile", async ({ page }) => {
+  await page.goto("./");
+  await currentPreview(page);
+  const advisory = page.locator("#deferred-checks");
+  await expect(advisory).toBeHidden();
+  const warningCount = await page.locator("#warnings-list > li").count();
+  const source = page.locator(".cm-content");
+  await source.click();
+  await source.press("Control+End");
+  await page.keyboard.insertText('\n#panic("deferred-check-test")');
+  await expect(page.locator("#diagnostics")).toContainText("deferred-check-test");
+  await expect(advisory).toHaveText("Checked when the notice compiles");
+  await expect(advisory).toBeVisible();
+  expect(await page.locator("#warnings-list > li").count()).toBe(warningCount);
+  await source.press("Control+z");
+  await currentPreview(page);
+  await expect(advisory).toBeHidden();
+});
+
+test("current preview distinguishes failed and unverified notice checks", async ({ page }) => {
+  await page.goto("./");
+  await currentPreview(page);
+  await page.locator("#settings-tab").click();
+  await page.locator("#guide").check();
+  await expect(page.locator(".envelope-window")).toBeVisible();
+  await page.locator("#template-tab").click();
+  await currentPreview(page);
+  const source = page.locator(".cm-content");
+  const state = page.locator("#preview-state");
+  await source.click();
+  await source.press("Control+End");
+  await page.keyboard.insertText(
+    '\n#immuknow.requirements(eligibility: "any", coverage: "neutral")',
+  );
+  await currentPreview(page);
+  await expect(state).toHaveAttribute("data-state", "failed");
+  await expect(state).toHaveAttribute(
+    "aria-label",
+    "Preview is current; notice checks failed and need review.",
+  );
+  await expect(state).toBeVisible();
+  await expect(page.locator("#errors")).toContainText("notice.requirements");
+  await expect(page.locator(".preview-page").first()).toBeVisible();
+  await source.press("Control+z");
+  await currentPreview(page);
+  await source.press("Control+End");
+  await page.keyboard.insertText("\n#metadata(none) <immuknow-report>");
+  await currentPreview(page);
+  await expect(state).toHaveAttribute("data-state", "unverified");
+  await expect(state).toHaveAttribute(
+    "aria-label",
+    "Preview is current, but its checks could not be verified.",
+  );
+  await expect(state).toBeVisible();
+  await expect(page.locator("#errors")).toContainText("render.evidence_failed");
+  await expect(page.locator(".preview-page").first()).toBeVisible();
+  await expect(page.locator(".envelope-window")).toHaveCount(0);
 });

@@ -10,7 +10,7 @@ test("Theme edits explicit signature paths and names without changing the author
   page,
 }) => {
   await editExampleData(page, (bundle) => {
-    const path = "templates/overdue_diseases_v1.en.typ";
+    const path = "templates/overdue_diseases.en.typ";
     const source = Buffer.from(bundle.files[path], "base64")
       .toString("utf8")
       .replace("width: 4.5cm", "width: 3cm");
@@ -41,7 +41,7 @@ test("Theme edits explicit signature paths and names without changing the author
   await downloadProject(page);
   const path = await (await pending).path();
   const files = unzipSync(readFileSync(path as string));
-  const source = new TextDecoder().decode(files["templates/overdue_diseases_v1.en.typ"]);
+  const source = new TextDecoder().decode(files["templates/overdue_diseases.en.typ"]);
   expect(source).toContain('signature: image("assets/studio-signature.svg", width: 3cm)');
   expect(source).toContain('name: "Dr. Example, MD, MPH"');
   expect(Buffer.from(files["templates/assets/studio-signature.svg"])).toEqual(image);
@@ -51,7 +51,7 @@ test("printed credentials stay separate from the suspension order name", async (
   await page.goto("./");
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/suspension_order_v1.en.typ");
+  await chooseTemplate(page, "templates/suspension_order.en.typ");
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
   await page.locator("#health-unit-preset").selectOption("trillium-valley");
   await expect(page.locator("#signature-name-picker")).toHaveValue("Dr. Phil Better");

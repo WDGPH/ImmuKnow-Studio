@@ -63,7 +63,7 @@ the native report as well as the page appearance. See
 Use the [Studio issue tracker](https://github.com/WDGPH/ImmuKnow-Studio/issues)
 for editor, preview, draft or download problems. Use
 [ImmuKnow-Template's issue tracker](https://github.com/WDGPH/ImmuKnow-Template/issues)
-for project setup, helper scripts or project tests. Use
+for starter notices, project configuration, packaging or project tests. Use
 [ImmuKnow's issue tracker](https://github.com/WDGPH/ImmuKnow/issues) for native
 input preparation, generation or delivery problems.
 

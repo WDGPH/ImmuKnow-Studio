@@ -22,7 +22,7 @@ Explain the action and its result in plain language. Use the exact labels shown
 in Studio and keep step-by-step user guidance separate from build instructions.
 Explain technical terms where readers first need them. Describe current behavior
 directly, without recounting development history. Use fictional records and
-public assets in examples. Follow the [shared language and project responsibilities](https://github.com/WDGPH/ImmuKnow/blob/main/docs/developer_guide/documentation.md#shared-language-and-project-responsibilities).
+public assets in examples. Follow the [shared language and project responsibilities](https://docs.phiz.ca/immuknow/latest/ecosystem/).
 
 Keep the relationship to Core explicit: Studio develops templates; local
 ImmuKnow runs generate production notices. Link to Core's manual for input
@@ -50,37 +50,22 @@ Supply `--source immuknow-studio=/path/to/ImmuKnow-Studio` to its preview build.
 Stage new source files first so the snapshot includes them. Preview output stays
 local and is never a publication artifact.
 
-## Register and publish the manual
+## Publish the manual
 
-Register `WDGPH/ImmuKnow-Studio` with slug `immuknow-studio`, the `uv` adapter,
-`mkdocs.yml` and `docs/` in the hub's `projects.json`. Add its release state to
-`versions.lock.json` at the same time. Merge the source documentation before
-the hub registration so a production build can find the configuration on main.
-Run the hub's full build and browser checks before publication.
-
-Before Studio's first tagged release, register no current release and no release
-commit. The development manual is `/immuknow-studio/latest/`; project and stable
-aliases lead there until a documented release is imported. Preparing this manual
-for v0.1.0 does not create that tag.
-
-After the reviewed v0.1.0 source is tagged, the hub's release refresh resolves
-the tag to its actual commit and proposes the release-lock change. Review and
-build that change before merging. The tagged manual belongs at
-`/immuknow-studio/v0.1.0/`. Do not fill an earlier release with documentation from
-a later commit.
+The hub's `projects.json` registers source repositories and `versions.lock.json`
+records release state. Follow the [hub source-project instructions](https://github.com/WDGPH/docs/blob/main/docs/source-projects.md)
+when registering or updating a manual. Run its full build and browser checks
+before publication. The development manual uses `/immuknow-studio/latest/`.
+For a tagged release, review the hub's release refresh and build the resulting
+lock change against the actual tagged commit before merging.
 
 The optional `docs-hub-notify.yml` workflow follows the hub's notification
-contract. To enable it after registration, configure `DOCS_HUB_TRIGGER_TOKEN`
-and `DOCS_HUB_NOTIFY_ENABLED` according to the
-[hub's credential instructions](https://github.com/WDGPH/docs/blob/main/docs/source-projects.md#notification-credentials).
+contract. Configure `DOCS_HUB_TRIGGER_TOKEN` and `DOCS_HUB_NOTIFY_ENABLED`
+according to the [hub's credential instructions](https://github.com/WDGPH/docs/blob/main/docs/source-projects.md#notification-credentials).
 It requests a hub rebuild for main changes and a reviewed release refresh for
-tag changes. It sends no generated HTML and is disabled until configured.
+tag changes; it sends no generated HTML.
 
-## Prepare Studio v0.1.0
-
-Review the user journey from first edit through downloaded project and local
-native run. Run the application checks in [Build and contribute](development.md)
-and the strict documentation build. Verify the actual Core pin and the compiler
-identity; selecting a Core release tag remains a separate dependency change
-that must pass those checks. Keep package versions, release tag and release
-description consistent, and record completed checks in the reviewing PR.
+For a Studio release, review the journey from editing through the downloaded
+project and native run. Run the checks in [Build and contribute](development.md)
+and the strict documentation build. Verify the Core pin and compiler identity,
+keep package versions and the release tag consistent, and record the checks.

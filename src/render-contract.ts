@@ -1,4 +1,4 @@
-import schema from "../generated/core/typst/report-v2.json";
+import schema from "../generated/core/typst/report.json";
 import validators from "../generated/render-contract.js";
 import type { Notice, RenderSummary } from "./types";
 
@@ -24,6 +24,16 @@ function sameData(left: unknown, right: unknown): boolean {
   );
 }
 
+// Match Rust and Typst's Unicode scalar ordering, including astral characters.
+function scalarLess(left: string, right: string): boolean {
+  const a = Array.from(left, (character) => character.codePointAt(0)!);
+  const b = Array.from(right, (character) => character.codePointAt(0)!);
+  for (let index = 0; index < Math.min(a.length, b.length); index++) {
+    if (a[index] !== b[index]) return a[index] < b[index];
+  }
+  return a.length < b.length;
+}
+
 export function validateNotice(value: unknown): asserts value is Notice {
   if (!validatePayload(value))
     throw new Error(
@@ -45,6 +55,26 @@ export function validateSummary(value: unknown, notice: Notice): asserts value i
     throw new Error("Render evidence does not belong to the selected source row and notice");
   if (!sameData(summary.notice, notice))
     throw new Error("Render evidence used data that differs from the prepared notice");
+  if (summary.requirements.state === "valid") {
+    const declaration = summary.requirements.declaration;
+    for (const key of ["row_key", "client_id", "template", "version_id", "language"])
+      if (declaration[key] !== notice[key])
+        throw new Error("Requirements belong to another source row");
+    const coverage = summary.checks.find((check) => check.code === "data.forecast_coverage");
+    if (!coverage || !sameData(coverage.measurements, notice.forecast_coverage))
+      throw new Error("Coverage finding differs from prepared measurements");
+    if (declaration.coverage === "agents" && summary.measurements.overdue_agents?.length !== 1)
+      throw new Error("Agent requirements need exactly one placed agent component or alternative");
+  } else {
+    const expected = ["notice.eligibility", "data.forecast_coverage", "content.agent_display"];
+    if (
+      !sameData(
+        summary.blocked_checks.map((check) => check.code),
+        expected,
+      )
+    )
+      throw new Error("Incorrect blocked-check order");
+  }
   function bounds(value: Record<string, unknown>) {
     for (const [key, number] of Object.entries(value))
       if ((key === "page" || key.endsWith("_page")) && Number(number) > summary.page_count)
@@ -67,6 +97,41 @@ export function validateSummary(value: unknown, notice: Notice): asserts value i
         throw new Error(`Placed ${name} evidence belongs to a different source row`);
       if ("source_matches" in value && !value.source_matches)
         throw new Error(`Placed ${name} content used changed notice data`);
+      if (name === "overdue_agents") {
+        const source = notice.overdue_agents as string[];
+        const excluded = value.excluded_agents as string[];
+        const displayed = value.displayed_agents as string[];
+        if (
+          !Number.isInteger(value.page) ||
+          Number(value.page) < 1 ||
+          Number(value.page) > summary.page_count
+        )
+          throw new Error("Agent component page outside notice");
+        if (
+          !sameData(value.source_agents, source) ||
+          value.source_count !== source.length ||
+          value.displayed_count !== displayed.length
+        )
+          throw new Error("Agent component source or displayed count differs");
+        if (
+          excluded.some(
+            (item, index) =>
+              !source.includes(item) || (index > 0 && !scalarLess(excluded[index - 1], item)),
+          )
+        )
+          throw new Error("Agent exclusions are not sorted unique source values");
+        if (value.replacement === "none") {
+          const expected = [...new Set(source.filter((agent) => !excluded.includes(agent)))];
+          if (value.replacement_visible || !sameData(displayed, expected))
+            throw new Error("Agent display differs from filtered source");
+        } else if (
+          !value.replacement_visible ||
+          displayed.length ||
+          (value.replacement === "no_records" && notice.has_immunization_records !== false)
+        ) {
+          throw new Error("Agent replacement contradicts the prepared notice");
+        }
+      }
     }
   }
   for (const check of summary.checks) {

@@ -35,7 +35,15 @@ import { currentProject, resetProject, type ResetScope } from "./project-actions
 import { previewSources } from "./preview-sources";
 import { initializeTheme } from "./theme";
 import { settingValue, updateThemeSettings } from "./theme-settings";
-import type { Bundle, CheckResult, CompileResult, Diagnostic, Example, Files } from "./types";
+import type {
+  BlockedCheck,
+  Bundle,
+  CheckResult,
+  CompileResult,
+  Diagnostic,
+  Example,
+  Files,
+} from "./types";
 import { Viewer } from "./viewer";
 
 declare const __STUDIO_BUILD__: { revision: string; tag: string | null };
@@ -73,6 +81,8 @@ let currentChecks: CheckResult[] = [];
 let pending = false;
 let diagnostics: Diagnostic[] = [];
 let resultChecks: CheckResult[] = [];
+let resultBlocked: BlockedCheck[] = [];
+let resultVerified = false;
 let actionError: string | undefined;
 let compilerError: string | undefined;
 let draftError: string | undefined;
@@ -211,17 +221,53 @@ function findings() {
       check.status === "fail",
     );
   }
+  const deferred = example?.deferredChecks?.[basename(template)] ?? [];
+  const currentEvidence =
+    displayedContext === compiler?.context && displayedRevision === revision && resultVerified;
+  const advisory = byId("deferred-checks");
+  advisory.hidden = !deferred.length || currentEvidence;
+  advisory.textContent = advisory.hidden ? "" : "Checked when the notice compiles";
+  const blocked = byId("blocked-checks");
+  blocked.replaceChildren();
+  const blockedChecks = currentEvidence
+    ? resultBlocked
+    : (example?.blockedChecks?.[basename(template)] ?? []);
+  for (const check of blockedChecks) {
+    const line = document.createElement("li");
+    line.textContent = `${check.code}: ${check.reason} (${check.blocked_by})`;
+    blocked.append(line);
+  }
+  blocked.hidden = blockedChecks.length === 0;
   const count = warnings.childElementCount;
   byId("warning-count").textContent = `${count} warning${count === 1 ? "" : "s"}`;
   byId("notice-warnings").hidden = count === 0;
   errors.hidden = errors.childElementCount === 0;
-  byId("feedback").hidden = errors.hidden && count === 0;
+  byId("feedback").hidden = errors.hidden && count === 0 && advisory.hidden && blocked.hidden;
   editor.diagnostics(diagnosticRevision === revision ? diagnostics : []);
 }
 function previewStatus() {
   const target = byId("preview-state");
   const stale = displayedRevision > 0 && displayedRevision !== revision;
-  target.dataset.state = pending ? "updating" : stale ? "stale" : "ready";
+  const failedRequirements = resultChecks.some(
+    (check) =>
+      [
+        "notice.requirements",
+        "notice.eligibility",
+        "data.forecast_coverage",
+        "content.agent_display",
+      ].includes(check.code) && check.status === "fail",
+  );
+  target.dataset.state = pending
+    ? "updating"
+    : stale
+      ? "stale"
+      : !displayedRevision
+        ? "unavailable"
+        : !resultVerified
+          ? "unverified"
+          : failedRequirements
+            ? "failed"
+            : "ready";
   target.dataset.context = String(compiler?.context ?? 0);
   target.dataset.requestedRevision = String(revision);
   target.dataset.displayedRevision = String(displayedRevision);
@@ -234,7 +280,11 @@ function previewStatus() {
       ? "Preview shows the last successful version; current edits contain errors."
       : !displayedRevision
         ? "No current preview available."
-        : "Preview is current.";
+        : !resultVerified
+          ? "Preview is current, but its checks could not be verified."
+          : failedRequirements
+            ? "Preview is current; notice checks failed and need review."
+            : "Preview is current.";
   target.setAttribute("aria-label", text);
   target.title = text;
 }
@@ -244,6 +294,8 @@ function newContext() {
   displayedContext = -1;
   displayedRevision = 0;
   resultChecks = [];
+  resultBlocked = [];
+  resultVerified = false;
   viewer.clear();
 }
 function compile(replace = false) {
@@ -298,7 +350,7 @@ async function compiled(result: CompileResult) {
   try {
     const committed = await viewer.open(
       previewSources(result.preview, files, template, result.summary),
-      checks,
+      result.summary,
       result.timing,
     );
     if (!committed || result.context !== compiler.context || result.revision <= displayedRevision)
@@ -306,6 +358,8 @@ async function compiled(result: CompileResult) {
     displayedContext = result.context;
     displayedRevision = result.revision;
     resultChecks = checks;
+    resultBlocked = result.summary?.blocked_checks ?? [];
+    resultVerified = !!result.summary;
     if (result.revision === revision) {
       pending = false;
     }
@@ -393,6 +447,12 @@ function refreshTheme() {
   }
   picker.disabled = !bytes || !family;
   picker.title = family ? "" : "Edit the typeface in Settings.";
+  const titleAlign = bytes ? settingValue(bytes, "title-align") : undefined;
+  const alignPicker = select("title-align-picker");
+  const supportedAlignment = titleAlign && ["left", "center", "right"].includes(titleAlign);
+  alignPicker.value = supportedAlignment ? titleAlign : "";
+  alignPicker.disabled = !supportedAlignment;
+  alignPicker.title = supportedAlignment ? "" : "Edit the title alignment in Settings.";
   for (const name of ["heading", "link", "accent"]) {
     const input = byId<HTMLInputElement>(`${name}-color-picker`);
     const value = bytes ? settingValue(bytes, `${name}-color`) : undefined;
@@ -572,6 +632,8 @@ select("body-font-picker").onchange = () =>
   void action(() =>
     changeSettings({ "body-font": JSON.stringify(select("body-font-picker").value) }),
   );
+select("title-align-picker").onchange = () =>
+  void action(() => changeSettings({ "title-align": select("title-align-picker").value }));
 for (const name of ["heading", "link", "accent"])
   byId<HTMLInputElement>(`${name}-color-picker`).onchange = () =>
     void action(() =>
@@ -770,38 +832,41 @@ byId<HTMLInputElement>("archive").onchange = () =>
     const input = byId<HTMLInputElement>("archive");
     const archive = input.files?.[0];
     if (!archive) return;
-    if (archive.size > MAX_PROJECT) throw new Error("Compressed project exceeds 32 MB.");
-    const previous = files;
-    const project = await archiveJob({
-      action: "import",
-      bytes: new Uint8Array(await archive.arrayBuffer()),
-      build: bundle.build,
-    });
-    if (previous !== files)
-      throw new Error("The project changed during import. Import the archive again.");
-    originals = project.files;
-    files = { ...originals };
-    template = project.template;
-    canSave = Boolean(draftStore);
-    themeUndo = undefined;
-    button("health-unit-undo").hidden = true;
-    select("health-unit-preset").value = "";
-    const available = availableExamples();
-    const included = available.filter((item) => {
-      const input = item.inputs[basename(template)];
-      return input && files[input.csv] && files[input.assignments];
-    });
-    example = included.find((item) => item.id === example?.id) ?? included[0] ?? available[0];
-    refreshProject();
-    persist();
-    compile(true);
-    input.value = "";
+    try {
+      if (archive.size > MAX_PROJECT) throw new Error("Compressed project exceeds 32 MB.");
+      const previous = files;
+      const project = await archiveJob({
+        action: "import",
+        bytes: new Uint8Array(await archive.arrayBuffer()),
+        build: bundle.build,
+      });
+      if (previous !== files)
+        throw new Error("The project changed during import. Import the archive again.");
+      originals = project.files;
+      files = { ...originals };
+      template = project.template;
+      canSave = Boolean(draftStore);
+      themeUndo = undefined;
+      button("health-unit-undo").hidden = true;
+      select("health-unit-preset").value = "";
+      const available = availableExamples();
+      const included = available.filter((item) => {
+        const input = item.inputs[basename(template)];
+        return input && files[input.csv] && files[input.assignments];
+      });
+      example = included.find((item) => item.id === example?.id) ?? included[0] ?? available[0];
+      refreshProject();
+      persist();
+      compile(true);
+    } finally {
+      input.value = "";
+    }
   });
 button("reset").onclick = () => requestProjectChange();
 function resetWorkspace() {
   files = { ...starters };
   originals = starters;
-  template = "templates/overdue_diseases_v1.en.typ";
+  template = "templates/overdue_diseases.en.typ";
   example = availableExamples()[0];
   themeUndo = undefined;
   button("health-unit-undo").hidden = true;
@@ -873,7 +938,7 @@ async function start() {
   starters = await decodeFiles(bundle);
   originals = starters;
   files = { ...originals };
-  template = "templates/overdue_diseases_v1.en.typ";
+  template = "templates/overdue_diseases.en.typ";
   example = bundle.examples.find((item) => item.payloads[basename(template)]);
   try {
     draftStore = await DraftStore.open(bundle.build, saveState);

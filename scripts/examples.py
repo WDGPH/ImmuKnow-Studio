@@ -19,16 +19,10 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from immuknow.assignment_manifest import load_manifest
-from immuknow.data_models import CheckResult
-from immuknow.generate_notices import build_notice_data, prepare_render_jobs
-from immuknow.load_config import load_config
-from immuknow.preprocess import prepare_clients, read_input
-from immuknow.resources import typst_library_root
-from immuknow.version_notices import load_catalog, template_identity
 from immuknow_template.resources import example_assignments_path, example_clients_path
 
 from .build_info import project_build
+from .native_core import prepare, typst_library_root
 from .project_template import PROJECT_TEMPLATE, scaffold_files
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -64,9 +58,8 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
         raise ValueError(
             "Studio's example list must match the clients supplied by Template"
         )
-    config = load_config(CONFIG / "parameters.yaml")
+    config = yaml.safe_load((CONFIG / "parameters.yaml").read_text())
     config.update(authored["dates"])
-    catalog = load_catalog(CONFIG)
     examples = []
     library = typst_library_root()
     resources.update(
@@ -80,20 +73,29 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
     resources["config/parameters.yaml"] = yaml.safe_dump(
         config, sort_keys=True, allow_unicode=True
     ).encode("utf-8")
-    config["creation_timestamp"] = authored["creationTimestamp"]
     with tempfile.TemporaryDirectory(prefix="immuknow-studio-examples-") as scratch:
         workspace = Path(scratch)
         shutil.copytree(TEMPLATES, workspace / "resources/templates")
         shutil.copytree(library, workspace / "resources/templates/lib/immuknow")
+        shutil.copytree(CONFIG, workspace / "config")
+        (workspace / "config/parameters.yaml").write_bytes(
+            resources["config/parameters.yaml"]
+        )
         for scenario in authored["clients"]:
-            payloads, preparation_checks, inputs = {}, {}, {}
+            payloads, preparation_checks, deferred_checks, blocked_checks, inputs = (
+                {},
+                {},
+                {},
+                {},
+                {},
+            )
             source = by_id[scenario["client_id"]]
             csv_path = workspace / "client.csv"
             write_csv(csv_path, source)
             csv_key = f"examples/clients/{scenario['id']}.csv"
             resources[csv_key] = csv_path.read_bytes()
             for filename in authored["templates"]:
-                version, language = template_identity(TEMPLATES / filename)
+                version, language = filename.removesuffix(".typ").rsplit(".", 1)
                 assignments = [{"client_id": source["client_id"], "template": filename}]
                 assignment_path = workspace / "assignment.json"
                 assignment_path.write_text(
@@ -103,54 +105,32 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                     f"examples/assignments/{scenario['id']}.{version}.{language}.json"
                 )
                 resources[assignment_key] = assignment_path.read_bytes()
-                manifest = load_manifest(assignment_path, TEMPLATES)
-                prepared, reconciliation = prepare_clients(
-                    read_input(csv_path),
-                    workspace / "work",
-                    config,
-                    CONFIG,
-                    catalog,
-                    manifest,
-                    None,
+                result = prepare(
+                    str(csv_path),
+                    "--notice-assignments",
+                    str(assignment_path),
+                    "--templates",
+                    str(workspace / "resources/templates"),
+                    "--config",
+                    str(workspace / "config"),
                 )
-                if (
-                    len(prepared.clients) != 1
-                    or any(f.status == "fail" for f in reconciliation.findings)
-                    or any(
-                        check.status == "fail"
-                        for checks in prepared.row_checks.values()
-                        for check in checks
-                    )
-                ):
+                if len(result["entries"]) != 1:
+                    raise ValueError(f"Expected one prepared example: {filename}")
+                entry = result["entries"][0]
+                failures = [
+                    check["code"]
+                    for check in entry["checks"]
+                    if check["status"] == "fail"
+                ]
+                if failures:
                     raise ValueError(
-                        f"Example variant is unrenderable: {scenario['id']} / {filename}"
+                        f"Example variant is unrenderable: {scenario['id']} / {filename} "
+                        f"({', '.join(failures)})"
                     )
-                client = prepared.clients[0]
-                (job,) = prepare_render_jobs([client], workspace, config)
-                payload = json.loads(job.data.read_text(encoding="utf-8"))
-                if payload != build_notice_data(client, config):
-                    raise ValueError(
-                        f"Staged facts disagree with native producer: {filename}"
-                    )
-                payloads[filename] = payload
-                preparation_checks[filename] = (
-                    [check.to_dict() for check in prepared.row_checks[client.sequence]]
-                    + [
-                        CheckResult(
-                            "data.preparation_warning", "preparation", "warn", message
-                        ).to_dict()
-                        for message in prepared.warnings
-                    ]
-                    + [
-                        CheckResult(
-                            f"assignment.{finding.kind}",
-                            "assignment",
-                            finding.status,
-                            finding.reason,
-                        ).to_dict()
-                        for finding in reconciliation.findings
-                    ]
-                )
+                payloads[filename] = entry["notice"]
+                preparation_checks[filename] = entry["checks"]
+                deferred_checks[filename] = entry["deferred_checks"]
+                blocked_checks[filename] = entry["blocked_checks"]
                 inputs[filename] = {"csv": csv_key, "assignments": assignment_key}
             examples.append(
                 {
@@ -161,6 +141,8 @@ def generate() -> tuple[dict[str, Any], dict[str, bytes]]:
                 | {
                     "payloads": payloads,
                     "preparationChecks": preparation_checks,
+                    "deferredChecks": deferred_checks,
+                    "blockedChecks": blocked_checks,
                     "inputs": inputs,
                 }
             )

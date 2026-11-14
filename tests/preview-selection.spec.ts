@@ -56,7 +56,7 @@ test("double-clicking a repeated French phrase highlights its exact CRLF source 
       new Uint8Array(Buffer.from(bytes, "base64")),
     ]),
   );
-  const template = "templates/overdue_diseases_v1.fr.typ";
+  const template = "templates/overdue_diseases.fr.typ";
   const phrase = "Même phrase répétée.";
   const source = `// Émoji 😀 et caractères accentués\r\n${new TextDecoder().decode(files[template]).replaceAll("\n", "\r\n")}\r\n${phrase}\r\n\r\n${phrase}\r\n`;
   files[template] = new TextEncoder().encode(source);
@@ -113,14 +113,14 @@ test("double-click finds editable sources across generated notice components and
   await current(page);
   const components = [
     ["Request for Immunization", "Request for Immunization Record", "template"],
-    ["Grace Hora", "immuknow.client-block", "template"],
+    ["Deborah Johnson", "immuknow.client-block", "template"],
     ["Client ID", "immuknow.client-block", "template"],
     ["Meningococcal", "immuknow.overdue-diseases", "template"],
     ["https://example.org/immunization", "https://example.org/immunization", "template"],
     ["Dr. Annie Body", "Dr. Annie Body", "template"],
     ["Associate Medical Officer", "Associate Medical Officer of Health", "template"],
     ["Immunization Record", "Immunization Record", "template"],
-    ["2017-09-25", "immuknow.immunization-history()", "template"],
+    ["2024-09-27", "immuknow.immunization-history()", "template"],
     ["Health Protection and Promotion Act", "Health Protection and Promotion Act", "template"],
   ];
   for (const zoom of ["fit", "in", "out"]) {
@@ -137,7 +137,7 @@ test("double-click finds editable sources across generated notice components and
   }
   // Generated French client and table cells follow the same editable calls.
   await page.locator("#theme-tab").click();
-  await chooseTemplate(page, "templates/overdue_diseases_v1.fr.typ");
+  await chooseTemplate(page, "templates/overdue_diseases.fr.typ");
   await current(page);
   await page
     .locator(".preview-text-run")
@@ -147,7 +147,7 @@ test("double-click finds editable sources across generated notice components and
   await expect(page.locator("#editor .source-target").first()).toContainText(
     "immuknow.overdue-diseases",
   );
-  await page.locator(".preview-text-run").filter({ hasText: "2017-09-25" }).first().dblclick();
+  await page.locator(".preview-text-run").filter({ hasText: "2024-09-27" }).first().dblclick();
   await expect(page.locator("#editor .source-target")).toHaveText("immuknow.immunization-history()");
   await page.waitForTimeout(400);
   expect(popups).toBe(0);

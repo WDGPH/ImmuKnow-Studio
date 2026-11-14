@@ -2,7 +2,7 @@
 
 Studio lets you edit a Typst notice and preview it with prepared, fictional
 clients. It uses the same facts contract, authored project and native findings
-as the Python pipeline. Upstream systems assess immunization status; Studio
+as standalone Core. Upstream systems assess immunization status; Studio
 does not assess a client or choose their notice.
 
 This is the detailed editor reference. For a first visit, follow
@@ -51,33 +51,18 @@ Changing printed credentials leaves that name unchanged. Theme starters fill bot
 names initially. Template-only and Settings-only resets preserve Theme images
 and names; a reset that includes Theme restores their starting values.
 
-Settings supplies shared defaults for `immuknow.immunization-history()` and `immuknow.notice-page`.
-Change one table or page directly in Template, for example
-`#immuknow.immunization-history(show-age: true, font-size: 12pt)` or
-`#immuknow.notice-page("Immunization Record", title-size: 18pt)[...]`.
-Other tables and pages keep the Settings defaults. Shared setup connects the
-client data once, so ImmuKnow helper calls do not need a `notice` argument.
-Keep the opening Settings marker, setup import and `#show: immuknow.letter`
-line in place; they are essential setup. Use `to_student` and
-`to_guardian` directly in `if`/`else` wording, including a neutral final branch.
-The optional CSV `intended_reader` choice takes priority over the age default and controls
-the default address addressee too, including in suspension orders. An address
-block’s `addressee` option overrides its label without changing the intended
-reader. Try the older student with a guardian choice in Example clients.
-Setup also supplies `no_records` and disease-based `up_to_date`. The affirmative
-and suspension starters enforce their wording with rendering assertions; choose
-a matching example client to preview them. Try the no-records and up-to-date examples to compare these paths. Settings expose independent Client ID
-and OIID display, missing-OIID text and applicable history legend wording.
-See the [Typst Reference](coding-cheatsheet.md) for the options.
-Omit QR calls when a letter has no QR code. Settings can use a fixed destination
-or a function of client facts. Initials are available as optional query values;
-they do not change the destination automatically. See the [Core template guide](https://docs.phiz.ca/immuknow/latest/user_guide/phu_templates/#component-choices-and-findings)
-for a QR example and how to include initials. Client blocks use `details: "right"`
-and `font-size: 10pt` by default; set a different value directly on the block.
+Settings supplies shared defaults for notice components. You can override an
+option for one table or page directly in Template. Keep the opening Settings
+marker, import and `#show: immuknow.letter` line in place. See the
+[Template customization guide](https://github.com/WDGPH/ImmuKnow-Template/blob/main/README.md)
+for starter settings and the [Typst Reference](coding-cheatsheet.md) for
+examples. Core's [authoring guide](https://docs.phiz.ca/immuknow/latest/developer_guide/templates/)
+describes its components and checks. Review printed QR codes after changing
+their appearance.
 
 A refused theme change leaves the project unchanged.
 
-The editor keeps native imports such as `#import "setup.typ": *` visible.
+The editor keeps native imports such as `#import "settings.typ" as immuknow` visible.
 Open **Typst Reference** using the book icon in the top header, beside the
 walkthrough button, for
 examples of letter wording, client information, page layout and ImmuKnow functions.
@@ -124,13 +109,12 @@ not fit a particular notice; the resulting warnings remain
 available for review; Studio does not rewrite the facts to make a notice fit.
 
 Findings combine source-preparation warnings, compiler diagnostics and placed
-Typst checks. Extra diseases covered by a forecasted agent are a warning;
-they do not stop the preview. For example, MMR also covers Mumps and Rubella
-when only Measles is overdue. Examples contain valid source history. Invalid history rejects a
-native input file before rendering, even if a template omits the history table.
-Display checks follow the components actually placed. A partially flagged history
-errors when validity display is enabled; a suspension without a history table
-does not evaluate history display choices.
+Typst checks. Notice requirements and display checks are marked **Checked when
+the notice compiles** until a current preview supplies validated evidence.
+If the evidence is invalid, the readable preview remains visible with an error.
+Review the findings for the selected notice and example. Core's
+[findings guide](https://docs.phiz.ca/immuknow/latest/user_guide/findings/)
+explains native checks and their meanings.
 
 Warnings start collapsed with a count, such as **6 warnings**. Select the count
 to read them. Errors stay visible. A different notice or example starts with
@@ -142,7 +126,9 @@ evidence retains a finding; it is not treated as checked success.
 
 During ordinary edits, the last successful preview remains visible while the
 refresh icon spins. Temporary errors retain those pages and leave the icon visible.
-The icon's tooltip and accessible label describe the preview state. Findings and envelope
+The icon's tooltip and accessible label describe the preview state. It also stays
+visible when the current preview has failed notice checks or its checking evidence
+could not be verified. Findings and envelope
 measurements describe the displayed pages; new errors describe the current
 source. Old diagnostics are removed as soon as you edit, so their locations
 cannot underline different source text.
@@ -190,6 +176,12 @@ These cover shared components, fonts, the data format and the compiler build.
 Projects can move between application releases when those requirements still
 match. The selected file must be an English or French notice under `templates/`.
 
+An update to shared components, including the bundled QR encoder, requires a
+matching project. Studio does not replace an older project's shared files or
+migrate its authored files automatically. Download your work before adopting
+such an update; keep the existing project for its pinned native engine, or move
+your authored changes into a current starter project.
+
 **Reset workspace…** offers these scopes, regardless of the open editor tab:
 
 - **Saved draft only** removes the browser copy, including pending saves, while
@@ -225,20 +217,28 @@ or **Authored .typ files only**. With **Complete project**, choose **Download ZI
 to save the selected notice with current Settings,
 Theme, translations, components, images and configuration.
 The **Include fictional client data** checkbox is selected by default. Keep it
-to include the six fictional clients, their notice assignments and the needed
-notices for a local test run. Clear it to download without Studio’s fictional inputs,
+to include the selected fictional client and its assignment to the active notice
+for a local test run. The sample keeps the preview client's facts even if they
+produce findings for that notice. Clear it to download without Studio’s fictional inputs,
 including unchanged sample copies from a previously imported Studio ZIP. Custom
-imported sample data is preserved. Other unrelated starter notices and example inputs are omitted. Explicitly referenced notices and authored
-companion files remain available, preserving project dependencies. Other notices
-in the browser draft are not backed up by this download; download each notice
-you want to keep.
+imported sample data is preserved. Other unrelated starter notices, unused starter assets and example inputs are
+normally omitted. Detected calculated paths retain possible dependencies
+conservatively. Explicitly referenced notices and authored
+companion files and modified or custom notices remain available, preserving
+project dependencies and authored work. Download another notice when you need its
+unchanged starter in the project.
 Authored files keep their bytes and relative paths. Import the ZIP to resume
-editing, or run it locally using the included ImmuKnow-Template Python setup,
-locked Core dependency and helper scripts. The ZIP includes a README
+editing, or run it locally using the reviewed standalone ImmuKnow executable
+and its native project commands. The ZIP includes a README
 and sample copies under `input/sample/` when fictional client data is included
 and a prepared example is available.
 An imported project's existing sample selection and authored files are preserved.
-The installed environment, engine wheel and native Typst compiler are not bundled.
+Get the standalone executable separately from
+[Core releases](https://github.com/WDGPH/ImmuKnow/releases) when a release
+matches the project's `core-revision.txt`, or ask your maintainer for a prepared
+executable. Choose the archive for your operating system and processor and
+put the extracted executable on your terminal's PATH. Fresh downloads include no
+Python environment or setup files; imported legacy files remain intact.
 If the project changes while the ZIP is being prepared, download it again.
 A project with unfinished edits or no prepared example can still be saved.
 
@@ -256,11 +256,13 @@ symlinks and corrupt archives are rejected.
 **Authored .typ files only** creates `immuknow-typst.zip` for an existing
 ImmuKnow-Template repository. It includes the active template, its Settings file
 and referenced authored `.typ` companions, preserving their bytes and relative
-paths. Unrelated notices, shared ImmuKnow components, fonts, images, CSV/JSON data
-and Python setup are omitted. Extract the selected source files into the matching
+paths. Detected calculated paths retain possible authored `.typ` companions.
+Shared ImmuKnow components, fonts, images, CSV/JSON data and native setup
+instructions are omitted. Extract the selected source files into the matching
 paths in your existing repository, which supplies those dependencies.
-Companions are collected from literal local file paths; include any files reached
-only through calculated paths yourself. This source-only ZIP is not a complete
+Studio follows literal local file paths and retains authored `.typ` files
+conservatively when it detects calculated paths. Review other dependencies
+and supply any files the scan cannot resolve. This source-only ZIP is not a complete
 project and cannot be reopened with **Import project**. Use **Complete project**
 for a portable Studio backup or a runnable project.
 
@@ -269,8 +271,9 @@ for a portable Studio backup or a runnable project.
 Production notice generation happens with ImmuKnow core on your local
 workstation. Follow [Use projects on your workstation](local-production.md)
 for the complete handoff, native command examples, fonts and output review.
-Keep the extracted project and its assets together. `uv sync --locked` installs
-the pinned engine; install native Typst and the supplied fonts separately.
+Keep the extracted project and its assets together. `immuknow project sync`
+installs the shared library from your separately supplied executable. Install
+the supplied fonts on your workstation; no separate Typst installation is needed.
 For native delivery grouping and optional PDF encryption, edit the project
 configuration on your workstation and follow the [Core configuration guide](https://docs.phiz.ca/immuknow/latest/user_guide/configuration/).
 That guide also explains optional password placeholders, including initials.

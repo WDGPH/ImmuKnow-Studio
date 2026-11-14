@@ -12,6 +12,7 @@ const clockSource = `#import "lib/immuknow/lib.typ" as immuknow
 #let notice = json(sys.inputs.at("data"))
 #immuknow.check-notice(notice, version: sys.inputs.at("notice-version"), language: sys.inputs.at("notice-language"))
 #show: immuknow.letter.with(notice: notice)
+#immuknow.requirements(notice, eligibility: "any", coverage: "neutral")
 Today: #datetime.today().display("[year]-[month]-[day]")
 `;
 
@@ -58,9 +59,7 @@ test("browser snapshots retain native findings, frozen dates and recover from er
   });
   await page.goto("proof.html");
   await page.waitForFunction(() => Boolean(window.proof?.compiler.compilerVersion));
-  const build = JSON.parse(
-    readFileSync(resolve(root, "public/generated/build.json"), "utf8"),
-  );
+  const build = JSON.parse(readFileSync(resolve(root, "public/generated/build.json"), "utf8"));
   expect(await page.evaluate(() => window.proof.compiler.compilerVersion)).toBe(
     build.native_typst_version,
   );
@@ -88,6 +87,7 @@ test("browser snapshots retain native findings, frozen dates and recover from er
   mkdirSync(resolve(staged, "data"), { recursive: true });
   writeFileSync(resolve(staged, "data/notice.json"), JSON.stringify(job.notice));
   const nativeOptions = [
+    ...(process.env.TYPST_IGNORE_EMBEDDED_FONTS === "true" ? ["--ignore-embedded-fonts"] : []),
     "--root",
     staged,
     "--creation-timestamp",
@@ -648,7 +648,7 @@ test("seven-page preview is fully painted and scrolling does not repaint", async
   const revision = await page.evaluate(() => {
     const job = window.proof.job;
     const pages = Array.from({ length: 7 }, (_, index) => `Page ${index + 1} of seven`);
-    const source = `#import "setup.typ": *\n#show: immuknow.letter\n${pages.join("\n#pagebreak()\n")}`;
+    const source = `#import "settings.typ" as immuknow\n#show: immuknow.letter\n${pages.join("\n#pagebreak()\n")}`;
     return window.proof.submit([
       {
         ...job,
@@ -698,4 +698,48 @@ test("seven-page preview is fully painted and scrolling does not repaint", async
   expect(result.renderedText[6]).toContain("Page 7 of seven");
   expect(result.limitError).toContain("resource limit");
   expect(result.retainedPages).toBe(7);
+});
+
+test("missing notice declaration keeps a readable preview with blocked checks", async ({
+  page,
+}) => {
+  await page.goto("proof.html");
+  await page.waitForFunction(() => Boolean(window.proof?.compiler.compilerVersion));
+  const revision = await page.evaluate(() => {
+    const job = window.proof.job;
+    const path = `/${job.template}`;
+    const source = new TextDecoder().decode(job.files[path]);
+    const changed = source.replace(/^#immuknow\.requirements\([^\n]*\)\s*$/m, "");
+    if (changed === source) throw new Error("Starter declaration missing");
+    return window.proof.submit([
+      { ...job, files: { ...job.files, [path]: new TextEncoder().encode(changed) } },
+    ]);
+  });
+  const result = await evidence(page, revision);
+  expect(result.preview?.artifact.length).toBeGreaterThan(1000);
+  expect(result.summary?.requirements.state).toBe("invalid");
+  expect(result.summary?.checks.find((check) => check.code === "notice.requirements")?.status).toBe(
+    "fail",
+  );
+  expect(result.summary?.blocked_checks.map((check) => check.code)).toEqual([
+    "notice.eligibility",
+    "data.forecast_coverage",
+    "content.agent_display",
+  ]);
+  expect(result.checks.some((check) => check.code === "render.evidence_failed")).toBe(false);
+});
+
+test("preview accepts incomplete cohort coverage from prepared facts", async ({ page }) => {
+  await page.goto("proof.html");
+  await page.waitForFunction(() => Boolean(window.proof?.compiler.compilerVersion));
+  const revision = await page.evaluate(() => {
+    const job = window.proof.job;
+    return window.proof.submit([
+      { ...job, notice: { ...job.notice, validity_coverage: "incomplete" } },
+    ]);
+  });
+  const result = await evidence(page, revision);
+  expect(result.preview?.artifact.length).toBeGreaterThan(1000);
+  expect(result.summary?.notice.validity_coverage).toBe("incomplete");
+  expect(result.checks.some((check) => check.code === "render.evidence_failed")).toBe(false);
 });

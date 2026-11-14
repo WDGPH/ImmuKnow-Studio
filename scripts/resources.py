@@ -3,8 +3,7 @@
 import shutil
 from pathlib import Path
 
-from immuknow.resources import resource_root
-
+from .native_core import resource_root
 from .project_template import scaffold_files
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,16 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main() -> None:
     scaffold = scaffold_files()
-    source = resource_root()
-    destination = ROOT / "generated/core"
-    if destination.exists():
-        shutil.rmtree(destination)
-    for name in ("schemas", "typst"):
-        target = destination / name
-        if target.exists():
-            shutil.rmtree(target)
-        shutil.copytree(source / name, target)
-
+    resource_root()
     branding = ROOT / "generated/template-branding"
     if branding.exists():
         shutil.rmtree(branding)

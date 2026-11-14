@@ -25,7 +25,7 @@ for (const [language, password] of [
 import base64, json, shutil, sys
 from pathlib import Path
 import yaml
-from immuknow.orchestrator import run_pipeline
+from scripts.native_core import run
 bundle = json.loads(Path("public/generated/project.json").read_text())
 directory = Path(sys.argv[1])
 for name, value in bundle["files"].items():
@@ -36,12 +36,11 @@ parameters = directory / "config/parameters.yaml"
 config = yaml.safe_load(parameters.read_text())
 config["encryption"] = {"enabled": True, "password": {"template": sys.argv[3]}}
 parameters.write_text(yaml.safe_dump(config))
-record_path = run_pipeline(
-    directory / "examples/clients/missing-meningococcal.csv",
-    directory / "runs",
-    notice_template=directory / f"templates/overdue_diseases_v1.{sys.argv[2]}.typ",
-    config_dir=directory / "config",
-)
+run("run", str(directory / "examples/clients/missing-meningococcal.csv"),
+    "--output", str(directory / "runs"),
+    "--template", str(directory / f"templates/overdue_diseases.{sys.argv[2]}.typ"),
+    "--config", str(directory / "config"))
+(record_path,) = (directory / "runs").glob("*/run.json")
 record = json.loads(record_path.read_text())
 assert record["entries"][0]["encryption"]["status"] == "completed", record
 shutil.copyfile(record_path.parent / record["entries"][0]["encryption"]["path"], directory / "encrypted.pdf")

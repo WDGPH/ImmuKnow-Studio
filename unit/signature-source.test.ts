@@ -92,3 +92,20 @@ test("printed credentials can change without changing the name in the order", ()
     inlineSignatureName(resetProject(changed, baseline, template, "template")[template])?.value,
   ).toBe("Dr. Example, MD, MPH");
 });
+
+
+test("Theme preserves qualified window and signature width with consolidated Settings", () => {
+  const template = "templates/notice.en.typ";
+  const source = '// @immuknow-settings: settings.typ\n#import "settings.typ" as immuknow\n' +
+    '#immuknow.client-block(window: immuknow.envelope-window)\n' +
+    block.replace("name: signature-name", 'name: "Dr. Example"');
+  const files = {
+    [template]: encoder.encode(source),
+    "templates/settings.typ": encoder.encode('#let logo = image("assets/logo.png", width: logo-width)\n'),
+  };
+  const withLogo = updateThemeImage(files, template, "logo", "templates/assets/new-logo.svg");
+  const changed = updateThemeImage(withLogo, template, "signature", "templates/assets/new-signature.svg");
+  expect(decoder.decode(changed[template])).toBe(source.replace("signature.png", "new-signature.svg"));
+  expect(decoder.decode(changed["templates/settings.typ"])).toContain('image("assets/new-logo.svg", width: logo-width)');
+  expect(decoder.decode(changed[template])).toContain("window: immuknow.envelope-window");
+});

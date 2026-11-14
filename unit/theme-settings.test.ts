@@ -10,7 +10,11 @@ import {
 } from "../src/theme-settings";
 
 const bytes = (source: string) => encoder.encode(source);
-const maintainedSettings = execFileSync("uv", ["run", "--locked", "python", "-c",
+const maintainedSettings = execFileSync("uv", [
+  "run",
+  "--locked",
+  "python",
+  "-c",
   'from scripts.project_template import scaffold_files; import sys; sys.stdout.buffer.write(scaffold_files()["templates/settings.typ"])',
 ]);
 
@@ -147,6 +151,23 @@ test("calculated colours are not rewritten by a theme change", () => {
   );
 });
 
+test("title alignment can be edited and survives Settings-only reset", () => {
+  const baseline = bytes('#let title-align = center // Keep\n#let paper-size = "a4"\n');
+  const current = updateThemeSettings(baseline, { "title-align": "right" });
+  expect(settingValue(current, "title-align")).toBe("right");
+  const changed = bytes(
+    decoder.decode(current).replace('paper-size = "a4"', 'paper-size = "us-letter"'),
+  );
+  expect(decoder.decode(resetSettingsKeepingTheme(baseline, changed))).toBe(
+    '#let title-align = right // Keep\n#let paper-size = "a4"\n',
+  );
+  const computed = bytes("#let title-align = if true { left } else { right }\n");
+  expect(settingValue(computed, "title-align")).toBeUndefined();
+  expect(() => updateThemeSettings(computed, { "title-align": "center" })).toThrow(
+    "Edit title-align in Settings",
+  );
+});
+
 test("Settings reset preserves branding and QR style while restoring layout and contacts", () => {
   const baseline = maintainedSettings;
   const source = decoder.decode(baseline);
@@ -155,13 +176,17 @@ test("Settings reset preserves branding and QR style while restoring layout and 
       .replace('paper-size = "us-letter"', 'paper-size = "a4"')
       .replace('records-email = "records@example.org"', 'records-email = "changed@example.org"')
       .replace('body-font = "FreeSans"', 'body-font = "FreeSerif"')
-      .replace('module-shape: "square"', 'module-shape: "dots"')
+      .replace('module-shape: "square"', 'module-shape: "separated"')
+      .replace("corner-foreground: auto", 'corner-foreground: rgb("176b78")')
+      .replace("alignment-foreground: auto", 'alignment-foreground: rgb("7a2048")')
       .replace('signature-name = "Dr. Annie Body"', 'signature-name = "Dr. Changed"')
       .replace('image("assets/logo.png"', 'image("assets/studio-logo.svg"'),
   );
   const expected = source
     .replace('body-font = "FreeSans"', 'body-font = "FreeSerif"')
-    .replace('module-shape: "square"', 'module-shape: "dots"')
+    .replace('module-shape: "square"', 'module-shape: "separated"')
+    .replace("corner-foreground: auto", 'corner-foreground: rgb("176b78")')
+    .replace("alignment-foreground: auto", 'alignment-foreground: rgb("7a2048")')
     .replace('signature-name = "Dr. Annie Body"', 'signature-name = "Dr. Changed"')
     .replace('image("assets/logo.png"', 'image("assets/studio-logo.svg"');
   expect(resetSettingsKeepingTheme(baseline, current)).toEqual(bytes(expected));
@@ -205,4 +230,12 @@ test("theme starters work when organization and signature wording live in Templa
   expect(settingValue(result, "body-font")).toBe('"FreeSans"');
   expect(settingValue(result, "heading-color")).toBe('rgb("#034770")');
   expect(settingValue(result, "health-unit-name")).toBeUndefined();
+});
+
+test("Settings reset supports projects without explicit marker colours", () => {
+  const baseline = decoder
+    .decode(maintainedSettings)
+    .replace(/^  (corner|alignment)-foreground:.*\n/gm, "");
+  const current = baseline.replace('module-shape: "square"', 'module-shape: "separated"');
+  expect(resetSettingsKeepingTheme(bytes(baseline), bytes(current))).toEqual(bytes(current));
 });

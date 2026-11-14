@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import json
 import re
-import tomllib
 
-from immuknow.resources import rendering_build_info
 from immuknow_template.resources import project_files, resource_root
+
+from .native_core import revision as core_revision
 
 PROJECT_TEMPLATE = resource_root()
 
@@ -15,12 +15,7 @@ PROJECT_TEMPLATE = resource_root()
 def scaffold_files() -> dict[str, bytes]:
     """Read Template resources and require the same locked Core revision."""
     files = project_files()
-    lock = tomllib.loads(files["uv.lock"].decode())
-    (core,) = [package for package in lock["package"] if package["name"] == "immuknow"]
-    if (
-        core["source"]["git"].split("#")[-1]
-        != rendering_build_info()["core_source_revision"]
-    ):
+    if files["core-revision.txt"].decode().strip() != core_revision():
         raise ValueError("Template and Studio must lock the same Core commit")
     revision = json.loads(files["template-source.json"])["revision"]
     if not isinstance(revision, str) or not re.fullmatch(r"[0-9a-f]{40}", revision):

@@ -5,6 +5,7 @@ import { encoder, MAX_FILE, sha256 } from "../src/project";
 import type { BuildInfo, Files } from "../src/types";
 import pins from "../compiler-pins.json";
 
+const plugin = new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 255]);
 const build: BuildInfo = {
   ...pins,
   application_version: "1.1.0",
@@ -18,6 +19,10 @@ const build: BuildInfo = {
         path: "templates/lib/immuknow/lib.typ",
         sha256: await sha256(encoder.encode("// Supplied components\n")),
       },
+      {
+        path: "templates/lib/immuknow/vendor/qr/qr.wasm",
+        sha256: await sha256(plugin),
+      },
     ],
   },
   source_revision: null,
@@ -26,6 +31,7 @@ const build: BuildInfo = {
 const template = "templates/edited.en.typ";
 const files: Files = {
   "templates/lib/immuknow/lib.typ": encoder.encode("// Supplied components\n"),
+  "templates/lib/immuknow/vendor/qr/qr.wasm": plugin,
   [template]: encoder.encode(
     '\ufeff// @immuknow-settings: settings.typ\r\n#import "settings.typ": *\r\nAuthored words\r\n',
   ),

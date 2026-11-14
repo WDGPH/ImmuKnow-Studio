@@ -19,8 +19,8 @@ test("the Typst Reference works offline and preserves the source and selected ta
   await expect(
     dialog.getByRole("heading", { name: "Client information", exact: true }),
   ).toBeVisible();
-  await expect(dialog).toContainText("#if to_student");
-  await expect(dialog).toContainText("#if no_records");
+  await expect(dialog).toContainText("#if immuknow.to_student");
+  await expect(dialog).toContainText("#if immuknow.no_records");
   await expect(dialog).toContainText("missing-oiid: auto");
   await expect(dialog).toContainText("ispa_up_to_date");
   await expect(dialog).toContainText("#immuknow.immunization-history()");
