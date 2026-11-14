@@ -34,7 +34,7 @@ test("reader and overdue flags follow the selected fictional client", async ({ p
   ).toBeAttached();
 });
 
-test("repeated overdue agents remain in source facts but appear once in the notice", async ({
+test("repeated overdue agents warn, remain in source facts and appear once in the notice", async ({
   page,
 }) => {
   // Deliberate duplicate data stays in a fixture; the shared clients remain unchanged.
@@ -79,9 +79,12 @@ with tempfile.TemporaryDirectory(prefix="studio-duplicate-fixture-") as scratch:
   expect(index).toBeGreaterThanOrEqual(0);
   const agents = prepared.notice.overdue_agents as string[];
   expect(agents.filter((agent) => agent === "MMR")).toHaveLength(3);
-  expect(prepared.checks.some(
+  const warning = prepared.checks.find(
     (check: { code: string }) => check.code === "data.duplicate_overdue_agents",
-  )).toBe(false);
+  );
+  expect(warning?.status).toBe("warn");
+  expect((warning.measurements.source_value as string).split(";").map((value) => value.trim())
+    .filter((value) => value === "MMR")).toHaveLength(3);
 
   await page.locator("#theme-tab").click();
   await chooseExample(page, index);
@@ -100,6 +103,8 @@ with tempfile.TemporaryDirectory(prefix="studio-duplicate-fixture-") as scratch:
       { timeout: 60_000 },
     )
     .toBe(true);
+  await page.locator("#notice-warnings summary").click();
+  await expect(page.locator("#warnings-list")).toContainText("data.duplicate_overdue_agents");
   const firstPage = page.locator(".preview-page").first();
   await expect
     .poll(
