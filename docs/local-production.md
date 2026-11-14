@@ -25,7 +25,7 @@ Extract `immuknow-project.zip` into a folder you control.
 | `README.md` | Native setup, sample checks and notice instructions |
 | `templates/` | Your selected notice, Settings, supporting files, images and shared components |
 | `config/` | Configuration for native ImmuKnow runs |
-| `input/sample/`, `sample.json` | Selected fictional client and notice assignment, when included |
+| `input/sample/`, `sample.json` | Selected fictional client and notice, when included |
 | `examples/` | Explanation of the fictional examples |
 | `templates/fonts/` | Fonts and licences for manual installation, when included in the download |
 | `template-source.json` | Template package source commit and original scaffold file hashes |
@@ -58,8 +58,9 @@ immuknow run --sample
 ```
 
 The first command installs or verifies the complete shared library. The ZIP
-includes no executable or Python environment. The check verifies source
-preparation and shared resources, then runs the sample in a temporary folder.
+includes no executable or Python environment. `immuknow project check` verifies
+the shared library and configuration without sample data. With `--sample`, the
+check also prepares and renders the selected sample in a temporary folder.
 The last command keeps a run and prints its report location. Warnings can be
 expected; review them in the report. You can also run the executable directly:
 

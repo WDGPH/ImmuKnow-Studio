@@ -257,6 +257,21 @@ def main(evidence: Path) -> None:
         run("project", "check")
         selected = json.loads((evidence / "selected-example.json").read_text())
         if selected["example"] == "missing-meningococcal":
+            descriptor = project / "sample.json"
+            sample_csv = project / json.loads(descriptor.read_text())["csv"]
+            saved_sample = {
+                path: path.read_bytes() for path in (descriptor, sample_csv)
+            }
+            try:
+                for path in saved_sample:
+                    path.unlink()
+                run("project", "check")
+                assert "sample.json" in run(
+                    "project", "check", "--sample", expected_success=False
+                )
+            finally:
+                for path, content in saved_sample.items():
+                    path.write_bytes(content)
             run("project", "check", "--sample")
         for name, encoded in selected["inputBytes"].items():
             path = project / name
