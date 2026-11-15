@@ -16,8 +16,9 @@ shared components and data format, with packaged starter projects maintained in
 Production notice generation runs with ImmuKnow on your local workstation.
 
 In Studio, open **Project** at the top-right of the webpage and choose
-**Download project**. Extract the ZIP, obtain the standalone `immuknow` executable matching
-`immuknow-revision.txt`, and install the supplied fonts. Put `immuknow` on PATH,
+**Download project**. Extract the ZIP, download the matching
+[ImmuKnow v2.0.0 executable](https://github.com/WDGPH/ImmuKnow/releases/tag/v2.0.0),
+and install the supplied fonts. Put `immuknow` on PATH,
 then run:
 
 ```sh
