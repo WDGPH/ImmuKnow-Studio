@@ -1,7 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
-import { exportProject } from "../src/project-archive";
 import type { Bundle, Files } from "../src/types";
-import { chooseTemplate } from "./helpers";
+import { chooseTemplate, restoreAuthoredDraft } from "./helpers";
 
 async function current(page: Page) {
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready", {
@@ -60,12 +59,7 @@ test("double-clicking a repeated French phrase highlights its exact CRLF source 
   const phrase = "Même phrase répétée.";
   const source = `// Émoji 😀 et caractères accentués\r\n${new TextDecoder().decode(files[template]).replaceAll("\n", "\r\n")}\r\n${phrase}\r\n\r\n${phrase}\r\n`;
   files[template] = new TextEncoder().encode(source);
-  await page.locator("#archive").setInputFiles({
-    name: "main-project.zip",
-    mimeType: "application/zip",
-    buffer: Buffer.from(await exportProject(files, template, bundle.build)),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  await restoreAuthoredDraft(page, files, bundle.build, template);
   await current(page);
   const before = await page.locator("#preview-state").getAttribute("data-requested-revision");
   const spans = page.locator(".preview-text-run").filter({ hasText: phrase });

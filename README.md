@@ -16,31 +16,25 @@ shared components and data format, with packaged starter projects maintained in
 Production notice generation runs with ImmuKnow on your local workstation.
 
 In Studio, open **Project** at the top-right of the webpage and choose
-**Download project**. Extract the ZIP, download the matching
-[ImmuKnow v2.0.0 executable](https://github.com/WDGPH/ImmuKnow/releases/tag/v2.0.0),
-and install the supplied fonts. Put `immuknow` on PATH,
-then run:
+**Download project**. Keep **Ready-to-run project**, select the operating system
+and processor of the workstation that will run ImmuKnow, and download the ZIP.
+Extract it and follow `START-HERE.md`. The included launchers unpack the matching
+ImmuKnow executable and use the included fonts locally.
 
-```sh
-immuknow project sync
-immuknow project check --sample
-immuknow run --sample
-```
-
-Setup, checks and production runs require no Python or uv. Clear **Include
-fictional client data** to omit the sample and use your own CSV and template selection.
-The `--sample` commands require included or custom sample inputs. The project
-contains your authored notices/configuration, shared components, native setup
-instructions and fictional clients when requested. See
-[Use projects on your workstation](docs/local-production.md).
+Setup, checks and production runs require no Python, uv or separate Typst
+installation. Keep **Include fictional client data** selected for a sample run,
+or clear it and supply your own CSV and notice selection. **Project files only**
+is available when you already have the matching executable.
+See [Use projects on your workstation](docs/local-production.md).
 
 ## Local browser work
 
-Editing, previews, drafts, imports and downloads run in your local browser.
+Editing, previews, drafts and downloads run in your local browser.
 Studio has no application backend server and does not send project data
 anywhere. Editing and previews can continue offline in the open tab after
 the resources load; some actions may need a connection. Drafts stay in that
-browser; download a ZIP for a portable copy. See [Privacy and offline use](docs/privacy-offline.md).
+browser; download a ZIP for local native use. Downloaded projects cannot be
+reopened in Studio. See [Privacy and offline use](docs/privacy-offline.md).
 
 ## Developers and contributors
 

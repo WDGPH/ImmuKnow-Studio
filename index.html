@@ -28,7 +28,7 @@
 <a class="brand" href="./" aria-label="ImmuKnow Studio home"><img class="brand-light" src="./src/assets/studio-logo-light.svg" alt="ImmuKnow Studio" width="300" height="64"><img class="brand-dark" src="./src/assets/studio-logo-dark.svg" alt="" aria-hidden="true" width="300" height="64"></a>
 <div class="header-actions">
 <details class="project-actions"><summary aria-label="Project"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5h7l2 2h9v13H3Z"/></svg><span>Project</span><svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></summary><section class="actions" aria-label="Project actions">
-<button id="export" disabled>Download project</button><button id="import" disabled>Import project</button><input id="archive" type="file" accept=".zip" hidden>
+<button id="export" disabled>Download project</button>
 <button id="reset" disabled>Reset workspace…</button>
 </section></details>
 <button id="theme-toggle" aria-label="Switch to dark mode"></button>
@@ -68,11 +68,16 @@
 <form id="download-form">
 <h2 id="download-title">Download project</h2>
 <fieldset><legend>What should the ZIP include?</legend>
-<label><input type="radio" name="download-kind" value="project" checked><span><strong>Complete project</strong><small>The active template, supporting files and setup for running or reopening the project.</small></span></label>
+<label><input type="radio" name="download-kind" value="runtime" checked><span><strong>Ready-to-run project</strong><small>Your project with a matching ImmuKnow executable and launchers for your workstation.</small></span></label>
+<label><input type="radio" name="download-kind" value="project"><span><strong>Project files only</strong><small>The active template and supporting files. Use your own matching ImmuKnow executable.</small></span></label>
 <label><input type="radio" name="download-kind" value="typst"><span><strong>Authored .typ files only</strong><small>The active template, settings and referenced .typ companions, with their relative paths. For an existing repository with matching ImmuKnow components, fonts and assets; not a standalone Studio project.</small></span></label>
 </fieldset>
-<label class="download-fonts"><input id="include-fonts" type="checkbox" checked> Include fonts for installation <small>Without these files, install the matching fonts on your workstation.</small></label>
-<label class="download-sample"><input id="include-fictional-data" type="checkbox" checked> Include fictional client data <small>Add the selected fictional client and active notice for a local test run. Custom imported sample data is kept either way.</small></label>
+<div id="download-runtime"><label for="runtime-platform">Workstation operating system and processor</label><select id="runtime-platform" required aria-describedby="runtime-description"><option value="">Choose a workstation…</option></select><small id="runtime-description">Choose the computer where you will run the project.</small></div>
+<label class="download-fonts"><input id="include-fonts" type="checkbox" checked> Include fonts <small>The bundled launcher uses these fonts without installing them. Other workflows may need font installation.</small></label>
+<label class="download-sample"><input id="include-fictional-data" type="checkbox" checked> Include fictional client data <small>Add the selected fictional client and active notice for a local test run.</small></label>
+<p class="hint">Studio keeps your editable draft in this browser. Project import is currently unavailable.</p>
+<p id="download-status" role="status" hidden></p><progress id="download-progress" aria-label="Downloading ImmuKnow runtime" hidden></progress>
+<p id="download-error" role="alert" hidden></p>
 <div class="project-change-actions"><button id="download-cancel" type="button">Cancel</button><button id="download-confirm" type="submit" autofocus>Download ZIP</button></div>
 </form>
 </dialog>
@@ -94,9 +99,9 @@
 <label><input type="radio" name="reset-scope" value="template" checked><span><strong>Template only</strong><small>Keep current settings, fonts, colours and images.</small></span></label>
 <label><input type="radio" name="reset-scope" value="settings"><span><strong>Template + settings</strong><small>Restore page layout, contacts, dates and display options. Keep Theme and uploaded images.</small></span></label>
 <label><input type="radio" name="reset-scope" value="theme"><span><strong>Template + settings + theme</strong><small>Also restore fonts, colours, organization name, signature and starting images. Remove images added since opening this project.</small></span></label>
-<label data-workspace-scope><input type="radio" name="reset-scope" value="workspace"><span><strong>Entire workspace</strong><small>Restore all of Studio’s current starter templates, settings and images. Discard imported files and remove the saved browser draft.</small></span></label>
+<label data-workspace-scope><input type="radio" name="reset-scope" value="workspace"><span><strong>Entire workspace</strong><small>Restore all of Studio’s current starter templates, settings and images. Discard custom files and remove the saved browser draft.</small></span></label>
 </fieldset>
-<p id="project-change-shared" class="hint">The starting copy comes from the starter or imported project. Shared settings and images affect every template that uses them. Download your current template first to keep a portable copy.</p>
+<p id="project-change-shared" class="hint">The starting copy is kept with your browser draft. Shared settings and images affect every template that uses them. Download your current template first to preserve your source files.</p>
 <p id="project-change-error" role="alert" hidden></p>
 <div class="project-change-actions"><button id="project-change-cancel" type="button" autofocus>Cancel</button><button id="project-change-confirm" type="submit">Reset workspace</button></div>
 </form>

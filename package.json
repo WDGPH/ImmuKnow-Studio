@@ -19,6 +19,7 @@
     "pretest:unit": "node scripts/prepare-contracts.mjs",
     "pretypecheck": "node scripts/prepare-contracts.mjs",
     "prepare:assets": "uv run --locked python -m scripts.prepare_assets",
+    "prepare:runtimes": "uv run --locked python -m scripts.prepare_runtimes prepare",
     "build:site": "uv run --locked python -m scripts.build-site"
   },
   "dependencies": {

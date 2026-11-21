@@ -5,7 +5,7 @@
 | Project | Responsibility |
 | --- | --- |
 | ImmuKnow | Standalone Rust pipeline, input validation, prepared notice facts, schemas, shared Typst components and native generation/review results |
-| ImmuKnow Studio | Browser editor, Theme controls, draft storage, project import/download, browser compiler and renderer, fonts, example previews and Studio tests |
+| ImmuKnow Studio | Browser editor, Theme controls, draft storage, project downloads, browser compiler and renderer, fonts, example previews and Studio tests |
 | ImmuKnow Template | Starter letters, Settings, translations, example branding, project configuration, native setup instructions, fictional samples and starter tests |
 | PHIZ documentation hub | Shared manual presentation, version selection, search and documentation publication |
 
@@ -25,9 +25,10 @@ for guides and source navigation. ImmuKnow owns the separate
 [native saved-report contract](https://docs.phiz.ca/immuknow/latest/user_guide/pdf_validation/).
 
 The browser compiles Typst and renders previews locally using prepared facts.
-Downloaded projects use the separately installed native executable and the
-same shared resources. Any ImmuKnow upgrade requires preparation, browser and
-native downloaded-project checks.
+Ready-to-run downloads bundle the matching native release archive and use the
+same shared resources. Project-only downloads can use an existing installation.
+Any ImmuKnow upgrade requires preparation, browser and native downloaded-project
+checks.
 
 ## Typst and project files
 
@@ -51,13 +52,19 @@ for supplied components and facts. Browser previews use fixed prepared examples;
 new source records or factual configuration require native preparation. A custom
 entry point without a prepared example remains exportable.
 
-Studio preserves authored file bytes and relative paths through drafts, imports
-and downloads. The ZIP's `immuknow-project.json` records the selected entry,
-format version, build identity and SHA-256 file hashes. Import verifies these
-requirements and the shared resources. Files are limited to 12 MiB each and
-32 MiB in total; unsafe paths, duplicates, symlinks and corrupt archives are
-rejected. See [Editing, drafts and downloads](studio.md) for format and reset
-details.
+Studio preserves authored file bytes and relative paths through drafts and
+downloads. The ZIP’s `immuknow-project.json` records the selected entry, format
+version, build identity and SHA-256 file hashes. Draft recovery checks format,
+compiler and shared-resource compatibility. Authored files are limited to
+12 MiB each and 32 MiB in total; unsafe or duplicate paths are rejected.
+Project ZIP upload is unavailable.
+
+Runtime distribution is separate from editable project files. The build stages
+four official release archives from `native-runtimes.json`, checking their
+size, SHA-256 digest and compatibility with `immuknow-revision.txt`. The browser
+requests only the selected archive from the same origin when a ready-to-run
+download is confirmed. Runtime bytes never enter the draft or browser compiler.
+See [Editing, drafts and downloads](studio.md) for package choices and reset details.
 
 Preview source spans distinguish repeated wording and preserve accented-character
 and Windows line-ending offsets.
@@ -83,7 +90,7 @@ A custom entry point without prepared facts remains exportable.
 The selected example ID survives template changes and draft reloads. Downloads
 include the selected preview client's prepared CSV and active notice assignment through
 the **Include fictional client data** checkbox. Clearing it also removes unchanged
-Studio sample copies from imported ZIPs; custom imported samples are preserved. The native preparation checks
+Studio sample copies already present in saved drafts; custom samples are preserved. The native preparation checks
 confirm that the exported inputs reproduce each view; browser checks cover
 selection, edits, reloads and downloads.
 
@@ -109,7 +116,7 @@ projects whose shared bytes and formats still match.
 Build preparation combines Template’s authored starter files with ImmuKnow’s shared
 library. Downloads include the selected authored project and, when requested,
 Studio’s fictional inputs. Downloads supply native instructions without Python setup files and preserve files already
-present in imported projects. `template-source.json` identifies the upstream
+present in compatible saved drafts. `template-source.json` identifies the upstream
 package source, while `immuknow-project.json` hashes the actual downloaded bytes.
 
 

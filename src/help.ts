@@ -47,7 +47,7 @@ const steps = [
   {
     target: ".project-actions summary",
     title: "Save your work",
-    text: "Open Project to download your current template and its project files, or import a saved ZIP.",
+    text: "Open Project to download your current template, its project files and a matching ImmuKnow runtime for your workstation.",
   },
   {
     target: ".project-actions summary",

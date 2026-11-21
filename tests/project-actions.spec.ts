@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
-import { unzipSync, zipSync } from "fflate";
-import { downloadProject, restoredProject, chooseTemplate, confirmProjectChange, saved } from "./helpers";
+import { unzipSync } from "fflate";
+import { downloadProject, restoredProject, chooseTemplate, confirmProjectChange, saved, restoreAuthoredDraft } from "./helpers";
 import type { Bundle } from "../src/types";
 
 async function current(page: Page) {
@@ -18,7 +18,7 @@ async function download(page: Page, includeFictionalData?: boolean) {
   return unzipSync(readFileSync((await (await pending).path()) as string));
 }
 
-test("fictional data can be omitted without affecting editing or reopening the project", async ({ page }) => {
+test("fictional data can be omitted without affecting editing or the saved draft", async ({ page }) => {
   await page.goto("./");
   await current(page);
   await page.locator(".project-actions summary").click();
@@ -28,28 +28,27 @@ test("fictional data can be omitted without affecting editing or reopening the p
   await page.getByRole("radio", { name: "Authored .typ files only" }).check();
   await expect(checkbox).toBeHidden();
   await expect(checkbox).toBeDisabled();
-  await page.getByRole("radio", { name: "Complete project" }).check();
+  await page.getByRole("radio", { name: "Project files only" }).check();
   await expect(checkbox).toBeVisible();
   await expect(checkbox).toBeEnabled();
   await page.locator("#download-cancel").click();
+  const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
   const included = await download(page, true);
   expect(included["sample.json"]).toBeDefined();
-  // Imported copies of the supplied sample can also be excluded.
-  await page.locator("#archive").setInputFiles({
-    name: "with-sample.zip", mimeType: "application/zip", buffer: Buffer.from(zipSync(included)),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  // Compatible older drafts may already contain the supplied sample.
+  const includedDraft = { ...included };
+  delete includedDraft["immuknow-project.json"];
+  await restoreAuthoredDraft(page, includedDraft, bundle.build, "templates/overdue_diseases.en.typ");
   await current(page);
   const omitted = await download(page, false);
   expect(Object.keys(omitted).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   expect(Object.keys(omitted).filter((path) => path.startsWith("input/sample/"))).toEqual([]);
   expect(omitted["sample.json"]).toBeUndefined();
-  for (const path of ["templates/overdue_diseases.en.typ", "templates/settings.typ", "scripts/run.py", "pyproject.toml"])
+  for (const path of ["templates/overdue_diseases.en.typ", "templates/settings.typ", "README.md", "immuknow-revision.txt"])
     expect(omitted[path]).toEqual(included[path]);
-  await page.locator("#archive").setInputFiles({
-    name: "without-sample.zip", mimeType: "application/zip", buffer: Buffer.from(zipSync(omitted)),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  const omittedDraft = { ...omitted };
+  delete omittedDraft["immuknow-project.json"];
+  await restoreAuthoredDraft(page, omittedDraft, bundle.build, "templates/overdue_diseases.en.typ");
   await current(page);
   const restored = await download(page, true);
   expect(restored["input/sample/sample_students.csv"]).toEqual(included["input/sample/sample_students.csv"]);
@@ -157,15 +156,11 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   expect(sample.template).toBe("templates/overdue_diseases.en.typ");
   expect(files[sample.template]).toBeDefined();
   expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
-  // The scoped download remains a valid project that can be imported.
-  await page.locator("#previous").click();
-  await current(page);
-  await page.locator("#archive").setInputFiles({
-    name: "current.zip",
-    mimeType: "application/zip",
-    buffer: Buffer.from(zipSync(files)),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  // Existing drafts with a scoped file set still preserve authored work.
+  const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
+  const scopedDraft = { ...files };
+  delete scopedDraft["immuknow-project.json"];
+  await restoreAuthoredDraft(page, scopedDraft, bundle.build, sample.template);
   await current(page);
   await expect(page.locator("#template option")).toHaveCount(
     1,

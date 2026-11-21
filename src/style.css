@@ -512,13 +512,15 @@ main {
 #diagnostics li + li {
   margin-top: 8px;
 }
-#diagnostics .error {
+#diagnostics .error,
+#download-error {
   color: #ad302b;
 }
 #diagnostics .warning {
   color: #876023;
 }
-:root[data-theme="dark"] #diagnostics .error {
+:root[data-theme="dark"] #diagnostics .error,
+:root[data-theme="dark"] #download-error {
   color: #ffaaa0;
 }
 :root[data-theme="dark"] #diagnostics .warning {
@@ -782,6 +784,18 @@ main {
   flex-wrap: wrap;
   justify-content: end;
   gap: 10px;
+}
+#download-runtime {
+  margin: 16px 0;
+}
+#runtime-platform {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}
+#download-progress {
+  width: 100%;
+  margin-bottom: 12px;
 }
 :is(#project-change-confirm, #recovery-continue, #download-confirm) {
   color: var(--teal);

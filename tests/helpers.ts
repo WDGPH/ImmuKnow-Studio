@@ -1,5 +1,5 @@
 import { expect, type Page } from "@playwright/test";
-import type { Bundle } from "../src/types";
+import type { BuildInfo, Bundle, Files } from "../src/types";
 
 export async function restoredProject(page: Page) {
   await expect(page.locator("#template-tab")).toBeEnabled();
@@ -54,8 +54,45 @@ export async function chooseExample(page: Page, index: number) {
 export async function downloadProject(page: Page, includeFonts?: boolean, includeFictionalData?: boolean) {
   await page.locator("#export").click();
   await expect(page.getByRole("dialog", { name: "Download project", exact: true })).toBeVisible();
+  await page.locator('input[name="download-kind"][value="project"]').check();
   if (includeFonts !== undefined) await page.locator("#include-fonts").setChecked(includeFonts);
   if (includeFictionalData !== undefined)
     await page.locator("#include-fictional-data").setChecked(includeFictionalData);
   await page.locator("#download-confirm").click();
+}
+
+// Seed compatible authored work through draft recovery; project ZIP upload is not a UI feature.
+export async function restoreAuthoredDraft(
+  page: Page,
+  files: Files,
+  build: BuildInfo,
+  template: string,
+  example = "",
+) {
+  await restoredProject(page);
+  await saved(page);
+  await page.evaluate(async ({ files, build, template, example }) => {
+    const bytes = Object.fromEntries(files.map(([path, values]) => [path, new Uint8Array(values)]));
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open("immuknow-studio-drafts-v2", 1);
+      request.onupgradeneeded = () => request.result.createObjectStore("drafts");
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const transaction = db.transaction("drafts", "readwrite");
+        transaction.objectStore("drafts").put({
+          schemaVersion: 2, revision: 1, build, files: bytes, baseline: bytes, template, example,
+        }, "current");
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = transaction.onabort = () => reject(transaction.error);
+      });
+    } finally {
+      db.close();
+    }
+  }, { files: Object.entries(files).map(([path, bytes]) => [path, Array.from(bytes)] as [string, number[]]),
+    build, template, example });
+  await page.reload();
+  await restoredProject(page);
 }

@@ -1,6 +1,7 @@
 import "./style.css";
 import { initializeCodingCheatsheet } from "./coding-cheatsheet";
 import { archiveJob } from "./archive";
+import { fetchNativeRuntime, nativeRuntime, nativeRuntimes, nativeVersion } from "./native-runtime";
 import {
   imageBytes,
   imagePath,
@@ -25,7 +26,6 @@ import { initializeHelp } from "./help";
 import {
   decodeFiles,
   download,
-  MAX_PROJECT,
   runtimeFiles,
   settingsPath,
   validateFiles,
@@ -748,24 +748,47 @@ byId<HTMLInputElement>("guide").onchange = () =>
 button("zoom-in").onclick = () => void action(() => viewer.zoomBy(1.2));
 button("zoom-out").onclick = () => void action(() => viewer.zoomBy(1 / 1.2));
 const downloadDialog = byId<HTMLDialogElement>("download-dialog");
+const downloadForm = byId<HTMLFormElement>("download-form");
+const runtimeSelect = select("runtime-platform");
+let downloadAbort: AbortController | undefined;
+for (const runtime of nativeRuntimes)
+  runtimeSelect.add(new Option(runtime.label, runtime.id));
+function downloadKind() {
+  return downloadForm.querySelector<HTMLInputElement>('input[name="download-kind"]:checked')?.value;
+}
 function refreshDownloadOptions() {
-  const typstOnly =
-    new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst";
+  const kind = downloadKind();
+  for (const option of downloadForm.querySelectorAll<HTMLInputElement>('input[name="download-kind"]'))
+    option.disabled = exporting;
   for (const id of ["include-fonts", "include-fictional-data"]) {
     const option = byId<HTMLInputElement>(id);
-    option.disabled = typstOnly;
-    if (option.parentElement) option.parentElement.hidden = typstOnly;
+    option.disabled = exporting || kind === "typst";
+    if (option.parentElement) option.parentElement.hidden = kind === "typst";
   }
+  byId("download-runtime").hidden = kind !== "runtime";
+  runtimeSelect.disabled = exporting || kind !== "runtime";
+  button("download-confirm").disabled = exporting;
+  downloadForm.setAttribute("aria-busy", String(exporting));
+  const runtime = nativeRuntimes.find((item) => item.id === runtimeSelect.value);
+  byId("runtime-description").textContent = runtime
+    ? `ImmuKnow ${nativeVersion}; about ${Math.ceil(runtime.size / 1_000_000)} MB plus project files. Downloaded when you choose Download ZIP.`
+    : "Choose the computer where you will run the project.";
 }
 byId("download-form").onchange = refreshDownloadOptions;
 button("export").onclick = () => {
+  byId("download-error").hidden = true;
+  byId("download-status").hidden = true;
+  byId("download-progress").hidden = true;
   refreshDownloadOptions();
   downloadDialog.showModal();
 };
-button("download-cancel").onclick = () => downloadDialog.close();
-byId<HTMLFormElement>("download-form").onsubmit = (event) => {
-  event.preventDefault();
+button("download-cancel").onclick = () => {
+  downloadAbort?.abort();
   downloadDialog.close();
+};
+downloadDialog.oncancel = () => downloadAbort?.abort();
+downloadForm.onsubmit = (event) => {
+  event.preventDefault();
   void action(async () => {
     if (exporting) return;
     const snapshot = {
@@ -776,19 +799,27 @@ byId<HTMLFormElement>("download-form").onsubmit = (event) => {
       context: compiler.context,
       includeFonts: byId<HTMLInputElement>("include-fonts").checked,
       includeFictionalData: byId<HTMLInputElement>("include-fictional-data").checked,
-      typstOnly:
-        new FormData(byId<HTMLFormElement>("download-form")).get("download-kind") === "typst",
+      kind: downloadKind(),
+      platform: runtimeSelect.value,
     };
+    const controller = new AbortController();
+    downloadAbort = controller;
     exporting = true;
     refreshDownloads();
+    refreshDownloadOptions();
+    byId("download-error").hidden = true;
+    if (snapshot.kind === "runtime") {
+      byId("download-status").hidden = false;
+      byId("download-status").textContent = "Preparing project files…";
+    } else downloadDialog.close();
     try {
       let bytes: Uint8Array;
-      if (snapshot.typstOnly) {
+      if (snapshot.kind === "typst") {
         bytes = await archiveJob({
           action: "export-typst",
           files: snapshot.files,
           template: snapshot.template,
-        });
+        }, controller.signal);
       } else {
         const project = currentProject(
           snapshot.files,
@@ -798,15 +829,39 @@ byId<HTMLFormElement>("download-form").onsubmit = (event) => {
           starters,
           snapshot.includeFictionalData,
         );
-        bytes = await archiveJob({
-          action: "export",
-          files: await (snapshot.includeFonts
-            ? withProjectFonts(project)
-            : withoutProjectFonts(project)),
-          template: snapshot.template,
-          build: bundle.build,
-        });
+        const projectFiles = await (snapshot.includeFonts
+          ? withProjectFonts(project, controller.signal)
+          : withoutProjectFonts(project));
+        if (snapshot.kind === "runtime") {
+          const runtime = nativeRuntime(snapshot.platform, bundle.build);
+          const status = byId("download-status");
+          const progress = byId<HTMLProgressElement>("download-progress");
+          status.hidden = false;
+          status.textContent = `Downloading ImmuKnow for ${runtime.label}…`;
+          progress.hidden = false;
+          progress.removeAttribute("value");
+          const archive = await fetchNativeRuntime(runtime, controller.signal, (received, total) => {
+            progress.max = total;
+            progress.value = received;
+            status.textContent = `Downloading ImmuKnow for ${runtime.label}: ${Math.floor(received / total * 100)}%`;
+          });
+          status.textContent = "Verifying ImmuKnow and preparing your project ZIP…";
+          progress.removeAttribute("value");
+          bytes = await archiveJob({
+            action: "export-runtime",
+            files: projectFiles,
+            template: snapshot.template,
+            build: bundle.build,
+            runtimeId: runtime.id,
+            runtime: archive,
+          }, controller.signal);
+        } else {
+          bytes = await archiveJob({
+            action: "export", files: projectFiles, template: snapshot.template, build: bundle.build,
+          }, controller.signal);
+        }
       }
+      controller.signal.throwIfAborted();
       if (
         files !== snapshot.files ||
         template !== snapshot.template ||
@@ -816,51 +871,29 @@ byId<HTMLFormElement>("download-form").onsubmit = (event) => {
       )
         throw new Error("The project changed during download. Download it again.");
       download(
-        snapshot.typstOnly ? "immuknow-typst.zip" : "immuknow-project.zip",
+        snapshot.kind === "typst" ? "immuknow-typst.zip" : snapshot.kind === "runtime"
+          ? `immuknow-project-${snapshot.platform}.zip` : "immuknow-project.zip",
         bytes,
         "application/zip",
       );
+      downloadDialog.close();
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      if (snapshot.kind === "runtime") {
+        byId("download-error").textContent = `${message(error)} You can retry or choose Project files only.`;
+        byId("download-error").hidden = false;
+      }
+      throw error;
     } finally {
+      downloadAbort = undefined;
       exporting = false;
+      byId("download-status").hidden = true;
+      byId("download-progress").hidden = true;
+      refreshDownloadOptions();
       refreshDownloads();
     }
   });
 };
-button("import").onclick = () => byId<HTMLInputElement>("archive").click();
-byId<HTMLInputElement>("archive").onchange = () =>
-  void action(async () => {
-    const input = byId<HTMLInputElement>("archive");
-    const archive = input.files?.[0];
-    if (!archive) return;
-    try {
-      if (archive.size > MAX_PROJECT) throw new Error("Compressed project exceeds 32 MB.");
-      const previous = files;
-      const project = await archiveJob({
-        action: "import",
-        bytes: new Uint8Array(await archive.arrayBuffer()),
-        build: bundle.build,
-      });
-      if (previous !== files)
-        throw new Error("The project changed during import. Import the archive again.");
-      originals = project.files;
-      files = { ...originals };
-      template = project.template;
-      canSave = Boolean(draftStore);
-      themeUndo = undefined;
-      button("health-unit-undo").hidden = true;
-      select("health-unit-preset").value = "";
-      const available = availableExamples();
-      const included = available.filter((item) => {
-        return !!files[item.csv] && !!item.payloads[basename(template)];
-      });
-      example = included.find((item) => item.id === example?.id) ?? included[0] ?? available[0];
-      refreshProject();
-      persist();
-      compile(true);
-    } finally {
-      input.value = "";
-    }
-  });
 button("reset").onclick = () => requestProjectChange();
 function resetWorkspace() {
   files = { ...starters };
@@ -976,7 +1009,7 @@ async function start() {
     },
     (result) => void compiled(result),
   );
-  for (const id of ["template-tab", "theme-tab", "template", "import", "zoom-in", "zoom-out"])
+  for (const id of ["template-tab", "theme-tab", "template", "zoom-in", "zoom-out"])
     buttonOrSelect(id).disabled = false;
   refreshProject();
   for (const control of editingControls) control.inert = false;

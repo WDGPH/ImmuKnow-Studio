@@ -6,6 +6,8 @@ import subprocess
 from pathlib import Path
 
 from scripts.browser_assets import prepare, verify
+from scripts.prepare_runtimes import prepare as prepare_runtimes
+from scripts.prepare_runtimes import verify as verify_runtimes
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -22,12 +24,14 @@ def main() -> None:
     parser.add_argument(
         "--require-prepared-toolchain",
         action="store_true",
-        help="Fail on missing or stale browser artifacts instead of compiling Rust",
+        help="Require prepared browser artifacts and pinned native download archives",
     )
     args = parser.parse_args()
     if args.require_prepared_toolchain:
+        verify_runtimes()
         verify()
     else:
+        prepare_runtimes()
         try:
             verify()
         except (FileNotFoundError, ValueError) as exc:

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "version": "2.0.0",
+  "revision": "6ccfdd7d999ee3f7c791e040584c48a972a4af9b",
+  "platforms": [
+    {
+      "id": "windows-x86_64",
+      "label": "Windows (x64)",
+      "filename": "immuknow-2.0.0-windows-x86_64.zip",
+      "size": 24964169,
+      "sha256": "08127090497ebe287b13435aecaa3ed0f932fde42aeec0b2d88f921753c3f409"
+    },
+    {
+      "id": "macos-aarch64",
+      "label": "macOS (Apple silicon)",
+      "filename": "immuknow-2.0.0-macos-aarch64.tar.gz",
+      "size": 23765332,
+      "sha256": "9ffc1d89dc6383d8902595f8ef773c33d25e78521584ecac52e4d9bfcce520ef"
+    },
+    {
+      "id": "macos-x86_64",
+      "label": "macOS (Intel)",
+      "filename": "immuknow-2.0.0-macos-x86_64.tar.gz",
+      "size": 24590241,
+      "sha256": "2d0cbe9205fac1df4e95d16021bccd69eb8e2e9727617c372743a4ce7dcb744a"
+    },
+    {
+      "id": "linux-x86_64",
+      "label": "Linux (x64)",
+      "filename": "immuknow-2.0.0-linux-x86_64.tar.gz",
+      "size": 25281728,
+      "sha256": "65e4c62d5dca035bada9ad259d90b5ca391d0e5103dbacda3fc6a4596cdbfb14"
+    }
+  ]
+}

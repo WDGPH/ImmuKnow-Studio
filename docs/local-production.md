@@ -1,55 +1,92 @@
 # Use projects on your workstation
 
-Studio downloads a runnable project based on
-[ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template), with your selected
-notice, settings and assets. Use a standalone ImmuKnow executable matching
-`immuknow-revision.txt`. Setup, checks and runs use the executable directly; no
-Python, uv or Template checkout is needed.
+Studio downloads your selected notice, Settings and assets from the current
+[ImmuKnow-Template](https://github.com/WDGPH/ImmuKnow-Template) project. A
+**Ready-to-run project** also includes the matching native ImmuKnow runtime and
+launchers. Setup and runs require no Python, uv, separate Typst installation or
+Template checkout.
 
 ## Download and extract your project
 
-In Studio, open **Project** at the top-right and choose **Download project**.
-Keep **Complete project** for the runnable ZIP described below. Choose
-**Authored .typ files only** to copy the active notice, settings and referenced
-`.typ` companions into an existing matching repository instead; that smaller ZIP
-uses your repository’s existing ImmuKnow components, fonts and assets.
-**Include fictional client data** is selected by default for a local test run.
-Clear it to omit Studio’s fictional inputs and sample setup. Custom imported
-sample data is preserved. Without a sample, use your own CSV and assignments
-as described under [Run your own notices](#run-your-own-notices).
-Extract `immuknow-project.zip` into a folder you control.
+Open **Project → Download project**. Keep **Ready-to-run project** and choose
+the operating system and processor of the computer that will run ImmuKnow:
+Windows x64, macOS Apple silicon, macOS Intel or Linux x64. This may be a
+different computer from the one running Studio, so check the selection.
+
+Keep **Include fonts** selected to use the supplied fonts directly from the
+project. **Include fictional client data** supplies the selected preview client
+for a sample run. Clear it to omit Studio’s fictional inputs and supply your own
+CSV and notice selection. Custom sample data already in a compatible saved
+draft is preserved.
+
+Download and extract the complete ZIP into a folder you control. Open
+`START-HERE.md` for the platform-specific commands. Keep the directory structure
+and relative paths together, and leave `templates/lib/immuknow/` unchanged.
 
 | Item | Purpose |
 | --- | --- |
-| `immuknow-revision.txt` | Reviewed standalone ImmuKnow source revision |
-| `README.md` | Native setup, sample checks and notice instructions |
-| `templates/` | Your selected notice, Settings, supporting files, images and shared components |
-| `config/` | Configuration for native ImmuKnow runs |
+| `START-HERE.md` | Instructions for the included runtime and launchers |
+| `immuknow.cmd` or `immuknow` | Launcher for native ImmuKnow commands |
+| `run-sample.cmd`, `run-sample.command` or `run-sample.sh` | Run the selected fictional sample, when `sample.json` is present |
+| `runtime/` | Pinned official release archive; the executable is unpacked here on first use |
+| `immuknow-revision.txt` | Reviewed native ImmuKnow source revision |
+| `README.md` | Template’s native setup and notice guidance |
+| `templates/` | Selected notice, Settings, supporting files, images and shared components |
+| `config/` | Configuration for native runs |
 | `input/sample/`, `sample.json` | Selected fictional client and notice, when included |
-| `examples/` | Explanation of the fictional examples |
-| `templates/fonts/` | Fonts and licences for manual installation, when included in the download |
-| `template-source.json` | Template package source commit and original scaffold file hashes |
-| `immuknow-project.json` | Studio import format, selected notice, build identity and current file hashes |
+| `templates/fonts/` | Fonts and licences used by the launchers, when included |
+| `template-source.json` | Template source commit and original scaffold hashes |
+| `immuknow-project.json` | Selected notice, Studio build identity and current project file hashes |
 
-Keep the complete directory structure and relative paths. Leave
-`templates/lib/immuknow/` unchanged. The ZIP includes the selected notice and its dependencies. When combining projects, review
-shared Settings and assets before replacing files.
+The native archive is fetched only when you request the download. Studio verifies
+its pinned size and checksum before packaging it. No further network download
+is needed when the launcher first unpacks it. The executable is kept out of
+Studio’s editable project and draft storage.
 
-## Install and check the project
+These archives are unsigned, and macOS releases are not notarized. Your
+operating system or organization’s application policy may require approval
+before running them. The supplied archive must match your chosen platform;
+changing its filename does not change its architecture.
 
-Obtain the standalone `immuknow` executable matching `immuknow-revision.txt` from
-[ImmuKnow releases](https://github.com/WDGPH/ImmuKnow/releases) when a matching
-archive is available, or ask your project maintainer. ImmuKnow's
-[release guide](https://docs.phiz.ca/immuknow/latest/developer_guide/releases/)
-explains platform choices and checksums. Developers can follow Template's
-[build instructions](https://github.com/WDGPH/ImmuKnow-Template/blob/main/CONTRIBUTING.md#build-the-reviewed-immuknow). Put it on PATH, or use its full path in place of `immuknow` in commands.
-There is no separate Typst or Python installation.
-Install the supplied fonts on your workstation for matching typography. If you
-cleared **Include fonts for installation** when downloading, use the same fonts
-already installed on the workstation or download them from Studio separately.
-Extracting them does not install them; ImmuKnow uses system fonts.
+## Run the sample
 
-Open a terminal in the extracted folder:
+On Windows, open `run-sample.cmd`. On macOS, open `run-sample.command`. On Linux,
+run `sh ./run-sample.sh` from the extracted project folder. The launcher keeps the
+project’s paths together and uses fonts under `templates/fonts/` when present.
+There is no need to add ImmuKnow to PATH or install those fonts globally.
+
+For commands in a terminal, use `./immuknow` on macOS/Linux, or
+`.\immuknow.cmd` on Windows. If your ZIP extractor drops executable permissions
+on macOS/Linux, use `sh ./immuknow` instead. For example:
+
+```bash
+sh ./immuknow project check --sample
+sh ./immuknow run --sample
+```
+
+`project check --sample` checks configuration and shared components, then
+prepares and renders the sample temporarily. `run --sample` retains a run under
+`runs/` and prints its report location. The sample keeps the preview client’s
+facts: warnings or a failed notice can result when that client does not fit the
+selected notice. Review the report and PDFs before drawing conclusions about
+production output.
+
+Without `sample.json`, no sample launcher is included. You can still run your
+own CSV, or create a sample selection before using `--sample`. Editing source
+CSV files does not change Studio’s fixed browser examples.
+
+## Use an existing ImmuKnow installation
+
+Choose **Project files only** if you already have the executable matching
+`immuknow-revision.txt`. This ZIP contains the same authored files without the
+runtime archive or launchers. Obtain a matching executable from
+[ImmuKnow releases](https://github.com/WDGPH/ImmuKnow/releases) or your maintainer.
+See ImmuKnow’s [release guide](https://docs.phiz.ca/immuknow/latest/developer_guide/releases/)
+for platform requirements and checksums.
+
+Put that executable on PATH, or use its full path in commands. Install the
+supplied fonts or set `TYPST_FONT_PATHS` to the project’s `templates/fonts`
+directory. From the project directory, run:
 
 ```bash
 immuknow project sync
@@ -57,60 +94,44 @@ immuknow project check --sample
 immuknow run --sample
 ```
 
-The first command installs or verifies the complete shared library. The ZIP
-includes no executable or Python environment. `immuknow project check` verifies
-the shared library and configuration without sample data. With `--sample`, the
-check also prepares and renders the selected sample in a temporary folder.
-The last command keeps a run and prints its report location. Warnings can be
-expected; review them in the report. You can also run the executable directly:
+`project sync` installs or verifies the complete shared library. The sample
+commands require included sample inputs; use `immuknow project check` to check
+configuration and shared components alone.
 
-```bash
-immuknow run input/sample/sample_students.csv --project . \
-  --template overdue_diseases.en.typ
-```
-
-When **Include fictional client data** is selected, Studio supplies copies of
-the selected preview client's CSV in `input/sample/` and records it with the
-active notice in `sample.json`. The sample retains the client's facts, so an
-incompatible notice can produce findings or a failed notice. An imported
-project's existing sample selection and authored sample bytes are preserved,
-even when you change the preview client. Without fictional data or a prepared example, a project can
-still be downloaded: provide inputs and a `sample.json` selection before running
-`--sample`. Changing source CSVs does not change Studio's fixed browser facts.
-
-Fresh downloads omit Python scripts, environment files and maintainer tools.
-Imported projects keep their existing authored files, including legacy helpers.
-The supplied ignore rules keep conventional client inputs and run outputs out
-of Git. Maintainers can install additional commit checks from Template's source
-repository; those checks are separate from project setup and production runs.
-
-You can also use the complete `config/` and `templates/` trees with an existing
-compatible ImmuKnow installation. See [ImmuKnow versions](architecture.md#immuknow-versions).
+**Authored .typ files only** is a smaller option for copying the active notice,
+Settings and referenced `.typ` companions into an existing matching repository.
+That repository must supply shared components, fonts, images and other assets.
+Downloaded ZIPs cannot be reopened in Studio; compatible browser drafts continue
+to reopen automatically.
 
 ## Run your own notices
 
 Review configuration, wording, dates, contacts, branding, signatures and QR
-destinations before using your own records. Replace the fictional input with
-your own validated cohort and assignments, kept under `input/`:
+destinations before using your own records. Keep your validated cohort and
+assignments under `input/`. From the extracted ready-to-run folder on
+macOS/Linux:
 
 ```bash
 # One notice for every client
-immuknow run input/clients.csv --project . \
+sh ./immuknow run input/clients.csv --project . \
   --template overdue_diseases.en.typ
 
 # An explicit notice for each client
-immuknow run input/clients.csv --project . \
+sh ./immuknow run input/clients.csv --project . \
   --notice-assignments input/assignments.json
 ```
 
+On Windows, replace `sh ./immuknow` with `.\immuknow.cmd` and enter each command
+on one line. For a separate installation, use its `immuknow` executable.
 Use the actual filename of your downloaded notice. Each assignment must name a
-notice present in `templates/`. `--project .` selects this project's configuration and templates. Results go
-to `runs/`; use `--output` to choose another output folder.
-ImmuKnow's [CSV guide](https://docs.phiz.ca/immuknow/latest/user_guide/input_schema/)
+notice present in `templates/`. Results go to `runs/`; use `--output` to select
+another folder.
+
+ImmuKnow’s [CSV guide](https://docs.phiz.ca/immuknow/latest/user_guide/input_schema/)
 explains the input fields; its [configuration guide](https://docs.phiz.ca/immuknow/latest/user_guide/configuration/)
-covers assignments, duplicate IDs and run settings. Template's
+covers assignments, duplicate IDs and run settings. Template’s
 [customization guide](https://github.com/WDGPH/ImmuKnow-Template/blob/main/README.md)
-explains its starter notices and project settings.
+explains the starter notices and project settings.
 
 ## Review the generated notices
 
@@ -118,16 +139,18 @@ Review the terminal summary, printed `records.csv` and `findings.csv` paths,
 and actual PDFs before delivery. A Studio preview checks layout with fictional
 examples; native runs use your supplied data. ImmuKnow's
 [review guide](https://docs.phiz.ca/immuknow/latest/user_guide/pdf_validation/)
-explains findings, delivery routes, holds and rebundling. Use `immuknow refresh-exports RUN_DIR` to repair derived CSV exports.
+explains findings, delivery routes, holds and rebundling. Use the launcher’s `refresh-exports RUN_DIR` command to repair derived CSV exports.
 Run files and PDFs contain client information and stay on your workstation under
 your organization's handling procedures.
 
 ## Update the executable
 
-Obtain the reviewed executable recorded in `immuknow-revision.txt`. Refresh the
-complete shared library with `immuknow project sync --replace`, then run
-`immuknow project check --sample` and inspect a retained sample run. Sync changes
-only `templates/lib/immuknow/`; keep your authored notices and configuration.
+Keep the runtime matching `immuknow-revision.txt`. For a new ImmuKnow revision,
+obtain a reviewed project and runtime together. Keep a copy of your authored
+notices, Settings, configuration and assets when moving changes into it.
+Do not substitute the latest executable into an older project without checking
+its shared-resource compatibility. See
+[ImmuKnow versions](architecture.md#immuknow-versions).
 
 ## Output filenames
 
