@@ -150,6 +150,9 @@ test("runtime archives are fetched only for an explicitly selected ready-to-run 
   page,
 }, info) => {
   const requests = watchRuntimes(page);
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "userAgentData", { value: undefined });
+  });
   await page.goto("./");
   await currentPreview(page);
   expect(requests).toEqual([]);
@@ -172,9 +175,44 @@ test("runtime archives are fetched only for an explicitly selected ready-to-run 
   expect(requests).toEqual([]);
 });
 
-test("the ready-to-run download uses the notebook proxy session", async ({ page }) => {
+test("a manual workstation choice takes precedence over delayed browser hints", async ({ page }) => {
+  await page.addInitScript(() => {
+    const hints = new Promise((resolve) => {
+      window.addEventListener("release-platform-hints", () => {
+        resolve({ architecture: "x86", bitness: "64" });
+      }, { once: true });
+    });
+    Object.defineProperty(navigator, "userAgentData", {
+      value: { platform: "Windows", getHighEntropyValues: () => hints },
+    });
+  });
+  await page.goto("./");
+  await currentPreview(page);
+  await openDownload(page, "runtime");
+  const platform = page.locator("#runtime-platform");
+  await platform.selectOption("macos-aarch64");
+  await page.evaluate(async () => {
+    window.dispatchEvent(new Event("release-platform-hints"));
+    await new Promise(requestAnimationFrame);
+  });
+  await expect(platform).toHaveValue("macos-aarch64");
+  await page.locator("#download-cancel").click();
+  await openDownload(page, "runtime");
+  await expect(platform).toHaveValue("macos-aarch64");
+});
+
+test("the detected Windows download uses the notebook proxy session", async ({ page }) => {
   const windows = pins.platforms.find((item) => item.id === "windows-x86_64");
   if (!windows) throw new Error("The reviewed Windows runtime is missing");
+  const requests = watchRuntimes(page);
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "userAgentData", {
+      value: {
+        platform: "Windows",
+        getHighEntropyValues: async () => ({ architecture: "x86", bitness: "64" }),
+      },
+    });
+  });
   await page.goto("./");
   await page.context().addCookies([
     { name: "studio-proxy-session", value: "test", url: page.url(), httpOnly: true },
@@ -190,7 +228,8 @@ test("the ready-to-run download uses the notebook proxy session", async ({ page 
 
   await currentPreview(page);
   await openDownload(page, "runtime");
-  await page.locator("#runtime-platform").selectOption(windows.id);
+  await expect(page.locator("#runtime-platform")).toHaveValue(windows.id);
+  expect(requests).toEqual([]);
   const { download, files } = await downloadFiles(page);
   expect(download.suggestedFilename()).toBe(`immuknow-project-${windows.id}.zip`);
   expect(decoder.decode(files["START-HERE.txt"])).toContain("Open run-sample.cmd");

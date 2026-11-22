@@ -8,10 +8,10 @@ Template checkout.
 
 ## Download and extract your project
 
-Open **Project → Download project**. Keep **Ready-to-run project** and choose
-the operating system and processor of the computer that will run ImmuKnow:
-Windows x64, macOS Apple silicon, macOS Intel or Linux x64. This may be a
-different computer from the one running Studio, so check the selection.
+Open **Project → Download project**. Keep **Ready-to-run project**. Studio
+fills in the operating system and processor when your browser provides them.
+Check that the selection matches the computer that will run ImmuKnow. Choose
+Windows x64, macOS Apple silicon, macOS Intel or Linux x64 as needed.
 
 Keep **Include fonts** selected to use the supplied fonts directly from the
 project. **Include fictional client data** supplies the selected preview client

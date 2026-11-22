@@ -1,7 +1,7 @@
 import "./style.css";
 import { initializeCodingCheatsheet } from "./coding-cheatsheet";
 import { archiveJob } from "./archive";
-import { fetchNativeRuntime, nativeRuntime, nativeRuntimes, nativeVersion } from "./native-runtime";
+import { detectNativeRuntime, fetchNativeRuntime, nativeRuntime, nativeRuntimes, nativeVersion } from "./native-runtime";
 import {
   imageBytes,
   imagePath,
@@ -751,6 +751,7 @@ const downloadDialog = byId<HTMLDialogElement>("download-dialog");
 const downloadForm = byId<HTMLFormElement>("download-form");
 const runtimeSelect = select("runtime-platform");
 let downloadAbort: AbortController | undefined;
+let runtimeChosen = false;
 for (const runtime of nativeRuntimes)
   runtimeSelect.add(new Option(runtime.label, runtime.id));
 function downloadKind() {
@@ -771,10 +772,11 @@ function refreshDownloadOptions() {
   downloadForm.setAttribute("aria-busy", String(exporting));
   const runtime = nativeRuntimes.find((item) => item.id === runtimeSelect.value);
   byId("runtime-description").textContent = runtime
-    ? `ImmuKnow ${nativeVersion}; about ${Math.ceil(runtime.size / 1_000_000)} MB plus project files. Downloaded when you choose Download ZIP.`
+    ? `ImmuKnow ${nativeVersion}, about ${Math.ceil(runtime.size / 1_000_000)} MB plus project files. Change the selection if you’ll run it on a different computer.`
     : "Choose the computer where you will run the project.";
 }
-byId("download-form").onchange = refreshDownloadOptions;
+downloadForm.onchange = refreshDownloadOptions;
+runtimeSelect.onchange = () => { runtimeChosen = true; };
 button("export").onclick = () => {
   byId("download-error").hidden = true;
   byId("download-status").hidden = true;
@@ -782,6 +784,12 @@ button("export").onclick = () => {
   refreshDownloadOptions();
   downloadDialog.showModal();
 };
+button("export").addEventListener("click", async () => {
+  const runtime = await detectNativeRuntime();
+  if (!runtime || runtimeChosen) return;
+  runtimeSelect.value = runtime.id;
+  refreshDownloadOptions();
+}, { once: true });
 button("download-cancel").onclick = () => {
   downloadAbort?.abort();
   downloadDialog.close();

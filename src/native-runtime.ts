@@ -6,6 +6,29 @@ export const nativeVersion = pins.version;
 export const nativeRevision = pins.revision;
 export type NativeRuntime = (typeof nativeRuntimes)[number];
 
+type PlatformHints = {
+  platform: string;
+  getHighEntropyValues: (hints: string[]) => Promise<{ architecture?: string; bitness?: string }>;
+};
+
+export async function detectNativeRuntime(): Promise<NativeRuntime | undefined> {
+  const { userAgentData } = navigator as Navigator & { userAgentData?: PlatformHints };
+  if (!userAgentData) return;
+
+  // Legacy user-agent strings can report an architecture different from the workstation's.
+  const platform = userAgentData.platform.toLowerCase();
+  const options = nativeRuntimes.filter((item) => item.id.startsWith(`${platform}-`));
+  if (!options.length) return;
+  try {
+    const { architecture, bitness } = await userAgentData.getHighEntropyValues(["architecture", "bitness"]);
+    if (bitness !== "64") return;
+    if (architecture === "x86") return options.find((item) => item.id === `${platform}-x86_64`);
+    if (architecture === "arm") return options.find((item) => item.id === `${platform}-aarch64`);
+  } catch {
+    // A browser may withhold these hints. The user can choose from the dropdown.
+  }
+}
+
 export function nativeRuntime(id: string, build: BuildInfo): NativeRuntime {
   if (
     build.immuknow_source_revision !== nativeRevision ||

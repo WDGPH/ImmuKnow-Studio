@@ -214,10 +214,10 @@ files remain usable with the matching native ImmuKnow engine.
 Open **Project → Download project** and choose the package you need:
 
 - **Ready-to-run project** includes your selected notice and its project files,
-  the matching native ImmuKnow release archive and launchers. Choose the
-  operating system and processor of the workstation that will run it. The
-  selection must match that workstation. Only the selected runtime is
-  fetched, when you request the download.
+  the matching native ImmuKnow release archive and launchers. Studio fills in
+  the operating system and processor when your browser provides them. Check
+  the selection against the workstation that will run ImmuKnow. Studio fetches
+  the selected runtime when you request the download.
 - **Project files only** includes the same authored project without a runtime or
   launchers. Use it with your existing matching ImmuKnow installation.
 - **Authored .typ files only** includes the active template, Settings and
