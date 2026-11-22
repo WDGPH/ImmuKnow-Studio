@@ -160,7 +160,6 @@ for (const [scenario, filename] of cases) {
     await downloadProject(page, scenario !== "missing-meningococcal");
     await (await projectDownload).saveAs(info.outputPath("typst-project.zip"));
     const files = unzipSync(readFileSync(info.outputPath("typst-project.zip")));
-    delete files["immuknow-project.json"];
     for (const [path, bytes] of Object.entries(files)) {
       if (
         path.startsWith("templates/fonts/") ||
@@ -182,9 +181,7 @@ for (const [scenario, filename] of cases) {
       template: `templates/${filename}`,
     });
     expect(Buffer.from(files["input/sample/sample_students.csv"]).toString("base64")).toBe(bundle.files[examples[index].csv]);
-    const source = JSON.parse(new TextDecoder().decode(files["template-source.json"]));
-    expect(source.repository).toBe("https://github.com/WDGPH/ImmuKnow-Template");
-    expect(source.revision).toMatch(/^[0-9a-f]{40}$/);
+    expect(files["template-source.json"]).toBeUndefined();
     expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toHaveLength(
       scenario === "missing-meningococcal" ? 0 : fontCount,
     );

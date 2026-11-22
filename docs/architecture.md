@@ -53,8 +53,8 @@ new source records or factual configuration require native preparation. A custom
 entry point without a prepared example remains exportable.
 
 Studio preserves authored file bytes and relative paths through drafts and
-downloads. The ZIP’s `immuknow-project.json` records the selected entry, format
-version, build identity and SHA-256 file hashes. Draft recovery checks format,
+downloads. Studio verifies shared component bytes before exporting a project.
+Draft recovery checks format,
 compiler and shared-resource compatibility. Authored files are limited to
 12 MiB each and 32 MiB in total; unsafe or duplicate paths are rejected.
 Project ZIP upload is unavailable.
@@ -115,9 +115,9 @@ projects whose shared bytes and formats still match.
 
 Build preparation combines Template’s authored starter files with ImmuKnow’s shared
 library. Downloads include the selected authored project and, when requested,
-Studio’s fictional inputs. Downloads supply native instructions without Python setup files and preserve files already
-present in compatible saved drafts. `template-source.json` identifies the upstream
-package source, while `immuknow-project.json` hashes the actual downloaded bytes.
+Studio’s fictional inputs. Studio uses `template-source.json` to verify the
+upstream package source during asset preparation. Downloads omit unchanged
+starter documentation and build metadata unless project sources reference them.
 
 
 ## ImmuKnow versions

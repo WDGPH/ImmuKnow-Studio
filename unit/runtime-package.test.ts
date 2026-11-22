@@ -109,7 +109,7 @@ describe("ready-to-run project export", () => {
     ).rejects.toThrow("integrity check");
   });
 
-  it("stores all ZIP entries and preserves the runtime bytes and authored project manifest", async () => {
+  it("stores all ZIP entries and preserves the runtime and authored bytes", async () => {
     expect(runtimeArchive.length).toBeGreaterThan(MAX_FILE);
     const projectOnly = unzipSync(await exportProject(files, template, build));
     const archivePath = `runtime/${runtime.filename}`;
@@ -125,16 +125,19 @@ describe("ready-to-run project export", () => {
     expect(exported[archivePath].length).toBe(runtimeArchive.length);
     expect(await sha256(exported[archivePath])).toBe(runtime.sha256);
     for (const [name, bytes] of Object.entries(projectOnly)) expect(exported[name]).toEqual(bytes);
-    const manifest = JSON.parse(decoder.decode(exported["immuknow-project.json"]));
-    expect(Object.keys(manifest.hashes).sort()).toEqual(Object.keys(files).sort());
+    expect(exported["immuknow-project.json"]).toBeUndefined();
+    expect(exported["runtime/manifest.json"]).toBeUndefined();
+    const guide = decoder.decode(exported["START-HERE.txt"]);
+    expect(guide).toContain("sh ./run-sample.sh");
+    expect(guide).toContain("sh ./immuknow run input/clients.csv");
     expect(exported.immuknow).toBeDefined();
     expect(exported["run-sample.sh"]).toBeDefined();
   });
 
   it("refuses runtime distribution paths that would replace authored files", async () => {
     for (const name of [
-      "START-HERE.md",
-      "start-here.md",
+      "START-HERE.txt",
+      "start-here.txt",
       "runtime",
       "Runtime/custom.txt",
       "immuknow/notes.txt",

@@ -14,7 +14,7 @@ async function download(page: Page, includeFictionalData?: boolean) {
   if (!(await menu.evaluate((element) => (element as HTMLDetailsElement).open)))
     await menu.locator("summary").click();
   const pending = page.waitForEvent("download");
-  await downloadProject(page, undefined, includeFictionalData);
+  await downloadProject(page, false, includeFictionalData);
   return unzipSync(readFileSync((await (await pending).path()) as string));
 }
 
@@ -36,19 +36,15 @@ test("fictional data can be omitted without affecting editing or the saved draft
   const included = await download(page, true);
   expect(included["sample.json"]).toBeDefined();
   // Compatible older drafts may already contain the supplied sample.
-  const includedDraft = { ...included };
-  delete includedDraft["immuknow-project.json"];
-  await restoreAuthoredDraft(page, includedDraft, bundle.build, "templates/overdue_diseases.en.typ");
+  await restoreAuthoredDraft(page, included, bundle.build, "templates/overdue_diseases.en.typ");
   await current(page);
   const omitted = await download(page, false);
   expect(Object.keys(omitted).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   expect(Object.keys(omitted).filter((path) => path.startsWith("input/sample/"))).toEqual([]);
   expect(omitted["sample.json"]).toBeUndefined();
-  for (const path of ["templates/overdue_diseases.en.typ", "templates/settings.typ", "README.md", "immuknow-revision.txt"])
+  for (const path of ["templates/overdue_diseases.en.typ", "templates/settings.typ", "immuknow-revision.txt"])
     expect(omitted[path]).toEqual(included[path]);
-  const omittedDraft = { ...omitted };
-  delete omittedDraft["immuknow-project.json"];
-  await restoreAuthoredDraft(page, omittedDraft, bundle.build, "templates/overdue_diseases.en.typ");
+  await restoreAuthoredDraft(page, omitted, bundle.build, "templates/overdue_diseases.en.typ");
   await current(page);
   const restored = await download(page, true);
   expect(restored["input/sample/sample_students.csv"]).toEqual(included["input/sample/sample_students.csv"]);
@@ -158,14 +154,13 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   // Existing drafts with a scoped file set still preserve authored work.
   const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
-  const scopedDraft = { ...files };
-  delete scopedDraft["immuknow-project.json"];
-  await restoreAuthoredDraft(page, scopedDraft, bundle.build, sample.template);
+  await restoreAuthoredDraft(page, files, bundle.build, sample.template);
   await current(page);
   await expect(page.locator("#template option")).toHaveCount(
     1,
   );
   await expect(page.locator("#example")).toHaveText("Example client 01");
+  await page.locator(".cm-content").press("Control+End");
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");
   await page.locator("#next").click();
   await current(page);

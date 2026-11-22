@@ -243,7 +243,7 @@ needed. Clear **Include fonts** for a smaller download when the matching fonts
 are already available on the workstation. Studio removes only byte-identical
 copies of its supplied font files; custom font files remain in the download.
 
-Extract the complete ready-to-run ZIP and follow `START-HERE.md`. Its launcher
+Extract the complete ready-to-run ZIP and open `START-HERE.txt`. Its launcher
 unpacks the included release archive on first use; it requires no further
 network download. The native executable is pinned to the project’s reviewed
 ImmuKnow revision. See [Use projects on your workstation](local-production.md)
@@ -255,10 +255,9 @@ project and browser draft remain available. If the project changes while a ZIP
 is being prepared, download it again. Unfinished edits or a notice without a
 prepared example can still be saved.
 
-`immuknow-project.json` records the selected entry, build identity and SHA-256
-hashes of the project files. The authored project retains its 12 MiB per-file
-and 32 MiB total limits. Runtime packaging is separate: executables never enter
-editable project files, saved drafts or the browser compiler.
+Downloads omit unchanged starter instructions and browser build records.
+The authored project retains its 12 MiB per-file and 32 MiB total limits.
+Executables stay out of editable files, saved drafts and the browser compiler.
 
 **Authored .typ files only** creates `immuknow-typst.zip`. Shared ImmuKnow
 components, fonts, images, CSV/JSON data and native setup instructions are

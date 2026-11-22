@@ -1,5 +1,5 @@
 import type { Zippable } from "fflate";
-import { nativeRevision, nativeVersion, type NativeRuntime } from "./native-runtime";
+import { nativeVersion, type NativeRuntime } from "./native-runtime";
 import { encoder } from "./project";
 
 function unixLauncher(runtime: NativeRuntime, directory: string): string {
@@ -101,69 +101,22 @@ export function runtimePackage(
       ),
       executable,
     ],
-    "runtime/manifest.json": encoder.encode(
-      `${JSON.stringify(
-        {
-          schemaVersion: 1,
-          version: nativeVersion,
-          revision: nativeRevision,
-          ...runtime,
-        },
-        null,
-        2,
-      )}\n`,
-    ),
-    "START-HERE.md": encoder.encode(`# Run this ImmuKnow project
+    "START-HERE.txt": encoder.encode(`ImmuKnow ${nativeVersion} for ${runtime.label}
 
-This package includes ImmuKnow ${nativeVersion} for **${runtime.label}**.
-Extract the complete ZIP to a writable folder before running anything. Keep the
-project files, launchers and runtime folder together. Use a package for the
-computer where you will run the project, which may differ from your browser.
+Extract the whole ZIP to a folder. Keep the extracted files together.
+${hasSample ? `
+Try the fictional sample
+${windows || mac ? `Open ${sample} in the extracted folder.` : `Open a terminal in the extracted folder and run sh ./${sample}.`}
+Open runs/ to find the output. Review the findings before using any notices.
+` : ""}
+Use your own CSV
+Open a terminal in the extracted folder. Replace input/clients.csv below
+with the path to your CSV.
 
-${
-  hasSample
-    ? `## Try the fictional sample
-
-${windows || mac ? `Open \`${sample}\` to generate the selected fictional client's notice.` : `From a terminal in this folder, run \`sh ./${sample}\`.`}
-The launcher extracts the bundled executable on first use. Review the command's
-summary, findings and files under \`runs/\`. A fictional client may not meet a
-notice's requirements; read the findings if the run fails.
-`
-    : `No fictional sample was included. Supply your own CSV using the command below.
-`
-}
-## Use your own CSV
-
-Open a terminal in this folder and run:
-
-\`\`\`${windows ? "powershell" : "sh"}
-${command} project check
 ${command} run input/clients.csv --template ${templateArgument}
-\`\`\`
 
-Replace \`input/clients.csv\` with your CSV path. The launcher runs from this
-project folder and forwards all command arguments. It uses any fonts in
-\`templates/fonts\` without installing them; keep other fonts used by your notice
-available on the workstation. Python, uv and a separate Typst installation are
-not needed. The first extraction uses ${windows ? "Windows PowerShell's Expand-Archive" : "tar"}.
-${windows ? "" : "If your ZIP extractor does not keep executable permissions, use the `sh ./immuknow` command shown above.\n"}
-These releases are unsigned, and macOS releases are not notarized. Your operating
-system or organization's security policy may require approval before execution.
-Use your normal local approval process if execution is blocked.
-
-## Keep and review your work
-
-Studio keeps an editable draft in your browser. This download preserves authored
-source files for local use; Studio currently has no project import feature.
-The existing project README describes the template and native workflow;
-\`START-HERE.md\` supplies the commands for this bundled runtime.
-
-The official release archive and its licence are retained under \`runtime/\`.
-\`runtime/manifest.json\` records the release, exact source revision, platform,
-archive size and SHA-256. \`immuknow-project.json\` records the authored project.
-Native source revision: \`${nativeRevision}\`.
-
-See https://docs.phiz.ca/immuknow/latest/ for native inputs and output review.
+Help and input requirements
+https://docs.phiz.ca/immuknow/latest/
 `),
   };
   if (hasSample) entries[sample] = [encoder.encode(sampleLauncher(windows, mac)), executable];

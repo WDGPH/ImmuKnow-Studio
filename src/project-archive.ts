@@ -1,43 +1,18 @@
 import { zipSync } from "fflate";
 import { authoredTypstFiles } from "./project-actions";
 import { verifyComponents } from "./component-resources";
-import { decoder, encoder, sha256, validateFiles, validateTemplate } from "./project";
+import { decoder, sha256, validateFiles, validateTemplate } from "./project";
 import { nativeRevision, nativeRuntime } from "./native-runtime";
 import { runtimePackage } from "./runtime-package";
 import type { BuildInfo, Files } from "./types";
 
-const manifestName = "immuknow-project.json";
 // fflate can emit DEFLATE blocks that Windows Explorer rejects. See fflate#296.
 const zipOptions = { level: 0 } as const;
 
-async function projectFiles(files: Files, template: string, build: BuildInfo): Promise<Files> {
+function checkProject(files: Files, template: string, build: BuildInfo): Promise<void> {
   validateFiles(files);
   validateTemplate(files, template);
-  await verifyComponents(files, build);
-  if (Object.hasOwn(files, manifestName))
-    throw new Error(`${manifestName} is reserved for the generated project manifest.`);
-  const hashes = Object.fromEntries(
-    await Promise.all(
-      Object.entries(files).map(async ([name, value]) => [name, await sha256(value)]),
-    ),
-  );
-  const project = {
-    ...files,
-    [manifestName]: encoder.encode(
-      `${JSON.stringify(
-        {
-          schemaVersion: 1,
-          build,
-          template,
-          hashes,
-        },
-        null,
-        2,
-      )}\n`,
-    ),
-  };
-  validateFiles(project);
-  return project;
+  return verifyComponents(files, build);
 }
 
 export function exportTypstFiles(files: Files, template: string): Uint8Array {
@@ -49,7 +24,8 @@ export async function exportProject(
   template: string,
   build: BuildInfo,
 ): Promise<Uint8Array> {
-  return zipSync(await projectFiles(files, template, build), zipOptions);
+  await checkProject(files, template, build);
+  return zipSync(files, zipOptions);
 }
 
 export async function exportRuntimeProject(
@@ -71,10 +47,10 @@ export async function exportRuntimeProject(
     throw new Error(
       "The runtime download failed its integrity check. Retry, or choose Project files only.",
     );
-  const project = await projectFiles(files, template, build);
+  await checkProject(files, template, build);
   const distribution = runtimePackage(runtime, archive, template, !!files["sample.json"]);
   const reserved = new Set(Object.keys(distribution).map((name) => name.toLowerCase()));
-  for (const name of Object.keys(project)) {
+  for (const name of Object.keys(files)) {
     const normalized = name.normalize("NFC").toLowerCase();
     if (
       normalized === "runtime" ||
@@ -85,5 +61,5 @@ export async function exportRuntimeProject(
         `The bundled runtime would replace ${name}. Choose Project files only to preserve that file.`,
       );
   }
-  return zipSync({ ...project, ...distribution }, zipOptions);
+  return zipSync({ ...files, ...distribution }, zipOptions);
 }

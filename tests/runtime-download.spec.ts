@@ -165,7 +165,7 @@ test("runtime archives are fetched only for an explicitly selected ready-to-run 
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.locator('input[name="download-kind"][value="project"]').check();
   const project = await downloadFiles(page);
-  expect(project.files["immuknow-project.json"]).toBeDefined();
+  expect(project.files["sample.json"]).toBeDefined();
   await openDownload(page, "typst");
   const source = await downloadFiles(page);
   expect(Object.keys(source.files).every((path) => path.endsWith(".typ"))).toBe(true);
@@ -193,6 +193,7 @@ test("the ready-to-run download uses the notebook proxy session", async ({ page 
   await page.locator("#runtime-platform").selectOption(windows.id);
   const { download, files } = await downloadFiles(page);
   expect(download.suggestedFilename()).toBe(`immuknow-project-${windows.id}.zip`);
+  expect(decoder.decode(files["START-HERE.txt"])).toContain("Open run-sample.cmd");
   expect(createHash("sha256").update(files[`runtime/${windows.filename}`]).digest("hex")).toBe(
     windows.sha256,
   );
@@ -212,6 +213,7 @@ test("the Linux ready-to-run project preserves authored files and runs its bundl
   await page.locator(".cm-content").press("Control+End");
   await page.keyboard.insertText("\n// Preserve this authored runtime download marker");
   await currentPreview(page);
+  const template = await page.locator("#template").inputValue();
   await openDownload(page, "project");
   const project = await downloadFiles(page);
   expect(requests).toEqual([]);
@@ -223,27 +225,19 @@ test("the Linux ready-to-run project preserves authored files and runs its bundl
   await expect(page.locator("#export")).toBeEnabled();
   expect(requests).toHaveLength(1);
   expect(requests[0]).toContain(`/generated/runtimes/${linux.filename}`);
-  expect(Buffer.from(bundled.files[`runtime/${linux.filename}`])).toEqual(
-    readFileSync(stagedArchive),
-  );
+  const archive = bundled.files[`runtime/${linux.filename}`];
+  expect(createHash("sha256").update(archive).digest("hex")).toBe(linux.sha256);
   for (const [path, bytes] of Object.entries(project.files))
-    expect(bundled.files[path], path).toEqual(bytes);
-  for (const name of ["immuknow", "run-sample.sh", "START-HERE.md", "runtime/manifest.json"])
+    expect(Buffer.from(bundled.files[path]).equals(bytes), path).toBe(true);
+  for (const name of ["immuknow", "run-sample.sh", "START-HERE.txt"])
     expect(bundled.files[name], name).toBeDefined();
-  expect(Object.keys(bundled.files).filter((path) => path.startsWith("runtime/"))).toHaveLength(2);
-  const manifest = JSON.parse(decoder.decode(bundled.files["immuknow-project.json"]));
-  expect(decoder.decode(bundled.files[manifest.template])).toContain(
+  expect(Object.keys(bundled.files).filter((path) => path.startsWith("runtime/"))).toEqual([
+    `runtime/${linux.filename}`,
+  ]);
+  expect(bundled.files["immuknow-project.json"]).toBeUndefined();
+  expect(decoder.decode(bundled.files[template])).toContain(
     "authored runtime download marker",
   );
-  const hashes = manifest.hashes as Record<string, string>;
-  for (const [path, hash] of Object.entries(hashes))
-    expect(createHash("sha256").update(bundled.files[path]).digest("hex"), path).toBe(hash);
-  expect(Object.keys(hashes).some((path) => path.startsWith("runtime/"))).toBe(false);
-  expect(JSON.parse(decoder.decode(bundled.files["runtime/manifest.json"]))).toMatchObject({
-    revision: pins.revision,
-    version: pins.version,
-    ...linux,
-  });
   await bundled.download.saveAs(info.outputPath("ready-to-run-linux.zip"));
   runBundledProject(info.outputPath("ready-to-run-linux.zip"), info);
 });
@@ -283,7 +277,7 @@ for (const failure of ["missing", "corrupt"]) {
     );
     await page.locator('input[name="download-kind"][value="project"]').check();
     const project = await downloadFiles(page);
-    expect(project.files["immuknow-project.json"]).toBeDefined();
+    expect(project.files["sample.json"]).toBeDefined();
     expect(Object.keys(project.files).some((path) => path.startsWith("runtime/"))).toBe(false);
     expect(downloads).toEqual(["immuknow-project.zip"]);
   });

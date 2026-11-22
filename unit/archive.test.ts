@@ -51,16 +51,9 @@ function unzipStored(bytes: Uint8Array) {
 }
 
 describe("current project archives", () => {
-  it("preserves authored bytes and records their hashes", async () => {
+  it("preserves authored files without adding download metadata", async () => {
     const archive = unzipStored(await exportProject(files, template, build));
-    const manifest = JSON.parse(new TextDecoder().decode(archive["immuknow-project.json"]));
-    expect(manifest.template).toBe(template);
-    expect(manifest.build).toEqual(build);
-    expect(Object.keys(manifest.hashes).sort()).toEqual(Object.keys(files).sort());
-    for (const [path, bytes] of Object.entries(files)) {
-      expect(archive[path]).toEqual(bytes);
-      expect(manifest.hashes[path]).toBe(await sha256(bytes));
-    }
+    expect(archive).toEqual(files);
   });
 
   it("rejects unsafe, duplicate and oversized project files before export", async () => {

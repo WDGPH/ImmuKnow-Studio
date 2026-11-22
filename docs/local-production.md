@@ -20,23 +20,20 @@ CSV and notice selection. Custom sample data already in a compatible saved
 draft is preserved.
 
 Download and extract the complete ZIP into a folder you control. Open
-`START-HERE.md` for the platform-specific commands. Keep the directory structure
+`START-HERE.txt` for the platform-specific commands. Keep the directory structure
 and relative paths together, and leave `templates/lib/immuknow/` unchanged.
 
 | Item | Purpose |
 | --- | --- |
-| `START-HERE.md` | Instructions for the included runtime and launchers |
+| `START-HERE.txt` | How to run the sample or use your own CSV |
 | `immuknow.cmd` or `immuknow` | Launcher for native ImmuKnow commands |
 | `run-sample.cmd`, `run-sample.command` or `run-sample.sh` | Run the selected fictional sample, when `sample.json` is present |
 | `runtime/` | Pinned official release archive; the executable is unpacked here on first use |
 | `immuknow-revision.txt` | Reviewed native ImmuKnow source revision |
-| `README.md` | Template’s native setup and notice guidance |
 | `templates/` | Selected notice, Settings, supporting files, images and shared components |
 | `config/` | Configuration for native runs |
 | `input/sample/`, `sample.json` | Selected fictional client and notice, when included |
 | `templates/fonts/` | Fonts and licences used by the launchers, when included |
-| `template-source.json` | Template source commit and original scaffold hashes |
-| `immuknow-project.json` | Selected notice, Studio build identity and current project file hashes |
 
 The native archive is fetched only when you request the download. Studio verifies
 its pinned size and checksum before packaging it. No further network download

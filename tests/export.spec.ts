@@ -144,12 +144,15 @@ test("project download preserves authored text and includes fonts by default", a
   expect(new TextDecoder().decode(files[template])).toContain(
     '\n#text("Explicit export marker 8f7c")',
   );
-  expect(Object.keys(files)).toContain("immuknow-project.json");
+  for (const path of ["immuknow-project.json", ".gitignore", "README.md", "build.json", "template-source.json", "examples/README.md"])
+    expect(files[path], path).toBeUndefined();
   expect(Object.keys(files).some((path) => path.startsWith("templates/lib/"))).toBe(true);
   expect(
     Object.keys(files).some((path) => path.startsWith("templates/fonts/") && path.endsWith(".ttf")),
   ).toBe(true);
   expect(Object.keys(files)).toContain("templates/fonts/LICENSE");
+  for (const name of ["manifest.json", "families.json", "UPSTREAM.json"])
+    expect(files[`templates/fonts/${name}`], name).toBeUndefined();
   await expect(page.locator("#pdf, #source, #python-project, #import, #archive")).toHaveCount(0);
   expect((await probeState(page)).requests).toBe(1);
   await expect(page.locator("#export")).toBeEnabled();
@@ -182,7 +185,7 @@ test("a smaller download omits supplied fonts without changing the open project"
   expect(smaller).toBeTruthy();
   const files = unzipSync(readFileSync(smaller as string));
   expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toEqual([]);
-  expect(files["templates/fonts/LICENSE"]).toBeDefined();
+  expect(files["templates/fonts/LICENSE"]).toBeUndefined();
   expect(files["templates/lib/immuknow/lib.typ"]).toBeDefined();
   expect(readFileSync(smaller as string).length).toBeLessThan(readFileSync(original as string).length);
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");

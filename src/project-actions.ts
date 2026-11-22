@@ -21,6 +21,14 @@ import type { Bundle, Example, Files } from "./types";
 
 export type ResetScope = "template" | "settings" | "theme";
 
+const scaffoldExtras = new Set([
+  ".gitignore",
+  "README.md",
+  "build.json",
+  "examples/README.md",
+  "template-source.json",
+]);
+
 // Follow existing project files named by simple quoted strings in Typst source.
 // This conservative scan can include extra files; it does not rewrite source.
 export function referencedFiles(files: Files, entry: string): Set<string> {
@@ -179,15 +187,12 @@ export function currentProject(
   }
   const otherInputs = new Set(examples.map((item) => item.csv));
   const result = Object.fromEntries(
-    Object.entries(files).filter(([path]) => {
-      if (path === sharedCsv)
-        return required.has(path) || !starters[path] || !sameBytes(files[path], starters[path]);
+    Object.entries(files).filter(([path, bytes]) => {
       if (required.has(path)) return true;
-      if (path.startsWith("templates/") && !path.startsWith("templates/lib/immuknow/") &&
-          !path.startsWith("templates/fonts/") && starters[path] && sameBytes(files[path], starters[path]))
-        return false;
-      if (otherInputs.has(path)) return !starters[path] || !sameBytes(files[path], starters[path]);
-      return true;
+      const omitIfUnchanged = path === sharedCsv || otherInputs.has(path) || scaffoldExtras.has(path) ||
+        (path.startsWith("templates/") && !path.startsWith("templates/lib/immuknow/") &&
+          !path.startsWith("templates/fonts/"));
+      return !omitIfUnchanged || !sameBytes(starters[path], bytes);
     }),
   );
   if (!result["sample.json"] && includeFictionalData && fictionalCsv) {
@@ -210,8 +215,9 @@ export function currentProject(
     const templateSource = JSON.parse(decoder.decode(templateSourceBytes)) as {
       files: Record<string, string>;
     };
-    for (const path of [...Object.keys(templateSource.files), "template-source.json"]) {
+    for (const path of Object.keys(templateSource.files)) {
       safePath(path);
+      if (scaffoldExtras.has(path)) continue;
       if (path.startsWith("templates/") || path.startsWith("config/") || path === "sample.json" || path.startsWith("input/sample/")) continue;
       if (!result[path] && starters[path]) result[path] = starters[path];
     }

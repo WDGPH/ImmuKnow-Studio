@@ -18,7 +18,7 @@ Production notice generation runs with ImmuKnow on your local workstation.
 In Studio, open **Project** at the top-right of the webpage and choose
 **Download project**. Keep **Ready-to-run project**, select the operating system
 and processor of the workstation that will run ImmuKnow, and download the ZIP.
-Extract it and follow `START-HERE.md`. The included launchers unpack the matching
+Extract it and open `START-HERE.txt`. The included launchers unpack the matching
 ImmuKnow executable and use the included fonts locally.
 
 Setup, checks and production runs require no Python, uv or separate Typst

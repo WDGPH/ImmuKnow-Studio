@@ -78,9 +78,29 @@ test("legacy downloads gain the pinned scaffold without overwriting authored set
   expect(result["README.md"]).toBe(files["README.md"]);
   expect(result["scripts/run.py"]).toBe(files["scripts/run.py"]);
   expect(result["immuknow-revision.txt"]).toBe(starters["immuknow-revision.txt"]);
-  expect(result["template-source.json"]).toBe(starters["template-source.json"]);
+  expect(result["template-source.json"]).toBeUndefined();
   expect(result["templates/other.fr.typ"]).toBeUndefined();
   expect(result["config/new.json"]).toBeUndefined();
+});
+
+test("downloads omit unchanged scaffold extras and keep edited or referenced copies", () => {
+  const extras = [".gitignore", "README.md", "build.json", "examples/README.md", "template-source.json"];
+  const starters = {
+    ...baseline,
+    ...Object.fromEntries(extras.map((path) => [path, encoder.encode(path)])),
+    "template-source.json": encoder.encode(JSON.stringify({ files: {} })),
+  };
+  const standard = currentProject(starters, template, [], undefined, starters);
+  for (const path of extras) expect(standard[path]).toBeUndefined();
+
+  const authored = {
+    ...starters,
+    [template]: encoder.encode('#read("../README.md")'),
+    "examples/README.md": encoder.encode("My sample instructions"),
+  };
+  const download = currentProject(authored, template, [], undefined, starters);
+  expect(download["README.md"]).toBe(authored["README.md"]);
+  expect(download["examples/README.md"]).toBe(authored["examples/README.md"]);
 });
 
 test("sample export preserves an existing CSV at the conventional path", () => {
