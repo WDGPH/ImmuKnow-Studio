@@ -50,6 +50,11 @@ class RuntimePreparationTest(unittest.TestCase):
         ) as fetch:
             prepare_runtimes.prepare()
             self.assertEqual(fetch.call_count, 4)
+            self.assertEqual(
+                {path.name for path in self.output.iterdir()},
+                {f"{asset['filename']}.bin" for asset in self.record["platforms"]}
+                | {"manifest.json"},
+            )
             self.assertTrue(
                 all(
                     call.args[0].full_url.startswith(
@@ -62,7 +67,7 @@ class RuntimePreparationTest(unittest.TestCase):
             prepare_runtimes.verify()
             prepare_runtimes.prepare()
             fetch.assert_not_called()
-            path = self.output / self.record["platforms"][0]["filename"]
+            path = self.output / f"{self.record['platforms'][0]['filename']}.bin"
             path.write_bytes(b"x" * len(self.payload))
             with self.assertRaisesRegex(ValueError, "Missing or changed runtime"):
                 prepare_runtimes.verify()

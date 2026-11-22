@@ -113,10 +113,11 @@ source rebuild after the cache preparation step.
 
 `native-runtimes.json` pins the four native release archives by exact ImmuKnow
 revision, version, filename, size and SHA-256 digest. `build:site` stages these
-under ignored `public/generated/runtimes/`, reusing verified local files. Run
+under ignored `public/generated/runtimes/` with a `.bin` suffix so local servers
+send the archive bytes. Builds reuse verified local files. Run
 `npm run prepare:runtimes` to prepare them explicitly before using `npm run dev`
-or `npm run build` directly. Runtime archives remain unchanged from the upstream
-release; the browser fetches just the selected platform when downloading.
+or `npm run build` directly. The project ZIP keeps the official archive names
+and bytes. The browser fetches just the selected platform when downloading.
 CI caches the archives separately and prepares them before the site build.
 `--require-prepared-toolchain` also requires those verified runtime assets and
 does not fetch missing archives.

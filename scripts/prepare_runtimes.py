@@ -97,6 +97,11 @@ def matches(path: Path, asset: RuntimeAsset) -> bool:
     return digest.hexdigest() == asset["sha256"]
 
 
+def staged_filename(asset: RuntimeAsset) -> str:
+    # Vite serves names ending in .gz as HTTP gzip content.
+    return f"{asset['filename']}.bin"
+
+
 def download(asset: RuntimeAsset, version: str, destination: Path) -> None:
     url = (
         "https://github.com/WDGPH/ImmuKnow/releases/download/"
@@ -135,7 +140,7 @@ def verify() -> None:
         raise ValueError("Native runtime directory must not be linked")
     message = "Run npm run prepare:runtimes to prepare the pinned native runtimes."
     for asset in record["platforms"]:
-        if not matches(destination / asset["filename"], asset):
+        if not matches(destination / staged_filename(asset), asset):
             raise ValueError(
                 f"Missing or changed runtime: {asset['filename']}. {message}"
             )
@@ -153,11 +158,11 @@ def prepare() -> None:
     manifest = destination / "manifest.json"
     manifest.unlink(missing_ok=True)
     for asset in record["platforms"]:
-        path = destination / asset["filename"]
+        path = destination / staged_filename(asset)
         if not matches(path, asset):
             print(f"Downloading pinned native runtime: {asset['filename']}", flush=True)
             download(asset, record["version"], path)
-    expected = {asset["filename"] for asset in record["platforms"]}
+    expected = {staged_filename(asset) for asset in record["platforms"]}
     for path in destination.iterdir():
         if path.name not in expected:
             if path.is_dir() and not path.is_symlink():

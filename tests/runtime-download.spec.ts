@@ -24,8 +24,8 @@ const pins: { version: string; revision: string; platforms: NativeRuntime[] } = 
 const runtime = pins.platforms.find((item) => item.id === "linux-x86_64");
 if (!runtime) throw new Error("The reviewed Linux runtime is missing");
 const linux = runtime;
-const runtimeRoute = `**/generated/runtimes/${linux.filename}`;
-const stagedArchive = resolve("public/generated/runtimes", linux.filename);
+const runtimeRoute = `**/generated/runtimes/${linux.filename}.bin`;
+const stagedArchive = resolve("public/generated/runtimes", `${linux.filename}.bin`);
 const decoder = new TextDecoder();
 
 test.use({ actionTimeout: 15_000 });
@@ -217,7 +217,7 @@ test("the detected Windows download uses the notebook proxy session", async ({ p
   await page.context().addCookies([
     { name: "studio-proxy-session", value: "test", url: page.url(), httpOnly: true },
   ]);
-  await page.route(`**/generated/runtimes/${windows.filename}`, async (route) => {
+  await page.route(`**/generated/runtimes/${windows.filename}.bin`, async (route) => {
     const cookie = await route.request().headerValue("cookie");
     if (cookie?.split("; ").includes("studio-proxy-session=test")) {
       await route.continue();
@@ -263,7 +263,7 @@ test("the Linux ready-to-run project preserves authored files and runs its bundl
   await expect(page.locator("#download-dialog")).not.toBeVisible();
   await expect(page.locator("#export")).toBeEnabled();
   expect(requests).toHaveLength(1);
-  expect(requests[0]).toContain(`/generated/runtimes/${linux.filename}`);
+  expect(requests[0]).toContain(`/generated/runtimes/${linux.filename}.bin`);
   const archive = bundled.files[`runtime/${linux.filename}`];
   expect(createHash("sha256").update(archive).digest("hex")).toBe(linux.sha256);
   for (const [path, bytes] of Object.entries(project.files))

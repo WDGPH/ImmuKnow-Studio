@@ -50,7 +50,7 @@ export async function fetchNativeRuntime(
 ): Promise<Uint8Array> {
   const timeout = AbortSignal.timeout(120_000);
   const response = await fetch(
-    `${import.meta.env.BASE_URL}generated/runtimes/${runtime.filename}`,
+    `${import.meta.env.BASE_URL}generated/runtimes/${runtime.filename}.bin`,
     {
       signal: AbortSignal.any([signal, timeout]),
       credentials: "same-origin",
