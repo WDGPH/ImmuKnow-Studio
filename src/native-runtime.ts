@@ -30,7 +30,7 @@ export async function fetchNativeRuntime(
     `${import.meta.env.BASE_URL}generated/runtimes/${runtime.filename}`,
     {
       signal: AbortSignal.any([signal, timeout]),
-      credentials: "omit",
+      credentials: "same-origin",
     },
   );
   if (!response.ok || !response.body)

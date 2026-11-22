@@ -172,6 +172,32 @@ test("runtime archives are fetched only for an explicitly selected ready-to-run 
   expect(requests).toEqual([]);
 });
 
+test("the ready-to-run download uses the notebook proxy session", async ({ page }) => {
+  const windows = pins.platforms.find((item) => item.id === "windows-x86_64");
+  if (!windows) throw new Error("The reviewed Windows runtime is missing");
+  await page.goto("./");
+  await page.context().addCookies([
+    { name: "studio-proxy-session", value: "test", url: page.url(), httpOnly: true },
+  ]);
+  await page.route(`**/generated/runtimes/${windows.filename}`, async (route) => {
+    const cookie = await route.request().headerValue("cookie");
+    if (cookie?.split("; ").includes("studio-proxy-session=test")) {
+      await route.continue();
+    } else {
+      await route.fulfill({ contentType: "text/html", body: "<title>Sign in</title>" });
+    }
+  });
+
+  await currentPreview(page);
+  await openDownload(page, "runtime");
+  await page.locator("#runtime-platform").selectOption(windows.id);
+  const { download, files } = await downloadFiles(page);
+  expect(download.suggestedFilename()).toBe(`immuknow-project-${windows.id}.zip`);
+  expect(createHash("sha256").update(files[`runtime/${windows.filename}`]).digest("hex")).toBe(
+    windows.sha256,
+  );
+});
+
 test("the Linux ready-to-run project preserves authored files and runs its bundled sample", async ({
   page,
 }, info) => {
