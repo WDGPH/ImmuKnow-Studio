@@ -7,6 +7,8 @@ import { runtimePackage } from "./runtime-package";
 import type { BuildInfo, Files } from "./types";
 
 const manifestName = "immuknow-project.json";
+// fflate can emit DEFLATE blocks that Windows Explorer rejects. See fflate#296.
+const zipOptions = { level: 0 } as const;
 
 async function projectFiles(files: Files, template: string, build: BuildInfo): Promise<Files> {
   validateFiles(files);
@@ -39,7 +41,7 @@ async function projectFiles(files: Files, template: string, build: BuildInfo): P
 }
 
 export function exportTypstFiles(files: Files, template: string): Uint8Array {
-  return zipSync(authoredTypstFiles(files, template), { level: 6 });
+  return zipSync(authoredTypstFiles(files, template), zipOptions);
 }
 
 export async function exportProject(
@@ -47,7 +49,7 @@ export async function exportProject(
   template: string,
   build: BuildInfo,
 ): Promise<Uint8Array> {
-  return zipSync(await projectFiles(files, template, build), { level: 6 });
+  return zipSync(await projectFiles(files, template, build), zipOptions);
 }
 
 export async function exportRuntimeProject(
@@ -83,5 +85,5 @@ export async function exportRuntimeProject(
         `The bundled runtime would replace ${name}. Choose Project files only to preserve that file.`,
       );
   }
-  return zipSync({ ...project, ...distribution }, { level: 6 });
+  return zipSync({ ...project, ...distribution }, zipOptions);
 }

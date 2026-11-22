@@ -41,9 +41,18 @@ const files: Files = {
   "templates/assets/authored.png": new Uint8Array([0, 1, 255, 2, 3]),
 };
 
+function unzipStored(bytes: Uint8Array) {
+  return unzipSync(bytes, {
+    filter: ({ compression }) => {
+      expect(compression).toBe(0);
+      return true;
+    },
+  });
+}
+
 describe("current project archives", () => {
   it("preserves authored bytes and records their hashes", async () => {
-    const archive = unzipSync(await exportProject(files, template, build));
+    const archive = unzipStored(await exportProject(files, template, build));
     const manifest = JSON.parse(new TextDecoder().decode(archive["immuknow-project.json"]));
     expect(manifest.template).toBe(template);
     expect(manifest.build).toEqual(build);
@@ -127,7 +136,7 @@ describe("Typst-only downloads", () => {
       "config/input.json": encoder.encode('{}'),
       "scripts/run.py": encoder.encode('print("run")'),
     };
-    const exported = unzipSync(exportTypstFiles(source, template));
+    const exported = unzipStored(exportTypstFiles(source, template));
     const expected = [template, "templates/settings.typ", "templates/custom/helper.typ",
       "config/phrases.typ", "templates/custom/style.typ"];
     expect(Object.keys(exported).sort()).toEqual(expected.sort());

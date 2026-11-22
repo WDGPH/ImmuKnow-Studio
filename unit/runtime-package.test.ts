@@ -109,21 +109,19 @@ describe("ready-to-run project export", () => {
     ).rejects.toThrow("integrity check");
   });
 
-  it("stores the unchanged native archive separately and preserves the authored project manifest", async () => {
+  it("stores all ZIP entries and preserves the runtime bytes and authored project manifest", async () => {
     expect(runtimeArchive.length).toBeGreaterThan(MAX_FILE);
     const projectOnly = unzipSync(await exportProject(files, template, build));
     const archivePath = `runtime/${runtime.filename}`;
-    let compression = -1;
     const exported = unzipSync(
       await exportRuntimeProject(files, template, build, runtime.id, runtimeArchive),
       {
-        filter: (entry) => {
-          if (entry.name === archivePath) compression = entry.compression;
+        filter: ({ compression }) => {
+          expect(compression).toBe(0);
           return true;
         },
       },
     );
-    expect(compression).toBe(0);
     expect(exported[archivePath].length).toBe(runtimeArchive.length);
     expect(await sha256(exported[archivePath])).toBe(runtime.sha256);
     for (const [name, bytes] of Object.entries(projectOnly)) expect(exported[name]).toEqual(bytes);
