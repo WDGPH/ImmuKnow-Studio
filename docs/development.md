@@ -85,16 +85,15 @@ Browser compiler/renderer source revisions and Rust/bindgen pins in
 
 ## Install and build
 
-Use Linux, Python 3.11 or later, uv, Node.js 24 or later and npm. The native
-ImmuKnow build requires Rust 1.100 or later; install that toolchain with rustup.
-Browser compiler builds separately need Git, Bash 4+, GNU sha256sum,
-Rust/rustup, a native compiler/linker, pkg-config and OpenSSL development
-headers. Browser pins are in `compiler-pins.json`:
+Use Linux, Python 3.11 or later, uv, Node.js 24 or later and npm. Use Rust
+1.100.0 for the native ImmuKnow build, browser compiler and renderer.
+Browser compiler builds also need Git, Bash 4+, GNU sha256sum, a native
+compiler and linker, pkg-config and OpenSSL development headers. Browser
+pins are in `compiler-pins.json`.
 
 ```bash
 rustup toolchain install 1.100.0 --profile minimal
-rustup toolchain install 1.92.0 --profile minimal
-cargo +1.92.0 install --locked wasm-bindgen-cli --version 0.2.118
+cargo +1.100.0 install --locked wasm-bindgen-cli --version 0.2.118
 uv sync --locked
 uv run --locked python -m scripts.immuknow install
 npm ci

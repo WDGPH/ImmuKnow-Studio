@@ -2,7 +2,7 @@
   "browser_compiler": {
     "crate_version": "0.8.0-rc3",
     "source_revision": "9739d81c5eaee02d2dc9c4e691262a3f6758cdc4",
-    "rust_version": "1.92.0",
+    "rust_version": "1.100.0",
     "wasm_bindgen_version": "0.2.118",
     "features": [
       "web",
@@ -15,7 +15,7 @@
   "browser_renderer": {
     "crate_version": "0.8.0-rc3",
     "source_revision": "9739d81c5eaee02d2dc9c4e691262a3f6758cdc4",
-    "rust_version": "1.92.0",
+    "rust_version": "1.100.0",
     "wasm_bindgen_version": "0.2.118",
     "features": [
       "render_canvas"
