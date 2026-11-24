@@ -2,13 +2,10 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   chmodSync,
-  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  readdirSync,
   rmSync,
-  statSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -27,13 +24,17 @@ import { exportProject, exportRuntimeProject } from "../src/project-archive";
 import { runtimePackage } from "../src/runtime-package";
 import type { BuildInfo, Files } from "../src/types";
 
-// Exercise the separate distribution limit without a large checked-in fixture.
-// The opaque archive deliberately cannot be opened as a ZIP or tar by the browser.
-const { runtimeArchive } = vi.hoisted(() => ({
-  runtimeArchive: new Uint8Array(12 * 1024 * 1024 + 1).fill(0xa5),
+// Use a large executable to exercise the separate distribution limit.
+const { fixture } = vi.hoisted(() => ({
+  fixture: { binary: new Uint8Array(12 * 1024 * 1024 + 1).fill(0xa5), archive: new Uint8Array() },
 }));
 vi.mock("../native-runtimes.json", async () => {
   const { createHash } = await import("node:crypto");
+  const { zipSync } = await import("fflate");
+  fixture.archive = zipSync({
+    "immuknow.exe": fixture.binary,
+    LICENSE: new TextEncoder().encode("Fixture licence\n"),
+  });
   return {
     default: {
       schemaVersion: 1,
@@ -41,16 +42,18 @@ vi.mock("../native-runtimes.json", async () => {
       revision: "a".repeat(40),
       platforms: [
         {
-          id: "linux-x86_64",
-          label: "Linux (x64)",
-          filename: "immuknow-2.0.0-linux-x86_64.tar.gz",
-          size: runtimeArchive.length,
-          sha256: createHash("sha256").update(runtimeArchive).digest("hex"),
+          id: "windows-x86_64",
+          label: "Windows (x64)",
+          filename: "immuknow-2.0.0-windows-x86_64.zip",
+          size: fixture.archive.length,
+          sha256: createHash("sha256").update(fixture.archive).digest("hex"),
         },
       ],
     },
   };
 });
+
+const runtimeArchive = fixture.archive;
 
 const template = "templates/notice.en.typ";
 const library = "templates/lib/immuknow/lib.typ";
@@ -109,10 +112,9 @@ describe("ready-to-run project export", () => {
     ).rejects.toThrow("integrity check");
   });
 
-  it("stores all ZIP entries and preserves the runtime and authored bytes", async () => {
-    expect(runtimeArchive.length).toBeGreaterThan(MAX_FILE);
+  it("stores the executable and license directly alongside unchanged authored files", async () => {
+    expect(fixture.binary.length).toBeGreaterThan(MAX_FILE);
     const projectOnly = unzipSync(await exportProject(files, template, build));
-    const archivePath = `runtime/${runtime.filename}`;
     const exported = unzipSync(
       await exportRuntimeProject(files, template, build, runtime.id, runtimeArchive),
       {
@@ -122,26 +124,24 @@ describe("ready-to-run project export", () => {
         },
       },
     );
-    expect(exported[archivePath].length).toBe(runtimeArchive.length);
-    expect(await sha256(exported[archivePath])).toBe(runtime.sha256);
+    expect(await sha256(exported["immuknow.exe"])).toBe(await sha256(fixture.binary));
+    expect(decoder.decode(exported["ImmuKnow-LICENSE.txt"])).toBe("Fixture licence\n");
     for (const [name, bytes] of Object.entries(projectOnly)) expect(exported[name]).toEqual(bytes);
     expect(exported["immuknow-project.json"]).toBeUndefined();
-    expect(exported["runtime/manifest.json"]).toBeUndefined();
+    expect(exported[`runtime/${runtime.filename}`]).toBeUndefined();
     const guide = decoder.decode(exported["START-HERE.txt"]);
-    expect(guide).toContain("sh ./run-sample.sh");
-    expect(guide).toContain("sh ./immuknow run input/clients.csv");
-    expect(exported.immuknow).toBeDefined();
-    expect(exported["run-sample.sh"]).toBeDefined();
+    expect(guide).toContain("Open run-sample.cmd");
+    expect(decoder.decode(exported["immuknow.cmd"])).toContain('"%~dp0immuknow.exe" %*');
+    expect(exported["run-sample.cmd"]).toBeDefined();
   });
 
   it("refuses runtime distribution paths that would replace authored files", async () => {
     for (const name of [
       "START-HERE.txt",
       "start-here.txt",
-      "runtime",
-      "Runtime/custom.txt",
-      "immuknow/notes.txt",
-      "run-sample.sh",
+      "ImmuKnow-LICENSE.txt",
+      "immuknow.exe/notes.txt",
+      "run-sample.cmd",
     ]) {
       await expect(
         exportRuntimeProject(
@@ -179,10 +179,13 @@ exit "\${TEST_NATIVE_EXIT:-0}"
   chmodSync(join(source, "immuknow"), 0o755);
   writeFileSync(join(source, "LICENSE"), "Fixture licence\n");
   const packed = join(root, "fixture.tar.gz");
-  execFileSync("tar", ["-czf", packed, "-C", source, "immuknow", "LICENSE"]);
+  execFileSync("tar", ["--format=pax", "-czf", packed, "-C", source, "immuknow", "LICENSE"]);
   const archive = readFileSync(packed);
   const fixtureRuntime = {
     ...runtime,
+    id: "linux-x86_64",
+    label: "Linux (x64)",
+    filename: "fixture.tar.gz",
     size: archive.length,
     sha256: createHash("sha256").update(archive).digest("hex"),
   };
@@ -192,20 +195,11 @@ exit "\${TEST_NATIVE_EXIT:-0}"
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, bytes);
   }
-  return { root, project, launcher: join(project, "immuknow") };
-}
-
-function extractedDirectory(project: string): string {
-  const runtimeRoot = join(project, "runtime");
-  const directory = readdirSync(runtimeRoot).find((name) =>
-    statSync(join(runtimeRoot, name)).isDirectory(),
-  );
-  if (!directory) throw new Error("No native executable was extracted");
-  return join(runtimeRoot, directory);
+  return { root, project, launcher: join(project, "immuknow.sh") };
 }
 
 describe.skipIf(process.platform === "win32")("POSIX runtime launcher", () => {
-  it("extracts locally and forwards quoted arguments, fonts and the native exit status", () => {
+  it("launches the root executable with quoted arguments, fonts and the native exit status", () => {
     const fixture = launcherFixture();
     const args = ["run", "input with spaces.csv", "--template", "a literal 'quote' and $value"];
     const result = spawnSync("sh", [fixture.launcher, ...args], {
@@ -221,35 +215,6 @@ describe.skipIf(process.platform === "win32")("POSIX runtime launcher", () => {
       String(args.length),
       ...args.map((arg) => `<${arg}>`),
     ]);
-    const extracted = extractedDirectory(fixture.project);
-    expect(readFileSync(join(extracted, "LICENSE"), "utf8")).toBe("Fixture licence\n");
-    expect(existsSync(join(extracted, ".complete"))).toBe(true);
-  });
-
-  it("retries an extraction that stopped after writing the executable", () => {
-    const fixture = launcherFixture();
-    const tools = join(fixture.root, "interrupted tools");
-    mkdirSync(tools);
-    const realTar = execFileSync("sh", ["-c", "command -v tar"], { encoding: "utf8" }).trim();
-    writeFileSync(join(tools, "tar"), '#!/bin/sh\n"$TEST_REAL_TAR" "$@" || exit $?\nexit 7\n');
-    chmodSync(join(tools, "tar"), 0o755);
-    const failed = spawnSync("sh", [fixture.launcher, "--version"], {
-      env: { ...process.env, PATH: `${tools}:${process.env.PATH}`, TEST_REAL_TAR: realTar },
-      encoding: "utf8",
-    });
-    expect(failed.status).toBe(1);
-    expect(failed.stderr).toContain("Could not extract ImmuKnow");
-    const extracted = extractedDirectory(fixture.project);
-    const native = join(extracted, "immuknow");
-    expect(existsSync(native)).toBe(true);
-    expect(existsSync(join(extracted, ".complete"))).toBe(false);
-    writeFileSync(native, "#!/bin/sh\nexit 99\n");
-    const retried = spawnSync("sh", [fixture.launcher, "--version"], {
-      env: { ...process.env, TEST_NATIVE_EXIT: "0" },
-      encoding: "utf8",
-    });
-    expect(retried.status).toBe(0);
-    expect(retried.stdout).toContain("<--version>");
-    expect(existsSync(join(extracted, ".complete"))).toBe(true);
+    expect(readFileSync(join(fixture.project, "ImmuKnow-LICENSE.txt"), "utf8")).toBe("Fixture licence\n");
   });
 });

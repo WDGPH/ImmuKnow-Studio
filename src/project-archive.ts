@@ -53,8 +53,6 @@ export async function exportRuntimeProject(
   for (const name of Object.keys(files)) {
     const normalized = name.normalize("NFC").toLowerCase();
     if (
-      normalized === "runtime" ||
-      normalized.startsWith("runtime/") ||
       [...reserved].some((entry) => normalized === entry || normalized.startsWith(`${entry}/`))
     )
       throw new Error(

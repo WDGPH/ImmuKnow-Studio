@@ -82,8 +82,8 @@ function runBundledProject(archive: string, info: TestInfo) {
     const unzip = spawnSync("unzip", ["-q", archive, "-d", project], { encoding: "utf8" });
     expect(unzip.status, unzip.stderr).toBe(0);
     mkdirSync(utilities);
-    // Permit extraction utilities only: no global ImmuKnow, Python, uv or Typst.
-    for (const name of ["sh", "dirname", "mkdir", "tar", "gzip", "chmod", "sha256sum"]) {
+    // Exercise the launcher with only the shell utilities it uses.
+    for (const name of ["sh", "dirname", "chmod"]) {
       const source = [join("/usr/bin", name), join("/bin", name)].find(existsSync);
       if (!source) throw new Error(`Missing operating-system utility: ${name}`);
       symlinkSync(source, join(utilities, name));
@@ -95,7 +95,7 @@ function runBundledProject(archive: string, info: TestInfo) {
       TYPST_IGNORE_EMBEDDED_FONTS: "true",
     };
     const launch = (...args: string[]) => {
-      const result = spawnSync(join(project, "immuknow"), args, {
+      const result = spawnSync(join(project, "immuknow.sh"), args, {
         cwd: temporary,
         env,
         encoding: "utf8",
@@ -109,12 +109,7 @@ function runBundledProject(archive: string, info: TestInfo) {
     const version = launch("--version");
     expect(version.status, version.stderr).toBe(0);
     expect(version.stdout).toContain(pins.version);
-    const extracted = readdirSync(join(project, "runtime"), { withFileTypes: true }).filter(
-      (entry) => entry.isDirectory(),
-    );
-    expect(extracted).toHaveLength(1);
-    expect(existsSync(join(project, "runtime", extracted[0].name, "LICENSE"))).toBe(true);
-    expect(existsSync(join(project, "runtime", extracted[0].name, ".complete"))).toBe(true);
+    expect(existsSync(join(project, "ImmuKnow-LICENSE.txt"))).toBe(true);
 
     const sample = launch("run", "--sample");
     const output = `${sample.stdout}\n${sample.stderr}`;
@@ -233,9 +228,12 @@ test("the detected Windows download uses the notebook proxy session", async ({ p
   const { download, files } = await downloadFiles(page);
   expect(download.suggestedFilename()).toBe(`immuknow-project-${windows.id}.zip`);
   expect(decoder.decode(files["START-HERE.txt"])).toContain("Open run-sample.cmd");
-  expect(createHash("sha256").update(files[`runtime/${windows.filename}`]).digest("hex")).toBe(
-    windows.sha256,
-  );
+  const release = unzipSync(readFileSync(resolve("public/generated/runtimes", `${windows.filename}.bin`)));
+  for (const [exported, upstream] of [["immuknow.exe", "immuknow.exe"], ["ImmuKnow-LICENSE.txt", "LICENSE"]])
+    expect(createHash("sha256").update(files[exported]).digest("hex")).toBe(
+      createHash("sha256").update(release[upstream]).digest("hex"),
+    );
+  expect(files[`runtime/${windows.filename}`]).toBeUndefined();
 });
 
 test("the Linux ready-to-run project preserves authored files and runs its bundled sample", async ({
@@ -264,15 +262,11 @@ test("the Linux ready-to-run project preserves authored files and runs its bundl
   await expect(page.locator("#export")).toBeEnabled();
   expect(requests).toHaveLength(1);
   expect(requests[0]).toContain(`/generated/runtimes/${linux.filename}.bin`);
-  const archive = bundled.files[`runtime/${linux.filename}`];
-  expect(createHash("sha256").update(archive).digest("hex")).toBe(linux.sha256);
   for (const [path, bytes] of Object.entries(project.files))
     expect(Buffer.from(bundled.files[path]).equals(bytes), path).toBe(true);
-  for (const name of ["immuknow", "run-sample.sh", "START-HERE.txt"])
+  for (const name of ["immuknow", "immuknow.sh", "ImmuKnow-LICENSE.txt", "run-sample.sh", "START-HERE.txt"])
     expect(bundled.files[name], name).toBeDefined();
-  expect(Object.keys(bundled.files).filter((path) => path.startsWith("runtime/"))).toEqual([
-    `runtime/${linux.filename}`,
-  ]);
+  expect(Object.keys(bundled.files).some((path) => path.startsWith("runtime/"))).toBe(false);
   expect(bundled.files["immuknow-project.json"]).toBeUndefined();
   expect(decoder.decode(bundled.files[template])).toContain(
     "authored runtime download marker",

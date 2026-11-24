@@ -214,7 +214,7 @@ files remain usable with the matching native ImmuKnow engine.
 Open **Project → Download project** and choose the package you need:
 
 - **Ready-to-run project** includes your selected notice and its project files,
-  the matching native ImmuKnow release archive and launchers. Studio fills in
+  the matching native ImmuKnow executable and launchers. Studio fills in
   the operating system and processor when your browser provides them. Check
   the selection against the workstation that will run ImmuKnow. Studio fetches
   the selected runtime when you request the download.
@@ -243,10 +243,9 @@ needed. Clear **Include fonts** for a smaller download when the matching fonts
 are already available on the workstation. Studio removes only byte-identical
 copies of its supplied font files; custom font files remain in the download.
 
-Extract the complete ready-to-run ZIP and open `START-HERE.txt`. Its launcher
-unpacks the included release archive on first use; it requires no further
-network download. The native executable is pinned to the project’s reviewed
-ImmuKnow revision. See [Use projects on your workstation](local-production.md)
+Extract the complete ready-to-run ZIP once and open `START-HERE.txt`. The
+native executable is ready in the project folder and matches the project’s
+reviewed ImmuKnow revision. See [Use projects on your workstation](local-production.md)
 for sample and production runs.
 
 A runtime download needs access to the static application files. If it fails,

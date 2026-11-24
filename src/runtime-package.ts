@@ -1,42 +1,67 @@
-import type { Zippable } from "fflate";
+import { gunzipSync, unzipSync, type Zippable } from "fflate";
 import { nativeVersion, type NativeRuntime } from "./native-runtime";
-import { encoder } from "./project";
+import { decoder, encoder } from "./project";
 
-function unixLauncher(runtime: NativeRuntime, directory: string): string {
+function tarReleaseFiles(archive: Uint8Array): Record<string, Uint8Array> {
+  // ImmuKnow publishes two root files and uses PAX headers for timestamps.
+  const tar = gunzipSync(archive);
+  const field = (offset: number, length: number) =>
+    decoder.decode(tar.subarray(offset, offset + length)).split("\0", 1)[0].trim();
+  const files: Record<string, Uint8Array> = {};
+  const block = 512;
+  for (let offset = 0; offset + block <= tar.length;) {
+    const name = field(offset, 100);
+    if (!name) break;
+    const sizeField = field(offset + 124, 12);
+    const size = /^[0-7]+$/.test(sizeField) ? Number.parseInt(sizeField, 8) : NaN;
+    const start = offset + block;
+    const end = start + size;
+    if (!Number.isSafeInteger(end) || end > tar.length)
+      throw new Error("Invalid tar entry size");
+    const type = tar[offset + 156];
+    offset = start + Math.ceil(size / block) * block;
+    if (type === 120) continue; // PAX metadata
+    if ((name !== "immuknow" && name !== "LICENSE") || files[name] || (type !== 0 && type !== 48) ||
+        field(start - block + 345, 155))
+      throw new Error("Unexpected tar entry");
+    files[name] = tar.subarray(start, end);
+  }
+  return files;
+}
+
+function releaseFiles(archive: Uint8Array, executable: string) {
+  try {
+    const files = executable === "immuknow.exe"
+      ? unzipSync(archive, { filter: ({ name }) => name === executable || name === "LICENSE" })
+      : tarReleaseFiles(archive);
+    if (!files[executable]?.length || !files.LICENSE?.length)
+      throw new Error("The executable or license is missing");
+    return { binary: files[executable], license: files.LICENSE };
+  } catch (cause) {
+    throw new Error("The ImmuKnow release archive could not be unpacked. Choose Project files only.", { cause });
+  }
+}
+
+function unixLauncher(): string {
   return `#!/bin/sh
 set -eu
 project_dir=$(CDPATH= cd -P -- "$(dirname -- "$0")" && pwd)
 cd "$project_dir"
-runtime_dir="$project_dir/runtime/${directory}"
-if [ ! -f "$runtime_dir/.complete" ] || [ ! -f "$runtime_dir/immuknow" ]; then
-  mkdir -p "$runtime_dir"
-  if ! tar -xzf "$project_dir/runtime/${runtime.filename}" -C "$runtime_dir"; then
-    echo "Could not extract ImmuKnow. Extract the complete project ZIP again and retry." >&2
-    exit 1
-  fi
-  chmod u+x "$runtime_dir/immuknow"
-  : > "$runtime_dir/.complete"
+if [ ! -x "$project_dir/immuknow" ]; then
+  chmod u+x "$project_dir/immuknow"
 fi
 if [ -d "$project_dir/templates/fonts" ]; then
   TYPST_FONT_PATHS="$project_dir/templates/fonts\${TYPST_FONT_PATHS:+:$TYPST_FONT_PATHS}"
   export TYPST_FONT_PATHS
 fi
-exec "$runtime_dir/immuknow" "$@"
+exec "$project_dir/immuknow" "$@"
 `;
 }
 
-function windowsLauncher(runtime: NativeRuntime, directory: string): string {
+function windowsLauncher(): string {
   return `@echo off
 setlocal DisableDelayedExpansion
 pushd "%~dp0" || exit /b 1
-set "IMMUKNOW_RUNTIME_DIR=%~dp0runtime\\${directory}"
-set "IMMUKNOW_RUNTIME_ARCHIVE=%~dp0runtime\\${runtime.filename}"
-if not exist "%IMMUKNOW_RUNTIME_DIR%\\immuknow.exe" goto extract
-if exist "%IMMUKNOW_RUNTIME_DIR%\\.complete" goto run
-:extract
-powershell.exe -NoProfile -NonInteractive -Command "$ErrorActionPreference = 'Stop'; if ((Get-FileHash -LiteralPath $env:IMMUKNOW_RUNTIME_ARCHIVE -Algorithm SHA256).Hash -ne '${runtime.sha256}') { throw 'Runtime archive is incomplete or changed. Extract the project ZIP again.' }; Expand-Archive -LiteralPath $env:IMMUKNOW_RUNTIME_ARCHIVE -DestinationPath $env:IMMUKNOW_RUNTIME_DIR -Force; if (!(Test-Path -LiteralPath (Join-Path $env:IMMUKNOW_RUNTIME_DIR 'immuknow.exe'))) { throw 'The runtime executable is missing.' }; Set-Content -LiteralPath (Join-Path $env:IMMUKNOW_RUNTIME_DIR '.complete') -Value '${runtime.sha256}'"
-if errorlevel 1 goto failed
-:run
 if not exist "%~dp0templates\\fonts" goto execute
 if defined TYPST_FONT_PATHS goto appendfonts
 set "TYPST_FONT_PATHS=%~dp0templates\\fonts"
@@ -44,14 +69,10 @@ goto execute
 :appendfonts
 set "TYPST_FONT_PATHS=%~dp0templates\\fonts;%TYPST_FONT_PATHS%"
 :execute
-"%IMMUKNOW_RUNTIME_DIR%\\immuknow.exe" %*
+"%~dp0immuknow.exe" %*
 set "IMMUKNOW_EXIT=%ERRORLEVEL%"
 popd
 exit /b %IMMUKNOW_EXIT%
-:failed
-echo Could not extract ImmuKnow. Extract the complete project ZIP again and retry. 1>&2
-popd
-exit /b 1
 `.replaceAll("\n", "\r\n");
 }
 
@@ -68,15 +89,14 @@ exit /b %IMMUKNOW_EXIT%
 `.replaceAll("\n", "\r\n");
   return `#!/bin/sh
 cd -P -- "$(dirname -- "$0")" || exit 1
-sh ./immuknow run --sample
+sh ./immuknow.sh run --sample
 result=$?
 ${mac ? 'printf "\\nReview the run summary above and any findings. Press Return to close. "\nread -r answer\n' : ""}exit "$result"
 `;
 }
 
 // Runtime assets are distribution files, separate from the bounded authored project.
-// Keep the upstream archive intact (including its licence) and store without
-// recompression. First use extracts it with the workstation's built-in tools.
+// Unpack only the executable and its license from the verified release.
 export function runtimePackage(
   runtime: NativeRuntime,
   archive: Uint8Array,
@@ -85,22 +105,19 @@ export function runtimePackage(
 ): Zippable {
   const windows = runtime.id.startsWith("windows-");
   const mac = runtime.id.startsWith("macos-");
-  const launcher = windows ? "immuknow.cmd" : "immuknow";
+  const executableName = windows ? "immuknow.exe" : "immuknow";
+  const launcher = windows ? "immuknow.cmd" : "immuknow.sh";
   const sample = windows ? "run-sample.cmd" : mac ? "run-sample.command" : "run-sample.sh";
-  const command = windows ? ".\\immuknow.cmd" : "sh ./immuknow";
+  const command = windows ? ".\\immuknow.cmd" : "sh ./immuknow.sh";
   const templateArgument = windows
     ? `'${template.replaceAll("'", "''")}'`
     : `'${template.replaceAll("'", "'\\''")}'`;
-  const directory = `immuknow-${nativeVersion}-${runtime.id}-${runtime.sha256.slice(0, 12)}`;
+  const { binary, license } = releaseFiles(archive, executableName);
   const executable = { os: 3, attrs: 0o100755 << 16 };
   const entries: Zippable = {
-    [`runtime/${runtime.filename}`]: [archive, { level: 0 }],
-    [launcher]: [
-      encoder.encode(
-        windows ? windowsLauncher(runtime, directory) : unixLauncher(runtime, directory),
-      ),
-      executable,
-    ],
+    [executableName]: [binary, executable],
+    "ImmuKnow-LICENSE.txt": license,
+    [launcher]: [encoder.encode(windows ? windowsLauncher() : unixLauncher()), executable],
     "START-HERE.txt": encoder.encode(`ImmuKnow ${nativeVersion} for ${runtime.label}
 
 Extract the whole ZIP to a folder. Keep the extracted files together.

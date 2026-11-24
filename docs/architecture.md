@@ -25,8 +25,8 @@ for guides and source navigation. ImmuKnow owns the separate
 [native saved-report contract](https://docs.phiz.ca/immuknow/latest/user_guide/pdf_validation/).
 
 The browser compiles Typst and renders previews locally using prepared facts.
-Ready-to-run downloads bundle the matching native release archive and use the
-same shared resources. Project-only downloads can use an existing installation.
+Ready-to-run downloads include the matching executable and its license at the
+project root and use the same shared resources. Project-only downloads can use an existing installation.
 Any ImmuKnow upgrade requires preparation, browser and native downloaded-project
 checks.
 
@@ -63,7 +63,8 @@ Runtime distribution is separate from editable project files. The build stages
 four official release archives from `native-runtimes.json`, checking their
 size, SHA-256 digest and compatibility with `immuknow-revision.txt`. The browser
 requests only the selected archive from the same origin when a ready-to-run
-download is confirmed. Runtime bytes never enter the draft or browser compiler.
+download is confirmed. The archive worker verifies the release and adds its executable
+and license to the project ZIP. Runtime bytes never enter the draft or browser compiler.
 See [Editing, drafts and downloads](studio.md) for package choices and reset details.
 
 Preview source spans distinguish repeated wording and preserve accented-character
