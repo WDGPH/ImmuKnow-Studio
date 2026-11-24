@@ -772,7 +772,7 @@ function refreshDownloadOptions() {
   downloadForm.setAttribute("aria-busy", String(exporting));
   const runtime = nativeRuntimes.find((item) => item.id === runtimeSelect.value);
   byId("runtime-description").textContent = runtime
-    ? `ImmuKnow ${nativeVersion}, about ${Math.ceil(runtime.size / 1_000_000)} MB plus project files. Change the selection if you’ll run it on a different computer.`
+    ? `ImmuKnow ${nativeVersion}, about ${Math.ceil(runtime.size / 1_000_000)} MB to fetch. Change the selection if you’ll run it on a different computer.`
     : "Choose the computer where you will run the project.";
 }
 downloadForm.onchange = refreshDownloadOptions;

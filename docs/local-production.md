@@ -27,9 +27,10 @@ and relative paths together, and leave `templates/lib/immuknow/` unchanged.
 | Item | Purpose |
 | --- | --- |
 | `START-HERE.txt` | How to run the sample or use your own CSV |
-| `immuknow.cmd` or `immuknow` | Launcher for native ImmuKnow commands |
+| `immuknow.exe` or `immuknow` | Native ImmuKnow executable for the selected platform |
+| `immuknow.cmd` or `immuknow.sh` | Run ImmuKnow commands with the included fonts |
 | `run-sample.cmd`, `run-sample.command` or `run-sample.sh` | Run the selected fictional sample, when `sample.json` is present |
-| `runtime/` | Pinned official release archive; the executable is unpacked here on first use |
+| `ImmuKnow-LICENSE.txt` | License from the official ImmuKnow release |
 | `immuknow-revision.txt` | Reviewed native ImmuKnow source revision |
 | `templates/` | Selected notice, Settings, supporting files, images and shared components |
 | `config/` | Configuration for native runs |
@@ -37,14 +38,12 @@ and relative paths together, and leave `templates/lib/immuknow/` unchanged.
 | `templates/fonts/` | Fonts and licences used by the launchers, when included |
 
 The native archive is fetched only when you request the download. Studio verifies
-its pinned size and checksum before packaging it. No further network download
-is needed when the launcher first unpacks it. The executable is kept out of
-Studio’s editable project and draft storage.
+its pinned size and checksum and puts the executable and license directly in
+the project ZIP. Extract the project ZIP once to start working offline.
 
-These archives are unsigned, and macOS releases are not notarized. Your
+The bundled executables are unsigned, and macOS releases are not notarized. Your
 operating system or organization’s application policy may require approval
-before running them. The supplied archive must match your chosen platform;
-changing its filename does not change its architecture.
+before running them. Choose the download that matches your workstation.
 
 ## Run the sample
 
@@ -53,13 +52,13 @@ run `sh ./run-sample.sh` from the extracted project folder. The launcher keeps t
 project’s paths together and uses fonts under `templates/fonts/` when present.
 There is no need to add ImmuKnow to PATH or install those fonts globally.
 
-For commands in a terminal, use `./immuknow` on macOS/Linux, or
-`.\immuknow.cmd` on Windows. If your ZIP extractor drops executable permissions
-on macOS/Linux, use `sh ./immuknow` instead. For example:
+For commands with the bundled fonts, use `sh ./immuknow.sh` on macOS/Linux or
+`.\immuknow.cmd` on Windows. You can also run the executable directly as
+`./immuknow` or `.\immuknow.exe` if your fonts are already available. For example:
 
 ```bash
-sh ./immuknow project check --sample
-sh ./immuknow run --sample
+sh ./immuknow.sh project check --sample
+sh ./immuknow.sh run --sample
 ```
 
 `project check --sample` checks configuration and shared components, then
@@ -77,7 +76,7 @@ CSV files does not change Studio’s fixed browser examples.
 
 Choose **Project files only** if you already have the executable matching
 `immuknow-revision.txt`. This ZIP contains the same authored files without the
-runtime archive or launchers. Obtain a matching executable from
+bundled executable or launchers. Obtain a matching executable from
 [ImmuKnow releases](https://github.com/WDGPH/ImmuKnow/releases) or your maintainer.
 See ImmuKnow’s [release guide](https://docs.phiz.ca/immuknow/latest/developer_guide/releases/)
 for platform requirements and checksums.
@@ -111,15 +110,15 @@ macOS/Linux:
 
 ```bash
 # One notice for every client
-sh ./immuknow run input/clients.csv --project . \
+sh ./immuknow.sh run input/clients.csv --project . \
   --template overdue_diseases.en.typ
 
 # An explicit notice for each client
-sh ./immuknow run input/clients.csv --project . \
+sh ./immuknow.sh run input/clients.csv --project . \
   --notice-assignments input/assignments.json
 ```
 
-On Windows, replace `sh ./immuknow` with `.\immuknow.cmd` and enter each command
+On Windows, replace `sh ./immuknow.sh` with `.\immuknow.cmd` and enter each command
 on one line. For a separate installation, use its `immuknow` executable.
 Use the actual filename of your downloaded notice. Each assignment must name a
 notice present in `templates/`. Results go to `runs/`; use `--output` to select

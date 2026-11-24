@@ -115,8 +115,8 @@ revision, version, filename, size and SHA-256 digest. `build:site` stages these
 under ignored `public/generated/runtimes/` with a `.bin` suffix so local servers
 send the archive bytes. Builds reuse verified local files. Run
 `npm run prepare:runtimes` to prepare them explicitly before using `npm run dev`
-or `npm run build` directly. The project ZIP keeps the official archive names
-and bytes. The browser fetches just the selected platform when downloading.
+or `npm run build` directly. The browser fetches and verifies the selected release
+archive, then writes its executable and license directly to the project ZIP.
 CI caches the archives separately and prepares them before the site build.
 `--require-prepared-toolchain` also requires those verified runtime assets and
 does not fetch missing archives.
@@ -284,7 +284,7 @@ Git source provenance from the installed package.
 Never edit installed resources. The resource package excludes Python helpers,
 Python environment files and maintainer tests from the exported scaffold.
 Downloaded projects use native project commands. Ready-to-run downloads
-include the pinned platform archive and first-run launchers; project-only
+include the pinned executable and launchers; project-only
 downloads use an executable supplied separately. Python remains a Studio build/test/documentation
 dependency, and is not required for production notice generation.
 
