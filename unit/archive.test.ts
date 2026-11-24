@@ -1,7 +1,7 @@
-import { unzipSync, zipSync } from "fflate";
+import { unzipSync } from "fflate";
 import { describe, expect, it } from "vitest";
-import { exportProject, exportTypstFiles, importProject } from "../src/project-archive";
-import { encoder, MAX_FILE, sha256 } from "../src/project";
+import { exportProject, exportTypstFiles } from "../src/project-archive";
+import { encoder, MAX_FILE, sha256, verifyProjectBuild } from "../src/project";
 import type { BuildInfo, Files } from "../src/types";
 import pins from "../compiler-pins.json";
 
@@ -41,65 +41,49 @@ const files: Files = {
   "templates/assets/authored.png": new Uint8Array([0, 1, 255, 2, 3]),
 };
 
+function unzipStored(bytes: Uint8Array) {
+  return unzipSync(bytes, {
+    filter: ({ compression }) => {
+      expect(compression).toBe(0);
+      return true;
+    },
+  });
+}
+
 describe("current project archives", () => {
-  it("round-trips authored bytes and checks declared integrity", async () => {
-    const archive = await exportProject(files, template, build);
-    expect(await importProject(archive, build)).toEqual({ files, template });
-    const changed = unzipSync(archive);
-    changed[template] = encoder.encode("Changed without refreshing the manifest");
-    await expect(importProject(zipSync(changed), build)).rejects.toThrow("integrity check");
-    delete changed[template];
-    await expect(importProject(zipSync(changed), build)).rejects.toThrow("entry point");
+  it("preserves authored files without adding download metadata", async () => {
+    const archive = unzipStored(await exportProject(files, template, build));
+    expect(archive).toEqual(files);
   });
 
-  it("rejects unsafe, duplicate, and oversized entries before using their content", async () => {
+  it("rejects unsafe, duplicate and oversized project files before export", async () => {
     for (const name of ["../escape.typ", "/absolute.typ", "templates/../escape.typ"]) {
-      await expect(
-        importProject(zipSync({ [name]: encoder.encode("text") }), build),
-      ).rejects.toThrow("Unsafe project path");
+      await expect(exportProject({ ...files, [name]: encoder.encode("text") }, template, build))
+        .rejects.toThrow("Unsafe project path");
     }
-    await expect(
-      importProject(
-        zipSync({
-          "templates/a.en.typ": encoder.encode("one"),
-          "templates/A.en.typ": encoder.encode("two"),
-        }),
-        build,
-      ),
-    ).rejects.toThrow("Duplicate project paths");
-    await expect(
-      importProject(zipSync({ "large.bin": new Uint8Array(MAX_FILE + 1) }), build),
-    ).rejects.toThrow("expanded size");
+    await expect(exportProject({
+      ...files,
+      "templates/a.en.typ": encoder.encode("one"),
+      "templates/A.en.typ": encoder.encode("two"),
+    }, template, build)).rejects.toThrow("Duplicate project path");
+    await expect(exportProject({ ...files, "large.bin": new Uint8Array(MAX_FILE + 1) }, template, build))
+      .rejects.toThrow("12 MB");
   });
 
-  it("requires the current runtime without rewriting an older project", async () => {
-    const archive = await exportProject(files, template, build);
-    await expect(
-      importProject(archive, { ...build, compiler_build_sha256: "unsupported" }),
-    ).rejects.toThrow("different ImmuKnow format or compiler");
-    await expect(
-      importProject(archive, {
-        ...build,
-        shared_resources: { ...build.shared_resources, sha256: "changed" },
-      }),
-    ).rejects.toThrow("different ImmuKnow format or compiler");
-    await expect(
-      importProject(archive, { ...build, native_typst_version: "unsupported" }),
-    ).rejects.toThrow("different ImmuKnow format or compiler");
-    await expect(
-      importProject(archive, {
-        ...build,
-        application_version: "another-release",
-        source_revision: "another-checkout",
-        source_modified: !build.source_modified,
-      }),
-    ).resolves.toEqual({ files, template });
-  });
-
-  it("rejects a different compiler digest", async () => {
-    const archive = await exportProject(files, template, build);
-    await expect(importProject(archive, { ...build, compiler_build_sha256: "a".repeat(64) }))
-      .rejects.toThrow("different ImmuKnow");
+  it("keeps draft compatibility tied to formats, shared resources and the compiler", () => {
+    for (const incompatible of [
+      { ...build, compiler_build_sha256: "a".repeat(64) },
+      { ...build, shared_resources: { ...build.shared_resources, sha256: "changed" } },
+      { ...build, native_typst_version: "unsupported" },
+    ]) {
+      expect(() => verifyProjectBuild(build, incompatible)).toThrow("different ImmuKnow format or compiler");
+    }
+    expect(() => verifyProjectBuild(build, {
+      ...build,
+      application_version: "another-release",
+      source_revision: "another-checkout",
+      source_modified: !build.source_modified,
+    })).not.toThrow();
   });
 
   it("requires the same English/French filename contract for selected entries", async () => {
@@ -115,8 +99,7 @@ describe("current project archives", () => {
     }
   });
 
-  it("checks library bytes against the app even when project hashes and file lists are rewritten", async () => {
-    const original = await exportProject(files, template, build);
+  it("checks library bytes against the app before export", async () => {
     const library = "templates/lib/immuknow/lib.typ";
     for (const change of ["changed", "missing", "extra", "renamed"]) {
       const changed = { ...files };
@@ -125,25 +108,6 @@ describe("current project archives", () => {
         changed["templates/lib/immuknow/extra.typ"] = files[library];
       if (change === "missing" || change === "renamed") delete changed[library];
       await expect(exportProject(changed, template, build)).rejects.toThrow(/supplied/);
-      const archive = unzipSync(original);
-      const manifest = JSON.parse(new TextDecoder().decode(archive["immuknow-project.json"]));
-      manifest.hashes = Object.fromEntries(
-        await Promise.all(
-          Object.entries(changed).map(async ([path, bytes]) => [path, await sha256(bytes)]),
-        ),
-      );
-      manifest.build.shared_resources.files = Object.entries(manifest.hashes).map(
-        ([path, sha256]) => ({ path, sha256 }),
-      );
-      await expect(
-        importProject(
-          zipSync({
-            ...changed,
-            "immuknow-project.json": encoder.encode(JSON.stringify(manifest)),
-          }),
-          build,
-        ),
-      ).rejects.toThrow(/supplied/);
     }
   });
 });
@@ -165,7 +129,7 @@ describe("Typst-only downloads", () => {
       "config/input.json": encoder.encode('{}'),
       "scripts/run.py": encoder.encode('print("run")'),
     };
-    const exported = unzipSync(exportTypstFiles(source, template));
+    const exported = unzipStored(exportTypstFiles(source, template));
     const expected = [template, "templates/settings.typ", "templates/custom/helper.typ",
       "config/phrases.typ", "templates/custom/style.typ"];
     expect(Object.keys(exported).sort()).toEqual(expected.sort());

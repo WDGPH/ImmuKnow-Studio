@@ -70,12 +70,12 @@ export async function verifyHashes(files: Files, hashes: Record<string, string>)
     Object.keys(hashes).length !== Object.keys(files).length
   )
     throw new Error(
-      "Project hashes do not match its files. For ZIP imports, keep this file and try another saved copy, or download again from the browser where your original work is still open.",
+      "Project hashes do not match its files. Keep the original files and download the open project to preserve your work.",
     );
   for (const [name, bytes] of Object.entries(files)) {
     if (!Object.hasOwn(hashes, name) || hashes[name] !== (await sha256(bytes)))
       throw new Error(
-        `Project file failed its integrity check: ${name}. For ZIP imports, keep this file and try another saved copy, or download again from the browser where your original work is still open.`,
+        `Project file failed its integrity check: ${name}. Keep the original files and download the open project to preserve your work.`,
       );
   }
 }

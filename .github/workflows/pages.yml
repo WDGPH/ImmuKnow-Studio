@@ -124,6 +124,23 @@ jobs:
           uv run --locked ruff format --check .
           uv run --locked python -m unittest discover -s tests -p 'test_*.py'
 
+      - name: Restore pinned native download archives
+        id: runtime_cache
+        uses: actions/cache/restore@v6
+        with:
+          path: public/generated/runtimes
+          key: studio-runtimes-${{ hashFiles('native-runtimes.json', 'immuknow-revision.txt', 'scripts/prepare_runtimes.py') }}
+
+      - name: Prepare and verify native download archives
+        run: npm run prepare:runtimes
+
+      - name: Save pinned native download archives
+        if: steps.runtime_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: public/generated/runtimes
+          key: ${{ steps.runtime_cache.outputs.cache-primary-key }}
+
       - name: Restore prepared browser binaries and Rust notices
         id: browser_cache
         uses: actions/cache/restore@v6
@@ -219,6 +236,7 @@ jobs:
             pyproject.toml
             uv.lock
             compiler-pins.json
+            native-runtimes.json
             immuknow-revision.txt
             .immuknow/identity.json
             public/generated/build.json

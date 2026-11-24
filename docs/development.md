@@ -7,7 +7,7 @@ application.
 
 ## Choose the right repository
 
-Change the editor, browser previews, drafts, imports, exports, example presentation
+Change the editor, browser previews, drafts, exports, example presentation
 and this manual here. Change the native pipeline, schemas and shared Typst
 components in [ImmuKnow](https://docs.phiz.ca/immuknow/latest/). Change starter
 letters, Settings, translations, example branding, project configuration,
@@ -109,6 +109,18 @@ reuse the prepared binaries and Rust notices without invoking Cargo or needing
 the compiler checkout. npm notices are regenerated for every build. CI uses
 `npm run build:site -- --require-prepared-toolchain` to forbid an unexpected
 source rebuild after the cache preparation step.
+
+`native-runtimes.json` pins the four native release archives by exact ImmuKnow
+revision, version, filename, size and SHA-256 digest. `build:site` stages these
+under ignored `public/generated/runtimes/` with a `.bin` suffix so local servers
+send the archive bytes. Builds reuse verified local files. Run
+`npm run prepare:runtimes` to prepare them explicitly before using `npm run dev`
+or `npm run build` directly. The project ZIP keeps the official archive names
+and bytes. The browser fetches just the selected platform when downloading.
+CI caches the archives separately and prepares them before the site build.
+`--require-prepared-toolchain` also requires those verified runtime assets and
+does not fetch missing archives.
+
 Use `--compiler-source /path/to/typst.ts` with
 `uv run --locked python -m scripts.build-site` to reuse a source checkout,
 or set `IMMUKNOW_COMPILER_BUILD_DIR`.
@@ -220,7 +232,7 @@ run it. Ordinary deployment does not require that manual run. Build summaries
 record whether it ran, so a successful ordinary build should not be described
 as a browser/native test pass.
 
-Run relevant browser checks locally for editor, draft, import or download
+Run relevant browser checks locally for editor, draft or download
 changes. Run the full suite for ImmuKnow/compiler updates, changes to shared
 contracts and release preparation. Keep the manual workflow available for those
 checks when local tools are unavailable.
@@ -265,17 +277,20 @@ npm run prepare:assets
 ```
 
 A ImmuKnow upgrade also requires a Template revision whose immuknow-revision.txt selects
-that ImmuKnow commit. `scripts.project_template` checks ImmuKnow compatibility and
+that ImmuKnow commit. Update `native-runtimes.json` to the matching reviewed
+release archives and their checksums, then run `npm run prepare:runtimes`.
+`scripts.project_template` checks ImmuKnow compatibility and
 Git source provenance from the installed package.
 Never edit installed resources. The resource package excludes Python helpers,
 Python environment files and maintainer tests from the exported scaffold.
-Downloaded projects use native project commands; their standalone executable
-is supplied separately. Python remains a Studio build/test/documentation
+Downloaded projects use native project commands. Ready-to-run downloads
+include the pinned platform archive and first-run launchers; project-only
+downloads use an executable supplied separately. Python remains a Studio build/test/documentation
 dependency, and is not required for production notice generation.
 
 ImmuKnow and Template are public repositories, so dependency installation needs no
-GitHub credentials. Dependencies stay locked and installed; ordinary builds
-perform no ad hoc upstream fetches.
+GitHub credentials. Dependencies stay locked and installed. Native distribution archives are
+downloaded only from the pinned release when their verified cache is missing.
 
 After either dependency changes, verify browser rendering, drafts and project
 downloads. Run the browser/native downloaded-project checks to verify native

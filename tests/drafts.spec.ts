@@ -1,8 +1,7 @@
-import { confirmProjectChange, restoredProject, saved } from "./helpers";
+import { confirmProjectChange, restoredProject, saved, restoreAuthoredDraft } from "./helpers";
 import { readFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
 import { unzipSync } from "fflate";
-import { exportProject } from "../src/project-archive";
 import type { Draft } from "../src/drafts";
 import type { Bundle, Files } from "../src/types";
 
@@ -33,7 +32,10 @@ async function menu(page: Page, id: string) {
     await confirmProjectChange(page, "clear");
   } else {
     await page.locator(`#${id}`).click();
-    if (id === "export") await page.locator("#download-confirm").click();
+    if (id === "export") {
+      await page.locator('input[name="download-kind"][value="project"]').check();
+      await page.locator("#download-confirm").click();
+    }
   }
 }
 async function stored(page: Page, name = database): Promise<Draft | undefined> {
@@ -167,16 +169,11 @@ test("an immediate reload is guarded until the newest edit has saved", async ({ 
   await expect(page.locator(".cm-content")).toContainText("Newest edit survives reload");
 });
 
-test("import replaces a pending save and retains its reset baseline after reload", async ({
+test("a compatible saved custom notice retains its reset baseline after reload", async ({
   page,
 }) => {
-  await storageProbe(page);
   await page.goto("./");
   await ready(page);
-  await page.evaluate(() => {
-    window.draftProbe.hold = true;
-  });
-  await append(page, "Old project waiting to save");
   const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
   const files: Files = Object.fromEntries(
     Object.entries(bundle.files).map(([name, bytes]) => [
@@ -186,35 +183,27 @@ test("import replaces a pending save and retains its reset baseline after reload
   );
   const custom = "templates/my_notice_v2.en.typ";
   files[custom] = new TextEncoder().encode(
-    `${new TextDecoder().decode(files[template])}\n// Imported baseline`,
+    `${new TextDecoder().decode(files[template])}\n// Authored baseline`,
   );
-  const archive = await exportProject(files, custom, bundle.build);
-  await page.locator("#archive").setInputFiles({
-    name: "authored.zip",
-    mimeType: "application/zip",
-    buffer: Buffer.from(archive),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  await restoreAuthoredDraft(page, files, bundle.build, custom);
   await page.locator(".cm-content").press("Control+End");
-  await expect(page.locator(".cm-content")).toContainText("Imported baseline");
-  await page.evaluate(() => window.draftProbe.release());
+  await expect(page.locator(".cm-content")).toContainText("Authored baseline");
   await saved(page);
   await page.reload();
   await restoredProject(page);
   await ready(page);
   await expect(page.locator("#template")).toHaveValue(custom);
-  await expect(page.locator(".cm-content")).not.toContainText("Old project waiting to save");
   await append(page, "Remove this edit on reset");
   await saved(page);
   await menu(page, "reset");
   await confirmProjectChange(page);
   await saved(page);
-  await expect(page.locator(".cm-content")).toContainText("Imported baseline");
+  await expect(page.locator(".cm-content")).toContainText("Authored baseline");
   await expect(page.locator(".cm-content")).not.toContainText("Remove this edit on reset");
   await page.reload();
   await restoredProject(page);
   await ready(page);
-  await expect(page.locator(".cm-content")).toContainText("Imported baseline");
+  await expect(page.locator(".cm-content")).toContainText("Authored baseline");
   await expect(page.locator(".cm-content")).not.toContainText("Remove this edit on reset");
 });
 
@@ -235,19 +224,13 @@ test("starting fresh discards the browser copy and restores the complete starter
   const files = {
     ...starters,
     [custom]: new TextEncoder().encode(
-      `${new TextDecoder().decode(starters[template])}\n// Imported notice`,
+      `${new TextDecoder().decode(starters[template])}\n// Authored notice`,
     ),
     "templates/settings.typ": new TextEncoder().encode(
-      `${new TextDecoder().decode(starters["templates/settings.typ"])}\n// Imported settings`,
+      `${new TextDecoder().decode(starters["templates/settings.typ"])}\n// Authored settings`,
     ),
   };
-  const archive = await exportProject(files, custom, bundle.build);
-  await page.locator("#archive").setInputFiles({
-    name: "authored.zip",
-    mimeType: "application/zip",
-    buffer: Buffer.from(archive),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  await restoreAuthoredDraft(page, files, bundle.build, custom);
   await saved(page);
   const before = await stored(page);
   await page.reload();
@@ -272,7 +255,7 @@ test("starting fresh discards the browser copy and restores the complete starter
   await saved(page);
   expect(await stored(page)).toBeUndefined();
   await expect(page.locator("#template")).toHaveValue(template);
-  await expect(page.locator(".cm-content")).not.toContainText("Imported notice");
+  await expect(page.locator(".cm-content")).not.toContainText("Authored notice");
   await append(page, "First edit in the fresh project");
   await saved(page);
   expect((await stored(page))?.baseline).toEqual(starters);
@@ -368,7 +351,7 @@ test("a second tab cannot overwrite the draft and can reopen it after the first 
   await expect(second.locator("#editor-panel")).toHaveAttribute("inert", "");
   await expect(second.locator("#theme-panel")).toHaveAttribute("inert", "");
   await expect(second.locator("#template-tab")).toBeDisabled();
-  await expect(second.locator("#import")).toBeDisabled();
+  await expect(second.locator("#import, #archive")).toHaveCount(0);
   await page.close();
   await second.reload();
   await restoredProject(second);

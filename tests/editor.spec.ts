@@ -1,5 +1,6 @@
 import {
   downloadProject,
+  restoreAuthoredDraft,
   restoredProject,
   saved,
   chooseTemplate,
@@ -8,7 +9,6 @@ import {
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
-import { exportProject } from "../src/project-archive";
 import type { Bundle, Files } from "../src/types";
 
 async function currentPreview(page: Page) {
@@ -184,12 +184,7 @@ test("authored project survives editing, warning/error recovery, drafts and expo
   );
   const untouched = new Uint8Array([0, 1, 127, 128, 255]);
   files["templates/assets/preserved.bin"] = untouched;
-  const archive = await exportProject(files, "templates/overdue_diseases.en.typ", bundle.build);
-  await page.locator("#archive").setInputFiles({
-    name: "authored.zip",
-    mimeType: "application/zip",
-    buffer: Buffer.from(archive),
-  });
+  await restoreAuthoredDraft(page, files, bundle.build, "templates/overdue_diseases.en.typ");
   await currentPreview(page);
   await expect(page.locator("#diagnostics")).not.toContainText("Client-specific warning fixture");
   await expect(page.locator(".preview-page")).toHaveCount(2);
@@ -509,7 +504,7 @@ test("envelope geometry stays with displayed pages and source navigation survive
   }
 });
 
-test("delayed compiler replies cannot cross an import or language boundary", async ({ page }) => {
+test("delayed compiler replies cannot cross a template or language boundary", async ({ page }) => {
   await page.addInitScript(() => {
     const control = { compiler: 0, heldCompiler: 0 };
     Object.assign(window, { delays: control });
@@ -553,24 +548,12 @@ test("delayed compiler replies cannot cross an import or language boundary", asy
   await page.evaluate(() => {
     (window as unknown as { delays: { compiler: number } }).delays.compiler = 800;
   });
-  await page.keyboard.insertText("\n// delayed import reply");
+  await page.keyboard.insertText("\n// delayed template reply");
   await page.waitForFunction(
     () => (window as unknown as { delays: { heldCompiler: number } }).delays.heldCompiler > 1,
   );
-  const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
-  const files: Files = Object.fromEntries(
-    Object.entries(bundle.files).map(([name, bytes]) => [
-      name,
-      new Uint8Array(Buffer.from(bytes, "base64")),
-    ]),
-  );
-  const archive = await exportProject(files, "templates/suspension_order.en.typ", bundle.build);
-  await page.locator("#archive").setInputFiles({
-    name: "replacement.zip",
-    mimeType: "application/zip",
-    buffer: Buffer.from(archive),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  await page.locator("#theme-tab").click();
+  await chooseTemplate(page, "templates/suspension_order.en.typ");
   await currentPreview(page);
   await expect(page.locator("#template")).toHaveValue("templates/suspension_order.en.typ");
   const state = await page

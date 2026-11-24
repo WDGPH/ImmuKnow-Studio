@@ -138,14 +138,15 @@ replacement is being prepared. Removing pages clamps the position to the
 remaining document. All replacement pages are prepared before the notice changes.
 Scrolling and zooming keep the painted pages available. Extremely large output
 may exceed the preview resource limit; Studio reports this and retains the last
-usable preview. There is no five-page output limit. Switching examples or languages, importing a project,
-confirming a template reset and refreshing the page clear the previous preview.
+usable preview. There is no five-page output limit. Switching examples or
+languages, confirming a template reset and refreshing the page clear the
+previous preview.
 During continuous typing, newer successful versions can appear while the refresh
 icon continues to spin.
 
-Examples use fixed prepared facts and dates. Editing their source CSV or
-configuration in an imported project does not prepare new browser facts. Use
-the native pipeline for a different cohort or factual configuration.
+Examples use fixed prepared facts and dates. Editing a downloaded project’s
+source CSV or configuration does not prepare new browser facts. Use the native
+pipeline for a different cohort or factual configuration.
 
 ## Keep your work
 
@@ -160,8 +161,8 @@ Choose **Project → Reset workspace…** to choose how much to restore. Nothing
 changes until you confirm **Reset workspace**; Cancel or Escape keeps your work.
 
 If the copy cannot be opened, **Keep browser copy** retains it without replacing
-it; the starters open with saving blocked until you reset the entire workspace,
-clear the saved copy or import a compatible project.
+it; the starters open with saving blocked until you reset the entire workspace
+or clear the saved copy.
 
 Saving happens in the background. The browser warns before you leave while
 edits are still unsaved. Storage errors appear in Findings; the open project
@@ -170,8 +171,8 @@ project for a portable copy.
 
 Only one tab can edit Studio on a site at a time. A second tab asks you to close
 the editing tab and reload. Another device or site address has separate storage.
-Drafts use format 2 in `immuknow-studio-drafts-v2`. Drafts and imported ZIPs
-check the same supported build requirements.
+Drafts use format 2 in `immuknow-studio-drafts-v2` and check the supported build
+requirements.
 These cover shared components, fonts, the data format and the compiler build.
 Projects can move between application releases when those requirements still
 match. The selected file must be an English or French notice under `templates/`.
@@ -193,78 +194,77 @@ your authored changes into a current starter project.
 - **Template + settings + theme** restores the complete starting Settings and
   images, and removes images added since the project was opened.
 - **Entire workspace** restores all of Studio’s current starter templates,
-  settings and images, removes imported files and clears the saved browser draft.
+  settings and images, removes custom files and clears the saved browser draft.
 
-For the template scopes, the starting copy comes from the starter or imported
-project and survives draft reloads. Shared Settings and images affect other templates that use them.
+For the template scopes, the starting copy is stored with the draft and survives
+reloads. Existing compatible drafts keep their original starting files. Shared
+Settings and images affect other templates that use them.
 Complex Settings that cannot safely separate Theme are left unchanged with an
 explanation; use a template-only or complete reset instead.
 
 Refresh the webpage to retry after a compiler problem. Your compatible saved
 browser project reopens automatically.
 
-Import project accepts the current complete ZIP format. Authored source,
-companions and assets keep their bytes; Studio performs no source rewriting or
-format migration. An unsupported draft/project format produces an actionable
-error. An imported entry without a prepared example can still be exported,
-but has no preview.
+Project ZIP upload is unavailable. Downloaded projects cannot be reopened in
+Studio. Keep the compatible browser draft to continue editing here; downloaded
+files remain usable with the matching native ImmuKnow engine.
 
 ## Download the project
 
-Open **Project** at the top-right of the webpage.
-**Download project** opens a dialog offering **Complete project** (the default)
-or **Authored .typ files only**. With **Complete project**, choose **Download ZIP**
-to save the selected notice with current Settings,
-Theme, translations, components, images and configuration.
-The **Include fictional client data** checkbox is selected by default. Keep it
-to include the selected fictional client and the active notice
-for a local test run. The sample keeps the preview client's facts even if they
-produce findings for that notice. Clear it to download without Studio’s fictional inputs,
-including unchanged sample copies from a previously imported Studio ZIP. Custom
-imported sample data is preserved. Other unrelated starter notices, unused starter assets and example inputs are
-normally omitted. Detected calculated paths retain possible dependencies
-conservatively. Explicitly referenced notices and authored
-companion files and modified or custom notices remain available, preserving
-project dependencies and authored work. Download another notice when you need its
-unchanged starter in the project.
-Authored files keep their bytes and relative paths. Import the ZIP to resume
-editing, or run it locally using the reviewed standalone ImmuKnow executable
-and its native project commands. The ZIP includes a README
-and sample copies under `input/sample/` when fictional client data is included
-and a prepared example is available.
-An imported project's existing sample selection and authored files are preserved.
-Get the standalone executable separately from
-[ImmuKnow releases](https://github.com/WDGPH/ImmuKnow/releases) when a release
-matches the project's `immuknow-revision.txt`, or ask your maintainer for a prepared
-executable. Choose the archive for your operating system and processor and
-put the extracted executable on your terminal's PATH. Fresh downloads include no
-Python environment or setup files; imported legacy files remain intact.
-If the project changes while the ZIP is being prepared, download it again.
-A project with unfinished edits or no prepared example can still be saved.
+Open **Project → Download project** and choose the package you need:
 
-Downloads include Studio's FreeSans and FreeSerif files and licences by default
-for manual installation. In the download dialog, clear **Include fonts for installation** for a smaller
-download when the matching fonts are already installed on the workstation.
-The production pipeline uses system fonts; downloading the files does not install them.
-Studio removes only byte-identical copies of its supplied font files; other
-project files remain in the download.
-The ZIP's `immuknow-project.json` records format version, selected entry, build identity
-and SHA-256 file hashes, which are verified on import. Files are limited to
-12 MiB each and 32 MiB in total. Absolute/traversal paths, duplicate paths,
-symlinks and corrupt archives are rejected.
+- **Ready-to-run project** includes your selected notice and its project files,
+  the matching native ImmuKnow release archive and launchers. Studio fills in
+  the operating system and processor when your browser provides them. Check
+  the selection against the workstation that will run ImmuKnow. Studio fetches
+  the selected runtime when you request the download.
+- **Project files only** includes the same authored project without a runtime or
+  launchers. Use it with your existing matching ImmuKnow installation.
+- **Authored .typ files only** includes the active template, Settings and
+  referenced authored `.typ` companions for an existing matching repository.
 
-**Authored .typ files only** creates `immuknow-typst.zip` for an existing
-ImmuKnow-Template repository. It includes the active template, its Settings file
-and referenced authored `.typ` companions, preserving their bytes and relative
-paths. Detected calculated paths retain possible authored `.typ` companions.
-Shared ImmuKnow components, fonts, images, CSV/JSON data and native setup
-instructions are omitted. Extract the selected source files into the matching
-paths in your existing repository, which supplies those dependencies.
-Studio follows literal local file paths and retains authored `.typ` files
-conservatively when it detects calculated paths. Review other dependencies
-and supply any files the scan cannot resolve. This source-only ZIP is not a complete
-project and cannot be reopened with **Import project**. Use **Complete project**
-for a portable Studio backup or a runnable project.
+The first two options include current Settings, Theme, translations, shared
+components, images and configuration. Authored files retain their bytes and
+relative paths. Unrelated unchanged starter notices, unused starter assets and
+example inputs are normally omitted. Explicitly referenced notices, authored
+companions and modified or custom notices stay available. Calculated paths
+retain possible dependencies conservatively. Download another notice when you
+need its unchanged starter in the project.
+
+**Fictional client data** defaults to **Selected client**. Choose **All fictional
+clients** to download the full example CSV, or **No fictional clients** to omit
+Studio’s sample data. Studio puts the chosen CSV under `input/sample/` and
+points `sample.json` to it and the active notice. Custom sample data and
+selections already present in a compatible saved draft are preserved.
+
+Fonts and their licences are included by default. Ready-to-run launchers load
+these fonts from the extracted project, so global font installation is not
+needed. Clear **Include fonts** for a smaller download when the matching fonts
+are already available on the workstation. Studio removes only byte-identical
+copies of its supplied font files; custom font files remain in the download.
+
+Extract the complete ready-to-run ZIP and open `START-HERE.txt`. Its launcher
+unpacks the included release archive on first use; it requires no further
+network download. The native executable is pinned to the project’s reviewed
+ImmuKnow revision. See [Use projects on your workstation](local-production.md)
+for sample and production runs.
+
+A runtime download needs access to the static application files. If it fails,
+retry after restoring the connection or select **Project files only**. The open
+project and browser draft remain available. If the project changes while a ZIP
+is being prepared, download it again. Unfinished edits or a notice without a
+prepared example can still be saved.
+
+Downloads omit unchanged starter instructions and browser build records.
+The authored project retains its 12 MiB per-file and 32 MiB total limits.
+Executables stay out of editable files, saved drafts and the browser compiler.
+
+**Authored .typ files only** creates `immuknow-typst.zip`. Shared ImmuKnow
+components, fonts, images, CSV/JSON data and native setup instructions are
+omitted. Extract the source into the matching paths in your existing repository,
+which supplies those dependencies. Studio follows literal local paths and
+retains authored `.typ` files conservatively when it detects calculated paths;
+review dependencies the scan cannot resolve. This ZIP is not a complete project.
 
 ## Use the project with the native engine
 
@@ -272,8 +272,9 @@ Production notice generation happens with ImmuKnow on your local
 workstation. Follow [Use projects on your workstation](local-production.md)
 for the complete handoff, native command examples, fonts and output review.
 Keep the extracted project and its assets together. `immuknow project sync`
-installs the shared library from your separately supplied executable. Install
-the supplied fonts on your workstation; no separate Typst installation is needed.
+installs or verifies the shared library from the matching executable.
+Ready-to-run launchers use the included fonts; a separately installed engine
+needs access to the same fonts. No separate Typst installation is needed.
 For native delivery grouping and optional PDF encryption, edit the project
 configuration on your workstation and follow the [ImmuKnow configuration guide](https://docs.phiz.ca/immuknow/latest/user_guide/configuration/).
 That guide also explains optional password placeholders, including initials.

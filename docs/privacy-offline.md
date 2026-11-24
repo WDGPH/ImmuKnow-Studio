@@ -1,9 +1,9 @@
 # Privacy and offline use
 
 Studio runs in your local browser environment. The editor, Typst compiler,
-preview renderer, draft storage, ZIP import and project download all run on
+preview renderer, draft storage and project download all run on
 your device. There is no application backend server. Studio does not upload
-your templates, imported files, images, drafts or notice data, and does not send
+your templates, images, drafts or notice data, and does not send
 them to a remote service for compilation.
 
 ## What needs a connection?
@@ -19,8 +19,10 @@ editing, previewing and saving a browser draft
 offline in the open tab. Wait for the first preview before disconnecting.
 
 Some actions load more static files when you use them. Project downloads read
-the bundled fonts and their licences again; imports and downloads load the ZIP
-worker, and Theme starters load their images. Reloading or reopening the site
+the bundled fonts and their licences again and load the ZIP worker.
+Ready-to-run downloads also fetch the selected native runtime archive from the
+same site, only when requested; the other platform archives are not fetched.
+Theme starters load their images. Reloading or reopening the site
 can also require application files again. Browser caching is not a guaranteed
 offline installation.
 
@@ -38,7 +40,7 @@ serves application files; it is not a backend that receives project data. See
 ## Where does the draft live?
 
 Studio stores the draft in this browser's local site storage. It includes your
-edits, imported images and the project's starting files. It is separate for
+edits, uploaded images and the project's starting files. It is separate for
 each browser profile, device and site address. It is not an account, cloud
 backup or synchronization service.
 
@@ -50,7 +52,8 @@ the starter templates, settings and images. Nothing is removed until you confirm
 The browser warns before you leave while edits are still unsaved. If storage is
 unavailable or full, the open project remains available to download. Private
 browsing, clearing site data or browser storage cleanup can remove a draft.
-Download copies of work you want to keep.
+Download copies of work you want to keep for native use. Project ZIP upload is
+unavailable, so a downloaded copy cannot restore the browser workspace.
 
 **Project → Reset workspace… → Saved draft only** removes the stored draft
 while keeping the
@@ -65,6 +68,6 @@ own input files. Studio does not require you to send real client records to a
 website or service.
 
 Downloaded ZIPs contain the selected project files and example inputs. Treat
-your own imported assets and exported files according to their contents, and
+your own uploaded assets and exported files according to their contents, and
 keep production client records and generated notices in your approved local
 workflow.

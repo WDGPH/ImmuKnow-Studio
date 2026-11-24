@@ -35,6 +35,7 @@ async function openDownloadOptions(page: Page) {
   await expect(page.locator(".project-actions input[type=checkbox]")).toHaveCount(0);
   await page.locator("#export").click();
   await expect(page.getByRole("dialog", { name: "Download project", exact: true })).toBeVisible();
+  await page.locator('input[name="download-kind"][value="project"]').check();
 }
 
 interface ExportProbe {
@@ -143,18 +144,21 @@ test("project download preserves authored text and includes fonts by default", a
   expect(new TextDecoder().decode(files[template])).toContain(
     '\n#text("Explicit export marker 8f7c")',
   );
-  expect(Object.keys(files)).toContain("immuknow-project.json");
+  for (const path of ["immuknow-project.json", ".gitignore", "README.md", "build.json", "template-source.json", "examples/README.md"])
+    expect(files[path], path).toBeUndefined();
   expect(Object.keys(files).some((path) => path.startsWith("templates/lib/"))).toBe(true);
   expect(
     Object.keys(files).some((path) => path.startsWith("templates/fonts/") && path.endsWith(".ttf")),
   ).toBe(true);
   expect(Object.keys(files)).toContain("templates/fonts/LICENSE");
-  await expect(page.locator("#pdf, #source, #python-project")).toHaveCount(0);
+  for (const name of ["manifest.json", "families.json", "UPSTREAM.json"])
+    expect(files[`templates/fonts/${name}`], name).toBeUndefined();
+  await expect(page.locator("#pdf, #source, #python-project, #import, #archive")).toHaveCount(0);
   expect((await probeState(page)).requests).toBe(1);
   await expect(page.locator("#export")).toBeEnabled();
 });
 
-test("a smaller download omits supplied fonts and can be imported again", async ({ page }) => {
+test("a smaller download omits supplied fonts without changing the open project", async ({ page }) => {
   await page.goto("./");
   await currentPreview(page);
   await openDownloadOptions(page);
@@ -173,9 +177,6 @@ test("a smaller download omits supplied fonts and can be imported again", async 
   await page.locator("#download-confirm").click();
   const original = await (await first).path();
   expect(original).toBeTruthy();
-  await page.locator("#archive").setInputFiles(original as string);
-  await expect(page.locator("#archive")).toHaveValue("");
-  await currentPreview(page);
   await openDownloadOptions(page);
   await page.locator("#include-fonts").uncheck();
   const second = page.waitForEvent("download");
@@ -184,12 +185,9 @@ test("a smaller download omits supplied fonts and can be imported again", async 
   expect(smaller).toBeTruthy();
   const files = unzipSync(readFileSync(smaller as string));
   expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toEqual([]);
-  expect(files["templates/fonts/LICENSE"]).toBeDefined();
+  expect(files["templates/fonts/LICENSE"]).toBeUndefined();
   expect(files["templates/lib/immuknow/lib.typ"]).toBeDefined();
   expect(readFileSync(smaller as string).length).toBeLessThan(readFileSync(original as string).length);
-  await page.locator("#archive").setInputFiles(smaller as string);
-  await expect(page.locator("#archive")).toHaveValue("");
-  await currentPreview(page);
   await expect(page.locator("#preview-state")).toHaveAttribute("data-state", "ready");
 });
 
@@ -301,71 +299,4 @@ test("an export error keeps the current painted preview available", async ({ pag
   await expect(page.locator(".preview-page")).not.toHaveCount(0);
   await expect(page.locator("#export")).toBeEnabled();
   expect((await probeState(page)).requests).toBe(1);
-});
-
-test("oversized imports are refused before reading the file", async ({ page }) => {
-  await page.addInitScript(() => {
-    const size = Object.getOwnPropertyDescriptor(Blob.prototype, "size")?.get;
-    if (!size) throw new Error("Missing file size accessor");
-    Object.defineProperty(File.prototype, "size", {
-      get() {
-        return this.name === "oversized.zip" ? 32 * 1024 * 1024 + 1 : size.call(this);
-      },
-    });
-    const read = File.prototype.arrayBuffer;
-    File.prototype.arrayBuffer = function () {
-      if (this.name === "oversized.zip") throw new Error("Oversized file was read");
-      return read.call(this);
-    };
-  });
-  await page.goto("./");
-  await currentPreview(page);
-  const before = await page.locator("#preview-state").getAttribute("data-displayed-revision");
-  await page.locator("#archive").setInputFiles({
-    name: "oversized.zip",
-    mimeType: "application/zip",
-    buffer: Buffer.from("Not read"),
-  });
-  await expect(page.locator("#diagnostics")).toContainText("Compressed project exceeds 32 MB");
-  await expect(page.locator("#preview-state")).toHaveAttribute(
-    "data-displayed-revision",
-    before as string,
-  );
-});
-
-test("a failed import can retry the same archive without losing the current project", async ({ page }) => {
-  await page.addInitScript(() => {
-    const read = File.prototype.arrayBuffer;
-    let fail = true;
-    File.prototype.arrayBuffer = function () {
-      if (this.name === "retry.zip" && fail) {
-        fail = false;
-        return Promise.reject(new Error("Injected archive read failure"));
-      }
-      return read.call(this);
-    };
-  });
-  await page.goto("./");
-  await currentPreview(page);
-  await openDownloadOptions(page);
-  const pending = page.waitForEvent("download");
-  await page.locator("#download-confirm").click();
-  const download = await pending;
-  const archive = {
-    name: "retry.zip",
-    mimeType: "application/zip",
-    buffer: readFileSync((await download.path()) as string),
-  };
-  await page.locator("#template-tab").click();
-  const source = page.locator(".cm-content");
-  await source.click();
-  await source.press("Control+End");
-  await page.keyboard.insertText("\n// Current project survives failed import");
-  await page.locator("#archive").setInputFiles(archive);
-  await expect(page.locator("#diagnostics")).toContainText("Injected archive read failure");
-  await expect(page.locator("#archive")).toHaveValue("");
-  await expect(source).toContainText("Current project survives failed import");
-  await page.locator("#archive").setInputFiles(archive);
-  await expect(source).not.toContainText("Current project survives failed import");
-  await expect(page.locator("#archive")).toHaveValue("");
 });

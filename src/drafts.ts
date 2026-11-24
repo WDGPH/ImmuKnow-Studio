@@ -18,11 +18,11 @@ const key = "current";
 function validateDraft(draft: Draft, build: BuildInfo): void {
   if (draft.schemaVersion !== 2 || !Number.isSafeInteger(draft.revision) || draft.revision < 1)
     throw new Error(
-      "This saved draft uses an unsupported format. Import a current project or clear the draft.",
+      "This saved draft uses an unsupported format. Keep the browser copy to use with a compatible Studio version, or clear the draft.",
     );
   if (!draft.files || !draft.baseline || typeof draft.template !== "string")
     throw new Error(
-      "The saved draft is incomplete. Import your downloaded project or clear the draft.",
+      "The saved draft is incomplete. Keep the browser copy or clear it to start fresh.",
     );
   verifyProjectBuild(draft.build, build);
   validateFiles(draft.files);
@@ -31,7 +31,7 @@ function validateDraft(draft: Draft, build: BuildInfo): void {
   validateTemplate(draft.baseline, draft.template);
   if (typeof draft.example !== "string")
     throw new Error(
-      "The saved draft is incomplete. Import your downloaded project or clear the draft.",
+      "The saved draft is incomplete. Keep the browser copy or clear it to start fresh.",
     );
 }
 

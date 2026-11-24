@@ -21,15 +21,13 @@ export async function withoutProjectFonts(files: Files): Promise<Files> {
 }
 
 // Include the supplied preview fonts and their licences.
-export async function withProjectFonts(files: Files): Promise<Files> {
+export async function withProjectFonts(files: Files, signal?: AbortSignal): Promise<Files> {
   validateFiles(files);
-  const result = Object.fromEntries(
-    Object.entries(files).filter(([path]) => !path.startsWith(fontRoot)),
-  );
+  const result = { ...files };
   const base = `${import.meta.env.BASE_URL}generated/fonts/`;
   async function resource(name: string): Promise<Uint8Array> {
     safePath(name);
-    const response = await fetch(base + name);
+    const response = await fetch(base + name, { signal });
     if (!response.ok) throw new Error(`Could not include project font resource: ${name}`);
     return new Uint8Array(await response.arrayBuffer());
   }
@@ -46,8 +44,7 @@ export async function withProjectFonts(files: Files): Promise<Files> {
     Object.fromEntries(Object.entries(files).map(([path, bytes]) => [`/${path}`, bytes])),
   );
   for (const [path, bytes] of Object.entries(bundled)) result[path.slice(1)] ??= bytes;
-  for (const name of ["manifest.json", "families.json", "LICENSE", "UPSTREAM.json"])
-    result[`${fontRoot}${name}`] ??= await resource(name);
+  result[`${fontRoot}LICENSE`] ??= await resource("LICENSE");
   validateFiles(result);
   return result;
 }

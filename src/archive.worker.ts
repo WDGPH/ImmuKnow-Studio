@@ -1,5 +1,5 @@
 import type { ArchiveRequest } from "./archive";
-import { exportProject, exportTypstFiles, importProject } from "./project-archive";
+import { exportProject, exportRuntimeProject, exportTypstFiles } from "./project-archive";
 
 globalThis.onmessage = async (event: MessageEvent<ArchiveRequest>) => {
   try {
@@ -9,8 +9,14 @@ globalThis.onmessage = async (event: MessageEvent<ArchiveRequest>) => {
         ? await exportProject(request.files, request.template, request.build)
         : request.action === "export-typst"
           ? exportTypstFiles(request.files, request.template)
-          : await importProject(request.bytes, request.build);
-    postMessage({ result });
+          : await exportRuntimeProject(
+              request.files,
+              request.template,
+              request.build,
+              request.runtimeId,
+              request.runtime,
+            );
+    postMessage({ result }, { transfer: [result.buffer as ArrayBuffer] });
   } catch (error) {
     postMessage({ error: String(error) });
   }

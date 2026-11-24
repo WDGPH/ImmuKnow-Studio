@@ -1,8 +1,7 @@
-import { downloadProject } from "./helpers";
+import { downloadProject, restoreAuthoredDraft } from "./helpers";
 import { readFileSync } from "node:fs";
 import { expect, type Page, test } from "@playwright/test";
 import { unzipSync } from "fflate";
-import { exportProject } from "../src/project-archive";
 import type { Bundle, Files } from "../src/types";
 
 async function current(page: Page) {
@@ -21,13 +20,13 @@ async function current(page: Page) {
     )
     .toBe(true);
 }
-async function importSettings(
+async function restoreSettings(
   page: Page,
   change: (source: string) => string,
   changeTemplate?: (source: string) => string,
 ) {
   await page.goto("./");
-  await expect(page.locator("#import")).toBeEnabled();
+  await expect(page.locator("#template-tab")).toBeEnabled();
   const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
   const files: Files = Object.fromEntries(
     Object.entries(bundle.files).map(([path, bytes]) => [
@@ -41,13 +40,7 @@ async function importSettings(
     const path = "templates/overdue_diseases.en.typ";
     files[path] = new TextEncoder().encode(changeTemplate(new TextDecoder().decode(files[path])));
   }
-  const archive = await exportProject(files, "templates/overdue_diseases.en.typ", bundle.build);
-  await page.locator("#archive").setInputFiles({
-    name: "settings.zip",
-    mimeType: "application/zip",
-    buffer: Buffer.from(archive),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  await restoreAuthoredDraft(page, files, bundle.build, "templates/overdue_diseases.en.typ");
   await page.locator("#theme-tab").click();
   await current(page);
   return source;
@@ -63,7 +56,7 @@ async function downloadSettings(page: Page) {
 test("theme changes preserve commented examples and update the active QR fields", async ({
   page,
 }) => {
-  const source = await importSettings(
+  const source = await restoreSettings(
     page,
     (source) =>
       "\ufeff/*\n" +
@@ -95,7 +88,7 @@ test("theme changes preserve commented examples and update the active QR fields"
 test("calculated values stay in source editing and a refused theme leaves all Settings unchanged", async ({
   page,
 }) => {
-  const source = await importSettings(
+  const source = await restoreSettings(
     page,
     (source) =>
       source
@@ -131,7 +124,7 @@ test("calculated values stay in source editing and a refused theme leaves all Se
 });
 
 test("title alignment changes Settings", async ({ page }) => {
-  const source = await importSettings(page, (source) =>
+  const source = await restoreSettings(page, (source) =>
     source.replace(/^#let title-align = .*$/m, "#let title-align = center"),
   );
   const picker = page.locator("#title-align-picker");
@@ -146,7 +139,7 @@ test("title alignment changes Settings", async ({ page }) => {
 });
 
 test("calculated title alignment requires source editing", async ({ page }) => {
-  await importSettings(page, (source) =>
+  await restoreSettings(page, (source) =>
     source.replace(/^#let title-align = .*$/m, "#let title-align = if true { left } else { right }"),
   );
   const picker = page.locator("#title-align-picker");

@@ -1,10 +1,9 @@
-import { downloadProject, chooseExample, chooseTemplate } from "./helpers";
+import { downloadProject, chooseExample, chooseTemplate, restoreAuthoredDraft } from "./helpers";
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, test } from "@playwright/test";
 import { unzipSync } from "fflate";
-import { exportProject } from "../src/project-archive";
 import type { Bundle, Files } from "../src/types";
 
 test.use({ actionTimeout: 15_000 });
@@ -38,7 +37,7 @@ for (const [scenario, filename] of cases) {
     await chooseExample(page, index);
     if (scenario === "missing-meningococcal" && filename.startsWith("overdue_diseases.")) {
       // Check local history/page options, ID labels, QR destinations and fonts after download.
-      const imported: Files = Object.fromEntries(
+      const authoredFiles: Files = Object.fromEntries(
         Object.entries(bundle.files).map(([path, bytes]) => [
           path,
           new Uint8Array(Buffer.from(bytes, "base64")),
@@ -48,16 +47,16 @@ for (const [scenario, filename] of cases) {
       let authored =
         '\ufeff/*\r\n#let body-font = "FreeSerif"\r\n/* nested example */\r\n*/\r\n' +
         new TextDecoder()
-          .decode(imported[path])
+          .decode(authoredFiles[path])
           .replace("https://example.org/update", "https://exämple.org/élève")
           .replaceAll("\n", "\r\n");
       if (filename.endsWith(".fr.typ")) {
         authored = authored.replace(/^#let envelope-window = .*$/m, "#let envelope-window = none");
       }
-      imported[path] = new TextEncoder().encode(authored);
+      authoredFiles[path] = new TextEncoder().encode(authored);
       const templatePath = `templates/${filename}`;
       const labelled = new TextDecoder()
-        .decode(imported[templatePath])
+        .decode(authoredFiles[templatePath])
         .replace("#immuknow.client-block(", '#immuknow.client-block(id-label: "Record number", show-oiid: true, oiid-label: "Record key",')
         .replace("width: 4.5cm", "width: 3cm")
         .replace('name: "Dr. Annie Body"', 'name: "Dr. Annie Body, MD"')
@@ -69,15 +68,10 @@ for (const [scenario, filename] of cases) {
           '#immuknow.notice-page("Immunization Record")',
           '#immuknow.notice-page("Immunization Record", title-size: 18pt)',
         );
-      imported[templatePath] = new TextEncoder().encode(labelled);
+      authoredFiles[templatePath] = new TextEncoder().encode(labelled);
       expectedFiles[templatePath] = Buffer.from(labelled).toString("base64");
-      const zip = await exportProject(imported, `templates/${filename}`, bundle.build);
-      await page.locator("#archive").setInputFiles({
-        name: "commented-settings.zip",
-        mimeType: "application/zip",
-        buffer: Buffer.from(zip),
-      });
-      await expect(page.locator("#archive")).toHaveValue("");
+      await restoreAuthoredDraft(page, authoredFiles, bundle.build, `templates/${filename}`, scenario);
+      await page.locator("#theme-tab").click();
       await expect(page.locator("#body-font-picker")).toHaveValue("FreeSans");
       await page.locator("#body-font-picker").selectOption("FreeSerif");
       expectedFiles[path] = Buffer.from(
@@ -166,7 +160,6 @@ for (const [scenario, filename] of cases) {
     await downloadProject(page, scenario !== "missing-meningococcal");
     await (await projectDownload).saveAs(info.outputPath("typst-project.zip"));
     const files = unzipSync(readFileSync(info.outputPath("typst-project.zip")));
-    delete files["immuknow-project.json"];
     for (const [path, bytes] of Object.entries(files)) {
       if (
         path.startsWith("templates/fonts/") ||
@@ -188,9 +181,7 @@ for (const [scenario, filename] of cases) {
       template: `templates/${filename}`,
     });
     expect(Buffer.from(files["input/sample/sample_students.csv"]).toString("base64")).toBe(bundle.files[examples[index].csv]);
-    const source = JSON.parse(new TextDecoder().decode(files["template-source.json"]));
-    expect(source.repository).toBe("https://github.com/WDGPH/ImmuKnow-Template");
-    expect(source.revision).toMatch(/^[0-9a-f]{40}$/);
+    expect(files["template-source.json"]).toBeUndefined();
     expect(Object.keys(files).filter((path) => /\.(ttf|otf)$/.test(path))).toHaveLength(
       scenario === "missing-meningococcal" ? 0 : fontCount,
     );

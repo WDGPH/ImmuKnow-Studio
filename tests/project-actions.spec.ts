@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
-import { unzipSync, zipSync } from "fflate";
-import { downloadProject, restoredProject, chooseTemplate, confirmProjectChange, saved } from "./helpers";
+import { unzipSync } from "fflate";
+import { downloadProject, restoredProject, chooseTemplate, confirmProjectChange, saved, restoreAuthoredDraft } from "./helpers";
+import type { FictionalClients } from "../src/project-actions";
 import type { Bundle } from "../src/types";
 
 async function current(page: Page) {
@@ -9,49 +10,52 @@ async function current(page: Page) {
     timeout: 60_000,
   });
 }
-async function download(page: Page, includeFictionalData?: boolean) {
+async function download(page: Page, fictionalClients?: FictionalClients) {
   const menu = page.locator(".project-actions");
   if (!(await menu.evaluate((element) => (element as HTMLDetailsElement).open)))
     await menu.locator("summary").click();
   const pending = page.waitForEvent("download");
-  await downloadProject(page, undefined, includeFictionalData);
+  await downloadProject(page, false, fictionalClients);
   return unzipSync(readFileSync((await (await pending).path()) as string));
 }
 
-test("fictional data can be omitted without affecting editing or reopening the project", async ({ page }) => {
+test("downloads can use one client, all fictional clients or no fictional data", async ({ page }) => {
   await page.goto("./");
   await current(page);
   await page.locator(".project-actions summary").click();
   await page.locator("#export").click();
-  const checkbox = page.getByRole("checkbox", { name: "Include fictional client data", includeHidden: true });
-  await expect(checkbox).toBeChecked();
+  const clients = page.locator("#fictional-clients");
+  await expect(clients).toHaveValue("selected");
   await page.getByRole("radio", { name: "Authored .typ files only" }).check();
-  await expect(checkbox).toBeHidden();
-  await expect(checkbox).toBeDisabled();
-  await page.getByRole("radio", { name: "Complete project" }).check();
-  await expect(checkbox).toBeVisible();
-  await expect(checkbox).toBeEnabled();
+  await expect(clients).toBeHidden();
+  await expect(clients).toBeDisabled();
+  await page.getByRole("radio", { name: "Project files only" }).check();
+  await expect(clients).toBeVisible();
+  await expect(clients).toBeEnabled();
   await page.locator("#download-cancel").click();
-  const included = await download(page, true);
+  const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
+  const template = "templates/overdue_diseases.en.typ";
+  const included = await download(page, "selected");
   expect(included["sample.json"]).toBeDefined();
-  // Imported copies of the supplied sample can also be excluded.
-  await page.locator("#archive").setInputFiles({
-    name: "with-sample.zip", mimeType: "application/zip", buffer: Buffer.from(zipSync(included)),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  // Compatible older drafts may already contain the supplied sample.
+  await restoreAuthoredDraft(page, included, bundle.build, template);
   await current(page);
-  const omitted = await download(page, false);
+  const full = await download(page, "all");
+  const fullCsv = "input/sample/sample_clients.csv";
+  expect(Buffer.from(full[fullCsv]).toString("base64")).toBe(bundle.files["examples/sample/clients.csv"]);
+  expect(full["input/sample/sample_students.csv"]).toBeUndefined();
+  expect(JSON.parse(new TextDecoder().decode(full["sample.json"]))).toEqual({ csv: fullCsv, template });
+  await restoreAuthoredDraft(page, full, bundle.build, template);
+  await current(page);
+  const omitted = await download(page, "none");
   expect(Object.keys(omitted).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   expect(Object.keys(omitted).filter((path) => path.startsWith("input/sample/"))).toEqual([]);
   expect(omitted["sample.json"]).toBeUndefined();
-  for (const path of ["templates/overdue_diseases.en.typ", "templates/settings.typ", "scripts/run.py", "pyproject.toml"])
+  for (const path of [template, "templates/settings.typ", "immuknow-revision.txt"])
     expect(omitted[path]).toEqual(included[path]);
-  await page.locator("#archive").setInputFiles({
-    name: "without-sample.zip", mimeType: "application/zip", buffer: Buffer.from(zipSync(omitted)),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  await restoreAuthoredDraft(page, omitted, bundle.build, template);
   await current(page);
-  const restored = await download(page, true);
+  const restored = await download(page, "selected");
   expect(restored["input/sample/sample_students.csv"]).toEqual(included["input/sample/sample_students.csv"]);
   expect(restored["sample.json"]).toEqual(included["sample.json"]);
 });
@@ -157,20 +161,15 @@ test("switch confirmation cancels cleanly, and accepting starts the target templ
   expect(sample.template).toBe("templates/overdue_diseases.en.typ");
   expect(files[sample.template]).toBeDefined();
   expect(Object.keys(files).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
-  // The scoped download remains a valid project that can be imported.
-  await page.locator("#previous").click();
-  await current(page);
-  await page.locator("#archive").setInputFiles({
-    name: "current.zip",
-    mimeType: "application/zip",
-    buffer: Buffer.from(zipSync(files)),
-  });
-  await expect(page.locator("#archive")).toHaveValue("");
+  // Existing drafts with a scoped file set still preserve authored work.
+  const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
+  await restoreAuthoredDraft(page, files, bundle.build, sample.template);
   await current(page);
   await expect(page.locator("#template option")).toHaveCount(
     1,
   );
   await expect(page.locator("#example")).toHaveText("Example client 01");
+  await page.locator(".cm-content").press("Control+End");
   await expect(page.locator(".cm-content")).toContainText("Example client keeps my edits");
   await page.locator("#next").click();
   await current(page);
