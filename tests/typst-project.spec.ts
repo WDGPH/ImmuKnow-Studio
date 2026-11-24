@@ -191,8 +191,6 @@ for (const [scenario, filename] of cases) {
       JSON.stringify({
         template: `templates/${filename}`,
         example: scenario,
-        input: { csv: examples[index].csv },
-        inputBytes: { [examples[index].csv]: bundle.files[examples[index].csv] },
       }),
     );
 
@@ -250,18 +248,14 @@ for (const [scenario, filename] of cases) {
     const native = JSON.parse(readFileSync(info.outputPath("comparison.json"), "utf8"));
     expect(native.template).toBe(`templates/${filename}`);
     expect(native.example).toBe(scenario);
-    for (const result of native.selectors) {
-      expect(Math.min(...result.textCoverage)).toBeGreaterThanOrEqual(0.95);
-      expect(result.qrUrls).toEqual(native.browser.qrUrls);
-      expect(result.findings).toEqual([...new Set(findings)].sort());
-    }
-    expect(native.selectors).toHaveLength(1);
+    expect(Math.min(...native.textCoverage)).toBeGreaterThanOrEqual(0.95);
+    expect(native.native.qrUrls).toEqual(native.browser.qrUrls);
+    expect(native.findings).toEqual([...new Set(findings)].sort());
     if (scenario === "missing-meningococcal") {
       expect(native.browser.qrUrls.some((url: string) => url.startsWith("https://exämple.org/élève"))).toBe(true);
       expect(native.browser.text.join(" ")).toContain(String(examples[index].payloads[filename].oiid));
       expect(native.browser.text.join(" ")).toContain("Record key:");
     }
     if (scenario === "long-history") expect(native.browser.text.length).toBeGreaterThan(2);
-    if (scenario === "invalid-history") expect(native.rebundled).toBe(true);
   });
 }

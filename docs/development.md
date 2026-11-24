@@ -294,5 +294,6 @@ downloaded only from the pinned release when their verified cache is missing.
 
 After either dependency changes, verify browser rendering, drafts and project
 downloads. Run the browser/native downloaded-project checks to verify native
-setup, the sample, both notice selectors and saved-run rebundling. Template maintains its resource-wheel/source-archive and
-presentation and packaging tests in its own repository.
+setup, the sample and preview parity from the extracted ZIP. ImmuKnow tests
+report exports, encryption and saved-run rebundling. Template maintains its
+resource package and presentation tests in its own repository.
