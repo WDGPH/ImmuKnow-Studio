@@ -74,7 +74,7 @@
 </fieldset>
 <div id="download-runtime"><label for="runtime-platform">Workstation operating system and processor</label><select id="runtime-platform" required aria-describedby="runtime-description"><option value="">Choose a workstation…</option></select><small id="runtime-description">Choose the computer where you will run the project.</small></div>
 <label class="download-fonts"><input id="include-fonts" type="checkbox" checked> Include fonts <small>The bundled launcher uses these fonts without installing them. Other workflows may need font installation.</small></label>
-<label class="download-sample"><input id="include-fictional-data" type="checkbox" checked> Include fictional client data <small>Add the selected fictional client and active notice for a local test run.</small></label>
+<div class="download-sample"><label for="fictional-clients">Fictional client data</label><select id="fictional-clients"><option value="selected">Selected client</option><option value="all">All fictional clients</option><option value="none">No fictional clients</option></select></div>
 <p class="hint">Studio keeps your editable draft in this browser. Project import is currently unavailable.</p>
 <p id="download-status" role="status" hidden></p><progress id="download-progress" aria-label="Downloading ImmuKnow runtime" hidden></progress>
 <p id="download-error" role="alert" hidden></p>

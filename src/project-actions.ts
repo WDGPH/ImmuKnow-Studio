@@ -20,6 +20,7 @@ import { resetSettingsKeepingTheme } from "./theme-settings";
 import type { Bundle, Example, Files } from "./types";
 
 export type ResetScope = "template" | "settings" | "theme";
+export type FictionalClients = "selected" | "all" | "none";
 
 const scaffoldExtras = new Set([
   ".gitignore",
@@ -115,7 +116,7 @@ export function currentProject(
   examples: Bundle["examples"],
   example?: Example,
   starters: Files = {},
-  includeFictionalData = true,
+  fictionalClients: FictionalClients = "selected",
 ): Files {
   const required = referencedFiles(files, template);
   const settings = settingsPath(files, template);
@@ -141,7 +142,10 @@ export function currentProject(
     }
   }
   const sharedCsv = "examples/sample/clients.csv";
-  const fictionalCsv = example && starters[example.csv];
+  const selectedCsv = example && starters[example.csv];
+  const allClientsCsv = starters[sharedCsv];
+  const requestedCsv = fictionalClients === "all" ? allClientsCsv :
+    fictionalClients === "selected" ? selectedCsv : undefined;
   // Parse once. Malformed, incomplete and custom selections retain all candidates.
   let sample: { csv: string; template: string } | undefined;
   let invalidSample = false;
@@ -160,14 +164,18 @@ export function currentProject(
       invalidSample = true;
     }
   }
-  // Only Studio's exact generated descriptor and selected fictional CSV can be
+  // Only Studio's exact generated descriptor and fictional CSV can be
   // identified as unchanged. Other selections may contain authored work.
-  const generatedSample = !!sample && !!fictionalCsv && !!starters[template] &&
+  const sampleName = sample?.csv.match(
+    /^input\/sample\/sample_(students|clients)(?:-fictional-[1-9][0-9]*)?\.csv$/,
+  )?.[1];
+  const generatedCsv = sampleName === "students" ? selectedCsv :
+    sampleName === "clients" ? allClientsCsv : undefined;
+  const generatedSample = !!sample && !!generatedCsv && !!starters[template] &&
     sample.template === template &&
-    /^input\/sample\/sample_students(?:-fictional-[1-9][0-9]*)?\.csv$/.test(sample.csv) &&
-    sameBytes(files[sample.csv], fictionalCsv) &&
+    sameBytes(files[sample.csv], generatedCsv) &&
     decoder.decode(files["sample.json"]) === `${JSON.stringify(sample, null, 2)}\n`;
-  if (sample && generatedSample && !includeFictionalData && !required.has("sample.json") &&
+  if (sample && generatedSample && generatedCsv !== requestedCsv && !required.has("sample.json") &&
       !required.has(sample.csv)) {
     files = { ...files };
     delete files["sample.json"];
@@ -195,7 +203,7 @@ export function currentProject(
       return !omitIfUnchanged || !sameBytes(starters[path], bytes);
     }),
   );
-  if (!result["sample.json"] && includeFictionalData && fictionalCsv) {
+  if (requestedCsv && (!result["sample.json"] || fictionalClients === "all")) {
     const availablePath = (preferred: string, bytes: Uint8Array): string => {
       if (!result[preferred] || sameBytes(result[preferred], bytes)) return preferred;
       const dot = preferred.lastIndexOf(".");
@@ -204,9 +212,12 @@ export function currentProject(
         if (!result[candidate] || sameBytes(result[candidate], bytes)) return candidate;
       }
     };
-    const csv = availablePath("input/sample/sample_students.csv", fictionalCsv);
-    result[csv] = fictionalCsv;
-    result["sample.json"] = encoder.encode(`${JSON.stringify({ csv, template }, null, 2)}\n`);
+    const preferred = fictionalClients === "all"
+      ? "input/sample/sample_clients.csv" : "input/sample/sample_students.csv";
+    const csv = sample && sameBytes(result[sample.csv], requestedCsv)
+      ? sample.csv : availablePath(preferred, requestedCsv);
+    result[csv] ??= requestedCsv;
+    result["sample.json"] ??= encoder.encode(`${JSON.stringify({ csv, template }, null, 2)}\n`);
   }
   // Fill missing Template setup files from this build's pinned snapshot.
   // Keep any files already present in the project.

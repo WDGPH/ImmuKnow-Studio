@@ -231,11 +231,11 @@ companions and modified or custom notices stay available. Calculated paths
 retain possible dependencies conservatively. Download another notice when you
 need its unchanged starter in the project.
 
-**Include fictional client data** is selected by default. It supplies the
-selected preview client under `input/sample/` and selects the active notice in
-`sample.json`. The sample keeps the client’s facts, including any findings for
-that notice. Clear the checkbox to omit Studio’s fictional inputs. Custom sample
-data already present in a compatible saved draft is preserved.
+**Fictional client data** defaults to **Selected client**. Choose **All fictional
+clients** to download the full example CSV, or **No fictional clients** to omit
+Studio’s sample data. Studio puts the chosen CSV under `input/sample/` and
+points `sample.json` to it and the active notice. Custom sample data and
+selections already present in a compatible saved draft are preserved.
 
 Fonts and their licences are included by default. Ready-to-run launchers load
 these fonts from the extracted project, so global font installation is not

@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import type { FictionalClients } from "../src/project-actions";
 import type { BuildInfo, Bundle, Files } from "../src/types";
 
 export async function restoredProject(page: Page) {
@@ -51,13 +52,13 @@ export async function chooseExample(page: Page, index: number) {
   }
 }
 
-export async function downloadProject(page: Page, includeFonts?: boolean, includeFictionalData?: boolean) {
+export async function downloadProject(page: Page, includeFonts?: boolean, fictionalClients?: FictionalClients) {
   await page.locator("#export").click();
   await expect(page.getByRole("dialog", { name: "Download project", exact: true })).toBeVisible();
   await page.locator('input[name="download-kind"][value="project"]').check();
   if (includeFonts !== undefined) await page.locator("#include-fonts").setChecked(includeFonts);
-  if (includeFictionalData !== undefined)
-    await page.locator("#include-fictional-data").setChecked(includeFictionalData);
+  if (fictionalClients !== undefined)
+    await page.getByRole("combobox", { name: "Fictional client data" }).selectOption(fictionalClients);
   await page.locator("#download-confirm").click();
 }
 

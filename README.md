@@ -22,9 +22,9 @@ Extract it and open `START-HERE.txt`. The included launchers unpack the matching
 ImmuKnow executable and use the included fonts locally.
 
 Setup, checks and production runs require no Python, uv or separate Typst
-installation. Keep **Include fictional client data** selected for a sample run,
-or clear it and supply your own CSV and notice selection. **Project files only**
-is available when you already have the matching executable.
+installation. Under **Fictional client data**, choose the selected client, all
+fictional clients or no fictional clients. **Project files only** is available
+when you already have the matching executable.
 See [Use projects on your workstation](docs/local-production.md).
 
 ## Local browser work

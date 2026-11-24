@@ -32,13 +32,28 @@ test("fictional sample can be included, omitted and preserved when customized", 
   const included = currentProject(starters, template, [example], example, starters);
   expect(JSON.parse(new TextDecoder().decode(included["sample.json"]))).toEqual({ csv: "input/sample/sample_students.csv", template });
   expect(included["input/sample/sample_students.csv"]).toBe(starters[example.csv]);
-  const omitted = currentProject(included, template, [example], example, starters, false);
+  const omitted = currentProject(included, template, [example], example, starters, "none");
   expect(omitted["sample.json"]).toBeUndefined();
   expect(omitted["input/sample/sample_students.csv"]).toBeUndefined();
   const custom = { ...included, "input/sample/sample_students.csv": encoder.encode("Custom data") };
-  const preserved = currentProject(custom, template, [example], example, starters, false);
+  const preserved = currentProject(custom, template, [example], example, starters, "none");
   expect(preserved["sample.json"]).toBe(custom["sample.json"]);
   expect(preserved["input/sample/sample_students.csv"]).toBe(custom["input/sample/sample_students.csv"]);
+});
+
+test("all fictional clients can be added alongside a custom sample", () => {
+  const shared = "examples/sample/clients.csv";
+  const csv = "input/sample/sample_clients.csv";
+  const starters = { ...baseline, [shared]: encoder.encode("All fictional clients") };
+  const files = {
+    ...starters,
+    [csv]: encoder.encode("Authored data"),
+    "sample.json": encoder.encode(JSON.stringify({ csv, template })),
+  };
+  const result = currentProject(files, template, [], undefined, starters, "all");
+  expect(result["sample.json"]).toBe(files["sample.json"]);
+  expect(result[csv]).toBe(files[csv]);
+  expect(result["input/sample/sample_clients-fictional-1.csv"]).toBe(starters[shared]);
 });
 
 test("template-only reset keeps settings and every image", () => {
@@ -116,7 +131,7 @@ test("sample export preserves an existing CSV at the conventional path", () => {
 
 test("custom sample dependencies and authored assignments survive", () => {
   const files: Files = { ...baseline, "sample.json": encoder.encode(JSON.stringify({ csv: "input/custom.csv", template: "templates/old.en.typ" })), "input/custom.csv": encoder.encode("Custom"), "input/assignments.json": encoder.encode("Authored assignments"), "templates/old.en.typ": encoder.encode('#include "helper.typ"'), "templates/helper.typ": encoder.encode("Helper"), "templates/other.en.typ": encoder.encode("Candidate") };
-  const result = currentProject(files, template, [], undefined, files, false);
+  const result = currentProject(files, template, [], undefined, files, "none");
   for (const [path, bytes] of Object.entries(files)) expect(result[path], path).toBe(bytes);
 });
 
@@ -124,7 +139,7 @@ test("a custom sample template remains when fictional data is omitted", () => {
   const example: Example = { id: "a", label: "", description: "", payloads: {}, preparationChecks: {}, csv: "examples/a.csv" };
   const starters: Files = { ...baseline, [example.csv]: encoder.encode("Fictional") };
   const files: Files = { ...starters, "input/sample/sample_students.csv": starters[example.csv], "sample.json": encoder.encode(JSON.stringify({ csv: "input/sample/sample_students.csv", template: "templates/custom.en.typ" })), "templates/custom.en.typ": encoder.encode("Custom") };
-  const result = currentProject(files, template, [example], example, starters, false);
+  const result = currentProject(files, template, [example], example, starters, "none");
   for (const path of ["sample.json", "input/sample/sample_students.csv", "templates/custom.en.typ"]) expect(result[path]).toBe(files[path]);
 });
 
@@ -137,7 +152,7 @@ test.each([
   const example: Example = { id: "a", label: "", description: "", payloads: {}, preparationChecks: {}, csv: "examples/a.csv" };
   const starters: Files = { ...baseline, [example.csv]: encoder.encode("Fictional"), "templates/other.en.typ": encoder.encode("Other") };
   const files: Files = { ...starters, "input/sample/sample_students.csv": starters[example.csv], "sample.json": encoder.encode(raw) };
-  const result = currentProject(files, template, [example], example, starters, false);
+  const result = currentProject(files, template, [example], example, starters, "none");
   for (const [path, bytes] of Object.entries(files)) expect(result[path], path).toBe(bytes);
 });
 
@@ -145,7 +160,7 @@ test("preserves an authored CSV path even when it matches fictional bytes", () =
   const example: Example = { id: "a", label: "", description: "", payloads: {}, preparationChecks: {}, csv: "examples/a.csv" };
   const starters: Files = { ...baseline, [example.csv]: encoder.encode("Fictional") };
   const files: Files = { ...starters, "input/my-data.csv": starters[example.csv], "sample.json": encoder.encode(JSON.stringify({ csv: "input/my-data.csv", template }, null, 2) + "\n") };
-  const result = currentProject(files, template, [example], example, starters, false);
+  const result = currentProject(files, template, [example], example, starters, "none");
   expect(result["input/my-data.csv"]).toBe(files["input/my-data.csv"]);
   expect(result["sample.json"]).toBe(files["sample.json"]);
 });
@@ -160,7 +175,7 @@ test("a fictional sample with computed dependencies retains candidates", () => {
 test.each(["{", "null", "[]", "{}", '{"csv":"input/missing.csv","template":"templates/old.en.typ"}']) (
   "unfinished sample remains downloadable: %s", (sample) => {
     const files = { ...baseline, "sample.json": encoder.encode(sample), "templates/other.en.typ": encoder.encode("Candidate") };
-    const result = currentProject(files, template, [], undefined, files, false);
+    const result = currentProject(files, template, [], undefined, files, "none");
     for (const [path, bytes] of Object.entries(files)) expect(result[path], path).toBe(bytes);
   },
 );

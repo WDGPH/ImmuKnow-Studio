@@ -31,7 +31,7 @@ import {
   validateFiles,
 } from "./project";
 import { sourceLocation } from "./source-location";
-import { currentProject, resetProject, type ResetScope } from "./project-actions";
+import { currentProject, resetProject, type FictionalClients, type ResetScope } from "./project-actions";
 import { previewSources } from "./preview-sources";
 import { initializeTheme } from "./theme";
 import { settingValue, updateThemeSettings } from "./theme-settings";
@@ -761,8 +761,8 @@ function refreshDownloadOptions() {
   const kind = downloadKind();
   for (const option of downloadForm.querySelectorAll<HTMLInputElement>('input[name="download-kind"]'))
     option.disabled = exporting;
-  for (const id of ["include-fonts", "include-fictional-data"]) {
-    const option = byId<HTMLInputElement>(id);
+  for (const id of ["include-fonts", "fictional-clients"]) {
+    const option = byId<HTMLInputElement | HTMLSelectElement>(id);
     option.disabled = exporting || kind === "typst";
     if (option.parentElement) option.parentElement.hidden = kind === "typst";
   }
@@ -806,7 +806,7 @@ downloadForm.onsubmit = (event) => {
       revision,
       context: compiler.context,
       includeFonts: byId<HTMLInputElement>("include-fonts").checked,
-      includeFictionalData: byId<HTMLInputElement>("include-fictional-data").checked,
+      fictionalClients: select("fictional-clients").value as FictionalClients,
       kind: downloadKind(),
       platform: runtimeSelect.value,
     };
@@ -835,7 +835,7 @@ downloadForm.onsubmit = (event) => {
           bundle.examples,
           snapshot.example,
           starters,
-          snapshot.includeFictionalData,
+          snapshot.fictionalClients,
         );
         const projectFiles = await (snapshot.includeFonts
           ? withProjectFonts(project, controller.signal)

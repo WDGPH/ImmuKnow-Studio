@@ -87,12 +87,12 @@ All examples are available, including combinations that produce warnings.
 ImmuKnow's source and applicability findings stay attached to the selected view.
 A custom entry point without prepared facts remains exportable.
 
-The selected example ID survives template changes and draft reloads. Downloads
-include the selected preview client's prepared CSV and active notice assignment through
-the **Include fictional client data** checkbox. Clearing it also removes unchanged
-Studio sample copies already present in saved drafts; custom samples are preserved. The native preparation checks
-confirm that the exported inputs reproduce each view; browser checks cover
-selection, edits, reloads and downloads.
+The selected example ID survives template changes and draft reloads. The
+**Fictional client data** download setting offers the selected client's CSV,
+Template's complete fictional client CSV or no fictional data. Studio updates
+unchanged generated sample selections to match that setting and preserves custom
+samples. Native preparation checks confirm that the exported inputs reproduce
+each preview. Browser checks cover selection, edits, reloads and downloads.
 
 ## Starter project resources
 

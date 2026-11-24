@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
 import { downloadProject, restoredProject, chooseTemplate, confirmProjectChange, saved, restoreAuthoredDraft } from "./helpers";
+import type { FictionalClients } from "../src/project-actions";
 import type { Bundle } from "../src/types";
 
 async function current(page: Page) {
@@ -9,44 +10,52 @@ async function current(page: Page) {
     timeout: 60_000,
   });
 }
-async function download(page: Page, includeFictionalData?: boolean) {
+async function download(page: Page, fictionalClients?: FictionalClients) {
   const menu = page.locator(".project-actions");
   if (!(await menu.evaluate((element) => (element as HTMLDetailsElement).open)))
     await menu.locator("summary").click();
   const pending = page.waitForEvent("download");
-  await downloadProject(page, false, includeFictionalData);
+  await downloadProject(page, false, fictionalClients);
   return unzipSync(readFileSync((await (await pending).path()) as string));
 }
 
-test("fictional data can be omitted without affecting editing or the saved draft", async ({ page }) => {
+test("downloads can use one client, all fictional clients or no fictional data", async ({ page }) => {
   await page.goto("./");
   await current(page);
   await page.locator(".project-actions summary").click();
   await page.locator("#export").click();
-  const checkbox = page.getByRole("checkbox", { name: "Include fictional client data", includeHidden: true });
-  await expect(checkbox).toBeChecked();
+  const clients = page.locator("#fictional-clients");
+  await expect(clients).toHaveValue("selected");
   await page.getByRole("radio", { name: "Authored .typ files only" }).check();
-  await expect(checkbox).toBeHidden();
-  await expect(checkbox).toBeDisabled();
+  await expect(clients).toBeHidden();
+  await expect(clients).toBeDisabled();
   await page.getByRole("radio", { name: "Project files only" }).check();
-  await expect(checkbox).toBeVisible();
-  await expect(checkbox).toBeEnabled();
+  await expect(clients).toBeVisible();
+  await expect(clients).toBeEnabled();
   await page.locator("#download-cancel").click();
   const bundle = (await (await page.request.get("./generated/project.json")).json()) as Bundle;
-  const included = await download(page, true);
+  const template = "templates/overdue_diseases.en.typ";
+  const included = await download(page, "selected");
   expect(included["sample.json"]).toBeDefined();
   // Compatible older drafts may already contain the supplied sample.
-  await restoreAuthoredDraft(page, included, bundle.build, "templates/overdue_diseases.en.typ");
+  await restoreAuthoredDraft(page, included, bundle.build, template);
   await current(page);
-  const omitted = await download(page, false);
+  const full = await download(page, "all");
+  const fullCsv = "input/sample/sample_clients.csv";
+  expect(Buffer.from(full[fullCsv]).toString("base64")).toBe(bundle.files["examples/sample/clients.csv"]);
+  expect(full["input/sample/sample_students.csv"]).toBeUndefined();
+  expect(JSON.parse(new TextDecoder().decode(full["sample.json"]))).toEqual({ csv: fullCsv, template });
+  await restoreAuthoredDraft(page, full, bundle.build, template);
+  await current(page);
+  const omitted = await download(page, "none");
   expect(Object.keys(omitted).filter((path) => path.startsWith("examples/") && /\.(csv|json)$/.test(path))).toEqual([]);
   expect(Object.keys(omitted).filter((path) => path.startsWith("input/sample/"))).toEqual([]);
   expect(omitted["sample.json"]).toBeUndefined();
-  for (const path of ["templates/overdue_diseases.en.typ", "templates/settings.typ", "immuknow-revision.txt"])
+  for (const path of [template, "templates/settings.typ", "immuknow-revision.txt"])
     expect(omitted[path]).toEqual(included[path]);
-  await restoreAuthoredDraft(page, omitted, bundle.build, "templates/overdue_diseases.en.typ");
+  await restoreAuthoredDraft(page, omitted, bundle.build, template);
   await current(page);
-  const restored = await download(page, true);
+  const restored = await download(page, "selected");
   expect(restored["input/sample/sample_students.csv"]).toEqual(included["input/sample/sample_students.csv"]);
   expect(restored["sample.json"]).toEqual(included["sample.json"]);
 });

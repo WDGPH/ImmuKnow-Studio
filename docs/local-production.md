@@ -14,10 +14,11 @@ Check that the selection matches the computer that will run ImmuKnow. Choose
 Windows x64, macOS Apple silicon, macOS Intel or Linux x64 as needed.
 
 Keep **Include fonts** selected to use the supplied fonts directly from the
-project. **Include fictional client data** supplies the selected preview client
-for a sample run. Clear it to omit Studio’s fictional inputs and supply your own
-CSV and notice selection. Custom sample data already in a compatible saved
-draft is preserved.
+project. Under **Fictional client data**, choose **Selected client** to try the
+preview client or **All fictional clients** to try the complete example CSV.
+Choose **No fictional clients** to supply your own CSV and notice selection.
+Custom sample data and selections already in a compatible saved draft are
+preserved.
 
 Download and extract the complete ZIP into a folder you control. Open
 `START-HERE.txt` for the platform-specific commands. Keep the directory structure
@@ -32,7 +33,7 @@ and relative paths together, and leave `templates/lib/immuknow/` unchanged.
 | `immuknow-revision.txt` | Reviewed native ImmuKnow source revision |
 | `templates/` | Selected notice, Settings, supporting files, images and shared components |
 | `config/` | Configuration for native runs |
-| `input/sample/`, `sample.json` | Selected fictional client and notice, when included |
+| `input/sample/`, `sample.json` | Fictional client CSV and active notice selection, when included |
 | `templates/fonts/` | Fonts and licences used by the launchers, when included |
 
 The native archive is fetched only when you request the download. Studio verifies
@@ -63,10 +64,10 @@ sh ./immuknow run --sample
 
 `project check --sample` checks configuration and shared components, then
 prepares and renders the sample temporarily. `run --sample` retains a run under
-`runs/` and prints its report location. The sample keeps the preview client’s
-facts: warnings or a failed notice can result when that client does not fit the
-selected notice. Review the report and PDFs before drawing conclusions about
-production output.
+`runs/` and prints its report location. The sample uses the active notice for
+each included client. A client may produce warnings or a failed notice if their
+facts do not fit that notice. Review the report and PDFs before drawing
+conclusions about production output.
 
 Without `sample.json`, no sample launcher is included. You can still run your
 own CSV, or create a sample selection before using `--sample`. Editing source
