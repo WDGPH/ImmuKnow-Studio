@@ -1,35 +1,35 @@
 {
   "schemaVersion": 1,
-  "version": "2.0.0",
-  "revision": "6ccfdd7d999ee3f7c791e040584c48a972a4af9b",
+  "version": "2.0.1",
+  "revision": "32444745a2163e7334543ad63d4902928ba02550",
   "platforms": [
     {
       "id": "windows-x86_64",
       "label": "Windows (x64)",
-      "filename": "immuknow-2.0.0-windows-x86_64.zip",
-      "size": 24964169,
-      "sha256": "08127090497ebe287b13435aecaa3ed0f932fde42aeec0b2d88f921753c3f409"
+      "filename": "immuknow-2.0.1-windows-x86_64.zip",
+      "size": 24963615,
+      "sha256": "606166ec8669746a659ac28e3d49b9797924f4c524dda29afa170c58639a29c8"
     },
     {
       "id": "macos-aarch64",
       "label": "macOS (Apple silicon)",
-      "filename": "immuknow-2.0.0-macos-aarch64.tar.gz",
-      "size": 23765332,
-      "sha256": "9ffc1d89dc6383d8902595f8ef773c33d25e78521584ecac52e4d9bfcce520ef"
+      "filename": "immuknow-2.0.1-macos-aarch64.tar.gz",
+      "size": 23764987,
+      "sha256": "7b758860a5bd76b4017b68359ade8ca07e85b9bf00ba544b02159debf71a301a"
     },
     {
       "id": "macos-x86_64",
       "label": "macOS (Intel)",
-      "filename": "immuknow-2.0.0-macos-x86_64.tar.gz",
-      "size": 24590241,
-      "sha256": "2d0cbe9205fac1df4e95d16021bccd69eb8e2e9727617c372743a4ce7dcb744a"
+      "filename": "immuknow-2.0.1-macos-x86_64.tar.gz",
+      "size": 24590209,
+      "sha256": "6d81efe6aae1a27eac5b069f7e79116e1adf38cc978977feae0559da9d7c7d54"
     },
     {
       "id": "linux-x86_64",
       "label": "Linux (x64)",
-      "filename": "immuknow-2.0.0-linux-x86_64.tar.gz",
-      "size": 25281728,
-      "sha256": "65e4c62d5dca035bada9ad259d90b5ca391d0e5103dbacda3fc6a4596cdbfb14"
+      "filename": "immuknow-2.0.1-linux-x86_64.tar.gz",
+      "size": 25282316,
+      "sha256": "20d5c518e9b9b0484c1e4092421120259f873c7b74df2c2f151c648fbd59590a"
     }
   ]
 }
